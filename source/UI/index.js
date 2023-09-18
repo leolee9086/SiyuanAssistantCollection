@@ -6,7 +6,7 @@ import  kernelApi  from '../polyfills/kernelApi.js'
 export { kernelApi as kernelApi}
 import * as 弹窗 from './dialogs.js'
 import { 开始渲染 as 开始渲染token菜单 } from './tokenMenu.js'
-import { 渲染块标菜单 } from './menuWrapper.js'
+import { 渲染块标菜单 } from './menus/menuWrapper.js'
 
 import './topBar.js'
 import './docks/mainAiDock.js'

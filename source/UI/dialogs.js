@@ -2,7 +2,7 @@ import kernelApi from '../polyfills/kernelApi.js'
 import { AI对话框控制器,主AI对话框控制器 } from './dialogs/chatDialogs.js'
 let 主AI对话框 = new 主AI对话框控制器()
 export {主AI对话框 as 主AI对话框}
-export { 监听菜单选中项变化 } from './menuWrapper.js'
+export { 监听菜单选中项变化 } from './menus/menuWrapper.js'
 import { clientApi,pluginInstance as plugin } from '../asyncModules.js'
 //这里的clientApi只有在调用init之后再能使用
 console.log(import.meta.resolve('./asyncModules.js'))

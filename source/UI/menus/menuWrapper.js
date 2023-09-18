@@ -1,9 +1,9 @@
-import { Context } from "./Context.js";
-import { plugin,clientApi,kernelApi } from "./index.js";
-import BlockHandler from '../utils/BlockHandler.js'
-import { 根据上下文获取动作表,根据动作序列生成菜单组 } from "./tokenMenu.js";
-import { 动作总表 } from "../actionList/index.js";
-import path from '../polyfills/path.js'
+import { Context } from "../Context.js";
+import { plugin,clientApi,kernelApi } from "../index.js";
+import BlockHandler from '../../utils/BlockHandler.js'
+import { 根据上下文获取动作表,根据动作序列生成菜单组 } from "../tokenMenu.js";
+import { 动作总表 } from "../../actionList/index.js";
+import path from '../../polyfills/path.js'
 let 已监听菜单元素 = []
 let currentHintAction 
 export const 监听菜单选中项变化 = (菜单, 选中回调函数, 反选回调函数) => {
