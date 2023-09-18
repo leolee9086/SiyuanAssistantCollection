@@ -1,5 +1,5 @@
 import { seachWithVector } from '../../../vectorStorage/blockIndex.js'
-//import { jieba } from '../../../utils/tokenizer.js'
+import { jieba } from '../../../utils/tokenizer.js'
 import kernelApi from '../../../polyfills/kernelApi.js'
 export const seachBlockWithVector = async (vector) => {
     let blocks = await seachWithVector('vector', vector, 30)
