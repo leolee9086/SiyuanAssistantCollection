@@ -1,0 +1,120 @@
+.highlight {
+    background-color: rgba(255, 238, 0, 0.123);
+    pointer-events: none;
+    border: 1px dashed blue;
+}
+
+
+
+.chat-container {
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.dialog-container {
+    background-color: #f5f5f5;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.user-input-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#user-input {
+    flex-grow: 1;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.ai-submit-btn ,.ai-quote-btn, #cancel-btn, #confirm-btn {
+    margin-left: 10px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+}
+.ai-quote-btn{
+    margin-left: 0px;
+    margin-right: 10px;
+}
+.ai-submit-btn {
+    background-color: #007bff;
+}
+.ai-quote-btn {
+    background-color: #007bff;
+}
+
+#cancel-btn {
+    background-color: #dc3545;
+}
+
+#confirm-btn {
+    background-color: #28a745;
+}
+.user-message {
+    align-self: flex-end;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 5px;
+    margin: 5px;
+    padding: 5px;
+}
+
+.insert-button {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%; /*使按钮变为圆形*/
+    border: none;
+    background-color: #ddd;
+    position: absolut;
+    margin-right: 25px; /* 在按钮和对话之间添加一些空间*/
+    top:calc(50% - 25px);
+    padding:0;
+    overflow: hidden;
+}
+
+/*.insert-button::before {
+    content: "➕"; 
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* 将图标居中*/
+/*}*/
+
+
+.ai-message,.tips-card {
+    position: relative;
+    background-color: #fff; /* 卡片的背景色 */
+    border: 1px solid #ccc; /* 卡片的边框 */
+    border-radius: 5px; /* 卡片的圆角 */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); /* 卡片的阴影 */
+    padding: 10px; /* 卡片的内边距 */
+    margin-bottom: 10px; /* 卡片之间的间距 */
+}
+.ai-message .protyle-wysiwyg.protyle-wysiwyg--attr{
+    margin-left: 28px;
+}
+.insert-button {
+    position: absolute; 
+}
+.ai-dialog{
+    max-height: 80vh;
+}
+
+.tips-card.pinned {
+    border: 2px solid var(--b3-card-info-color);
+    max-height: 60px;
+    padding:0px;
+    overflow: hidden;
+}
+
+.tips-card.selected {
+    background-color: var(--b3-card-success-color);
+}
