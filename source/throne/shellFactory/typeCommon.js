@@ -2,7 +2,7 @@ import { LanguageProcessor } from "../processors/language_processors/OpenAI.js";
 import { EventEmitter } from "../../eventsManager/EventEmitter.js";
 import { AIChatInterface } from "./drivers/AIChatInterface.js";
 import { processorFeatureDict } from "./baseLine.js";
-import { searchRef } from "./drivers/searcher.js";
+//import { searchRef } from "./drivers/searcher.js";
 import { embeddingText } from "../../utils/textProcessor.js";
 import { plugin } from "../../asyncModules.js";
 import { findSimilarity } from "../../vectorStorage/vector.js";
@@ -149,6 +149,10 @@ export default class Shell extends EventEmitter {
     showHistory() {
         let history = this.ghost.longTermMemory.history
         history.forEach(historyItem => {
+            //因为古早版本没有ID,这里需要加上
+            if(!historyItem.id){
+                historyItem.id=Lute.NewNodeID()
+            }
             if (historyItem.role !== 'system') {
                 this.showText(historyItem)
             }

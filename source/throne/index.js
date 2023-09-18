@@ -20,10 +20,12 @@ export class Marduk {
     async buildDoll(persona, ShellType, processors, drivers) {
         let ghost = roster.findGhost(persona)
         if (!ghost.shell) {
+            //这一步可能造成阻塞
             let shell = await buildShell(ShellType, processors, drivers)
             await ghost.use(shell)
             await shell.restrict(ghost)
         }
+        console.error(ghost)
         plugin.currentAI =ghost.shell
         return ghost.shell
     }

@@ -201,6 +201,5 @@ export class Paimon extends GhostProto {
         super(persona)
         this.shells = []
     }
-   
 }
 export default  Paimon

@@ -1,5 +1,6 @@
 import * as jieba from '../../static/jieba_rs_wasm.js'
 import { 创建token对象 } from "./DOMTokenizer.js";
+//结巴的初始化会造成问题
 await jieba.default(import.meta.resolve('../../static/jieba_rs_wasm_bg.wasm'))
 export {jieba as jieba}
 export {jieba as 结巴}

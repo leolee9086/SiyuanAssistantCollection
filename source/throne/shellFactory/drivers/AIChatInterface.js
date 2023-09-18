@@ -180,7 +180,6 @@ export class AIChatInterface extends EventEmitter {
         this.处理消息(aiMessage, message);
         this.聊天容器.appendChild(aiMessage);
         this.用户输入框.removeAttribute('disabled')
-
         return aiMessage;
     }
     等待AI回复() {
