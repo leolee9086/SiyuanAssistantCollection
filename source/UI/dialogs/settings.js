@@ -20,7 +20,7 @@ export const 设置对话框 = async () => {
     dialog.element.querySelector(".b3-dialog__container").style.pointerEvents = 'auto'
     return dialog
 };
-export class AI对话框控制器{
+export class 设置对话框控制器{
     constructor () {
      
     }
@@ -43,7 +43,7 @@ export class AI对话框控制器{
 
     }
 }
-export const 主设置对话框 = new AI对话框控制器()
+export const 主设置对话框 = new 设置对话框控制器()
 export const 创建设置=async()=>{
     检查结构是否一致(configProto,plugin.configurer.list())
 }
@@ -52,7 +52,7 @@ export const 创建设置=async()=>{
 function 检查结构是否一致(obj1, obj2, path = '') {
     for (let key in obj1) {
         if (!obj2.hasOwnProperty(key)) {
-            console.log(`属性 ${path}${key} 在第二个对象中不存在`);
+            console.warn(`属性 ${path}${key} 在第二个对象中不存在`);
             return false;
         }
         if (typeof obj1[key] === 'object' && obj1[key] !== null) {

@@ -44,6 +44,10 @@
     margin-left: 0px;
     margin-right: 10px;
 }
+.ai-quote-btn svg{
+    height: 20px;
+    width: 20px;
+}
 .ai-submit-btn {
     background-color: #007bff;
 }

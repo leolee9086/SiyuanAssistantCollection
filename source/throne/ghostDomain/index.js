@@ -7,6 +7,7 @@ const GhostURL = `${plugin.selfURL}/installed/personas`
 const GhostPath = `/data/plugins/${plugin.name}/installed/personas`
 let personas = await fs.readDir(GhostPath)
 let _roster = window[Symbol.for('ghostRoster')]
+let AkashicPath = `/data/storage/petal/${plugin.name}/Akashic`
 if (!_roster) {
     _roster = new Map()
     window[Symbol.for('ghostRoster')] = _roster
@@ -55,6 +56,23 @@ class Roster {
         } else {
             return plugin.statusMonitor.get('AiGhosts',name)
         }
+    }
+    async listMems(){
+        let mems = await fs.readDir(AkashicPath)
+        mems = mems.filter(
+            mem=>{
+                return mem.name.endsWith('.mem')&&!mem.name.endsWith('.back.mem')
+            }
+        ) 
+        return mems
+    }
+    async listGhostNames(){
+        let mems = await this.listMems()
+        let ghostNames = []
+        for(let mem of mems){
+            ghostNames.push(mem.name.split('.')[0])
+        }
+        return ghostNames
     }
 }
 export default new Roster() 

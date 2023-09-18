@@ -91,10 +91,10 @@ export default class Shell extends EventEmitter {
         let history = this.ghost.longTermMemory.history.filter(
             item => {
                 let flag = true
-                if(!item){
+                if (!item) {
                     return
                 }
-                if(!item.content){
+                if (!item.content) {
                     return
                 }
                 if (item.content.trim() === message.content.trim()) {
@@ -150,8 +150,8 @@ export default class Shell extends EventEmitter {
         let history = this.ghost.longTermMemory.history
         history.forEach(historyItem => {
             //因为古早版本没有ID,这里需要加上
-            if(!historyItem.id){
-                historyItem.id=Lute.NewNodeID()
+            if (!historyItem.id) {
+                historyItem.id = Lute.NewNodeID()
             }
             if (historyItem.role !== 'system') {
                 this.showText(historyItem)
@@ -165,7 +165,7 @@ export default class Shell extends EventEmitter {
             logger.warn('当前没有已初始化的聊天模块,无法显示聊天', e);
         }
     }
-    
+
 
     async OnAskedForHistory() {
         return this.ghost.longTermMemory.history
@@ -191,7 +191,31 @@ export default class Shell extends EventEmitter {
         this.初始化界面(type, component)
         return component
     }
-    初始化界面(type, component) {
+    removeInterface(interfaceToRemove) {
+        // 遍历所有类型的接口
+        for (let type in this.components) {
+            // 找到要删除的接口的索引
+            const index = this.components[type].findIndex(component => 
+                { 
+                    console.error(component,interfaceToRemove)
+                    return component.component === interfaceToRemove
+                });
+            // 如果找到了接口
+            if (index !== -1) {
+                // 如果接口有 'dispose' 方法，调用它进行清理
+                if (typeof interfaceToRemove.dispose === 'function') {
+                    interfaceToRemove.dispose();
+                }
+
+                // 从组件列表中删除接口
+                this.components[type].splice(index, 1);
+
+                // 已经找到并删除了接口，可以提前结束循环
+                break;
+            }
+        }
+    }
+     初始化界面(type, component) {
         switch (type) {
             case 'textChat':
                 this.ghost.longTermMemory.history.forEach(
@@ -207,24 +231,26 @@ export default class Shell extends EventEmitter {
         ---REFERENCES---
         `
         try {
-        let refs
-        let refsElement = document.querySelectorAll('.tips-card.selected')
-        refsElement.forEach(
-            el=>{if(el.getAttribute('markdown-content')){
-                refs+=`\n${el.getAttribute('markdown-content')}`
-            }}
-        )
-        if(refs){
-            return prompt + '\n' + refs
+            let refs
+            let refsElement = document.querySelectorAll('.tips-card.selected')
+            refsElement.forEach(
+                el => {
+                    if (el.getAttribute('markdown-content')) {
+                        refs += `\n${el.getAttribute('markdown-content')}`
+                    }
+                }
+            )
+            if (refs) {
+                return prompt + '\n' + refs
 
-        }else{
+            } else {
+                return ""
+            }
+        } catch (e) {
+            logger.error(e)
             return ""
-        }
-    }catch(e){
-        logger.error(e)
-        return ""
 
-    }
+        }
         /*let refs = await searchRef({ meta: { content: text, role: 'user' }, vectors: {} })
         try {
             if (refs) {

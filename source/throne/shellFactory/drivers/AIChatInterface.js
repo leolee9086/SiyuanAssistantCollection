@@ -1,6 +1,7 @@
 import { EventEmitter } from '../../../eventsManager/EventEmitter.js';
 import { pluginInstance as plugin } from '../../../asyncModules.js';
 import { aiMessageButton } from './buttons/InsertButton.js';
+import { show as showGhostSelector } from './menus/ghostSelector.js';
 export class AIChatInterface extends EventEmitter {
     constructor(element, doll) {
         super(`textChat_${doll.ghost.persona.name}`)
@@ -9,12 +10,17 @@ export class AIChatInterface extends EventEmitter {
         this.describe = {
             showHistory: '显示所有之前的聊天记录',
         }
+        this.container= element
         this.初始化事件监听器()
         this.当前参考内容组 = []
         this.当前用户输入 = ''
         this.当前AI回复 = ''
         this.lute = plugin.lute
 
+    }
+    dispose(){
+        this.container.innerHTML=''
+        
     }
     初始化事件监听器() {
         this.on(
@@ -59,6 +65,7 @@ export class AIChatInterface extends EventEmitter {
         this.引用按钮.addEventListener('click', () => {
             // 在这里添加点击按钮时的操作
             // 例如，你可以插入一个引用到 userInputInput 中：
+            showGhostSelector(this.引用按钮,this)
             let 参考内容 = this.当前参考内容组
             this.emit('quoteButtonClicked', { refs: 参考内容, userInput: this.当前用户输入, doll: this.doll, button: this.引用按钮 })
             if (!参考内容 instanceof Array) {
@@ -84,9 +91,9 @@ export class AIChatInterface extends EventEmitter {
         聊天容器.setAttribute('class', 'fn__flex-1')
 
         const 引用按钮 = document.createElement('button');
-        引用按钮.textContent = '插入引用';
+        引用按钮.innerHTML = `<svg><use xlink:href="#iconList"></use><svg>`;
         引用按钮.classList.add('ai-quote-btn')
-        
+
         const 用户输入框 = document.createElement('textarea');
         用户输入框.id = 'user-input';
         用户输入框.placeholder = '请输入内容';
