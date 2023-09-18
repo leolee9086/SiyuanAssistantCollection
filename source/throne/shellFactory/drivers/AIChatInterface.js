@@ -27,25 +27,15 @@ export class AIChatInterface extends EventEmitter {
                 this.显示消息(消息对象)
             }
         )
-        this.提交按钮.addEventListener("click", async () => {
+        this.提交按钮.addEventListener("click", async (event) => {
             let 用户输入文字 = this.用户输入框.value
             if (用户输入文字) {
                 this.当前用户输入 = 用户输入文字
                 this.用户输入框.value = ""
                 this.提交用户消息(this.当前用户输入)
                 this.等待AI回复()
-                event.stopPropagation(); // 阻止事件冒泡
-
-                /*this.显示用户消息(用户输入文字);
-                // 在等待AI回复时，先添加一个表示"等待中"的消息
-                const 等待消息元素 = this.添加AI消息(this.doll.thinkingTip);
-                this.添加插入按钮(等待消息元素, 用户输入文字);
-                let reply = await this.doll.replyChat(用户输入文字); // 处理用户输入并获取 AI 的回复
-                this.当前AI回复 = reply
-                this.更新AI消息(等待消息元素, this.当前AI回复.content);
-                this.emit('message', { user: 用户输入文字, ai: this.当前AI回复.content });
-                this.当前参考内容组 = []
-                this.当前用户输入 = ''*/
+                event.stopPropagation(); 
+            
             }
         });
 
@@ -96,7 +86,7 @@ export class AIChatInterface extends EventEmitter {
         const 引用按钮 = document.createElement('button');
         引用按钮.textContent = '插入引用';
         引用按钮.classList.add('ai-quote-btn')
-
+        
         const 用户输入框 = document.createElement('textarea');
         用户输入框.id = 'user-input';
         用户输入框.placeholder = '请输入内容';
@@ -109,10 +99,8 @@ export class AIChatInterface extends EventEmitter {
         const 用户输入区 = document.createElement('div');
         用户输入区.classList.add('user-input-container');
         用户输入区.appendChild(引用按钮);  // 将按钮添加到 userInputContainer 中
-
         用户输入区.appendChild(用户输入框);
         用户输入区.appendChild(提交按钮);
-
         const 对话框容器 = document.createElement('div');
         对话框容器.classList.add('dialog-container');
         对话框容器.appendChild(用户输入区);

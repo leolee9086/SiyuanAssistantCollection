@@ -57,22 +57,22 @@ export class aiMessageButton extends EventEmitter {
             }
         }
         navigator.clipboard.writeText(messageContent.innerHTML)
-       /* event.dataTransfer.setData(`${'application/siyuan-gutter'}${messageContent.getAttribute("data-type")}${"\u200b"}${messageContent.getAttribute("data-subtype")}${"\u200b"}${ids}`,
-            messageContent.innerHTML);*/
+        /* event.dataTransfer.setData(`${'application/siyuan-gutter'}${messageContent.getAttribute("data-type")}${"\u200b"}${messageContent.getAttribute("data-subtype")}${"\u200b"}${ids}`,
+             messageContent.innerHTML);*/
         // 创建一个新的 DragEvent
-       /* if(!event.ctrlKey){
-            event.stopPropagation()
-            event.preventDefault
+        /* if(!event.ctrlKey){
+             event.stopPropagation()
+             event.preventDefault
+ 
+             const newEvent = new DragEvent('dragstart', {
+                 ctrlKey: true
+             });
+             newEvent.dataTransfer.setData('text/plain', messageContent.innerText);
+             this.button.dispatchEvent(newEvent);
+         }*/
 
-            const newEvent = new DragEvent('dragstart', {
-                ctrlKey: true
-            });
-            newEvent.dataTransfer.setData('text/plain', messageContent.innerText);
-            this.button.dispatchEvent(newEvent);
-        }*/
-    
         // 触发新的 DragEvent
-    
+
     }
 }
 
@@ -86,21 +86,15 @@ const showAImenu = (button) => {
         label: "插入到当前块",
         submenu: [],
         click: () => {
-            let blockId = plugin.statusMonitor.get('runtime','currentContext').blocks[0].id
-            let block = new BlockHandler(blockId)
-            block.insertAfter('测试')
+            if (plugin.statusMonitor.get('runtime', 'currentContext')) {
+                let blockId = plugin.statusMonitor.get('runtime', 'currentContext').blocks[0].id
+                let block = new BlockHandler(blockId)
+                block.insertAfter('测试')
+            }
         }
     },
     )
-    menu.addItem(
-        {
-            icon: "iconSparkles",
-            label: "Shell",
-            submenu: [],
-            click: () => {
-            }
-        }
-    )
+
     let rect = button.getClientRects()[0]
     console.log(rect)
     menu.open({

@@ -25,7 +25,6 @@ export class Marduk {
             await ghost.use(shell)
             await shell.restrict(ghost)
         }
-        console.error(ghost)
         plugin.currentAI =ghost.shell
         return ghost.shell
     }
