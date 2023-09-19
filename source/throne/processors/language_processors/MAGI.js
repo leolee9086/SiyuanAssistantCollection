@@ -25,6 +25,16 @@ export class MAGI {
         this.currentWise = 'Balthazar';
         this.lastVoteResult = 'Balthazar';
         this.config = config
+        if(this.config.chatMode==='simple'){
+            this.echo.reply =async(...args)=>{
+                let data =  [{ name: `replyFrom${this.currentWise}`, action: (await this.Balthazar.reply(...args)).choices[0].message.content }]
+
+                return data
+            }
+            this.echo.summarizeChat =(chat)=>{
+                return undefined
+            }
+        }
     }
     setPersona(_persona) {
         this._persona = _persona;

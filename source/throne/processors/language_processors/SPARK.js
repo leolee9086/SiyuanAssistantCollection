@@ -5,7 +5,7 @@ export class LanguageProcessor {
         this.magi = new MAGI(
             sparkChat,
             {
-
+                chatMode:'simple'
             }, persona
         )
     }
