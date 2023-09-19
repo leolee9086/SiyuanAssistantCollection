@@ -7,5 +7,13 @@ export default[
             plugin.UI.对话框.向量工具设置对话框.open()
             window.siyuan.menus.menu.remove()
         }
+    },
+    {
+        label:'设置聊天后端引擎为讯飞星火',
+        hints:'嵌入,聊天,设置,星火',
+        hintAction:async()=>{
+            await plugin.configurer.set('聊天工具设置',"基础模型接口","SPARK")
+            plugin.eventBus.emit('languageProcessor')
+        }
     }
 ]

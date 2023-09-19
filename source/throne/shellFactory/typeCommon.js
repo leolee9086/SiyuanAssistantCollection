@@ -1,4 +1,4 @@
-import { LanguageProcessor } from "../processors/language_processors/SPARK.js";
+import { getLanguageProcessor } from "../processors/language_processors/index.js";
 import { EventEmitter } from "../../eventsManager/EventEmitter.js";
 import { AIChatInterface } from "./drivers/AIChatInterface.js";
 import { processorFeatureDict } from "./baseLine.js";
@@ -38,6 +38,10 @@ export default class Shell extends EventEmitter {
         this.on('textChat_userMessage', (event) => {
             console.log(event.detail)
             this.replyChat(event.detail)
+        })
+        plugin.eventBus.on('baseProcessorChange',(event)=>{
+            let processor = getLanguageProcessor()
+            this.changeProcessor('languageProcessor',new processor(this.ghost.persona))
         })
     }
     async Ghost唤醒回调() {
@@ -117,6 +121,7 @@ export default class Shell extends EventEmitter {
     async restrict(ghost) {
         this.ghost = ghost;
         await this.ghost.onWakeUp()
+        let LanguageProcessor = await getLanguageProcessor()
         this.changeProcessor('languageProcessor', new LanguageProcessor(this.ghost.persona))
     }
     /**processors */
