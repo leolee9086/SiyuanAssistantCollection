@@ -11,7 +11,7 @@ export class Context {
     this.clientApi = clientApi;
     this.eventType = eventType;
     this.allTokens = allTokens;
-    this.token.protyle = this.protyle
+    this.token? this.token.protyle = this.protyle:null
     plugin.statusMonitor.set('runtime','currentContext',this)
   }
   get cursor() {
