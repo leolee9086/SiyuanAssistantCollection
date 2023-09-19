@@ -16,7 +16,6 @@ export class AIChatInterface extends EventEmitter {
         this.当前用户输入 = ''
         this.当前AI回复 = ''
         this.lute = plugin.lute
-
     }
     dispose() {
         this.container.innerHTML = ''

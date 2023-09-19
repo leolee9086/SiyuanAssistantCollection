@@ -14,10 +14,10 @@ export  class openAiChat {
         this.messages = []; // 初始化 messages 数组
     }
 
-    addAsSystem(message) {
+    addAsSystem(系统提示词) {
         this.messages.push({
             role: 'system',
-            content: message
+            content: 系统提示词
         });
         return this.messages;
     }

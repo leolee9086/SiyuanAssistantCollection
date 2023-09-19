@@ -70,7 +70,7 @@ setInterval(async () => {
         console.error('写入文件时发生错误:', error)
     }
 }, 10 * 60 * 1000)
-class Logger {
+class 日志记录器原型 {
     constructor(config) {
         this.config = {
             writters: new Map([
@@ -112,31 +112,29 @@ class Logger {
         this.config.writters.set(level, [writter]);
     }
 
-    async sendLog(level, name, ...messages) {
+    async sendLog(日志级别, 日志名称, ...messages) {
         // Check if the level is valid
-        if (!this.config.writters.has(level)) {
-            throw new Error(`Invalid log level: ${level}`);
+        if (!this.config.writters.has(日志级别)) {
+            throw new Error(`Invalid log level: ${日志级别}`);
         }
 
         // Get the current stack trace
-        const stackTrace = new Error().stack;
-        const lines = stackTrace.split('\n')
+        const 原始调用栈 = new Error().stack;
+        const lines = 原始调用栈.split('\n')
         const newStackTrace = lines.slice(3).join('\n')  // Join the remaining lines back together
         // Send log message to all writters of the corresponding level
-        for (const writter of this.config.writters.get(level)) {
-
-            let retries = 0;
-            while (retries < this.config.maxRetries) {
+        for (const writter of this.config.writters.get(日志级别)) {
+            let 重试次数 = 0;
+            while (重试次数 < this.config.maxRetries) {
                 try {
-
-                    writter.write(level + ' of ' + name + ' :\n ', ...messages, '\n' + 'stack:\n' + newStackTrace);
+                    writter.write(日志级别 + ' of ' + 日志名称 + ' :\n ', ...messages, '\n' + 'stack:\n' + newStackTrace);
                     break;  // If the write is successful, break the loop
                 } catch (error) {
-                    console.error(`Failed to send ${level} message to writter:`, error);
-                    retries++;
-                    if (retries === this.config.maxRetries) {
+                    console.error(`Failed to send ${日志级别} message to writter:`, error);
+                    重试次数++;
+                    if (重试次数 === this.config.maxRetries) {
                         // If all retries have failed, report the error
-                        console.error(`Failed to send ${level} message to writter after ${this.config.maxRetries} retries:`, error);
+                        console.error(`Failed to send ${日志级别} message to writter after ${this.config.maxRetries} retries:`, error);
                     }
                 }
             }
@@ -144,9 +142,9 @@ class Logger {
     }
 }
 
-const logger = new Logger();
+const 日志记录器 = new 日志记录器原型();
 
-const loggerProxy = new Proxy(logger, {
+const 日志代理 = new Proxy(日志记录器, {
     get(target, prop) {
         if (typeof prop === 'string') {
             const level = Array.from(target.config.writters.keys()).find(lvl => prop.endsWith(lvl));
@@ -159,4 +157,4 @@ const loggerProxy = new Proxy(logger, {
     }
 });
 
-export default loggerProxy;
+export default 日志代理;

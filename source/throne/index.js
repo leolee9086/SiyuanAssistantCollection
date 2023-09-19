@@ -5,7 +5,7 @@ import database from '../vectorStorage/dataBase.js'
 export { database as database }
 import { pluginInstance as plugin } from "../asyncModules.js";
 import roster from "./ghostDomain/index.js";
-import './processors/language_processors/LLMAPIS/spark.js'
+import './processors/language_processors/LLMAPIS/sparkChat.js'
 export { plugin as plugin }
 let chatSetting = plugin.configurer.get('chat')
 export { chatSetting as chatSetting }

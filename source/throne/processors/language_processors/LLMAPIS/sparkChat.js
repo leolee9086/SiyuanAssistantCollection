@@ -102,3 +102,14 @@ let question = "给我写一首诗";
 
 // 调用main函数
 main(appid, api_key, api_secret, Spark_url, domain, question);
+
+
+
+export class sparkChat{
+    constructor(){
+
+    }
+    addAsSystem(系统提示词){
+        
+    }
+}
