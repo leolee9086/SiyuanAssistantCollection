@@ -399,14 +399,14 @@ class BlockHandler {
       return
     }
     else {
-      let { dom} = await this.kernelApi.getBlockDOM({ id: this.id })
+      let { dom } = await this.kernelApi.getBlockDOM({ id: this.id })
       let div = document.createElement('div')
       div.innerHTML = dom
       dom = div.querySelector(`[data-node-id='${this.id}']`)
-      dom.setAttribute('data-type','NodeHeading')
-      dom.setAttribute('data-subtype',`h${级别}`)
-      dom.setAttribute('class',`h${级别}`)
-      dom.setAttribute('updated',geTimeStamp())
+      dom.setAttribute('data-type', 'NodeHeading')
+      dom.setAttribute('data-subtype', `h${级别}`)
+      dom.setAttribute('class', `h${级别}`)
+      dom.setAttribute('updated', geTimeStamp())
       await this.kernelApi.updateBlock(
         {
           id: this.id,
@@ -416,27 +416,27 @@ class BlockHandler {
       )
     }
   }
-  
+
   async 转化为一级标题() {
     return this.转化为标题(1);
   }
-  
+
   async 转化为二级标题() {
     return this.转化为标题(2);
   }
-  
+
   async 转化为三级标题() {
     return this.转化为标题(3);
   }
-  
+
   async 转化为四级标题() {
     return this.转化为标题(4);
   }
-  
+
   async 转化为五级标题() {
     return this.转化为标题(5);
   }
-  
+
   async 转化为六级标题() {
     return this.转化为标题(6);
   }
@@ -446,17 +446,17 @@ function typeMatcher(type) {
   return typeAbbrMap[type]
 }
 
-function geTimeStamp(){
+function geTimeStamp() {
   let date = new Date();
-let year = date.getFullYear();
-let month = (date.getMonth() + 1).toString().padStart(2, '0'); // 月份从0开始，所以需要+1
-let day = date.getDate().toString().padStart(2, '0');
-let hour = date.getHours().toString().padStart(2, '0');
-let minute = date.getMinutes().toString().padStart(2, '0');
-let second = date.getSeconds().toString().padStart(2, '0');
+  let year = date.getFullYear();
+  let month = (date.getMonth() + 1).toString().padStart(2, '0'); // 月份从0开始，所以需要+1
+  let day = date.getDate().toString().padStart(2, '0');
+  let hour = date.getHours().toString().padStart(2, '0');
+  let minute = date.getMinutes().toString().padStart(2, '0');
+  let second = date.getSeconds().toString().padStart(2, '0');
 
-let timestamp = `${year}${month}${day}${hour}${minute}${second}`;
-return timestamp
+  let timestamp = `${year}${month}${day}${hour}${minute}${second}`;
+  return timestamp
 }
 export { BlockHandler as BlockHandler };
 export default BlockHandler

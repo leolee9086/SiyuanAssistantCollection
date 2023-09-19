@@ -5,3 +5,5 @@ export {clientApi as clientApi}
 export {pluginInstance as plugin}
 export { kernelApi as kernelApi}
 export {GhostProto as Ghost}
+import BlockHandler from "../source/utils/BlockHandler.js";
+export {BlockHandler as BlockHandler}
