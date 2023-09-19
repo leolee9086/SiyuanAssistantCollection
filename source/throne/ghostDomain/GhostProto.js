@@ -65,7 +65,7 @@ class Ghost {
             }
         });
         if (this.shell) {
-            this.shell.onGhostWaked()
+            this.shell.Ghost唤醒回调()
         }
     }
     async onShutdown() {

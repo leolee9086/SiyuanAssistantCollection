@@ -14,14 +14,15 @@ let roles = {
 export default class Shell extends EventEmitter {
     constructor(type = 'default', drivers = {}, processors = {}) {
         super();
-        // 驱动应该是一个对象，键是驱动类型，值是驱动的实例数组
+        // 驱动应该是一个对象，键是驱动类型，值是驱动的原型
+    
         this.drivers = {
             textChat: AIChatInterface,
             search: [],
             ...drivers
         };
         this.components = {
-            Searcher: [],
+            search: [],
             textChat: []
         }
         // 处理器应该是一个对象，键是处理器类型，值是处理器的实例
@@ -38,7 +39,7 @@ export default class Shell extends EventEmitter {
             this.replyChat(event.detail)
         })
     }
-    async onGhostWaked() {
+    async Ghost唤醒回调() {
         this.showHistory()
         this.avatarImage = this.ghost.avatarImage
         this.thinkingTip = this.ghost.thinkingTip || '等待中...'
@@ -201,7 +202,7 @@ export default class Shell extends EventEmitter {
         this.初始化界面(type, component)
         return component
     }
-    removeInterface(interfaceToRemove) {
+    removeInterface(interfaceToRemove,type) {
         // 遍历所有类型的接口
         for (let type in this.components) {
             // 找到要删除的接口的索引
@@ -216,10 +217,8 @@ export default class Shell extends EventEmitter {
                 if (typeof interfaceToRemove.dispose === 'function') {
                     interfaceToRemove.dispose();
                 }
-
                 // 从组件列表中删除接口
                 this.components[type].splice(index, 1);
-
                 // 已经找到并删除了接口，可以提前结束循环
                 break;
             }
