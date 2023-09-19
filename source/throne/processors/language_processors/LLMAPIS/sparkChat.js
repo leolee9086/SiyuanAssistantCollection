@@ -1,3 +1,4 @@
+import { ChatSession } from "./chatSession.js";
 let answer = "";
 
 class Ws_Param {
@@ -27,11 +28,11 @@ class Ws_Param {
         console.log(signature_sha_base64)
 
         let authorization_origin = `api_key="${this.APIKey}", algorithm="hmac-sha256", headers="host date request-line", signature="${signature_sha_base64}"`;
-        console.log(authorization_origin )
+        console.log(authorization_origin)
 
         let authorization = btoa(authorization_origin);
-      
-        let url =`${this.Spark_url}?authorization=${authorization}&date=${date}&host=${this.host}`
+
+        let url = `${this.Spark_url}?authorization=${authorization}&date=${date}&host=${this.host}`
         return url;
     }
 }
@@ -46,15 +47,15 @@ function gen_params(appid, domain, question) {
             "chat": {
                 "domain": domain,
                 "temperature": 0.5,
-                "max_tokens": 1024, 
+                "max_tokens": 1024,
             }
         },
         "payload": {
             "message": {
-                "text":  [
-                    {"role": "system", "content": 'use English in your reply'},
+                "text": [
+                    { "role": "system", "content": 'use English in your reply' },
 
-                    {"role": "user", "content": question}
+                    { "role": "user", "content": question }
                 ]
             }
         }
@@ -66,14 +67,14 @@ async function main(appid, api_key, api_secret, Spark_url, domain, question) {
     let wsParam = new Ws_Param(appid, api_key, api_secret, Spark_url);
     let wsUrl = await wsParam.create_url();
     let ws = new WebSocket(wsUrl);
-    ws.onerror = function(event) {
+    ws.onerror = function (event) {
         console.error("WebSocket error observed:", event);
     };
     ws.onopen = function open() {
         let data = JSON.stringify(gen_params(appid, domain, question));
         ws.send(data);
     };
-    ws.onmessage = (event) =>{
+    ws.onmessage = (event) => {
         let data = JSON.parse(event.data);
         let code = data['header']['code'];
         if (code != 0) {
@@ -104,12 +105,18 @@ let question = "给我写一首诗";
 main(appid, api_key, api_secret, Spark_url, domain, question);
 
 
+export class sparkChat  extends ChatSession{
+    constructor(options) {
+        super()
+        this.options = {
+            appid: "bdab79f3",
+            api_key: "0d9b55df237d72590e01f10013f38dca",
+            api_secret: "MWNhYTlhMjM3ZjNiMzA5ZjgyYmZlNjM4",
+            Spark_url: "ws://spark-api.xf-yun.com/v2.1/chat",
+            domain: "generalv2",
+            question: "给我写一首诗",
 
-export class sparkChat{
-    constructor(){
+        }
+    }
 
-    }
-    addAsSystem(系统提示词){
-        
-    }
 }

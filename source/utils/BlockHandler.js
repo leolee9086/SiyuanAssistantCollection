@@ -1,5 +1,6 @@
 import { blockTableClomuns } from "./tables.js";
 import kernelApi from '../polyfills/kernelApi.js'
+import { clientApi,plugin } from "../asyncModules.js";
 let typeAbbrMap = {
   // 块级元素
   "NodeDocument": "d",
@@ -52,6 +53,9 @@ class BlockHandler {
   }
   get root() {
     return this.exists ? new BlockHandler(this.kernelApi.getBlockInfo.sync({ id: this.id }).rootID) : undefined;
+  }
+  get box() {
+    return this.exists ? this.kernelApi.getBlockInfo.sync({ id: this.id }).box : undefined;
   }
   get attrs() {
     return new Proxy(
@@ -250,7 +254,6 @@ class BlockHandler {
     });
   }
   async toChildDoc() {
-    this.refresh();
     if (this.type !== "h") {
       return;
     }
@@ -263,7 +266,6 @@ class BlockHandler {
   }
   //只有文档块有子文档
   async mergeChildDoc(recursion) {
-    this.refresh();
     if (this.type !== "d") {
       return;
     }
@@ -283,7 +285,6 @@ class BlockHandler {
     }
   }
   async toHeading(targetID) {
-    this.refresh();
     if (this.type !== "d") {
       return;
     }
@@ -333,7 +334,7 @@ class BlockHandler {
     }
   }
   async append() {
-    if(!this.exists){
+    if (!this.exists) {
       return
     }
     return this.kernelApi.insertBlock(
@@ -344,7 +345,7 @@ class BlockHandler {
       })
   }
   async insertAfter(content, type) {
-    if(!this.exists){
+    if (!this.exists) {
       return
     }
     return this.kernelApi.insertBlock(
@@ -355,7 +356,7 @@ class BlockHandler {
       })
   }
   async insertBefore(content, type) {
-    if(!this.exists){
+    if (!this.exists) {
       return
     }
     return this.kernelApi.insertBlock(
@@ -379,6 +380,18 @@ class BlockHandler {
         }
       )
     }
+  }
+  async open() {
+    if (this.exists) {
+      await clientApi.openTab({
+        app: plugin.app,
+        doc: {
+          id: this.id,
+        }
+      });
+
+    }
+
   }
 }
 

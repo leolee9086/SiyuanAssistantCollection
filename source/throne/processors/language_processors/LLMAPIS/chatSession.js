@@ -22,7 +22,4 @@ export class ChatSession {
         this.messages = this.messages.concat(messages);
         return this.messages;
     }
-    async postChat(){
-
-    }
 }

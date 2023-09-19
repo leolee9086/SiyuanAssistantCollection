@@ -33,6 +33,9 @@ export const 创建token对象 = (所在元素, 分词结果) => {
     }
     token.delete = () => {
         token.range.deleteContents()
+        let event = new Event('input')
+        if (token.protyle) { token.protyle.protyle.wysiwyg.element.dispatchEvent(event) }
+
     }
     return token
 }
