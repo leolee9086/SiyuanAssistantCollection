@@ -261,6 +261,8 @@ export default class Shell extends EventEmitter {
                     refs+=`\n[${(new BlockHandler(el.getAttribute('data-node-id'))).content}](siyuan://blocks/${el.getAttribute('data-node-id')})`
                 }
             )
+            let selectedText =plugin.statusMonitor.get('editorStatus','selectedText')
+            refs += selectedText
             if (refs) {
                 return prompt + '\n' + refs
 

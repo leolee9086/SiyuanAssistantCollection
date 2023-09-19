@@ -68,3 +68,13 @@ document.addEventListener("keyup", (event) => {
     eventBus.emit('doc_keyup', event)
 }, { capture: true, passive: true }
 )
+
+eventBus.on('click-editorcontent',()=>{
+    let selectedText = window.getSelection().toString();
+    if(selectedText){
+        plugin.statusMonitor.set('editorStatus','selectedText',selectedText)
+    }else{
+        plugin.statusMonitor.set('editorStatus','selectedText','')
+
+    }
+})
