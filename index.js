@@ -218,6 +218,7 @@ class SiyuanAssistantCollection extends ccPlugin {
         自动发送当前搜索结果: false,
         默认参考数量: 10,
         参考文字最大长度: 36,
+        基础模型接口:'OPENAI',
         模型设置:{
           讯飞星火:{
             appid: "",
