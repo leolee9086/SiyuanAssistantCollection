@@ -2,7 +2,6 @@ import { LanguageProcessor } from "../processors/language_processors/OpenAI.js";
 import { EventEmitter } from "../../eventsManager/EventEmitter.js";
 import { AIChatInterface } from "./drivers/AIChatInterface.js";
 import { processorFeatureDict } from "./baseLine.js";
-//import { searchRef } from "./drivers/searcher.js";
 import { embeddingText } from "../../utils/textProcessor.js";
 import { plugin } from "../../asyncModules.js";
 import { findSimilarity } from "../../vectorStorage/vector.js";
@@ -160,7 +159,18 @@ export default class Shell extends EventEmitter {
     }
     showText(input) {
         try {
-            this.emit(`textChat_${this.name}_textWithRole`, input);
+            this.components['textChat'].forEach(
+                chatInterface=>{
+                    if(chatInterface){
+                        console.log(chatInterface)
+                        chatInterface.component.emit(
+                            'textWithRole',
+                            input
+                        )
+                    }
+                }
+            )
+        //    this.emit(`textChat_${this.name}_textWithRole`, input);
         } catch (e) {
             logger.warn('当前没有已初始化的聊天模块,无法显示聊天', e);
         }
@@ -221,7 +231,7 @@ export default class Shell extends EventEmitter {
                 this.ghost.longTermMemory.history.forEach(
                     input => {
                         console.log(component)
-                        component.emit(`${component.chanel}_textWithRole`, input)
+                        component.emit(`textWithRole`, input)
                     }
                 )
         }

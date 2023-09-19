@@ -34,5 +34,4 @@ export const show=async(element,AIChatInterface)=>{
         y: rect.bottom,
         isLeft: false,
     });
-
 }

@@ -3,7 +3,6 @@ export default [
     {
         icon: 'iconTrash',
         label: '获取标题',
-       // matchMod: 'any',
         hints: '标题,链接标题',
         matcher:(word,hints,context)=>{
             if (context.allTokens) {
@@ -17,7 +16,6 @@ export default [
                     }
                 }
             }
-
         },
         hintAction: async (context) => {
             if (context.allTokens) {
@@ -37,9 +35,6 @@ export default [
         }
     }
 ]
-
-
-
 const getTitle = async (href) => {
     console.log(href);
     let title = null;

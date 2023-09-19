@@ -10,7 +10,7 @@ export class AIChatInterface extends EventEmitter {
         this.describe = {
             showHistory: '显示所有之前的聊天记录',
         }
-        this.container= element
+        this.container = element
         this.初始化事件监听器()
         this.当前参考内容组 = []
         this.当前用户输入 = ''
@@ -18,9 +18,9 @@ export class AIChatInterface extends EventEmitter {
         this.lute = plugin.lute
 
     }
-    dispose(){
-        this.container.innerHTML=''
-        
+    dispose() {
+        this.container.innerHTML = ''
+
     }
     初始化事件监听器() {
         this.on(
@@ -33,19 +33,26 @@ export class AIChatInterface extends EventEmitter {
                 this.显示消息(消息对象)
             }
         )
-        this.提交按钮.addEventListener("click", async (event) => {
-            let 用户输入文字 = this.用户输入框.value
-            if (用户输入文字) {
-                this.当前用户输入 = 用户输入文字
-                this.用户输入框.value = ""
-                this.提交用户消息(this.当前用户输入)
-                this.等待AI回复()
-                event.stopPropagation(); 
-            
+        this.提交按钮.addEventListener("click", this.提交按钮点击回调);
+        this.用户输入框.addEventListener("keydown", this.用户输入回调);
+        this.引用按钮.addEventListener('click', () => {
+            // 在这里添加点击按钮时的操作
+            // 例如，你可以插入一个引用到 userInputInput 中：
+            showGhostSelector(this.引用按钮, this)
+            let 参考内容 = this.当前参考内容组
+            this.emit('quoteButtonClicked', { refs: 参考内容, userInput: this.当前用户输入, doll: this.doll, button: this.引用按钮 })
+            if (!参考内容 instanceof Array) {
+                参考内容 = []
             }
-        });
+            document.querySelectorAll(".protyle-wysiwyg--select").forEach(el => {
+                console.log(plugin.lute)
+                参考内容.push(`[${el.textContent.substring(0, 512)}](siyuan://blocks/${el.getAttribute('data-node-id')})`)
+            })
+            参考内容[0] ? this.用户输入框.value += `\n> ---references---\n${参考内容.join('\n')}` : null
 
-        this.用户输入框.addEventListener("keydown", (event) => {
+        });
+    }
+    用户输入回调= async(event)=>{
             if (event.key === "Enter" && !globalThis.siyuan.ctrlIsPressed) {
                 this.提交按钮.click(); // 触发提交按钮的 click 事件
                 event.preventDefault(); // 阻止默认的换行行为
@@ -61,26 +68,19 @@ export class AIChatInterface extends EventEmitter {
                     最后插入按钮.click(); // 触发"插入按钮"的 click 事件
                 }
             }
-        });
-        this.引用按钮.addEventListener('click', () => {
-            // 在这里添加点击按钮时的操作
-            // 例如，你可以插入一个引用到 userInputInput 中：
-            showGhostSelector(this.引用按钮,this)
-            let 参考内容 = this.当前参考内容组
-            this.emit('quoteButtonClicked', { refs: 参考内容, userInput: this.当前用户输入, doll: this.doll, button: this.引用按钮 })
-            if (!参考内容 instanceof Array) {
-                参考内容 = []
-            }
-            document.querySelectorAll(".protyle-wysiwyg--select").forEach(el => {
-                console.log(plugin.lute)
-                参考内容.push(`[${el.textContent.substring(0, 512)}](siyuan://blocks/${el.getAttribute('data-node-id')})`)
-            })
-            参考内容[0] ? this.用户输入框.value += `\n> ---references---\n${参考内容.join('\n')}` : null
-
-        });
     }
-    提交用户消息(消息文字){
-        this.emit(`Ai_shell_${this.shell.name}_textChat_userMessage`,消息文字)
+    提交按钮点击回调=async(event)=> {
+        let 用户输入文字 = this.用户输入框.value
+        if (用户输入文字) {
+            this.当前用户输入 = 用户输入文字
+            this.用户输入框.value = ""
+            this.提交用户消息(this.当前用户输入)
+            this.等待AI回复()
+            event.stopPropagation();
+        }
+    }
+    提交用户消息(消息文字) {
+        this.emit(`Ai_shell_${this.shell.name}_textChat_userMessage`, 消息文字)
     }
     setlute(lute) {
         this.aiChatUI.lute = lute
@@ -139,7 +139,7 @@ export class AIChatInterface extends EventEmitter {
                 this.添加AI消息(message.content)
                 break
         }
-        
+
         this.聊天容器.scrollTop = this.聊天容器.scrollHeight;
     }
 

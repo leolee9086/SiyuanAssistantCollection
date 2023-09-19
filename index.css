@@ -108,7 +108,7 @@
 .insert-button {
     position: absolute; 
 }
-.b3-dialog__body.ai-dialog{
+.b3-dialog__body .ai-dialog{
     max-height: 80vh;
 }
 
