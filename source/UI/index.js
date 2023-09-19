@@ -15,7 +15,8 @@ import './tabs/aiTab.js'
 
 开始渲染token菜单()
 export {
-    弹窗 as 弹窗
+    弹窗 as 弹窗,
+    弹窗 as 对话框
 }
 export const 菜单控制器 = {
     渲染块标菜单
