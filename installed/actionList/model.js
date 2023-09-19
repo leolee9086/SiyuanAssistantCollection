@@ -15,5 +15,13 @@ export default[
             await plugin.configurer.set('聊天工具设置',"基础模型接口","SPARK")
             plugin.eventBus.emit('languageProcessor')
         }
+    },
+    {
+        label:'设置聊天后端引擎为OPENAI',
+        hints:'聊天,设置,星火,chat,openai,closeAI,chatgpt',
+        hintAction:async()=>{
+            await plugin.configurer.set('聊天工具设置',"基础模型接口","OPENAI")
+            plugin.eventBus.emit('languageProcessor')
+        }
     }
 ]
