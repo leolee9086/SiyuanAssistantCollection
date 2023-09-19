@@ -30,7 +30,7 @@ class PluginConfigurer {
     this.target[group][name] = value
     this.plugin.eventBus.emit(`${this.prop}Change`, { name, group, value })
     if (this.save) {
-      await this.plugin.saveData(this.fileName, this.target)
+      await this.plugin.saveData(`${this.fileName || this.prop}.json`, this.target)
     }
     return this
   }
@@ -218,6 +218,21 @@ class SiyuanAssistantCollection extends ccPlugin {
         自动发送当前搜索结果: false,
         默认参考数量: 10,
         参考文字最大长度: 36,
+        模型设置:{
+          讯飞星火:{
+            appid: "",
+            api_key: "",
+            api_secret: "",
+            Spark_url: "",
+            domain: "",
+          },
+          RWKV:{
+
+          },
+          ChatGPT:{
+            
+          },
+        }
       },
       块标动作设置: {
       },

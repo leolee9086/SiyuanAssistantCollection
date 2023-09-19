@@ -79,7 +79,7 @@ export class AIChatInterface extends EventEmitter {
         }
     }
     提交用户消息(消息文字) {
-        this.emit(`Ai_shell_${this.shell.name}_textChat_userMessage`, 消息文字)
+        this.shell.emit(`textChat_userMessage`, 消息文字)
     }
     setlute(lute) {
         this.aiChatUI.lute = lute

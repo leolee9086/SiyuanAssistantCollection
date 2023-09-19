@@ -15,11 +15,15 @@ export class ChatSession {
             role: 'user',
             content: userMessage
         });
-        return this.messages;
+        let data = await this.send(this.messages);
+        this.messages=[]
+        return data;
     }
 
     async postBatch(messages) {
         this.messages = this.messages.concat(messages);
-        return this.messages;
+        let data = await this.send(this.messages);
+        this.messages=[]
+        return data;
     }
 }

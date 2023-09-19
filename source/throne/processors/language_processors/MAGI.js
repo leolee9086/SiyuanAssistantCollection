@@ -130,6 +130,7 @@ export class MAGI {
 
         },
         reply: async (userInput) => {
+            console.log(userInput)
             if (this.config.simple) {
                 return await this.Casper.reply(userInput)
             }

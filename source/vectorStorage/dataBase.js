@@ -129,9 +129,7 @@ class 数据集 {
             }
         )
         this.已经修改 = true
-
     }
-
     创建查询数据集(向量字段名, 前置过滤函数) {
         let 查询数据集 = []
         let 主键值数组 = Object.getOwnPropertyNames(this.数据集对象)
@@ -215,7 +213,6 @@ class 数据集 {
         });
         return 分组数据;
     }
-
     async 创建临时数据对象(分组数据对象, 总文件数) {
         let 临时数据对象 = {};
         for (let i = 0; i < 总文件数; i++) {
@@ -227,7 +224,6 @@ class 数据集 {
         });
         return 临时数据对象;
     }
-
     async 创建写入操作(临时数据对象, 总文件数, 文件路径名) {
         let 写入操作 = [];
         let 记录数组 = []

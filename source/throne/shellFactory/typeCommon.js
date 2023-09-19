@@ -1,4 +1,4 @@
-import { LanguageProcessor } from "../processors/language_processors/OpenAI.js";
+import { LanguageProcessor } from "../processors/language_processors/SPARK.js";
 import { EventEmitter } from "../../eventsManager/EventEmitter.js";
 import { AIChatInterface } from "./drivers/AIChatInterface.js";
 import { processorFeatureDict } from "./baseLine.js";
@@ -6,6 +6,7 @@ import { embeddingText } from "../../utils/textProcessor.js";
 import { plugin } from "../../asyncModules.js";
 import { findSimilarity } from "../../vectorStorage/vector.js";
 import logger from "../../logger/index.js";
+import BlockHandler from "../../utils/BlockHandler.js";
 let roles = {
     USER: 'user',
     SYSTEM: 'system',
@@ -249,6 +250,12 @@ export default class Shell extends EventEmitter {
                     }
                 }
             )
+            let selectedBlocks =document.querySelectorAll('.protyle-wysiwyg--select')
+            selectedBlocks.forEach(
+                el=>{
+                    refs+=`\n[${(new BlockHandler(el.getAttribute('data-node-id'))).content}](siyuan://blocks/${el.getAttribute('data-node-id')})`
+                }
+            )
             if (refs) {
                 return prompt + '\n' + refs
 
@@ -258,7 +265,6 @@ export default class Shell extends EventEmitter {
         } catch (e) {
             logger.error(e)
             return ""
-
         }
         /*let refs = await searchRef({ meta: { content: text, role: 'user' }, vectors: {} })
         try {
