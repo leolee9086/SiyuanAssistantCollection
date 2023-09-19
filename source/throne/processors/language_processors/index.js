@@ -9,5 +9,5 @@ let 模型字典 = {
     RWKV
 }
 export const getLanguageProcessor=()=>{
-    return 模型字典[当前基础后端接口]
+    return 模型字典[当前基础后端接口]||OPENAI
 }
