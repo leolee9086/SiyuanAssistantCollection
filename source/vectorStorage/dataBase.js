@@ -3,6 +3,7 @@ import fs from '../polyfills/fs.js'
 import path from '../polyfills/path.js'
 import logger from '../logger/index.js'
 import { 计算余弦相似度, 计算欧氏距离相似度, 查找最相似点 } from './vector.js';
+import { JsonSyAdapter } from './jsonAdapter.js';
 globalThis._blockActionDataBase = globalThis._blockActionDataBase || {}
 export class 数据库 {
     constructor(文件保存地址) {
@@ -17,31 +18,38 @@ export class 数据库 {
                 logger.databaselog(`数据集:${数据集名称}已经存在,将返回`)
             } return this._数据库[数据集名称]
         }
-        this._数据库[数据集名称] = new 数据集(数据集名称, 主键名, 文件路径名, 静态化, this.logLevel)
-        this._数据库[数据集名称].数据库 = {
-            文件保存地址: this.文件保存地址
-        }
+        this._数据库[数据集名称] = new 数据集(
+            数据集名称, 
+            主键名, 
+            文件路径名, 
+            静态化, 
+            this.logLevel,
+            {
+                文件保存地址:this.文件保存地址
+            }
+            )
+     
         return this._数据库[数据集名称]
     }
 }
 class 数据集 {
-    constructor(数据集名称, 主键名, 文件路径键名, 静态化, logLevel) {
+    constructor(数据集名称, 主键名, 文件路径键名, 静态化, logLevel,数据库) {
         //数据集对象用于存储实际数据
         this.静态化 = 静态化 ? true : false
         this.主键名 = 主键名
         this.文件路径键名 = 文件路径键名 || ''
         this.数据集名称 = 数据集名称
         this.logLevel = logLevel
-
+        this.数据库= 数据库
         //数据集对象临时存储了所有数据
         this.数据集对象 = {
 
         }
         this.文件总数 = 8
-        this.待保存主键值 = []
+        this.待保存数据分片 = []
         this.待保存路径值 = []
         this.保存队列 = [];
-
+        this.文件适配器 = new JsonSyAdapter(this.文件保存地址)
     }
     get 文件保存地址() {
         return this.数据库.文件保存地址 + '/' + this.数据集名称 + '/'
@@ -191,19 +199,17 @@ class 数据集 {
     记录待保存数据项(数据项) {
         let 主键模 = this.获取主键模(数据项[this.主键名])
         let 保存路径 = 数据项[this.文件路径键名]
-        this.待保存主键值[主键模] = true
+        this.待保存数据分片[主键模] = true
         this.待保存路径值[保存路径] = true
-
         // 将数据项添加到保存队列
         this.保存队列.push(数据项);
-
     }
     async 创建分组数据(数据集对象) {
         let 分组数据 = {};
         Object.getOwnPropertyNames(数据集对象).forEach(主键值 => {
             let mod = this.获取主键模(主键值)
             let 数据项 = 数据集对象[主键值]
-            if (this.待保存主键值[mod] && this.待保存路径值[数据项[this.文件路径键名]]) {
+            if (this.待保存数据分片[mod] && this.待保存路径值[数据项[this.文件路径键名]]) {
                 let 文件路径名 = 数据集对象[主键值][this.文件路径键名];
                 if (!分组数据[文件路径名]) {
                     分组数据[文件路径名] = {};
@@ -225,10 +231,10 @@ class 数据集 {
         return 临时数据对象;
     }
     async 创建写入操作(临时数据对象, 总文件数, 文件路径名) {
-        let 写入操作 = [];
+      /*  let 写入操作 = [];
         let 记录数组 = []
         for (let i = 0; i < 总文件数; i++) {
-            if (this.待保存主键值[i]) {
+            if (this.待保存数据分片[i]) {
                 let content = JSON.stringify(临时数据对象[i]);
                 let 文件夹路径 = path.join(this.文件保存地址, 文件路径名 ? 文件路径名 : '');
                 let 文件名 = path.join(文件夹路径, `chunk${i}.json`);
@@ -236,7 +242,15 @@ class 数据集 {
                 写入操作.push(fs.writeFile(文件名, content));
                 记录数组.push(i)
             }
+        }*/
+        let 待保存分片字典= {}
+        for (let i = 0; i < 总文件数; i++) {
+            if(this.待保存数据分片[i]){
+                待保存分片字典[i]=临时数据对象[i]
+            }
         }
+        let 写入操作对象 = await this.文件适配器.创建批处理写入操作(待保存分片字典,文件路径名)
+        return 写入操作对象
         return { 写入操作, 记录数组 };
     }
     async 保存数据(force) {
@@ -269,7 +283,7 @@ class 数据集 {
                 console.error('写入文件时出错:', err);
             }
         }
-        this.待保存主键值 = {};
+        this.待保存数据分片 = {};
         this.待保存路径值 = {};
         this.已经修改 = false;
     }
