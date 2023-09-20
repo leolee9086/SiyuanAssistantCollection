@@ -29,7 +29,7 @@ export class 设置对话框控制器{
         this.inited = true
     }
     async show(){
-        let settingForm =await buildSetting()
+        let settingForm =await 创建设置()
         let 对话框 = await 设置对话框()
         this.对话框实例 = 对话框
         this.isOpen = true
@@ -46,18 +46,17 @@ export class 设置对话框控制器{
 export const 主设置对话框 = new 设置对话框控制器()
 export const 创建设置=async()=>{
     检查结构是否一致(configProto,plugin.configurer.list())
+    console.log(configProto)
 }
-创建设置()
+
 
 function 检查结构是否一致(obj1, obj2, path = '') {
     for (let key in obj1) {
         if (!obj2.hasOwnProperty(key)) {
             console.warn(`属性 ${path}${key} 在第二个对象中不存在`);
-            return false;
         }
         if (typeof obj1[key] === 'object' && obj1[key] !== null) {
             if (!检查结构是否一致(obj1[key], obj2[key], path + key + '.')) {
-                return false;
             }
         }
     }
@@ -65,7 +64,6 @@ function 检查结构是否一致(obj1, obj2, path = '') {
     for (let key in obj2) {
         if (!obj1.hasOwnProperty(key)) {
             console.log(`属性 ${path}${key} 在第一个对象中不存在`);
-            return false;
         }
     }
     return true;

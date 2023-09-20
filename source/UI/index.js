@@ -12,7 +12,7 @@ import './topBar.js'
 import './docks/mainAiDock.js'
 import './docks/TipsDock.js'
 import './tabs/aiTab.js'
-
+import './componentsLoader.js'
 开始渲染token菜单()
 export {
     弹窗 as 弹窗,

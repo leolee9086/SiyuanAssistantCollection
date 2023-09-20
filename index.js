@@ -210,7 +210,7 @@ class SiyuanAssistantCollection extends ccPlugin {
       },
       聊天工具设置: {
         默认AI: "paimon",
-        决策级别: "0",
+        决策级别: 0,
         //在超过这个长度之后,聊天将被总结
         默认聊天短期记忆: 7,
         自动给出参考: 1,

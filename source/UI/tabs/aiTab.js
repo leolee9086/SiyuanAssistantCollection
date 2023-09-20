@@ -61,6 +61,5 @@ clientApi.openTab({
             persona: "paimon",
         },
         fn:plugin.aiTabContainer
-
     },
 })

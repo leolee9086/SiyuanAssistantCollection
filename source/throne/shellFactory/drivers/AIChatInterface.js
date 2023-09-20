@@ -6,7 +6,7 @@ export class AIChatInterface extends EventEmitter {
     constructor(element, doll) {
         super(`textChat_${doll.ghost.persona.name}`)
         this.doll = doll
-        this.initUI(element)
+        this.初始化UI(element)
         this.describe = {
             showHistory: '显示所有之前的聊天记录',
         }
@@ -84,7 +84,7 @@ export class AIChatInterface extends EventEmitter {
     setlute(lute) {
         this.aiChatUI.lute = lute
     }
-    initUI(element) {
+    初始化UI(element) {
         const 聊天容器 = document.createElement('div');
         聊天容器.id = 'chat-container';
         聊天容器.setAttribute('class', 'fn__flex-1')

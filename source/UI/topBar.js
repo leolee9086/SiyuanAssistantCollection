@@ -25,6 +25,5 @@ topBarButton.addEventListener(
         else {
             await 主设置对话框.show()
         }
-
     }
 )
