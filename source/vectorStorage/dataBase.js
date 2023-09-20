@@ -1,6 +1,3 @@
-import kernelApi from '../polyfills/kernelApi.js'
-import fs from '../polyfills/fs.js'
-import path from '../polyfills/path.js'
 import logger from '../logger/index.js'
 import { 计算余弦相似度, 计算欧氏距离相似度, 查找最相似点 } from './vector.js';
 import { JsonSyAdapter } from './jsonAdapter.js';
