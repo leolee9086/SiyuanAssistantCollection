@@ -1,7 +1,6 @@
 import * as Vue from '../../static/vue.esm-browser.js'
 import { loadModule } from '../../static/vue3-sfc-loader.esm.js'
 import * as runtime from '../asyncModules.js';
-import path from '../polyfills/path.js';
 const options = {
     moduleCache: {
         vue: Vue,
@@ -31,7 +30,6 @@ export const initVueApp = (appURL, name, mixinOptions = {}, path) => {
         let obj = { ...options, ...mixinOptions }
         let componentsCache = {}
         appURL= appURL.replace('.vue',`@@@${Date.now()}.vue`)
-        console.log(appURL)
         componentsCache[name] = Vue.defineAsyncComponent(() => loadModule(appURL, obj))
         let app = Vue.createApp({
             components: componentsCache,
@@ -48,12 +46,10 @@ export const initVueApp = (appURL, name, mixinOptions = {}, path) => {
         return app
     }
     oldApp=f()
-    require('fs').watch(path, { recursive: true }, (type) => {
-        console.log(_args)
+    path&&require('fs').watch(path, { recursive: true }, (type) => {
         if (type == 'change' && _args) {
             oldApp.unmount()
             oldApp = f()
-            console.log(oldApp)
             oldApp.mount(..._args)
         }
     })

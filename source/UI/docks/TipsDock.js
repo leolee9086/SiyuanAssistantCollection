@@ -1,5 +1,6 @@
 import { plugin } from "../../asyncModules.js";
 import { 智能防抖 } from "../../utils/functionTools.js";
+import { initVueApp } from "../componentsLoader.js";
 let container
 let pinnedContainer
 let element
@@ -20,16 +21,16 @@ async function 批量渲染(动作表, 执行上下文, container) {
                     <div>Tips for block: <a href="siyuan://blocks/${执行上下文.blocks[0].id}">${执行上下文.blocks[0].id}</div>
                 </div>
             `;
-            let {element,markdown} = await 动作.tipRender(执行上下文);
-            if(!markdown){
+            let { element, markdown } = await 动作.tipRender(执行上下文);
+            if (!markdown) {
                 console.warn('至少需要提供markdown,没有markdown内容的tips不会给AI参考')
-            }else(
-                div.setAttribute('markdown-content',markdown)
+            } else (
+                div.setAttribute('markdown-content', markdown)
             )
             if (element instanceof HTMLElement && !(element.tagName === 'SCRIPT')) {
                 div.querySelector(".b3-card__body").appendChild(element);
             }
-            
+
             let isDuplicate = Array.from(container.children).some(child => child.innerHTML === div.innerHTML);
             if (!isDuplicate) {
                 frag.prepend(div);
@@ -37,7 +38,7 @@ async function 批量渲染(动作表, 执行上下文, container) {
         }
     }
     container.prepend(frag);
-    container.scrollTop=0
+    container.scrollTop = 0
 }
 // 批量移除函数
 async function 批量移除(container) {
@@ -52,14 +53,17 @@ const 渲染tips = 智能防抖(async (动作表, 执行上下文) => {
     await 智能防抖(批量渲染)(动作表, 执行上下文, container);
     智能防抖(批量移除)(container);
 })
-plugin.eventBus.on('hint_tips', async(e) => {
-    console.log(e.detail)
+//不行,性能防抖不好做进去,性能跟不上,卡得惨绝人寰,这里就不用vue了
+//let tipsApp = initVueApp(import.meta.resolve('./tipsDock.vue'), 'tipsDock', {}, plugin.localPath)
+plugin.eventBus.on('hint_tips', async (e) => {
     let _element = await plugin.statusMonitor.get('tipsConainer', 'main');
-    if(_element&&_element!==element){
+    if (_element && _element !== element) {
         element=_element
-         container = element.querySelector('#SAC-TIPS')
-         pinnedContainer= element.querySelector('#SAC-TIPS_pinned')
-         element.addEventListener('click', (event) => {
+       // tipsApp.mount(_element)
+        element = _element
+        container = element.querySelector('#SAC-TIPS')
+        pinnedContainer = element.querySelector('#SAC-TIPS_pinned')
+        element.addEventListener('click', (event) => {
             const target = event.target.closest('.tips-card');
             if (target) {
                 if (target.classList.contains('pinned')) {
@@ -81,7 +85,6 @@ plugin.eventBus.on('hint_tips', async(e) => {
                 }
             }
         });
-        
     }
     渲染tips(e.detail.备选动作表, e.detail.context)
 })

@@ -13,6 +13,7 @@ class PluginConfigurer {
     this.plugin[prop] = this.plugin[prop] || {}
     this.target = this.plugin[prop]
     this.fileName = fileName || `${prop.json}`
+    
     this.prop = prop
     this.save = save
   }
@@ -63,6 +64,9 @@ class ccPlugin extends Plugin {
     this.tempPath = `/temp/ccTemp/${this.name}/`
     this.publicPath = `/data/public`
     this.selfPath = `/data/plugins/${this.name}`
+    if(window.require){
+      this.localPath = window.require('path').join(window.siyuan.config.system.workspaceDir,'data','plugins',this.name)
+    }
   }
   resolve(路径) {
     if (路径.startsWith('/') || 路径.startsWith('http://') || 路径.startsWith('https://')) {
@@ -291,15 +295,17 @@ class SiyuanAssistantCollection extends ccPlugin {
         this.element.innerHTML = `
         <div class="block__icons">
         <div class="block__logo">
-            <svg><use xlink:href="#iconFiles"></use></svg>
+            <svg>
+                <use xlink:href="#iconFiles"></use>
+            </svg>
             TIPS
         </div>
     </div>
-          <div class='fn_flex fn_flex-1'>
-          <div id="SAC-TIPS_pinned" class='fn__flex-column' style="overflow:auto;max-height:100%"></div>
+    <div class='fn_flex fn_flex-1'>
+        <div id="SAC-TIPS_pinned" class='fn__flex-column' style="overflow:auto;max-height:100%"></div>
 
-            <div id="SAC-TIPS" class='fn__flex-column' style="overflow:auto;max-height:100%"></div>
-          <div>
+        <div id="SAC-TIPS" class='fn__flex-column' style="overflow:auto;max-height:100%"></div>
+    <div>
         `;
         plugin.statusMonitor.set('tipsConainer', 'main', this.element)
         plugin.eventBus.emit('tipsConainerInited')
@@ -327,7 +333,7 @@ class SiyuanAssistantCollection extends ccPlugin {
       init() {
         this.element.innerHTML = `<div id="ai-chat-interface" class='fn__flex-column' style="pointer-events: auto;overflow:hidden;max-height:100%"></div>`;
         plugin.statusMonitor.set('dockContainers', 'main', this.element)
-        plugin.eventBus.emit('dockConainerInited')
+        plugin.eventBus.emit('dockConainerInited',this.element)
       },
       destroy() {
         console.log("destroy dock:", DOCK_TYPE);

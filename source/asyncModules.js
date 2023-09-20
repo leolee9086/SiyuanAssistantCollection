@@ -3,7 +3,6 @@
 
 import kernelApi from './polyfills/kernelApi.js';
 let pluginName  = import.meta.resolve('../').split('/').filter(item=>{return item}).pop()
-console.log(pluginName,import.meta.resolve('../'))
 let pluginInstance=globalThis[Symbol.for(`plugin_${pluginName}`)]
 let clientApiInstance=globalThis[Symbol.for(`clientApi`)]
 export {clientApiInstance as clientApi}
