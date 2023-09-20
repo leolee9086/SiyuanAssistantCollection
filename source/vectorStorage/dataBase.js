@@ -231,18 +231,6 @@ class 数据集 {
         return 临时数据对象;
     }
     async 创建写入操作(临时数据对象, 总文件数, 文件路径名) {
-      /*  let 写入操作 = [];
-        let 记录数组 = []
-        for (let i = 0; i < 总文件数; i++) {
-            if (this.待保存数据分片[i]) {
-                let content = JSON.stringify(临时数据对象[i]);
-                let 文件夹路径 = path.join(this.文件保存地址, 文件路径名 ? 文件路径名 : '');
-                let 文件名 = path.join(文件夹路径, `chunk${i}.json`);
-                console.log(文件名)
-                写入操作.push(fs.writeFile(文件名, content));
-                记录数组.push(i)
-            }
-        }*/
         let 待保存分片字典= {}
         for (let i = 0; i < 总文件数; i++) {
             if(this.待保存数据分片[i]){
@@ -251,7 +239,6 @@ class 数据集 {
         }
         let 写入操作对象 = await this.文件适配器.创建批处理写入操作(待保存分片字典,文件路径名)
         return 写入操作对象
-        return { 写入操作, 记录数组 };
     }
     async 保存数据(force) {
         if (!this.已经修改) {
@@ -268,6 +255,12 @@ class 数据集 {
             let 分组数据对象 = 分组数据[文件路径名];
             let 临时数据对象 = await this.创建临时数据对象(分组数据对象, 总文件数);
             let { 写入操作, 记录数组 } = await this.创建写入操作(临时数据对象, 总文件数, 文件路径名);
+           
+            try {
+                await Promise.all(写入操作);
+            } catch (err) {
+                console.error('写入文件时出错:', err);
+            }
             if (记录数组.length == 总文件数) {
                 if (this.logLevel === 'debug') {
                     logger.datasetlog(`${文件路径名}索引已更新`);
@@ -277,18 +270,14 @@ class 数据集 {
                     logger.datasetlog(`${文件路径名}索引分片${记录数组.join(',')}已更新`)
                 }
             }
-            try {
-                await Promise.all(写入操作);
-            } catch (err) {
-                console.error('写入文件时出错:', err);
-            }
         }
         this.待保存数据分片 = {};
         this.待保存路径值 = {};
         this.已经修改 = false;
     }
     async 加载数据() {
-        let 总文件数 = this.文件总数
+        this.数据集对象= await this.文件适配器.加载全部数据(this.数据集对象)
+       /* let 总文件数 = this.文件总数
         let 数据集对象 = this.数据集对象
         let 文件保存根地址 = this.文件保存地址
         if (await fs.exists(this.文件保存地址)) {
@@ -326,7 +315,7 @@ class 数据集 {
             数据集对象 = undefined
         } else {
             logger.datasetlog(this.文件保存地址, await fs.exists(this.文件保存地址))
-        }
+        }*/
     }
 }
 
