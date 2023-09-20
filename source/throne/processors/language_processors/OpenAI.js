@@ -1,4 +1,4 @@
-import OpenAichatApi from './LLMAPIS/openAIchat.js'
+import OpenAichatApi from './LLMAPIS/openAIChat.js'
 import { MAGI } from './MAGI.js'
 export class LanguageProcessor {
     constructor(persona) {

@@ -358,3 +358,14 @@ export class ChatStore extends EventEmitter {
         // ...和之前一样...
     }
 }
+
+
+
+
+logger.datalog
+logger.initlog
+logger.templog
+/**
+ * 可以用这种前缀调用法打印不同的级别
+ * 前面是名字，最后的后缀是log、warn、error，info，debug等等这几个
+ */
