@@ -2,6 +2,7 @@ import { 动作总表 } from "./index.js";
 import { 智能防抖 } from "../utils/functionTools.js"
 import { 处理单个动作表 } from "./index.js";
 import { 设置器 } from "./index.js";
+import logger from '../logger/index.js'
 export async function 根据上下文获取动作表(context,signal) {
     let 备选动作表 = []
     if(signal&&signal.aborted){
@@ -13,8 +14,8 @@ export async function 根据上下文获取动作表(context,signal) {
         }
         try {
             let 动作表 = 动作总表[i];
-            if(设置器.get("关键词动作设置",动作表.provider)){
-                if(设置器.get("关键词动作设置",动作表.provider).disabled){
+            if(设置器.get("关键词动作设置",动作表.provider).$value){
+                if(设置器.get("关键词动作设置",动作表.provider).$value.disabled){
                    continue
                 }
             }

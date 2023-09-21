@@ -63,6 +63,8 @@ export const 导入所有动作表 = async () => {
 export const 预处理动作表 = async () => {
     for (const 动作表 of 动作总表) {
         try {
+            console.log(动作总表,动作表)
+
             await 处理单个动作表(动作表)
         } catch (e) {
             logger.warn(动作表, e)

@@ -1,6 +1,7 @@
 import { plugin } from "../../asyncModules.js";
 import { 智能防抖 } from "../../utils/functionTools.js";
 import { initVueApp } from "../componentsLoader.js";
+import logger from '../../logger/index.js'
 let container
 let pinnedContainer
 let element
@@ -55,7 +56,7 @@ const 渲染tips = 智能防抖(async (动作表, 执行上下文) => {
 //不行,性能防抖不好做进去,性能跟不上,卡得惨绝人寰,这里就不用vue了
 //let tipsApp = initVueApp(import.meta.resolve('./tipsDock.vue'), 'tipsDock', {}, plugin.localPath)
 plugin.eventBus.on('hint_tips', async (e) => {
-    let _element = await plugin.statusMonitor.get('tipsConainer', 'main');
+    let _element = await plugin.statusMonitor.get('tipsConainer', 'main').$value;
     if (_element && _element !== element) {
         element=_element
        // tipsApp.mount(_element)
@@ -89,6 +90,10 @@ plugin.eventBus.on('hint_tips', async (e) => {
             }
         });*/
     }
+    if(container&&pinnedContainer){
     渲染tips(e.detail.备选动作表, e.detail.context)
+    }else{
+        logger.tipswarn('渲染tips出错,容器可能不存在:',container,pinnedContainer)
+    }
 })
 
