@@ -265,17 +265,7 @@ export default class Shell extends EventEmitter {
             logger.error(e)
             return ""
         }
-        /*let refs = await searchRef({ meta: { content: text, role: 'user' }, vectors: {} })
-        try {
-            if (refs) {
-                return prompt + '\n' + refs
-            } else {
-                return ""
-            }
-        } catch (e) {
-            logger.error(e)
-            return ""
-        }*/
+  
     }
     //这里是整理记忆的方法
     async summryMemory(workingMemory) {
