@@ -36,7 +36,7 @@ export default class Shell extends EventEmitter {
     async 初始化事件监听器() {
         this.chanel = 'Ai_shell_' + this.ghost.persona.name
         this.on('textChat_userMessage', (event) => {
-            console.log(event.detail)
+            logger.aiShelllog(event.detail)
             this.replyChat(event.detail)
         })
         plugin.eventBus.on('baseProcessorChange',(event)=>{
@@ -169,7 +169,7 @@ export default class Shell extends EventEmitter {
             this.components['textChat'].forEach(
                 chatInterface=>{
                     if(chatInterface){
-                        console.log(chatInterface)
+                        logger.aiShelllog(chatInterface)
                         chatInterface.component.emit(
                             'textWithRole',
                             input
@@ -235,7 +235,7 @@ export default class Shell extends EventEmitter {
             case 'textChat':
                 this.ghost.longTermMemory.history.forEach(
                     input => {
-                        console.log(component)
+                        logger.aiShelllog(component)
                         component.emit(`textWithRole`, input)
                     }
                 )
@@ -289,7 +289,7 @@ export default class Shell extends EventEmitter {
     async summryMemory(workingMemory) {
         let copied = workingMemory.map(item => { return { role: item.role, content: item.content || "" } })
         copied = copied.filter(item => { return item.role !== 'system' })
-        console.log(copied)
+        logger.aiShelllog(copied)
         const result = await this.processors.languageProcessor.summarizeChat(copied)
 
         return { role: "system", content: `the coversation history summary is: ${result}` }

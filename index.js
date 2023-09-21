@@ -228,7 +228,8 @@ class SiyuanAssistantCollection extends ccPlugin {
     this.依赖 = 依赖
     this.设置 = {
       日志设置:{
-        aiChat:false
+        aiChat:false,
+        aiShell:false
       },
       向量工具设置: {
         默认文本向量化模型: 'shibing624/text2vec-base-chinese',

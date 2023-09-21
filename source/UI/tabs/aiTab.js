@@ -3,7 +3,7 @@ import throneManager from '../../throne/index.js'
 import logger from '../../logger/index.js'
 let tabGroups = plugin.statusMonitor.get("aiTabContainer").$value
 console.log(tabGroups)
-if(plugin.statusMonitor.get("aiTabContainer").value){
+if(plugin.statusMonitor.get("aiTabContainer").$value){
     for(let persona in tabGroups){
         let tabs = tabGroups[persona]
         tabs.forEach(
