@@ -1,8 +1,6 @@
-import { chatSetting } from "../../index.js";
 import { Melchior } from "./wise/Melchior.js";
 import { Balthazar } from "./wise/Belthazar.js"
 import { Casper } from "./wise/Casper.js"
-
 export class MAGI {
     constructor(BaseApi, config = {}, persona) {
         console.log(BaseApi, config, persona)
