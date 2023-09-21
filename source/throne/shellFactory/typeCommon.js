@@ -53,16 +53,12 @@ export default class Shell extends EventEmitter {
     }
     async replyChat(text) {
         let 消息对象 = { role: roles.USER, content: text }
-        logger.log(消息对象)
         let result = await this.ghost.introspectChat(消息对象)
         this.showText(消息对象)
 
-        logger.log(result)
         result = await this.completeChat(result)
-        logger.log(result)
         //introspect系列的方法都是让ghost有机会对消息进行后处理的
         result = await this.ghost.introspectChat({ role: roles.ASSISTANT, content: result })
-        logger.log(result)
         this.showText(result[result.length - 1])
         return result[result.length - 1]
     }
@@ -71,7 +67,6 @@ export default class Shell extends EventEmitter {
         if (chat[chat.length - 1] && chat[chat.length - 1].role == 'user') {
             const model = plugin.configurer.get('向量工具设置', '默认文本向量化模型').$value
             let recalledMessage = await this.recallWithVector(chat[chat.length - 1].vectors[model], chat[chat.length - 1])
-            logger.log(recalledMessage)
             recalledMessage = recalledMessage.map(item => {
                 let { meta } = item
                 let obj = { role: meta.role, content: meta.memo || meta.content }
@@ -88,7 +83,6 @@ export default class Shell extends EventEmitter {
                 return item
             }
         )
-        logger.log(chat)
         return this.processors.languageProcessor.completeChat(_chat);
     }
     recallWithVector(vector, message) {
@@ -127,7 +121,6 @@ export default class Shell extends EventEmitter {
     /**processors */
     changeProcessor(processorName, processorProvided) {
         if (this.checkProcessor(processorProvided, processorName)) {
-            logger.log(processorProvided, processorName)
             this.processors[processorName] = processorProvided;
         } else {
             logger.warn(`Processor ${processorName} does not have all required features.`);
@@ -235,7 +228,6 @@ export default class Shell extends EventEmitter {
             case 'textChat':
                 this.ghost.longTermMemory.history.forEach(
                     input => {
-                        logger.aiShelllog(component)
                         component.emit(`textWithRole`, input)
                     }
                 )
@@ -361,11 +353,3 @@ export class ChatStore extends EventEmitter {
 
 
 
-
-logger.datalog
-logger.initlog
-logger.templog
-/**
- * 可以用这种前缀调用法打印不同的级别
- * 前面是名字，最后的后缀是log、warn、error，info，debug等等这几个
- */
