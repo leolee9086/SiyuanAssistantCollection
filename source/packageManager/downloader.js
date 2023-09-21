@@ -32,7 +32,7 @@ export class DownloadDialog extends clientApi.Dialog {
         this.task.on('progress', ProgressEvent => {
             let downloadedMB = (this.task.总接收字节 + this.task.本次已接收字节) / (1024 * 1024);
             let totalMB = this.task.总字节 / (1024 * 1024);
-            document.getElementById('download-progress').value = ProgressEvent.detail;
+            document.getElementById('download-progress').$value = ProgressEvent.detail;
             document.getElementById('download-percentage').textContent = `Download progress: ${ProgressEvent.detail}%, ${downloadedMB.toFixed(2)}MB/${totalMB.toFixed(2)}MB`;
         });
         this.task.on('pause', () => {

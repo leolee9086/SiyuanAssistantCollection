@@ -15,13 +15,13 @@ export const 向量存储 = {
 export let blockDataSet = plugin.块数据集
 export let seachWithVector =async(...args)=>{return await plugin.块数据集.以向量搜索数据(...args)}
 const embeddingWorkerURL = import.meta.resolve(`./embeddingWorker.js`)
-const 向量工具设置 = plugin.configurer.get('向量工具设置')
+const 向量工具设置 = plugin.configurer.get('向量工具设置').value
 
 
 export const 开始索引 = async () => {
     await 初始化数据集()
-    if (!statusMonitor.get('索引器','已加载')) {
-        statusMonitor.set('索引器','已加载',(await 创建索引器(configurer.get('向量工具设置'), embeddingWorkerURL))?true:false)
+    if (!statusMonitor.get('索引器','已加载').value) {
+        statusMonitor.set('索引器','已加载',(await 创建索引器(configurer.get('向量工具设置').value, embeddingWorkerURL))?true:false)
         eventBus.emit('blockIndexerReady')
     }
     let 全块数组 = await 获取全块数组()
@@ -44,7 +44,7 @@ export const 创建索引器 = async (向量工具设置, 向量生成器地址)
 }
 export const 初始化数据集 = async () => {
     let 块数据集 = 向量存储.公开向量数据库实例.创建数据集(
-        'blockVectors' + '/' + plugin.configurer.get('向量工具设置', '默认文本向量化模型'),
+        'blockVectors' + '/' + plugin.configurer.get('向量工具设置', '默认文本向量化模型').value,
         'id',
         'box'
     )

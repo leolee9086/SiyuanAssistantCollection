@@ -2,6 +2,7 @@ import { EventEmitter } from '../../../eventsManager/EventEmitter.js';
 import { pluginInstance as plugin } from '../../../asyncModules.js';
 import { aiMessageButton } from './buttons/InsertButton.js';
 import { show as showGhostSelector } from './menus/ghostSelector.js';
+import logger from '../../../logger/index.js'
 export class AIChatInterface extends EventEmitter {
     constructor(element, doll) {
         super(`textChat_${doll.ghost.persona.name}`)
@@ -44,7 +45,7 @@ export class AIChatInterface extends EventEmitter {
                 参考内容 = []
             }
             document.querySelectorAll(".protyle-wysiwyg--select").forEach(el => {
-                console.log(plugin.lute)
+                logger.aiChatlog(plugin.lute)
                 参考内容.push(`[${el.textContent.substring(0, 512)}](siyuan://blocks/${el.getAttribute('data-node-id')})`)
             })
             参考内容[0] ? this.用户输入框.value += `\n> ---references---\n${参考内容.join('\n')}` : null
@@ -100,7 +101,7 @@ export class AIChatInterface extends EventEmitter {
         const 提交按钮 = document.createElement('button');
         提交按钮.id = 'submit-btn';
         提交按钮.classList.add('ai-submit-btn')
-        提交按钮.textContent = '提交';
+        提交按钮.textContent = plugin.i18n.提交;
 
         const 用户输入区 = document.createElement('div');
         用户输入区.classList.add('user-input-container');
@@ -122,14 +123,14 @@ export class AIChatInterface extends EventEmitter {
         this.聊天容器 = 聊天容器;
         this.引用按钮 = 引用按钮
 
-        console.log(this.doll)
+        logger.aiChatlog(this.doll)
         element.appendChild(对话框内容元素);
         用户输入框.focus()
 
     }
 
     显示消息(message) {
-        console.log(message)
+        logger.aiChatlog(message)
         switch (message.role) {
             case "user":
                 this.显示用户消息(message.content)

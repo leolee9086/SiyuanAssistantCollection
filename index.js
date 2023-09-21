@@ -35,15 +35,20 @@ class PluginConfigurer {
     }
     return this
   }
-  get(group, name) {
-    if (!this.target[group]) {
-      return undefined
+  get(...args) {
+    let target = this.target;
+    for (let i = 0; i < args.length; i++) {
+      if (target[args[i]] === undefined) {
+        const undefinedFunction = () => undefined;
+        undefinedFunction.$value = undefined;
+        return undefinedFunction;
+      }
+      target = target[args[i]];
     }
-    if (name || name === 0) {
-      return this.target[group][name]
-    } else {
-      return this.target[group]
-    }
+    const getterFunction = (nextArg) => this.get(...args, nextArg);
+    getterFunction.$value = target;
+    console.log(getterFunction.$value)
+    return getterFunction;
   }
   list(){
     return this.target
@@ -208,6 +213,9 @@ class SiyuanAssistantCollection extends ccPlugin {
     this.命令历史 = []
     this.依赖 = 依赖
     this.设置 = {
+      日志设置:{
+        aiChat:false
+      },
       向量工具设置: {
         默认文本向量化模型: 'shibing624/text2vec-base-chinese',
         最大句子长度: 1024,
@@ -350,7 +358,7 @@ class SiyuanAssistantCollection extends ccPlugin {
       init() {
         console.log(this)
        this.element.innerHTML = `<div id="ai-chat-interface" class='fn__flex-column' style="pointer-events: auto;overflow:hidden;max-height:100%"></div>`;
-        let tabs = plugin.statusMonitor.get('aiTabContainer',this.data.persona)||[]
+        let tabs = plugin.statusMonitor.get('aiTabContainer',this.data.persona).value||[]
        tabs.push(this)
        plugin.statusMonitor.set('aiTabContainer',this.data.persona, tabs)
         plugin.eventBus.emit('TabContainerInited',this)

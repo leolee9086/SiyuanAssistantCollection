@@ -25,7 +25,7 @@ export async function 根据上下文获取动作表(context,signal) {
             let f = await 智能防抖(
                 获取过滤器函数(动作表,signal),
                 (当次执行间隔, 平均执行时间) => {
-                     console.warn(`动作表${动作表._动作表路径}生成时间过长,已经阻断,当前执行间隔为${当次执行间隔},平均执行时间为${平均执行时间},优化生成函数可能改善`) 
+                     logger.actionListwarn(`动作表${动作表._动作表路径}生成时间过长,已经阻断,当前执行间隔为${当次执行间隔},平均执行时间为${平均执行时间},优化生成函数可能改善`) 
                 }
             )
             if(signal&&signal.aborted){
@@ -34,7 +34,7 @@ export async function 根据上下文获取动作表(context,signal) {
             f? f(备选动作表, context,signal):null
 
         } catch (e) {
-            console.warn(e, 动作总表[i]);
+            logger.actionListwarn(e, 动作总表[i]);
         }
     }
     return 备选动作表
@@ -106,7 +106,7 @@ function 创建过滤器函数(动作表) {
                     备选动作表.push(动作);
                 }
             } catch (e) {
-                console.warn(e, _动作表[j]);
+                logger.actionListwarn(e, _动作表[j]);
             }
             // console.log(Date.now()-t0)
         }

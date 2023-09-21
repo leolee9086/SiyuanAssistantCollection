@@ -95,7 +95,7 @@ class 日志记录器原型 {
     if (typeof level !== 'string' || level.trim() === '') {
       throw new Error('Invalid level name');
     }
-
+    
     // Validate writter
     if (typeof writter !== 'object' || typeof writter.write !== 'function') {
       throw new Error('Invalid writter');
@@ -116,7 +116,12 @@ class 日志记录器原型 {
     if (!this.config.writters.has(日志级别)) {
       throw new Error(`Invalid log level: ${日志级别}`);
     }
-
+    if(!plugin.configurer.get('日志设置',日志名称).$value){
+      if(plugin.configurer.get('日志设置',日志名称).$value===undefined){
+        console.warn('没有设置日志类型',日志名称,'请注意')
+      }
+      return
+    }
     // Get the current stack trace
     const 原始调用栈 = new Error().stack;
     const lines = 原始调用栈.split('\n')

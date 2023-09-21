@@ -86,8 +86,8 @@ const showAImenu = (button) => {
         label: "插入到当前块",
         submenu: [],
         click: () => {
-            if (plugin.statusMonitor.get('runtime', 'currentContext')) {
-                let blockId = plugin.statusMonitor.get('runtime', 'currentContext').blocks[0].id
+            if (plugin.statusMonitor.get('runtime', 'currentContext').$value) {
+                let blockId = plugin.statusMonitor.get('runtime', 'currentContext').$value.blocks[0].id
                 let block = new BlockHandler(blockId)
                 block.insertAfter('测试')
             }

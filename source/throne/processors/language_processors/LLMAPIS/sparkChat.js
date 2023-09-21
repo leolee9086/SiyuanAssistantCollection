@@ -1,7 +1,7 @@
 import { ChatSession } from "./chatSession.js";
 // 填入你的参数
 import { plugin } from "../../../../asyncModules.js";
-let 模型设置 = plugin.configurer.get('聊天工具设置','模型设置').讯飞星火
+let 模型设置 = plugin.configurer.get('聊天工具设置','模型设置','讯飞星火').value
 export class sparkChat extends ChatSession {
     constructor(options) {
         super()

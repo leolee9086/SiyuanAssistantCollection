@@ -28,7 +28,7 @@ const 开始自动索引 = () => {
     let backgroundTaskCount = 0;
     plugin.eventBus.on(
         'ws-main', (e) => {
-            if(! plugin.statusMonitor.get('blockIndex','progress')){
+            if(! plugin.statusMonitor.get('blockIndex','progress').$value){
                 return
             }
             let d = e.detail
