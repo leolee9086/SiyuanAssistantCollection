@@ -1,8 +1,8 @@
 import { plugin } from "../../asyncModules.js";
 import throneManager from '../../throne/index.js'
-const element = await plugin.statusMonitor.get('dockContainers', 'main').value;
+const element = await plugin.statusMonitor.get('dockContainers', 'main').$value;
 
-element?(await throneManager.buildDoll(await plugin.configurer.get('聊天工具设置', '默认AI').value
+element?(await throneManager.buildDoll(await plugin.configurer.get('聊天工具设置', '默认AI').$value
 )).createInterface(
     {
         type: 'textChat',
