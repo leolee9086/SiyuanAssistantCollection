@@ -12,7 +12,6 @@ if (!_roster) {
     _roster = new Map()
     window[Symbol.for('ghostRoster')] = _roster
 }
-
 for (let persona of personas) {
     console.log(persona, personas)
     if (persona.name == 'DummySys') {
@@ -38,7 +37,6 @@ for (let persona of personas) {
         }
     }
 }
-console.log(plugin.statusMonitor.get('AiGhosts').$value)
 class Roster {
     constructor() {
 
@@ -67,6 +65,7 @@ class Roster {
         return mems
     }
     async listGhostNames(){
+        //这里使用记忆来列举AI是为了避免列出加载失败的ghost
         let mems = await this.listMems()
         let ghostNames = []
         for(let mem of mems){

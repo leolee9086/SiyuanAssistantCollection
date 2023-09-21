@@ -148,11 +148,6 @@ export class AIChatInterface extends EventEmitter {
         const userMessage = createElement("div", ["user-message"], `<strong>User:</strong> ${message}`);
         this.聊天容器.appendChild(userMessage);
     }
-
-    添加插入按钮(aiMessage, userInput) {
-        let button = new aiMessageButton({ doll: this.doll, aiMessage, currentAiReply: this.当前AI回复, userInput });
-        aiMessage.appendChild(button.button);
-    }
     添加AI消息(message) {
         const aiMessage = createElement("div", ["ai-message"], "");
         this.聊天容器.appendChild(aiMessage);
@@ -175,6 +170,11 @@ export class AIChatInterface extends EventEmitter {
 
         return aiMessage;
     }
+    添加插入按钮(aiMessage, userInput) {
+        let button = new aiMessageButton({ doll: this.doll, aiMessage, currentAiReply: this.当前AI回复, userInput });
+        aiMessage.appendChild(button.button);
+    }
+   
     等待AI回复() {
         this.用户输入框.setAttribute('disabled', true)
     }
