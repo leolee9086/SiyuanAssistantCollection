@@ -1,13 +1,14 @@
 import { Melchior } from "./wise/Melchior.js";
 import { Balthazar } from "./wise/Belthazar.js"
 import { Casper } from "./wise/Casper.js"
+import logger from '../../../logger/index.js'
 export class MAGI {
     constructor(BaseApi, config = {}, persona) {
         console.log(BaseApi, config, persona)
         this.BaseApi =BaseApi
         this.config = config
         this._persona = persona
-        console.log('User selected intelligent mode, sysMAGI is online, energy consumption may be very high');
+        logger.MAGIlog('User selected intelligent mode, sysMAGI is online, energy consumption may be very high');
         //从逻辑角度做出判断的人格
         this.Melchior = new Melchior(BaseApi, config, persona)
         //从情绪角度做出判断的人格
@@ -74,7 +75,7 @@ export class MAGI {
             } catch (e) {
                 console.error(e, weights)
             }
-            console.log(weights)
+            logger.MAGIlog(weights)
             weights.reason = undefined
             const functionMap = {};
             for (let func of functions) {
@@ -83,9 +84,9 @@ export class MAGI {
             let melchiorScores = normalizeScores(melchiorFunctions);
             let BalthazarScores = normalizeScores(BalthazarFunctions);
             let casperScores = normalizeScores(casperFunctions);
-            console.log('melchiorChoice:', melchiorScores);
-            console.log('BalthazarChoice:', BalthazarScores);
-            console.log('casperChoice:', casperScores);
+            logger.MAGIlog('melchiorChoice:', melchiorScores);
+            logger.MAGIlog('BalthazarChoice:', BalthazarScores);
+            logger.MAGIlog('casperChoice:', casperScores);
             let finalResultNames = functions.map(func => {
                 let melchiorScore = melchiorScores[func.name] || 0;
                 let BalthazarScore = BalthazarScores[func.name] || 0;
@@ -98,7 +99,7 @@ export class MAGI {
 
             // 按照得分进行排序
             finalResultNames.sort((a, b) => b.score - a.score);
-            console.log(finalResultNames)
+            logger.MAGIlog(finalResultNames)
             // 使用函数名查找函数
             let finalResult = finalResultNames.map(item => functionMap[item.name]);
 
@@ -145,7 +146,7 @@ export class MAGI {
              * 效果会比现在的简化流程好一些,因为每次投票都会从逻辑|常理|情感的角度给出回应并综合,但是token消耗太高了
              * 所以为了避免花费过大,这里进行了简化
              */
-            console.log(userInput)
+            logger.MAGIlog(userInput)
             if (this.config.simple) {
                 return await this.Casper.reply(userInput)
             }
@@ -163,7 +164,7 @@ export class MAGI {
             } catch (e) {
                 console.error(e, weights)
             }
-            console.log(weights)
+            logger.MAGIlog(weights)
             weights.reason = undefined
             // 如果当前AI的权重最低，开始新的投票过程
             if (this.currentWise && weights[this.currentWise] === Math.min(...Object.values(weights))) {
@@ -182,7 +183,7 @@ export class MAGI {
                 }
                 // 投票的时候只考虑符合格式的回复
                 const replies = [melchiorReply, BalthazarReply, casperReply].filter(reply => reply && reply.choices && reply.choices[0] && reply.choices[0].message && reply.choices[0].message.content);
-                console.log(replies.map((reply, i) => `${['melchiorReply', 'BalthazarReply', 'casperReply'][i]}: ${reply.choices[0].message.content}`).join('\n'));
+                logger.MAGIlog(replies.map((reply, i) => `${['melchiorReply', 'BalthazarReply', 'casperReply'][i]}: ${reply.choices[0].message.content}`).join('\n'));
                 // 将回复作为参数再次传递给evaluate方法进行综合
                 const functions = replies.map((reply, i) => ({
                     name: `replyFrom${['Melchior', 'Balthazar', 'Casper'][i]}`,
@@ -201,10 +202,10 @@ export class MAGI {
                 this.currentWise = combinedReply[0].name.substring(9); // 从函数名中提取AI的名字
                 this.replyCount = 0; // 重置计数器
                 this.needVote=false
-                console.log(`${this.persona.name} Reply: ${combinedReply[0].action}`);
+                logger.MAGIlog(`${this.persona.name} Reply: ${combinedReply[0].action}`);
                 return combinedReply;
             } else {
-                console.log(this.currentWise + ` as ${this.persona.name} is the current leader`);
+                logger.MAGIlog(this.currentWise + ` as ${this.persona.name} is the current leader`);
                 let reply;
                 switch (this.currentWise) {
                     case "Melchior":
@@ -224,7 +225,7 @@ export class MAGI {
 }
 
 function normalizeScores(functions) {
-    console.log(functions)
+    logger.MAGIlog(functions)
     let scores = functions.map(f => f.score);
     let min = Math.min(...scores);
     let max = Math.max(...scores);
@@ -232,6 +233,6 @@ function normalizeScores(functions) {
     functions.forEach((func, i) => {
         normalizedScores[func.name] = (scores[i] - min) / (max - min);
     });
-    console.log(functions, normalizedScores)
+    logger.MAGIlog(functions, normalizedScores)
     return normalizedScores;
 }
