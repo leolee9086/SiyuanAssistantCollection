@@ -226,6 +226,11 @@ class SiyuanAssistantCollection extends ccPlugin {
     this.protyles = [];
     this.命令历史 = []
     this.依赖 = 依赖
+
+    //设置可以由任意子模块以plugin.configurer.set的形式初始化,这里的只是默认设置.
+    //@TODO:所有设置条目初始化时给出设置项UI渲染函数
+    //之所以要求给出单独的渲染函数是为了在关键词唤起时能够任意地组合设置界面
+    
     this.设置 = {
       日志设置:{
         aiChat:false,
