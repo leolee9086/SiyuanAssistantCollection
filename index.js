@@ -236,7 +236,7 @@ class SiyuanAssistantCollection extends ccPlugin {
       },
       向量工具设置: {
         默认文本向量化模型: 'leolee9086/text2vec-base-chinese',
-        最大句子长度: 1024,
+        最大句子长度: 496,
       },
       聊天工具设置: {
         默认AI: "paimon",
