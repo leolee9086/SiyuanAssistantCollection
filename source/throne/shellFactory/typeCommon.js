@@ -16,12 +16,12 @@ export default class Shell extends EventEmitter {
     constructor(type = 'default', drivers = {}, processors = {}) {
         super();
         // 驱动应该是一个对象，键是驱动类型，值是驱动的原型
-    
         this.drivers = {
             textChat: AIChatInterface,
             search: [],
             ...drivers
         };
+        //components中的各个类型列举了AI可以使用的功能,之后如果token价格降下来这里会重新部分交给AI自己判断
         this.components = {
             search: [],
             textChat: []
