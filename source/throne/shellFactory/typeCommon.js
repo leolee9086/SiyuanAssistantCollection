@@ -303,21 +303,19 @@ export default class Shell extends EventEmitter {
     }
 }
 
-
+//这下面的代码暂时没有用上,先不要清理
 export class ChatStore extends EventEmitter {
     constructor(vectorDatabase) {
         super();
         this.messages = {};
         this.vectorDatabase = vectorDatabase;  // 向量数据库实例
     }
-
     createMessage(id, message, type) {
         const messageController = this.getMessageController(type, message);
         this.messages[id] = messageController;
         this.vectorDatabase.insert(id, messageController.vector, messageController.content);  // 插入向量和内容
         this.emit('messageCreated', { id, messageController });
     }
-
     updateMessage(id, newMessage) {
         const messageController = this.messages[id];
         if (messageController) {
@@ -326,7 +324,6 @@ export class ChatStore extends EventEmitter {
             this.emit('messageUpdated', { id, messageController });
         }
     }
-
     deleteMessage(id) {
         const messageController = this.messages[id];
         if (messageController) {
