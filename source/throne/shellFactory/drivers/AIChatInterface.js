@@ -56,7 +56,6 @@ export class AIChatInterface extends EventEmitter {
         if (event.key === "Enter" && !globalThis.siyuan.ctrlIsPressed) {
             this.提交按钮.click(); // 触发提交按钮的 click 事件
             event.preventDefault(); // 阻止默认的换行行为
-
             event.stopPropagation(); // 阻止事件冒泡
 
         } else if (event.key === "Tab") {
@@ -72,6 +71,10 @@ export class AIChatInterface extends EventEmitter {
     提交按钮点击回调 = async (event) => {
         let 用户输入文字 = this.用户输入框.value
         if (用户输入文字) {
+            if (this.用户输入框.value == '/刷新') {
+                window.location.reload()//如果用户提交的内容是这样的话刷新界面
+                return
+            }
             this.当前用户输入 = 用户输入文字
             this.用户输入框.value = ""
             this.提交用户消息(this.当前用户输入)
@@ -142,8 +145,6 @@ export class AIChatInterface extends EventEmitter {
 
         this.聊天容器.scrollTop = this.聊天容器.scrollHeight;
     }
-
-   
     显示用户消息(message) {
         const userMessage = createElement("div", ["user-message"], `<strong>User:</strong> ${message}`);
         this.聊天容器.appendChild(userMessage);

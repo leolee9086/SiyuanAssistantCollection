@@ -55,7 +55,6 @@ export default class Shell extends EventEmitter {
         let 消息对象 = { role: roles.USER, content: text }
         let result = await this.ghost.introspectChat(消息对象)
         this.showText(消息对象)
-
         result = await this.completeChat(result)
         //introspect系列的方法都是让ghost有机会对消息进行后处理的
         result = await this.ghost.introspectChat({ role: roles.ASSISTANT, content: result })
