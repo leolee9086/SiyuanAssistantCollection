@@ -343,7 +343,7 @@ class SiyuanAssistantCollection extends ccPlugin {
   }
   log(...args){
     if(this.日志记录器){
-      this.日志记录器.pluginMainlog(...args)
+      this.日志记录器.default.pluginMainlog(...args)
     }else{
       console.log(...args)
     }
@@ -388,7 +388,7 @@ class SiyuanAssistantCollection extends ccPlugin {
 
       },
       destroy() {
-        this.log("destroy tab:", DOCK_TYPE);
+        plugin.log("destroy tab:", DOCK_TYPE);
       }
     });
   }
