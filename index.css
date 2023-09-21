@@ -114,11 +114,10 @@
 
 .tips-card.pinned {
     border: 2px solid var(--b3-card-info-color);
-    max-height: 60px;
+    max-height: 100px;
     padding:0px;
     overflow: hidden;
 }
-
-.tips-card.selected {
-    background-color: var(--b3-card-success-color);
+#SAC-TIPS_pinned{
+    max-height: 30%;
 }

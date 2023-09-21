@@ -293,6 +293,7 @@ class SiyuanAssistantCollection extends ccPlugin {
       type: DOCK_TYPE,
       init() {
         this.element.innerHTML = `
+        <div class="fn__flex-1 fn__flex-column" style="max-height:100%">
         <div class="block__icons">
         <div class="block__logo">
             <svg>
@@ -301,11 +302,12 @@ class SiyuanAssistantCollection extends ccPlugin {
             TIPS
         </div>
     </div>
-    <div class='fn_flex fn_flex-1'>
-        <div id="SAC-TIPS_pinned" class='fn__flex-column' style="overflow:auto;max-height:100%"></div>
-
-        <div id="SAC-TIPS" class='fn__flex-column' style="overflow:auto;max-height:100%"></div>
-    <div>
+    <div class="fn__flex-1" style="min-height: auto;transition: var(--b3-transition)">
+    <div id="SAC-TIPS_pinned"  style="overflow:auto;max-height:30%"></div>
+    <div id="SAC-TIPS" class='fn__flex-1' style="overflow:auto;max-height:100%"></div>
+    </div>
+    </div>
+    <div class="fn__flex">
         `;
         plugin.statusMonitor.set('tipsConainer', 'main', this.element)
         plugin.eventBus.emit('tipsConainerInited')

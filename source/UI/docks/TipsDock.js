@@ -30,7 +30,6 @@ async function 批量渲染(动作表, 执行上下文, container) {
             if (element instanceof HTMLElement && !(element.tagName === 'SCRIPT')) {
                 div.querySelector(".b3-card__body").appendChild(element);
             }
-
             let isDuplicate = Array.from(container.children).some(child => child.innerHTML === div.innerHTML);
             if (!isDuplicate) {
                 frag.prepend(div);
@@ -68,14 +67,18 @@ plugin.eventBus.on('hint_tips', async (e) => {
             if (target) {
                 if (target.classList.contains('pinned')) {
                     target.classList.remove('pinned');
+                    target.classList.remove('selected');
+
                     container.prepend(target);
                 } else {
                     target.classList.add('pinned');
+                    target.classList.add('selected');
+
                     pinnedContainer.appendChild(target);
                 }
             }
         });
-        element.addEventListener('dblclick', (event) => {
+      /*  element.addEventListener('dblclick', (event) => {
             const target = event.target.closest('.tips-card');
             if (target) {
                 if (target.classList.contains('selected')) {
@@ -84,7 +87,7 @@ plugin.eventBus.on('hint_tips', async (e) => {
                     target.classList.add('selected');
                 }
             }
-        });
+        });*/
     }
     渲染tips(e.detail.备选动作表, e.detail.context)
 })
