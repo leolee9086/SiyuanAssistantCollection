@@ -69,7 +69,7 @@ export default class Shell extends EventEmitter {
     async completeChat(chat) {
         let _chat
         if (chat[chat.length - 1] && chat[chat.length - 1].role == 'user') {
-            const model = plugin.configurer.get('向量工具设置', '默认文本向量化模型')
+            const model = plugin.configurer.get('向量工具设置', '默认文本向量化模型').$value
             let recalledMessage = await this.recallWithVector(chat[chat.length - 1].vectors[model], chat[chat.length - 1])
             logger.log(recalledMessage)
             recalledMessage = recalledMessage.map(item => {
@@ -92,7 +92,7 @@ export default class Shell extends EventEmitter {
         return this.processors.languageProcessor.completeChat(_chat);
     }
     recallWithVector(vector, message) {
-        const model = plugin.configurer.get('向量工具设置', '默认文本向量化模型')
+        const model = plugin.configurer.get('向量工具设置', '默认文本向量化模型').$value
         let history = this.ghost.longTermMemory.history.filter(
             item => {
                 let flag = true
@@ -261,7 +261,7 @@ export default class Shell extends EventEmitter {
                     refs+=`\n[${(new BlockHandler(el.getAttribute('data-node-id'))).content}](siyuan://blocks/${el.getAttribute('data-node-id')})`
                 }
             )
-            let selectedText =plugin.statusMonitor.get('editorStatus','selectedText')
+            let selectedText =plugin.statusMonitor.get('editorStatus','selectedText').$value
             refs += selectedText
             if (refs) {
                 return prompt + '\n' + refs
@@ -310,7 +310,7 @@ export default class Shell extends EventEmitter {
         return await this.processors.languageProcessor.summarizeText(content)
     }
     async embeddingMessage(message) {
-        const model = plugin.configurer.get('向量工具设置', '默认文本向量化模型')
+        const model = plugin.configurer.get('向量工具设置', '默认文本向量化模型').$value
         message.vectors = message.vectors = message.vectors || {}
         if (!message.vectors[model] && message.content) {
             message.vectors[model] = await embeddingText(message.content)

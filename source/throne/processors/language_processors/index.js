@@ -4,7 +4,7 @@ import {LanguageProcessor as RWKV}  from './SPARK.js'
 import { plugin } from '../../../asyncModules.js'
 import fs from '../../../polyfills/fs.js'
 
-let 当前基础后端接口 = await plugin.configurer.get('聊天工具设置','基础模型接口')
+let 当前基础后端接口 = await plugin.configurer.get('聊天工具设置','基础模型接口').$value
 let apiURL = import.meta.resolve('./LLMAPIS')
 let apiList = await fs.readDir('/data/plugins/'+apiURL.split('plugins')[1])
 apiList =apiList.filter(

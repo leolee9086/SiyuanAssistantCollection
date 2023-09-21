@@ -38,7 +38,7 @@ for (let persona of personas) {
         }
     }
 }
-console.log(plugin.statusMonitor.get('AiGhosts'))
+console.log(plugin.statusMonitor.get('AiGhosts').$value)
 class Roster {
     constructor() {
 
@@ -47,14 +47,14 @@ class Roster {
         persona
     ) {
         let name = persona.name || persona
-        if (!plugin.statusMonitor.get('AiGhosts',name)) {
+        if (!plugin.statusMonitor.get('AiGhosts',name).$value) {
             let DummySys = _roster.get("DummySys")
             console.warn(`ghost of persona ${name} not found,DummySys online`)
             let ghost =DummySys.fake(name, persona.persona, persona.goal)
-            plugin.statusMonitor.set('AiGhosts', name, ghost)
+            plugin.statusMonitor.set('AiGhosts', name, ghost).$value
             return ghost
         } else {
-            return plugin.statusMonitor.get('AiGhosts',name)
+            return plugin.statusMonitor.get('AiGhosts',name).$value
         }
     }
     async listMems(){

@@ -6,7 +6,7 @@ export { database as database }
 import { pluginInstance as plugin } from "../asyncModules.js";
 import roster from "./ghostDomain/index.js";
 export { plugin as plugin }
-let chatSetting = plugin.configurer.get('chat')
+let chatSetting = plugin.configurer.get('chat').$value
 export { chatSetting as chatSetting }
 export class Marduk {
     constructor() {

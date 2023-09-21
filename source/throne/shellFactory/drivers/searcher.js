@@ -6,7 +6,7 @@ export async function searchRef(message) {
         
         console.log(message)
         let { meta, vectors } = message
-        let model = plugin.configurer.get('向量工具设置', '默认文本向量化模型')
+        let model = plugin.configurer.get('向量工具设置', '默认文本向量化模型').$value
         let vector = vectors[model]
         if (!vector) {
             vector = await embeddingText(meta.content)

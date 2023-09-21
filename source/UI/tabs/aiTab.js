@@ -1,8 +1,9 @@
 import { plugin,clientApi } from "../../asyncModules.js";
 import throneManager from '../../throne/index.js'
-let tabGroups = plugin.statusMonitor.get("aiTabContainer")
-
-if(plugin.statusMonitor.get("aiTabContainer")){
+import logger from '../../logger/index.js'
+let tabGroups = plugin.statusMonitor.get("aiTabContainer").$value
+console.log(tabGroups)
+if(plugin.statusMonitor.get("aiTabContainer").value){
     for(let persona in tabGroups){
         let tabs = tabGroups[persona]
         tabs.forEach(
@@ -18,12 +19,12 @@ if(plugin.statusMonitor.get("aiTabContainer")){
     }
 }
 plugin.eventBus.on('TabContainerInited',(event)=>{
-    console.log(event.detail)
+    logger.AiTablog(event.detail)
      createAiTab(event.detail)
 })
 function createAiTab(tab){
-    console.log(tab)
-    throneManager.buildDoll( plugin.configurer.get('聊天工具设置', '默认AI')).then(
+    logger.AiTablog(tab)
+    throneManager.buildDoll( plugin.configurer.get('聊天工具设置', '默认AI').$value).then(
         doll=>{
             doll.createInterface(
                 {
@@ -36,7 +37,7 @@ function createAiTab(tab){
     )
 }
 plugin.eventBus.on("open-siyuan-url-plugin",(event)=>{
-    console.log(event.detail)
+    logger.AiTablog(event.detail)
     const tab = clientApi.openTab({
             app: plugin.app,
             custom: {
@@ -46,12 +47,10 @@ plugin.eventBus.on("open-siyuan-url-plugin",(event)=>{
                     persona: "paimon",
                 },
                 fn:plugin.aiTabContainer
-
             },
     })
-    console.log(tab)
+    logger.AiTablog(tab)
 })
-
 clientApi.openTab({
     app: plugin.app,
     custom: {

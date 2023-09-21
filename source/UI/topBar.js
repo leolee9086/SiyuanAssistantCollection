@@ -3,10 +3,10 @@ import { 主AI对话框 } from "./dialogs/chatDialogs.js";
 import {主设置对话框} from "./dialogs/settings.js"
 await 主AI对话框.init()
 await 主设置对话框.init()
-let topBarButton = plugin.statusMonitor.get('UI', 'topBarButton')
+let topBarButton = plugin.statusMonitor.get('UI', 'topBarButton').$value
 topBarButton.addEventListener(
     'click', async () => {
-        let 主AI对话框 = await plugin.statusMonitor.get('aiDialogs', 'MAIN')
+        let 主AI对话框 = await plugin.statusMonitor.get('aiDialogs', 'MAIN').$value
         console.log(主AI对话框)
         if (主AI对话框.isOpen) {
             await 主AI对话框.hide()
@@ -18,7 +18,7 @@ topBarButton.addEventListener(
 )
 topBarButton.addEventListener(
     'contextmenu', async () => {
-        let 主设置对话框 = await plugin.statusMonitor.get('settingDialogs', 'MAIN')
+        let 主设置对话框 = await plugin.statusMonitor.get('settingDialogs', 'MAIN').$value
         if (主设置对话框.isOpen) {
             await 主设置对话框.hide()
         }
