@@ -11,7 +11,7 @@ element?(await throneManager.buildDoll(await plugin.configurer.get('聊天工具
     }
 ):null
 plugin.eventBus.on('dockConainerInited', async () => {
-    const element = await plugin.statusMonitor.get('dockContainers', 'main');
+    const element = await plugin.statusMonitor.get('dockContainers', 'main').$value;
     (await throneManager.buildDoll(await plugin.configurer.get('聊天工具设置', '默认AI'))).createInterface(
         {
             type: 'textChat',

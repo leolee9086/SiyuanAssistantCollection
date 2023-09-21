@@ -274,7 +274,7 @@ class SiyuanAssistantCollection extends ccPlugin {
     }
     this.status = this.状态
     this.eventBus.on("loaded-protyle", (e) => {
-      console.log(e)
+      this.log(e)
       this.protyles.push(e.detail);
       this.protyles = Array.from(new Set(this.protyles));
       this.setLute ? this._lute = this.setLute({
@@ -337,10 +337,16 @@ class SiyuanAssistantCollection extends ccPlugin {
         plugin.eventBus.emit('tipsConainerInited')
       },
       destroy() {
-        console.log("destroy dock:", DOCK_TYPE);
+        plugin.log("destroy dock:", DOCK_TYPE);
       }
     });
-
+  }
+  log(...args){
+    if(this.日志记录器){
+      this.日志记录器.pluginMainlog(...args)
+    }else{
+      console.log(...args)
+    }
   }
   创建AI侧栏容器() {
     const DOCK_TYPE = 'SAC_CHAT'
@@ -362,7 +368,7 @@ class SiyuanAssistantCollection extends ccPlugin {
         plugin.eventBus.emit('dockConainerInited',this.element)
       },
       destroy() {
-        console.log("destroy dock:", DOCK_TYPE);
+        plugin.log("destroy dock:", DOCK_TYPE);
       }
     });
   }
@@ -372,17 +378,17 @@ class SiyuanAssistantCollection extends ccPlugin {
     this.aiTabContainer =this.addTab({
       type: DOCK_TYPE,
       init() {
-        console.log(this)
+        plugin.log(this)
        this.element.innerHTML = `<div id="ai-chat-interface" class='fn__flex-column' style="pointer-events: auto;overflow:hidden;max-height:100%"></div>`;
         let tabs = plugin.statusMonitor.get('aiTabContainer',this.data.persona).value||[]
        tabs.push(this)
        plugin.statusMonitor.set('aiTabContainer',this.data.persona, tabs)
         plugin.eventBus.emit('TabContainerInited',this)
-        console.log(this)
+        plugin.log(this)
 
       },
       destroy() {
-        console.log("destroy tab:", DOCK_TYPE);
+        this.log("destroy tab:", DOCK_TYPE);
       }
     });
   }
@@ -406,6 +412,7 @@ class SiyuanAssistantCollection extends ccPlugin {
     await this.包管理器.下载基础模型()
     await this.包管理器.解压依赖()
     await this.从esm模块('./source/eventsManager/index.js').合并子模块('事件管理器')
+
   }
   async 暴露插件环境() {
     window[Symbol.for(`plugin_${this.name}`)] = this
@@ -426,6 +433,8 @@ class SiyuanAssistantCollection extends ccPlugin {
       this.从esm模块('./source/polyfills/fs.js').合并成员为只读属性('default', { '别名': 'workspace' }),
       this.从esm模块('./source/utils/copyLute.js').合并成员为只读属性('setLute'),
       this.从esm模块('./source/actionList/index.js').合并子模块(),
+      this.从esm模块('./source/logger/index.js').合并子模块('日志记录器')
+
     ]);
   }
   async 初始化依赖项() {
