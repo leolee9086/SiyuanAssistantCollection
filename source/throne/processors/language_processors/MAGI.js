@@ -21,7 +21,10 @@ export class MAGI {
         }
       
         this.replyCount = 0;
-        //用户通常会更喜欢情感丰富的回答
+        /**
+         * 用户通常会更喜欢情感丰富的回答
+         * 所以在现在的简化流程中,除非极端情况Balthazar的评分过低,否则一般都是由Balthazar从最照顾用户情绪的角度进行回答
+         * */
         this.currentWise = 'Balthazar';
         this.lastVoteResult = 'Balthazar';
         this.config = config
