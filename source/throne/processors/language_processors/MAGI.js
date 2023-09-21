@@ -59,6 +59,7 @@ export class MAGI {
         }
     }
     echo = {
+        //MAGI的大部分能力目前没有被调用,因为token消耗太高了
         voteFor: async (functions, descriptions, inputs, goal, multi) => {
             // 并行调用 Melchior, Balthazar, Casper
             let [melchiorFunctions, BalthazarFunctions, casperFunctions] = await Promise.all([
@@ -81,11 +82,9 @@ export class MAGI {
             let melchiorScores = normalizeScores(melchiorFunctions);
             let BalthazarScores = normalizeScores(BalthazarFunctions);
             let casperScores = normalizeScores(casperFunctions);
-
             console.log('melchiorChoice:', melchiorScores);
             console.log('BalthazarChoice:', BalthazarScores);
             console.log('casperChoice:', casperScores);
-
             let finalResultNames = functions.map(func => {
                 let melchiorScore = melchiorScores[func.name] || 0;
                 let BalthazarScore = BalthazarScores[func.name] || 0;
@@ -140,6 +139,11 @@ export class MAGI {
 
         },
         reply: async (userInput) => {
+            /**
+             * 这是经过简化的回复流程,原本是每次回复都会经过投票=>计算权重=>总结的流程
+             * 效果会比现在的简化流程好一些,因为每次投票都会从逻辑|常理|情感的角度给出回应并综合,但是token消耗太高了
+             * 所以为了避免花费过大,这里进行了简化
+             */
             console.log(userInput)
             if (this.config.simple) {
                 return await this.Casper.reply(userInput)
@@ -153,9 +157,7 @@ export class MAGI {
             let weights = { "Melchior": 100, "Balthazar": 100, "Casper": 100 }
             try {
                 let last = userInput[userInput.length-1]
-
                 let obj ={role:last.role,content:last.content}
-
                 weights = await this.echo.coordinate({ history: obj, goal: 'give best reply to the user in the conversation,and pass the Turing test' })
             } catch (e) {
                 console.error(e, weights)
