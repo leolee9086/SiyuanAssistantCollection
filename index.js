@@ -26,14 +26,29 @@ class PluginConfigurer {
     }
     await this.plugin.saveData(`${this.fileName || this.prop}.json`, this.plugin[this.prop])
   }
-  async set(group, name, value) {
-    this.target[group] = this.target[group] || {}
-    this.target[group][name] = value
-    this.plugin.eventBus.emit(`${this.prop}Change`, { name, group, value })
-    if (this.save) {
-      await this.plugin.saveData(`${this.fileName || this.prop}.json`, this.target)
+  async set(...args) {
+    if (args.length < 2) {
+      throw new Error('You must provide at least two arguments');
     }
-    return this
+  
+    let value = args.pop();
+    let path = args;
+  
+    let target = this.target;
+    for (let i = 0; i < path.length - 1; i++) {
+      target[path[i]] = target[path[i]] || {};
+      target = target[path[i]];
+    }
+  
+    target[path[path.length - 1]] = value;
+  
+    this.plugin.eventBus.emit(`${this.prop}Change`, { name: path.join('.'), value });
+  
+    if (this.save) {
+      await this.plugin.saveData(`${this.fileName || this.prop}.json`, this.target);
+    }
+  
+    return this;
   }
   get(...args) {
     let target = this.target;
@@ -47,7 +62,6 @@ class PluginConfigurer {
     }
     const getterFunction = (nextArg) => this.get(...args, nextArg);
     getterFunction.$value = target;
-    console.log(getterFunction.$value)
     return getterFunction;
   }
   list(){
