@@ -1,4 +1,4 @@
-import { openAiChat } from './LLMAPIS/openAIchat.js'
+import { openAiChat } from './LLMAPIS/openAIChat.js'
 import { MAGI } from './MAGI.js'
 import { configer } from '../util/config.js'
 let options = await configer.getConfig('rwkv')

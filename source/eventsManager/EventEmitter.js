@@ -9,6 +9,9 @@ class EventBusDummy {
     on(event, callback) {
         if (!this.listeners[event]) {
             this.listeners[event] = [];
+        } else if (this.listeners[event].includes(callback)) {
+            logger.eventWarn(`Warning: The callback has already been added to the event "${event}".`,callback,this);
+            return;
         }
         this.listeners[event].push(callback);
     }
@@ -29,6 +32,7 @@ class EventBusDummy {
         this.on(event, wrapper);
     }
     emit(event, data) {
+        logger.eventlog(this.listeners[event])
         if (!this.listeners[event]) {
             return;
         }

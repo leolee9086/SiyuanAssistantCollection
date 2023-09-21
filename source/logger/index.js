@@ -116,16 +116,17 @@ class 日志记录器原型 {
     if (!this.config.writters.has(日志级别)) {
       throw new Error(`Invalid log level: ${日志级别}`);
     }
+    const 原始调用栈 = new Error().stack;
+    const lines = 原始调用栈.split('\n')
+    const newStackTrace = lines.slice(3).join('\n')  // Join the remaining lines back together
+
     if(!plugin.configurer.get('日志设置',日志名称).$value){
       if(plugin.configurer.get('日志设置',日志名称).$value===undefined){
-        console.warn('没有设置日志类型',日志名称,'请注意')
+        console.warn('没有设置日志类型',日志名称,'请注意',newStackTrace)
       }
       return
     }
     // Get the current stack trace
-    const 原始调用栈 = new Error().stack;
-    const lines = 原始调用栈.split('\n')
-    const newStackTrace = lines.slice(3).join('\n')  // Join the remaining lines back together
     // Send log message to all writters of the corresponding level
     for (const writter of this.config.writters.get(日志级别)) {
       let 重试次数 = 0;

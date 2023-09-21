@@ -16,6 +16,8 @@ export default class Shell extends EventEmitter {
     constructor(type = 'default', drivers = {}, processors = {}) {
         super();
         // 驱动应该是一个对象，键是驱动类型，值是驱动的原型
+        logger.aiShelllog(this)
+        this.created= Date.now()
         this.drivers = {
             textChat: AIChatInterface,
             search: [],
@@ -32,8 +34,12 @@ export default class Shell extends EventEmitter {
         };
         this.type = type
         this.thinkingTip = '等待中...'
+        this.已经初始化=false
     }
     async 初始化事件监听器() {
+        if(this.已经初始化){
+            return
+        }
         this.chanel = 'Ai_shell_' + this.ghost.persona.name
         this.on('textChat_userMessage', (event) => {
             logger.aiShelllog(event.detail)
@@ -43,6 +49,7 @@ export default class Shell extends EventEmitter {
             let processor = getLanguageProcessor()
             this.changeProcessor('languageProcessor',new processor(this.ghost.persona))
         })
+        this.已经初始化 = true
     }
     async Ghost唤醒回调() {
         this.showHistory()
@@ -52,6 +59,7 @@ export default class Shell extends EventEmitter {
         this.初始化事件监听器()
     }
     async replyChat(text) {
+        logger.aiShelllog(text)
         let 消息对象 = { role: roles.USER, content: text }
         let result = await this.ghost.introspectChat(消息对象)
         this.showText(消息对象)
@@ -157,11 +165,11 @@ export default class Shell extends EventEmitter {
         })
     }
     showText(input) {
+        logger.aiShelllog('显示消息',input,this)
         try {
             this.components['textChat'].forEach(
                 chatInterface=>{
                     if(chatInterface){
-                        logger.aiShelllog(chatInterface)
                         chatInterface.component.emit(
                             'textWithRole',
                             input

@@ -69,6 +69,7 @@ export class AIChatInterface extends EventEmitter {
         }
     }
     提交按钮点击回调 = async (event) => {
+        event.stopPropagation();
         let 用户输入文字 = this.用户输入框.value
         if (用户输入文字) {
             if (this.用户输入框.value == '/刷新') {
@@ -79,10 +80,11 @@ export class AIChatInterface extends EventEmitter {
             this.用户输入框.value = ""
             this.提交用户消息(this.当前用户输入)
             this.等待AI回复()
-            event.stopPropagation();
         }
     }
     提交用户消息(消息文字) {
+        logger.aiChatlog(消息文字)
+
         this.shell.emit(`textChat_userMessage`, 消息文字)
     }
     setlute(lute) {
