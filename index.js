@@ -229,7 +229,8 @@ class SiyuanAssistantCollection extends ccPlugin {
     this.设置 = {
       日志设置:{
         aiChat:false,
-        aiShell:false
+        aiShell:false,
+        dataSet:false,
       },
       向量工具设置: {
         默认文本向量化模型: 'shibing624/text2vec-base-chinese',
