@@ -1,8 +1,7 @@
 import { plugin } from "../asyncModules.js";
 import { 主AI对话框 } from "./dialogs/chatDialogs.js";
-import {主设置对话框} from "./dialogs/settings.js"
+import { 设置对话框 } from "./dialogs/settingsDialog.js";
 await 主AI对话框.init()
-await 主设置对话框.init()
 let topBarButton = plugin.statusMonitor.get('UI', 'topBarButton').$value
 topBarButton.addEventListener(
     'click', async () => {
@@ -18,12 +17,10 @@ topBarButton.addEventListener(
 )
 topBarButton.addEventListener(
     'contextmenu', async () => {
-        let 主设置对话框 = await plugin.statusMonitor.get('settingDialogs', 'MAIN').$value
-        if (主设置对话框.isOpen) {
-            await 主设置对话框.hide()
-        }
-        else {
-            await 主设置对话框.show()
-        }
+        设置对话框( {
+            日志设置:{
+                aiChat:''
+            }
+        })
     }
 )

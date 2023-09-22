@@ -6,14 +6,12 @@ const clientApi = require("siyuan");
 let path
 let plugin
 let 依赖 = {}
-
 class PluginConfigurer {
   constructor(plugin, prop, fileName, save) {
     this.plugin = plugin
     this.plugin[prop] = this.plugin[prop] || {}
     this.target = this.plugin[prop]
     this.fileName = fileName || `${prop.json}`
-    
     this.prop = prop
     this.save = save
   }
@@ -30,31 +28,30 @@ class PluginConfigurer {
     if (args.length < 2) {
       throw new Error('You must provide at least two arguments');
     }
-  
+
     let value = args.pop();
     let path = args;
-  
+
     let target = this.target;
     for (let i = 0; i < path.length - 1; i++) {
       target[path[i]] = target[path[i]] || {};
       target = target[path[i]];
     }
-  
+
     target[path[path.length - 1]] = value;
-  
+
     this.plugin.eventBus.emit(`${this.prop}Change`, { name: path.join('.'), value });
-  
+
     if (this.save) {
       await this.plugin.saveData(`${this.fileName || this.prop}.json`, this.target);
     }
-  
     return this;
   }
   get(...args) {
     let target = this.target;
     for (let i = 0; i < args.length; i++) {
       if (target[args[i]] === undefined) {
-        const undefinedFunction = () => undefined;
+        const undefinedFunction = () => { return undefined };
         undefinedFunction.$value = undefined;
         return undefinedFunction;
       }
@@ -64,7 +61,58 @@ class PluginConfigurer {
     getterFunction.$value = target;
     return getterFunction;
   }
-  list(){
+  query(fields, base = '') {
+    function generatePaths(obj, currentPath = '') {
+      let paths = [];
+      for (let key in obj) {
+        let newPath = currentPath ? `${currentPath}.${key}` : key;
+        if (Array.isArray(obj[key])) {
+          for (let subKey of obj[key]) {
+            paths.push(`${newPath}.${subKey}`);
+          }
+          if (obj[key].length === 0) {
+            paths.push(newPath);
+          }
+        } else if (typeof obj[key] === 'object' && Object.keys(obj[key]).length !== 0) {
+          paths = paths.concat(generatePaths(obj[key], newPath));
+        } else {
+          paths.push(newPath);
+        }
+      }
+      return paths;
+    }
+    function recursiveQuery(path) {
+      let fullPath = base ? `${base}.${path}` : path;
+      let value = this.get(...(fullPath.split('.'))).$value;
+      if (typeof value === 'object' && value !== null && !(value instanceof Array)) {
+        return Object.keys(value).reduce((result, key) => {
+          let subPath = `${path}.${key}`;
+          let subValue = recursiveQuery.call(this, subPath);
+          if (Array.isArray(subValue)) {
+            result = result.concat(subValue);
+          } else {
+            result.push({ path: subPath, value: subValue });
+          }
+          return result;
+        }, []);
+      } else {
+        return [{ path: fullPath, value: value }];
+      }
+    }
+
+    let paths = generatePaths(fields);
+    let data = paths.reduce((result, element) => {
+      let subData = recursiveQuery.call(this, element);
+      return result.concat(subData);
+    }, []);
+    data.forEach(obj => {
+      if (obj.value === undefined) {
+        obj.error = `属性路径${obj.path}不存在,请检查设置和查询参数`
+      }
+    });
+    return data;
+  }
+  list() {
     return this.target
   }
 }
@@ -73,7 +121,7 @@ class ccPlugin extends Plugin {
     this.statusMonitor = new PluginConfigurer(this, 'status')
   }
   async 初始化设置() {
-    this.configurer = new PluginConfigurer(this, 'setting', 'setting',true)
+    this.configurer = new PluginConfigurer(this, 'setting', 'setting', true)
     await this.configurer.reload()
   }
 
@@ -83,8 +131,8 @@ class ccPlugin extends Plugin {
     this.tempPath = `/temp/ccTemp/${this.name}/`
     this.publicPath = `/data/public`
     this.selfPath = `/data/plugins/${this.name}`
-    if(window.require){
-      this.localPath = window.require('path').join(window.siyuan.config.system.workspaceDir,'data','plugins',this.name)
+    if (window.require) {
+      this.localPath = window.require('path').join(window.siyuan.config.system.workspaceDir, 'data', 'plugins', this.name)
     }
   }
   resolve(路径) {
@@ -209,7 +257,6 @@ class ccPlugin extends Plugin {
       }
     }
   }
-
 }
 class SiyuanAssistantCollection extends ccPlugin {
   onload() {
@@ -230,14 +277,14 @@ class SiyuanAssistantCollection extends ccPlugin {
     //设置可以由任意子模块以plugin.configurer.set的形式初始化,这里的只是默认设置.
     //@TODO:所有设置条目初始化时给出设置项UI渲染函数
     //之所以要求给出单独的渲染函数是为了在关键词唤起时能够任意地组合设置界面
-    
+
     this.设置 = {
-      日志设置:{
-        aiChat:false,
-        aiShell:false,
-        dataSet:false,
-        MAGI:false,
-        event:false,
+      日志设置: {
+        aiChat: false,
+        aiShell: false,
+        dataSet: false,
+        MAGI: false,
+        event: false,
       },
       向量工具设置: {
         默认文本向量化模型: 'leolee9086/text2vec-base-chinese',
@@ -253,20 +300,30 @@ class SiyuanAssistantCollection extends ccPlugin {
         自动发送当前搜索结果: false,
         默认参考数量: 10,
         参考文字最大长度: 36,
-        基础模型接口:'OPENAI',
-        模型设置:{
-          讯飞星火:{
+        基础模型接口: 'OPENAI',
+        模型设置: {
+          讯飞星火: {
             appid: "",
             api_key: "",
             api_secret: "",
             Spark_url: "",
             domain: "",
           },
-          RWKV:{
-
+          RWKV: {
+            apiBaseURL: "",
+            apiKey: "",
+            apiMaxTokens: 0,
+            apiModel: "",
+            apiProxy: "",
+            apiTimeout: 60,
           },
-          ChatGPT:{
-            
+          ChatGPT: {
+            apiBaseURL: "",
+            apiKey: "",
+            apiMaxTokens: 0,
+            apiModel: "",
+            apiProxy: "",
+            apiTimeout: 60,
           },
         }
       },
@@ -348,10 +405,10 @@ class SiyuanAssistantCollection extends ccPlugin {
       }
     });
   }
-  log(...args){
-    if(this.日志记录器){
+  log(...args) {
+    if (this.日志记录器) {
       this.日志记录器.default.pluginMainlog(...args)
-    }else{
+    } else {
       console.log(...args)
     }
   }
@@ -372,7 +429,7 @@ class SiyuanAssistantCollection extends ccPlugin {
       init() {
         this.element.innerHTML = `<div id="ai-chat-interface" class='fn__flex-column' style="pointer-events: auto;overflow:hidden;max-height:100%"></div>`;
         plugin.statusMonitor.set('dockContainers', 'main', this.element)
-        plugin.eventBus.emit('dockConainerInited',this.element)
+        plugin.eventBus.emit('dockConainerInited', this.element)
       },
       destroy() {
         plugin.log("destroy dock:", DOCK_TYPE);
@@ -382,15 +439,15 @@ class SiyuanAssistantCollection extends ccPlugin {
   创建aiTab容器() {
     const DOCK_TYPE = 'SAC_CHAT'
     let plugin = this
-    this.aiTabContainer =this.addTab({
+    this.aiTabContainer = this.addTab({
       type: DOCK_TYPE,
       init() {
         plugin.log(this)
-       this.element.innerHTML = `<div id="ai-chat-interface" class='fn__flex-column' style="pointer-events: auto;overflow:hidden;max-height:100%"></div>`;
-        let tabs = plugin.statusMonitor.get('aiTabContainer',this.data.persona).value||[]
-       tabs.push(this)
-       plugin.statusMonitor.set('aiTabContainer',this.data.persona, tabs)
-        plugin.eventBus.emit('TabContainerInited',this)
+        this.element.innerHTML = `<div id="ai-chat-interface" class='fn__flex-column' style="pointer-events: auto;overflow:hidden;max-height:100%"></div>`;
+        let tabs = plugin.statusMonitor.get('aiTabContainer', this.data.persona).value || []
+        tabs.push(this)
+        plugin.statusMonitor.set('aiTabContainer', this.data.persona, tabs)
+        plugin.eventBus.emit('TabContainerInited', this)
         plugin.log(this)
 
       },
@@ -401,7 +458,6 @@ class SiyuanAssistantCollection extends ccPlugin {
   }
   async 初始化插件异步状态() {
     await this.初始化设置()
-    await this.configurer.reload()
     this.设置器 = this.configurer
     await this.暴露插件环境()
     await this.加载管理器()
@@ -410,21 +466,19 @@ class SiyuanAssistantCollection extends ccPlugin {
     await this.设置Lute();
     path = this.utils.path
     fs = this.workspace
-    this.初始化关键词表();
+    await this.初始化关键词表();
     await this.blockIndex.开始索引()
-  }
-  async 加载管理器(){
-  
-    await  this.从esm模块('./source/packageManager/index.js').合并子模块('包管理器')
-    await this.包管理器.下载基础模型()
-    await this.包管理器.解压依赖()
-    await this.从esm模块('./source/eventsManager/index.js').合并子模块('事件管理器')
-
   }
   async 暴露插件环境() {
     window[Symbol.for(`plugin_${this.name}`)] = this
     window[Symbol.for(`clientApi`)] = clientApi
     await this.从esm模块('./source/asyncModules.js').合并全部成员为只读属性()
+  }
+  async 加载管理器() {
+    await this.从esm模块('./source/packageManager/index.js').合并子模块('包管理器')
+    await this.包管理器.下载基础模型()
+    await this.包管理器.解压依赖()
+    await this.从esm模块('./source/eventsManager/index.js').合并子模块('事件管理器')
   }
   async 加载子模块() {
     await Promise.all([
@@ -441,7 +495,6 @@ class SiyuanAssistantCollection extends ccPlugin {
       this.从esm模块('./source/utils/copyLute.js').合并成员为只读属性('setLute'),
       this.从esm模块('./source/actionList/index.js').合并子模块(),
       this.从esm模块('./source/logger/index.js').合并子模块('日志记录器')
-
     ]);
   }
   async 初始化依赖项() {
@@ -503,9 +556,6 @@ function 递归合并(target, source) {
     }
   }
 }
-
-
-
 module.exports = SiyuanAssistantCollection;
 
 

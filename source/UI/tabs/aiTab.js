@@ -51,7 +51,7 @@ plugin.eventBus.on("open-siyuan-url-plugin",(event)=>{
     })
     logger.AiTablog(tab)
 })
-clientApi.openTab({
+/*clientApi.openTab({
     app: plugin.app,
     custom: {
         icon: "iconFace",
@@ -61,4 +61,4 @@ clientApi.openTab({
         },
         fn:plugin.aiTabContainer
     },
-})
+})*/

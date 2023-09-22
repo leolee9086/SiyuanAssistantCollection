@@ -1,4 +1,4 @@
-import * as elementBuilders from './inputElements.js';
+import * as elementBuilders from '../inputElements.js';
 export class FormItem {
     constructor(Item, cb, destroyCb) {
         this.cb = cb;

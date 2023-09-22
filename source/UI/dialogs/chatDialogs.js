@@ -1,4 +1,5 @@
-import { plugin,clientApi } from "../../asyncModules.js"
+import kernelApi from '../../polyfills/kernelApi.js'
+import { clientApi,pluginInstance as plugin } from '../../asyncModules.js'
 import throneManager from '../../throne/index.js'
 
 export const AI对话框 = async (标题, aiIdentifier) => {
