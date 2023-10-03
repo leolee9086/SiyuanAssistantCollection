@@ -1,5 +1,5 @@
-import { pluginInstance as plugin, clientApi } from '../../asyncModules.js';
-import kernelApi from '../../polyfills/kernelApi.js';
+import { pluginInstance as plugin, clientApi } from '../source/asyncModules.js';
+import kernelApi from '../source/polyfills/kernelApi.js';
 import { FormItem, FormInputter } from './FormItem.js';
 const STORAGE_NAME = 'STORAGE_NAME';
 const settingsArray = [
