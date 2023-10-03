@@ -9,3 +9,11 @@ export function createSideBarFragment(pathArray) {
         </li>`);
     return li;
 }
+export function createTabWrapper(pathArray) {
+    let tab = string2DOM(
+        `
+        <div class="config__tab-container_SAC config__tab-container--top" data-name="${pathArray[0]}">
+        </div>
+        `);
+    return tab;
+}
