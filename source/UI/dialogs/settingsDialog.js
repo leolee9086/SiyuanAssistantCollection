@@ -4,7 +4,9 @@ import { string2DOM } from "../builders/index.js";
 import { createInputter } from "../settting/inputter.js";
 import { 
     createSideBarFragment ,
-    createTabWrapper
+    createTabWrapper,
+    handleTabDisplay,
+
 
 } from "./dialogTabs/index.js";
 export const 设置对话框 = async (settingList, base) => {
@@ -36,15 +38,6 @@ export const 设置对话框 = async (settingList, base) => {
     dialog.element.querySelector(".config__panel_SAC").appendChild(buildSettingUI(settingList, base))
     return dialog
 };
-function handleTabDisplay(tabWrapper) {
-    for (let i = 0; i < tabWrapper.children.length; i++) {
-        if (i === 0) {
-            tabWrapper.children[i].style.display = 'block';
-        } else {
-            tabWrapper.children[i].style.display = 'none';
-        }
-    }
-}
 function buildSettingUI(settingList, base = '') {
     let keys = plugin.configurer.query(settingList, base);
     let frag = document.createDocumentFragment();

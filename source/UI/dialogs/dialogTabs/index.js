@@ -17,3 +17,12 @@ export function createTabWrapper(pathArray) {
         `);
     return tab;
 }
+function handleTabDisplay(tabWrapper) {
+    for (let i = 0; i < tabWrapper.children.length; i++) {
+        if (i === 0) {
+            tabWrapper.children[i].style.display = 'block';
+        } else {
+            tabWrapper.children[i].style.display = 'none';
+        }
+    }
+}
