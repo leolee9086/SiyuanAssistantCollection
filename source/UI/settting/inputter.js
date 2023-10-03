@@ -3,18 +3,19 @@ import { plugin } from "../../asyncModules.js";
 import {
     genLabel,
 } from "./dialogTabs/index.js";
-
+export const typeToInputter = (args,item) => {
+    return {
+        'string': () => createInputter(args, 'text', item, (value, element) => { element.value = value; }),
+        'number': () => createInputter(args, 'number', item, (value, element) => { element.value = value; }),
+        'boolean': () => createInputter(args, 'checkbox', item, (value, element) => { element.checked = value; }),
+    }
+};
 export function handleInputter(inputter, pathArray, tab, tabWrapper) {
     if (inputter) {
         let label = tabWrapper.querySelector(`[data-group="${pathArray[0] + '.' + pathArray[1]}"]`) || genLabel(pathArray, inputter);
         tab.appendChild(label);
     } 
 }
-
-
-
-
-
 export function createInputter(args, type, value, updateValue) {
     let element = createInputElement(type, value)
     element.addEventListener('change', () => {
