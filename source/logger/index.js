@@ -43,12 +43,6 @@ function safeStringify(obj, depth = 5, arrayLimit = 50) {
     return value;
   });
 }
-const writer = async (...content) => {
-  let timeStamp = new Date().toISOString();
-  let serializedContent = content.map(item => safeStringify(item));
-  chunk.push(`${timeStamp}:${serializedContent.join('  ')}\n`);
-  await writeToFile();
-};
 
 const writeToFile = async () => {
   let currentHour = new Date().toISOString().slice(0, 13)
@@ -78,12 +72,6 @@ class 日志记录器原型 {
         ['info', [{ write: console.info }]],
         ['error', [{ write: console.error }]],
         ['debug', [{ write: console.debug }]]
-
-        /*['log', [{ write: writer }]],
-                        ['warn', [{ write: writer }]],
-                        ['info', [{ write: writer }]],
-                        ['error', [{ write: writer }]],
-                        ['debug', [{ write: writer }]]*/
       ]),
       maxRetries: 5,
       ...config
@@ -152,7 +140,7 @@ const 日志记录器 = new 日志记录器原型();
 const 日志代理 = new Proxy(日志记录器, {
   get(target, prop) {
     if (typeof prop === 'string') {
-      const level = Array.from(target.config.writters.keys()).find(lvl => prop.endsWith(lvl));
+      const level = Array.from(target.config.writters.keys()).find(lvl => prop.toLowerCase().endsWith(lvl.toLowerCase()));
       if (level) {
         const name = prop.slice(0, -level.length);
         return (...messages) => target.sendLog(level, name, ...messages);

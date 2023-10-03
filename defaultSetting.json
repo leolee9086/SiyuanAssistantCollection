@@ -4,11 +4,16 @@
         "aiShell": false,
         "dataSet": false,
         "MAGI": false,
-        "event": false
+        "event": false,
+        "actionList":true
     },
     "向量工具设置": {
         "默认文本向量化模型": "leolee9086/text2vec-base-chinese",
-        "默认模型托管平台":["huggingface","gitee","github"],
+        "默认模型托管平台":{
+            "$value":"huggingface",
+            "$type":"singleSelect",
+            "options":["huggingface","gitee","github"]
+        },
         "最大句子长度": 496
     },
     "聊天工具设置": {
@@ -23,11 +28,11 @@
         "基础模型接口": {
             "$value":"ChatGPT",
             "$type":"singleSelect",
-            "options":["讯飞星火","RWKV","ChatGPT"]
+            "options":["SPARK","RWKV","OPENAI"]
         }
     },
     "模型设置": {
-        "讯飞星火": {
+        "SPARK": {
             "appid": "",
             "api_key": "",
             "api_secret": "",
@@ -42,7 +47,7 @@
             "apiProxy": "",
             "apiTimeout": 60
         },
-        "ChatGPT": {
+        "OPENAI": {
             "apiBaseURL": "",
             "apiKey": "",
             "apiMaxTokens": 0,

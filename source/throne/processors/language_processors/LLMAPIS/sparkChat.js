@@ -1,10 +1,11 @@
 import { ChatSession } from "./chatSession.js";
 // 填入你的参数
 import { plugin } from "../../../../asyncModules.js";
-let 模型设置 = plugin.configurer.get('聊天工具设置','模型设置','讯飞星火').$value
+let 模型设置 = plugin.configurer.get('模型设置','SPARK').$value
 export class sparkChat extends ChatSession {
     constructor(options) {
         super()
+
         this.options = {
             ...模型设置,
             ...options
@@ -19,7 +20,6 @@ export class sparkChat extends ChatSession {
                 return buildMessage(item)
             }
         )
-        console.log(post)
         let data =await this.main(post)
         return data
     }
@@ -36,11 +36,8 @@ export class sparkChat extends ChatSession {
                 ["sign"]
             );
             const signature_sha = await window.crypto.subtle.sign("HMAC", key, new TextEncoder().encode(signature_origin));
-            console.log(signature_sha)
             let signature_sha_base64 = btoa(String.fromCharCode(...new Uint8Array(signature_sha)));
-            console.log(signature_sha_base64)
             let authorization_origin = `api_key="${this.options.api_key}", algorithm="hmac-sha256", headers="host date request-line", signature="${signature_sha_base64}"`;
-            console.log(authorization_origin)
             let authorization = btoa(authorization_origin);
             let url = `${this.options.Spark_url}?authorization=${authorization}&date=${date}&host=${this.host}`
             this.url = url;

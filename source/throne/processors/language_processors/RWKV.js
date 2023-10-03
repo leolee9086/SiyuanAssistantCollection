@@ -1,7 +1,7 @@
 import { openAiChat } from './LLMAPIS/openAIChat.js'
 import { MAGI } from './MAGI.js'
-import { configer } from '../util/config.js'
-let options = await configer.getConfig('rwkv')
+import { plugin } from '../../../asyncModules.js'
+let options = plugin.configurer.get('模型设置','RWKV').$value
 
 export class LanguageProcessor {
     constructor(persona) {

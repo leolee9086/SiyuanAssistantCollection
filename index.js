@@ -42,8 +42,12 @@ class PluginConfigurer {
 
     // 校验新值
     let oldValue = target[path[path.length - 1]];
+    try{
     this.validateNewValue(oldValue, value);
-
+    }catch(e){
+      this.plugin.eventBus.emit(`${this.prop}Change`, { name: path.join('.'), oldValue });
+      throw(e)
+    }
     // 如果传入的设置值为字符串或数组，且原始值有$value属性且其类型与传入值相同，将传入设置值传递给原始值的$value属性
     if ((typeof value === 'string' || Array.isArray(value)) && oldValue && oldValue.$value && typeof oldValue.$value === typeof value) {
       oldValue.$value = value;
@@ -76,7 +80,7 @@ class PluginConfigurer {
     // 检查旧值是否存在且旧值是否有$type属性
     if (oldValue && oldValue.$type) {
       // 检查新值是否没有$type属性或新值的$type与旧值的$type是否不同
-      if (!value.$type || oldValue.$type !== value.$type) {
+      if ((!value.$type || oldValue.$type !== value.$type)&&!(typeof value === 'string' || Array.isArray(value))) {
         throw new Error(`New value must have the same $type as the old value. Old value: ${oldValue}, new value: ${value}`);
       }
     }

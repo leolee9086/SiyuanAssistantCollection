@@ -5,9 +5,9 @@ import {
 } from "./dialogTabs/index.js";
 export const typeToInputter = (args,item) => {
     return {
-        'string': () => createInputter(args, 'text', item, (value, element) => { element.value = value; }),
-        'number': () => createInputter(args, 'number', item, (value, element) => { element.value = value; }),
-        'boolean': () => createInputter(args, 'boolean', item, (value, element) => { element.checked = value; }),
+        'string': () => createInputter(args, 'text', item, (value, element) => { element.value =value.$value? value.$value:value}),
+        'number': () => createInputter(args, 'number', item, (value, element) => { element.value = value.$value? value.$value:value }),
+        'boolean': () => createInputter(args, 'boolean', item, (value, element) => { element.checked = value.$value? value.$value:value; }),
         'singleSelect': () => createSelectInputter(args, item, false),
         'multiSelect': () => createSelectInputter(args, item, true),
     }
@@ -40,7 +40,7 @@ function createSelectInputter(args, item, isMultiple) {
     element.addEventListener('change', () => {
         plugin.configurer.set(...args, element.value);
     });
-    let settingChangeHandler = createSettingChangeHandler(args, element, (value, element) => { element.value = value; });
+    let settingChangeHandler = createSettingChangeHandler(args, element, (value, element) => { element.value = value.$value? value.$value:value; });
     plugin.eventBus.on('settingChange', settingChangeHandler);
     return element;
 }

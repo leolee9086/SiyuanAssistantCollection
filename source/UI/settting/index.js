@@ -22,6 +22,7 @@ export function buildSettingUI(settingList, base = '') {
     }
     let firstTab;
     for (let i = 0; i < keys.length; i++) {
+
         let item = keys[i];
         if (item.error) {
             continue;

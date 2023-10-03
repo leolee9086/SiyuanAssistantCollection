@@ -78,10 +78,22 @@ export function genLabel(pathArray, inputter) {
         labelFragment.querySelector('button').addEventListener(
             'click', () => {
                 let newSettingList = plugin.configurer.get(...pathArray.slice(0, 2)).$value;
-                let { [pathArray[pathArray.length - 1]]: _, ...newSettingListWithoutEndValue } = newSettingList;
+                let newSettingListWithoutEndValue =setLeafNodesToEmpty(JSON.parse(JSON.stringify(newSettingList))) ;
                 设置对话框(newSettingListWithoutEndValue, pathArray.slice(0, 2).join('.'));
             }
         )
         return labelFragment
     }
+}
+function setLeafNodesToEmpty(obj) {
+    for (let key in obj) {
+        if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key]) && !('$type' in obj[key])) {
+            // If the property is an object and not an array or a '$type' property, recurse into it
+            setLeafNodesToEmpty(obj[key]);
+        } else {
+            // If the property is not an object or is an array or a '$type' property, it's a leaf node
+            obj[key] = '';
+        }
+    }
+    return obj
 }

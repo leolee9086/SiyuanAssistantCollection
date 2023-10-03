@@ -54,7 +54,7 @@ export const 导入所有动作表 = async () => {
             动作总表.push(_module['default'] || [])
             await 添加字典(_module.dict)
         } catch (e) {
-            logger.warn(`动作表${动作表.name}`, e)
+            logger.actionListwarn(`动作表${动作表.name}`, e)
         }
     }
     await 预处理动作表()
@@ -63,11 +63,9 @@ export const 导入所有动作表 = async () => {
 export const 预处理动作表 = async () => {
     for (const 动作表 of 动作总表) {
         try {
-            console.log(动作总表,动作表)
-
             await 处理单个动作表(动作表)
         } catch (e) {
-            logger.warn(动作表, e)
+            logger.actionListwarn(动作表, e)
         }
     }
 }
@@ -75,34 +73,42 @@ export const 处理单个动作表 = (动作表) => {
     if (动作表 instanceof Function) {
         return
     }
-    for (
-        let 动作 of 动作表
-    ) {
-        if (!动作.hints) {
-            动作.hints = plugin.defaultHint || '@@'
-        }
-        let hintArray = 动作.hints.split(',')
-
-        动作.hints.split(',').forEach(
-            hint => {
-                let hintPinyin = plugin.utils.pinyin.getFullChars(hint)
-                hintArray.push(hintPinyin)
-                hintArray.push(hintPinyin.toLowerCase())
-            }
-        )
-        hintArray = Array.from(new Set(hintArray))
-        动作.hintArray = hintArray
-        if (!动作.matchMod) {
-            动作.matchMod = 'include'
-        }
-        if (!动作.matcher) {
-            generateMatcher(动作)
-        }
-        if (!动作.blocksFilter) {
-            动作.blocksFilter = generateBlockFilter(动作)
-        }
+    if (!动作表) {
+        return
     }
-    return 动作表
+    try {
+        for (
+            let 动作 of 动作表
+        ) {
+            if (!动作.hints) {
+                动作.hints = plugin.defaultHint || '@@'
+            }
+            let hintArray = 动作.hints.split(',')
+
+            动作.hints.split(',').forEach(
+                hint => {
+                    let hintPinyin = plugin.utils.pinyin.getFullChars(hint)
+                    hintArray.push(hintPinyin)
+                    hintArray.push(hintPinyin.toLowerCase())
+                }
+            )
+            hintArray = Array.from(new Set(hintArray))
+            动作.hintArray = hintArray
+            if (!动作.matchMod) {
+                动作.matchMod = 'include'
+            }
+            if (!动作.matcher) {
+                generateMatcher(动作)
+            }
+            if (!动作.blocksFilter) {
+                动作.blocksFilter = generateBlockFilter(动作)
+            }
+        }
+
+        return 动作表
+    } catch (e) {
+        logger.actionListError(e, 动作表)
+    }
 }
 export const generateMatcher = (动作) => {
     const matchMod = 动作.matchMod

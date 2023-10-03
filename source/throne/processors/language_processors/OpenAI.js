@@ -1,8 +1,15 @@
 import OpenAichatApi from './LLMAPIS/openAIChat.js'
 import { MAGI } from './MAGI.js'
+import { plugin } from '../../../asyncModules.js'
+let options = plugin.configurer.get('模型设置','OPENAI').$value
+
 export class LanguageProcessor {
     constructor(persona) {
-        this.magi = new MAGI(OpenAichatApi, {}, persona)
+        this.magi = new MAGI(OpenAichatApi, {
+            ...options,
+            ...globalThis.siyuan.config.ai.openAI // 使用 siyuan.config.ai.openAI 对象进行初始化
+
+        }, persona)
     }
     async completeChat(chat) {
         try {
