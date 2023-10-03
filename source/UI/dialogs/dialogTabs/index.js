@@ -17,12 +17,46 @@ export function createTabWrapper(pathArray) {
         `);
     return tab;
 }
-function handleTabDisplay(tabWrapper) {
+export function handleTabDisplay(tabWrapper) {
     for (let i = 0; i < tabWrapper.children.length; i++) {
         if (i === 0) {
             tabWrapper.children[i].style.display = 'block';
         } else {
             tabWrapper.children[i].style.display = 'none';
         }
+    }
+}
+export function genLabel(pathArray, inputter) {
+    if (pathArray.length <= 2) {
+        let labelFragment = string2DOM(`
+        <label class="fn__flex b3-label config__item">
+            <div class="fn__flex-center fn__flex-1 ft__on-surface">
+                ${pathArray[pathArray.length - 1]}
+            </div>
+            <span class="fn__space"></span>
+        </label>`
+        )
+        labelFragment.appendChild(inputter)
+        return labelFragment
+    } else {
+        let labelFragment = string2DOM(`
+            <label class="fn__flex b3-label config__item" data-group="${pathArray[0] + '.' + pathArray[1]}">
+                <span class="fn__flex-center"> ${pathArray[1]}</span>
+                <span class="fn__flex-1"></span>
+                <span class="fn__space"></span>
+                <button  class="b3-button b3-button--outline fn__flex-center fn__size200">
+                    <svg><use xlink:href="#iconSettings"></use></svg>
+                    打开设置
+                </button>
+            </label>`
+        )
+        labelFragment.querySelector('button').addEventListener(
+            'click', () => {
+                let newSettingList = plugin.configurer.get(...pathArray.slice(0, 2)).$value;
+                let { [pathArray[pathArray.length - 1]]: _, ...newSettingListWithoutEndValue } = newSettingList;
+                设置对话框(newSettingListWithoutEndValue, pathArray.slice(0, 2).join('.'));
+            }
+        )
+        return labelFragment
     }
 }
