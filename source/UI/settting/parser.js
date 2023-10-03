@@ -161,4 +161,3 @@ function getHandler(leafType) {
     }
 }
 let parsedSettings = parseSettings(settings);
-console.error(parsedSettings)

@@ -461,6 +461,7 @@ class SiyuanAssistantCollection extends ccPlugin {
   }
   //这里是用于块标菜单的渲染，
 }
+module.exports = SiyuanAssistantCollection;
 
 
 
@@ -484,23 +485,33 @@ function 获取文件名(moduleURL) {
   }
   return fileName;
 }
-function 递归合并(target, source) {
-  if (!source) {
+
+
+
+/**
+ * 递归合并两个对象
+ * @param {Object} 目标对象 - 要合并到的对象
+ * @param {Object} 源对象 - 要从中合并的对象
+ */
+function 递归合并(目标对象, 源对象) {
+  if (!源对象) {
     return;
   }
-  for (let key in source) {
-    if (source.hasOwnProperty(key)) {
-      if (Object.prototype.toString.call(source[key]) === '[object Object]' && !source[key].$value && !(target[key] && target[key].$value)) {
-        // 如果当前属性是对象，并且source[key]和target[key]都没有$value属性，则递归合并
-        target[key] = target[key] || {};
-        递归合并(target[key], source[key]);
+  for (let 键 in 源对象) {
+    if (源对象.hasOwnProperty(键)) {
+      if (Object.prototype.toString.call(源对象[键]) === '[object Object]' && !源对象[键].$value && !(目标对象[键] && 目标对象[键].$value)) {
+        // 如果当前属性是对象，并且源对象[键]和目标对象[键]都没有$value属性，则递归合并
+        目标对象[键] = 目标对象[键] || {};
+        递归合并(目标对象[键], 源对象[键]);
       } else {
         // 否则，直接复制属性值，如果有$value属性，就使用$value的值
-        target[key] = source[key]
+        目标对象[键] = 源对象[键]
       }
     }
   }
 }
-module.exports = SiyuanAssistantCollection;
+
+
+
 
 
