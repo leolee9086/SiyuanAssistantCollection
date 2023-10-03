@@ -2,6 +2,7 @@ import { clientApi, plugin } from "../../asyncModules.js";
 import kernelApi from '../../polyfills/kernelApi.js'
 import { string2DOM } from "../builders/index.js";
 import { createInputter } from "../settting/inputter.js";
+import { createSideBarFragment } from "./dialogTabs/index.js";
 export const 设置对话框 = async (settingList, base) => {
     // 获取 settingList 的所有键
     if(!settingList||settingList=={}){
@@ -31,16 +32,6 @@ export const 设置对话框 = async (settingList, base) => {
     dialog.element.querySelector(".config__panel_SAC").appendChild(buildSettingUI(settingList, base))
     return dialog
 };
-function createSideBarFragment(pathArray) {
-    let li = string2DOM(
-        `<li data-name="${pathArray[0]}" class="b3-list-item">
-            <svg class="b3-list-item__graphic">
-                <use xlink:href="#iconKeymap"></use>
-            </svg>
-            <span class="b3-list-item__text">${pathArray[0]}</span>
-        </li>`);
-    return li;
-}
 function createTabWrapper(pathArray) {
     let tab = string2DOM(
         `
