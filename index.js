@@ -107,7 +107,6 @@ class PluginConfigurer {
     });
     return data;
   }
- 
   list() {
     return this.target
   }
