@@ -58,9 +58,10 @@ export function buildSettingUI(settingList, base = '') {
 export function 获取设置UI(...args) {
     let UI生成函数 = plugin.statusMonitor.get('settingElements', ...args);
     if (!UI生成函数()) {
-        let item = plugin.configurer.get(...args).$value;
+        let item = plugin.configurer.get(...args).$raw;
+        let itemType = item && item.$type ? item.$type : typeof item;
         let elementGenerator;
-        elementGenerator = typeToInputter(args,item)[typeof item] || (() => {
+        elementGenerator = typeToInputter(args,item)[itemType] || (() => {
             let element = document.createElement('input');
             element.type = 'text';
             element.value = '属性不合法或不存在';

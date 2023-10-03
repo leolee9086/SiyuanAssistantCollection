@@ -39,13 +39,61 @@ class PluginConfigurer {
       target[path[i]] = target[path[i]] || {};
       target = target[path[i]];
     }
-    target[path[path.length - 1]] = value;
+
+    // 校验新值
+    let oldValue = target[path[path.length - 1]];
+    this.validateNewValue(oldValue, value);
+
+    // 如果传入的设置值为字符串或数组，且原始值有$value属性且其类型与传入值相同，将传入设置值传递给原始值的$value属性
+    if ((typeof value === 'string' || Array.isArray(value)) && oldValue && oldValue.$value && typeof oldValue.$value === typeof value) {
+      oldValue.$value = value;
+    } else {
+      target[path[path.length - 1]] = value;
+    }
+
     this.plugin.eventBus.emit(`${this.prop}Change`, { name: path.join('.'), value });
     if (this.save) {
-      await this.plugin.saveData(`${path[0]}.json`, this.target[path[0]]||{});
+      await this.plugin.saveData(`${path[0]}.json`, this.target[path[0]] || {});
     }
     return this;
   }
+
+  validateNewValue(oldValue, value) {
+    // 检查旧值是否存在
+    if (oldValue !== undefined) {
+        // 检查旧值类型与新值类型是否相同
+        if (typeof oldValue !== typeof value) {
+            // 检查新值是否为字符串或数组
+            if (!(typeof value === 'string' || Array.isArray(value))) {
+                // 检查旧值是否有$value属性
+                if (oldValue.$value) {
+                    throw new Error(`New value must be the same type as the old value. Old value: ${oldValue}, new value: ${value}`);
+                }
+            }
+        }
+    }
+
+    // 检查旧值是否存在且旧值是否有$type属性
+    if (oldValue && oldValue.$type) {
+        // 检查新值是否没有$type属性或新值的$type与旧值的$type是否不同
+        console.log(typeof value)
+        if ((!value.$type&&(!(typeof value === 'string' || Array.isArray(value)))) || (value.$type&&oldValue.$type !== value.$type)) {
+            throw new Error(`New value must have the same $type as the old value. Old value: ${oldValue}, new value: ${value}`);
+        }
+    }
+
+    // 检查新值是否有$value属性
+    if (value.$value) {
+        // 检查新值是否没有$type属性
+        if (!value.$type) {
+            throw new Error(`The $value of the new value must have a $type. Old value: ${oldValue}, new value: ${value}`);
+        }
+        // 检查新值的$value是否不是字符串也不是数组
+        else if (typeof value.$value !== 'string' && !Array.isArray(value.$value)) {
+            throw new Error(`The $value of the new value must be a string or array. Old value: ${oldValue}, new value: ${value}`);
+        }
+    }
+}
   get(...args) {
     let target = this.target;
     for (let i = 0; i < args.length; i++) {
@@ -57,7 +105,15 @@ class PluginConfigurer {
       target = target[args[i]];
     }
     const getterFunction = (nextArg) => this.get(...args, nextArg);
-    getterFunction.$value = target;
+    if (typeof target === 'object' && target.$type && target.$value) {
+      getterFunction.$value = target.$value;
+      getterFunction.$raw = target;
+
+    } else {
+      getterFunction.$value = target;
+      getterFunction.$raw = target;
+
+    }
     return getterFunction;
   }
   generatePaths(obj, currentPath = '') {
@@ -71,6 +127,8 @@ class PluginConfigurer {
         if (obj[key].length === 0) {
           paths.push(newPath);
         }
+      } else if (typeof obj[key] === 'object' && obj[key].$value && obj[key].$type) {
+        paths.push(newPath);
       } else if (typeof obj[key] === 'object' && Object.keys(obj[key]).length !== 0) {
         paths = paths.concat(this.generatePaths(obj[key], newPath));
       } else {
@@ -82,7 +140,7 @@ class PluginConfigurer {
   recursiveQuery(path, base = '') {
     let fullPath = base ? `${base}.${path}` : path;
     let value = this.get(...(fullPath.split('.'))).$value;
-    if (typeof value === 'object' && value !== null && !(value instanceof Array)) {
+    if (typeof value === 'object' && value !== null && !(value instanceof Array) && !(value.$value && value.$type)) {
       return Object.keys(value).reduce((result, key) => {
         let subPath = `${path}.${key}`;
         let subValue = this.recursiveQuery(subPath, base);
