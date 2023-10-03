@@ -16,14 +16,17 @@ class PluginConfigurer {
     this.save = save
   }
   async reload() {
-    let data = await this.plugin.loadData(`${this.fileName}.json`)
-    try {
-      递归合并(this.plugin[this.prop], data);
-    } catch (e) {
-      console.error(e)
+    for (let key in this.plugin[this.prop]) {
+      let data = await this.plugin.loadData(`${key}.json`)
+      try {
+        递归合并(this.plugin[this.prop][key], data);
+      } catch (e) {
+        console.error(e)
+      }
+      await this.plugin.saveData(`${key}.json`, this.plugin[this.prop][key])
     }
-    await this.plugin.saveData(`${this.fileName || this.prop}.json`, this.plugin[this.prop])
   }
+
   async set(...args) {
     if (args.length < 2) {
       throw new Error('You must provide at least two arguments');
@@ -39,7 +42,7 @@ class PluginConfigurer {
     target[path[path.length - 1]] = value;
     this.plugin.eventBus.emit(`${this.prop}Change`, { name: path.join('.'), value });
     if (this.save) {
-      await this.plugin.saveData(`${this.fileName || this.prop}.json`, this.target);
+      await this.plugin.saveData(`${path[0]}.json`, this.target[path[0]]||{});
     }
     return this;
   }
@@ -295,10 +298,10 @@ class SiyuanAssistantCollection extends ccPlugin {
     this.创建aiTab容器()
   }
   读取基础设置() {
-      let xhr = new XMLHttpRequest();
-      xhr.open("GET", `/plugins/${this.name}/defaultSetting.json`, false); // false means synchronous
-      xhr.send(null);
-      this.设置 = JSON.parse(xhr.responseText)    
+    let xhr = new XMLHttpRequest();
+    xhr.open("GET", `/plugins/${this.name}/defaultSetting.json`, false); // false means synchronous
+    xhr.send(null);
+    this.设置 = JSON.parse(xhr.responseText)
   }
   创建顶栏按钮() {
     let topBarButton = this.addTopBar(

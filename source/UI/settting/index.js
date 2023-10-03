@@ -6,14 +6,21 @@ import {
 import { typeToInputter, handleInputter } from "./inputter.js";
 import { plugin } from "../../asyncModules.js";
 import { string2DOM } from "../builders/index.js";
-
-
-
 export function buildSettingUI(settingList, base = '') {
     let keys = plugin.configurer.query(settingList, base);
     let frag = document.createDocumentFragment();
-    let sideBarFragment = string2DOM(`<ul class="b3-tab-bar b3-list b3-list--background"></ul>`);
     let tabWrapper = string2DOM(`<div class="config__tab-wrap"></div>`);
+    let isSingleLevel = keys.every((item, i, arr) => {
+        if (i === 0) return true;
+        let prevPathParts = arr[i - 1].path.split('.');
+        let currPathParts = item.path.split('.');
+        return prevPathParts.slice(0, -1).join('.') === currPathParts.slice(0, -1).join('.');
+    });
+    let sideBarFragment;
+    if (!isSingleLevel) {
+        sideBarFragment = string2DOM(`<ul class="b3-tab-bar b3-list b3-list--background"></ul>`);
+    }
+    let firstTab;
     for (let i = 0; i < keys.length; i++) {
         let item = keys[i];
         if (item.error) {
@@ -21,16 +28,29 @@ export function buildSettingUI(settingList, base = '') {
         }
         let pathArray = base ? item.path.replace(base, '').split('.').filter(item => { return item !== '' }) : item.path.split('.');
         let fullPath = base ? `${base}.${pathArray.join('.')}` : pathArray.join('.');
-        let li = createSideBar(pathArray, sideBarFragment, tabWrapper);
-        let tab = createTab(pathArray, tabWrapper);
-        sideBarFragment.appendChild(li);
+        let li, tab;
+        if (!isSingleLevel) {
+            li = createSideBar(pathArray, sideBarFragment, tabWrapper);
+            sideBarFragment.appendChild(li);
+        }
+        tab = createTab(pathArray, tabWrapper);
+        if (i === 0) {
+            firstTab = tab;
+        } else if (isSingleLevel) {
+            while (tab.firstChild) {
+                firstTab.appendChild(tab.firstChild);
+            }
+        }
         tabWrapper.appendChild(tab);
         let elementGenerator = 获取设置UI(...fullPath.split('.'));
         let inputter = elementGenerator();
         handleInputter(inputter, pathArray, tab, tabWrapper);
     }
-    handleTabDisplay(tabWrapper);
-    frag.appendChild(sideBarFragment);
+    if (!isSingleLevel) {
+        handleTabDisplay(tabWrapper);
+
+        frag.appendChild(sideBarFragment);
+    }
     frag.appendChild(tabWrapper);
     return frag;
 }
