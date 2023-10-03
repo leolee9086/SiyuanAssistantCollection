@@ -11,6 +11,11 @@ export function createSideBarFragment(pathArray) {
         </li>`);
     return li;
 }
+
+
+export function createTab(pathArray, tabWrapper) {
+    return tabWrapper.querySelector(`[data-name="${pathArray[0]}"]`) || createTabWrapper(pathArray);
+}
 export function createTabWrapper(pathArray) {
     let tab = string2DOM(
         `
@@ -19,6 +24,24 @@ export function createTabWrapper(pathArray) {
         `);
     return tab;
 }
+export function createSideBar(pathArray, sideBarFragment, tabWrapper) {
+    let li = sideBarFragment.querySelector(`[data-name="${pathArray[0]}"]`);
+    if (!li) {
+        li = createSideBarFragment(pathArray);
+        li.addEventListener('click', () => {
+            Array.from(tabWrapper.children).forEach(tab => {
+                tab.style.display = 'none';
+            });
+            let tab = tabWrapper.querySelector(`[data-name="${pathArray[0]}"]`);
+            if (tab) {
+                tab.style.display = 'block';
+            }
+        });
+    }
+    return li;
+}
+
+
 export function handleTabDisplay(tabWrapper) {
     for (let i = 0; i < tabWrapper.children.length; i++) {
         if (i === 0) {

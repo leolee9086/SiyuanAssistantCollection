@@ -1,32 +1,13 @@
 import {
-    createSideBarFragment,
-    createTabWrapper,
-    handleTabDisplay
+    handleTabDisplay,
+    createTab,
+    createSideBar
 } from "./dialogTabs/index.js";
 import { createInputter,handleInputter } from "./inputter.js";
 import { plugin } from "../../asyncModules.js";
 import { string2DOM } from "../builders/index.js";
 
-export function createSideBar(pathArray, sideBarFragment, tabWrapper) {
-    let li = sideBarFragment.querySelector(`[data-name="${pathArray[0]}"]`);
-    if (!li) {
-        li = createSideBarFragment(pathArray);
-        li.addEventListener('click', () => {
-            Array.from(tabWrapper.children).forEach(tab => {
-                tab.style.display = 'none';
-            });
-            let tab = tabWrapper.querySelector(`[data-name="${pathArray[0]}"]`);
-            if (tab) {
-                tab.style.display = 'block';
-            }
-        });
-    }
-    return li;
-}
 
-export function createTab(pathArray, tabWrapper) {
-    return tabWrapper.querySelector(`[data-name="${pathArray[0]}"]`) || createTabWrapper(pathArray);
-}
 
 export function buildSettingUI(settingList, base = '') {
     let keys = plugin.configurer.query(settingList, base);
