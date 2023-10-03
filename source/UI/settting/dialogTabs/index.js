@@ -1,4 +1,6 @@
 import { string2DOM } from "../../builders/index.js";
+import { plugin } from "../../../asyncModules.js";
+import { 设置对话框 } from "../../dialogs/settingsDialog.js";
 export function createSideBarFragment(pathArray) {
     let li = string2DOM(
         `<li data-name="${pathArray[0]}" class="b3-list-item">

@@ -1,5 +1,5 @@
 import { clientApi, plugin } from "../../asyncModules.js";
-import { buildSettingUI } from "../settting/inputter.js";
+import { buildSettingUI } from "../settting/index.js";
 export const 设置对话框 = async (settingList, base) => {
     // 获取 settingList 的所有键
     if(!settingList||settingList=={}){
