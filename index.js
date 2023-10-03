@@ -76,8 +76,7 @@ class PluginConfigurer {
     // 检查旧值是否存在且旧值是否有$type属性
     if (oldValue && oldValue.$type) {
       // 检查新值是否没有$type属性或新值的$type与旧值的$type是否不同
-      console.log(typeof value)
-      if ((!value.$type && (!(typeof value === 'string' || Array.isArray(value)))) || (value.$type && oldValue.$type !== value.$type)) {
+      if (!value.$type || oldValue.$type !== value.$type) {
         throw new Error(`New value must have the same $type as the old value. Old value: ${oldValue}, new value: ${value}`);
       }
     }
@@ -91,6 +90,15 @@ class PluginConfigurer {
       // 检查新值的$value是否不是字符串也不是数组
       else if (typeof value.$value !== 'string' && !Array.isArray(value.$value)) {
         throw new Error(`The $value of the new value must be a string or array. Old value: ${oldValue}, new value: ${value}`);
+      }
+    }
+
+    // 当新旧值都有$value与$type属性时，新值所有属性必须与旧值所有属性类型一致（允许为undefined）
+    if (oldValue && oldValue.$value && oldValue.$type && value.$value && value.$type) {
+      for (let key in oldValue) {
+        if (typeof oldValue[key] !== typeof value[key] && value[key] !== undefined) {
+          throw new Error(`New value's ${key} must be the same type as the old value's ${key}. Old value: ${oldValue[key]}, new value: ${value[key]}`);
+        }
       }
     }
   }
