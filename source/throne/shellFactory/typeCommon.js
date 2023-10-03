@@ -272,7 +272,6 @@ export default class Shell extends EventEmitter {
             logger.error(e)
             return ""
         }
-  
     }
     //这里是整理记忆的方法
     async summryMemory(workingMemory) {
