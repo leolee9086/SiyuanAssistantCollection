@@ -1,16 +1,47 @@
 import { string2DOM } from "../builders/index.js";
 import { plugin } from "../../asyncModules.js";
-export function  buildSettingUI(settingList, base = '') {
+import {
+    createSideBarFragment,
+    createTabWrapper,
+    genLabel,
+    handleTabDisplay
+} from "./dialogTabs/index.js";
+export function createSideBar(pathArray, sideBarFragment, tabWrapper) {
+    let li = sideBarFragment.querySelector(`[data-name="${pathArray[0]}"]`);
+    if (!li) {
+        li = createSideBarFragment(pathArray);
+        li.addEventListener('click', () => {
+            Array.from(tabWrapper.children).forEach(tab => {
+                tab.style.display = 'none';
+            });
+            let tab = tabWrapper.querySelector(`[data-name="${pathArray[0]}"]`);
+            if (tab) {
+                tab.style.display = 'block';
+            }
+        });
+    }
+    return li;
+}
+
+export function createTab(pathArray, tabWrapper) {
+    return tabWrapper.querySelector(`[data-name="${pathArray[0]}"]`) || createTabWrapper(pathArray);
+}
+
+export function handleInputter(inputter, pathArray, tab, tabWrapper) {
+    if (inputter) {
+        let label = tabWrapper.querySelector(`[data-group="${pathArray[0] + '.' + pathArray[1]}"]`) || genLabel(pathArray, inputter);
+        tab.appendChild(label);
+    } else {
+        let prop = plugin.configurer.get(...fullPath.split('.')).$value;
+    }
+}
+
+export function buildSettingUI(settingList, base = '') {
     let keys = plugin.configurer.query(settingList, base);
     let frag = document.createDocumentFragment();
     let pathArray = keys[0].path.split('.');
-    //首先允许构建侧脸列表
-    let sideBarFragment = string2DOM(
-        `<ul class="b3-tab-bar b3-list b3-list--background">
-        </ul>`);
-    let tabWrapper = string2DOM(
-        `<div class="config__tab-wrap">
-       </div>`);
+    let sideBarFragment = string2DOM(`<ul class="b3-tab-bar b3-list b3-list--background"></ul>`);
+    let tabWrapper = string2DOM(`<div class="config__tab-wrap"></div>`);
     for (let i = 0; i < keys.length; i++) {
         let item = keys[i];
         if (item.error) {
@@ -18,29 +49,13 @@ export function  buildSettingUI(settingList, base = '') {
         }
         let pathArray = base ? item.path.replace(base, '').split('.').filter(item => { return item !== '' }) : item.path.split('.');
         let fullPath = base ? `${base}.${pathArray.join('.')}` : pathArray.join('.');
-        let li = sideBarFragment.querySelector(`[data-name="${pathArray[0]}"]`);
-        if (!li) {
-            li = createSideBarFragment(pathArray);
-            li.addEventListener('click', () => {
-                Array.from(tabWrapper.children).forEach(tab => {
-                    tab.style.display = 'none';
-                });
-                tab.style.display = 'block';
-            });
-        }
-        let tab = tabWrapper.querySelector(`[data-name="${pathArray[0]}"]`) || createTabWrapper(pathArray);
-
+        let li = createSideBar(pathArray, sideBarFragment, tabWrapper);
+        let tab = createTab(pathArray, tabWrapper);
         sideBarFragment.appendChild(li);
         tabWrapper.appendChild(tab);
         let elementGenerator = 获取设置UI(...fullPath.split('.'));
         let inputter = elementGenerator();
-        //如果有,就直接构建配置器就可以
-        if (inputter) {
-            let label = tabWrapper.querySelector(`[data-group="${pathArray[0] + '.' + pathArray[1]}"]`) || genLabel(pathArray, inputter);
-            tab.appendChild(label);
-        } else {
-            let prop = plugin.configurer.get(...fullPath.split('.')).$value;
-        }
+        handleInputter(inputter, pathArray, tab, tabWrapper);
     }
     handleTabDisplay(tabWrapper);
     frag.appendChild(sideBarFragment);
@@ -57,13 +72,13 @@ export function 获取设置UI(...args) {
         let elementGenerator;
         switch (typeof item) {
             case 'string':
-                elementGenerator = () => createInputter(args, 'text', item, (value,element) => { element.value = value; });
+                elementGenerator = () => createInputter(args, 'text', item, (value, element) => { element.value = value; });
                 break;
             case 'number':
-                elementGenerator = () => createInputter(args, 'number', item, (value,element) => { element.value = value; });
+                elementGenerator = () => createInputter(args, 'number', item, (value, element) => { element.value = value; });
                 break;
             case 'boolean':
-                elementGenerator = () => createInputter(args, 'checkbox', item, (value,element) => { element.checked = value; });
+                elementGenerator = () => createInputter(args, 'checkbox', item, (value, element) => { element.checked = value; });
                 break;
             default:
                 elementGenerator = () => {
@@ -81,7 +96,7 @@ export function 获取设置UI(...args) {
     }
 }
 export function createInputter(args, type, value, updateValue) {
-    let element = buildTextArea(type, value)
+    let element = createInputElement(type, value)
     element.addEventListener('change', () => {
         plugin.configurer.set(...args, type === 'boolean' ? element.value : element.checked);
     });
@@ -89,7 +104,7 @@ export function createInputter(args, type, value, updateValue) {
     plugin.eventBus.on('settingChange', settingChangeHandler);
     return element;
 }
-function buildTextArea(type, value) {
+function createInputElement(type, value) {
     let el = string2DOM(
         `
         <input 
@@ -101,7 +116,7 @@ function buildTextArea(type, value) {
         value="${value}">
         `
     )
-    if(type==='checkbox'){
+    if (type === 'checkbox') {
         el = string2DOM(
             `
             <input 
