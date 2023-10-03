@@ -28,7 +28,6 @@ class PluginConfigurer {
     if (args.length < 2) {
       throw new Error('You must provide at least two arguments');
     }
-
     let value = args.pop();
     let path = args;
 
@@ -37,11 +36,8 @@ class PluginConfigurer {
       target[path[i]] = target[path[i]] || {};
       target = target[path[i]];
     }
-
     target[path[path.length - 1]] = value;
-
     this.plugin.eventBus.emit(`${this.prop}Change`, { name: path.join('.'), value });
-
     if (this.save) {
       await this.plugin.saveData(`${this.fileName || this.prop}.json`, this.target);
     }
@@ -99,7 +95,6 @@ class PluginConfigurer {
         return [{ path: fullPath, value: value }];
       }
     }
-
     let paths = generatePaths(fields);
     let data = paths.reduce((result, element) => {
       let subData = recursiveQuery.call(this, element);
@@ -124,6 +119,7 @@ class ccPlugin extends Plugin {
     this.configurer = new PluginConfigurer(this, 'setting', 'setting', true)
     await this.configurer.reload()
   }
+
 
   初始化环境变量() {
     this.selfURL = `${window.location.protocol}//${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}/plugins/${this.name}/`;
@@ -273,72 +269,15 @@ class SiyuanAssistantCollection extends ccPlugin {
     this.protyles = [];
     this.命令历史 = []
     this.依赖 = 依赖
-
     //设置可以由任意子模块以plugin.configurer.set的形式初始化,这里的只是默认设置.
     //@TODO:所有设置条目初始化时给出设置项UI渲染函数
     //之所以要求给出单独的渲染函数是为了在关键词唤起时能够任意地组合设置界面
-
-    this.设置 = {
-      日志设置: {
-        aiChat: false,
-        aiShell: false,
-        dataSet: false,
-        MAGI: false,
-        event: false,
-      },
-      向量工具设置: {
-        默认文本向量化模型: 'leolee9086/text2vec-base-chinese',
-        最大句子长度: 496,
-      },
-      聊天工具设置: {
-        默认AI: "paimon",
-        决策级别: 0,
-        //在超过这个长度之后,聊天将被总结
-        默认聊天短期记忆: 7,
-        自动给出参考: 1,
-        自动发送当前文档: false,
-        自动发送当前搜索结果: false,
-        默认参考数量: 10,
-        参考文字最大长度: 36,
-        基础模型接口: 'OPENAI',
-        模型设置: {
-          讯飞星火: {
-            appid: "",
-            api_key: "",
-            api_secret: "",
-            Spark_url: "",
-            domain: "",
-          },
-          RWKV: {
-            apiBaseURL: "",
-            apiKey: "",
-            apiMaxTokens: 0,
-            apiModel: "",
-            apiProxy: "",
-            apiTimeout: 60,
-          },
-          ChatGPT: {
-            apiBaseURL: "",
-            apiKey: "",
-            apiMaxTokens: 0,
-            apiModel: "",
-            apiProxy: "",
-            apiTimeout: 60,
-          },
-        }
-      },
-      块标动作设置: {
-      },
-      关键词动作设置: {
-      }
-    }
+    //这里同步地读取基础设置,因为设置文件本身不大,所以问题应该不大
+    this.读取基础设置()
     this.setting = this.设置
-    this.状态 = {
-
-    }
+    this.状态 = {}
     this.status = this.状态
     this.eventBus.on("loaded-protyle", (e) => {
-      this.log(e)
       this.protyles.push(e.detail);
       this.protyles = Array.from(new Set(this.protyles));
       this.setLute ? this._lute = this.setLute({
@@ -354,6 +293,12 @@ class SiyuanAssistantCollection extends ccPlugin {
     this.创建AI侧栏容器()
     this.创建TIPS侧栏容器()
     this.创建aiTab容器()
+  }
+  读取基础设置() {
+      let xhr = new XMLHttpRequest();
+      xhr.open("GET", `/plugins/${this.name}/defaultSetting.json`, false); // false means synchronous
+      xhr.send(null);
+      this.设置 = JSON.parse(xhr.responseText)    
   }
   创建顶栏按钮() {
     let topBarButton = this.addTopBar(
@@ -541,17 +486,17 @@ function 获取文件名(moduleURL) {
 }
 function 递归合并(target, source) {
   if (!source) {
-    return
+    return;
   }
   for (let key in source) {
     if (source.hasOwnProperty(key)) {
-      if (Object.prototype.toString.call(source[key]) === '[object Object]') {
-        // 如果当前属性是对象，则递归合并
+      if (Object.prototype.toString.call(source[key]) === '[object Object]' && !source[key].$value && !(target[key] && target[key].$value)) {
+        // 如果当前属性是对象，并且source[key]和target[key]都没有$value属性，则递归合并
         target[key] = target[key] || {};
         递归合并(target[key], source[key]);
       } else {
-        // 否则，直接复制属性值
-        target[key] = source[key];
+        // 否则，直接复制属性值，如果有$value属性，就使用$value的值
+        target[key] = source[key]
       }
     }
   }

@@ -1,7 +1,4 @@
-import { pluginInstance as plugin } from "../../asyncModules";
-plugin.eventbus.on('plugin-loaded',()=>{
-    创建悬浮球()
-})
+
 
 const 创建悬浮球 = () => {
     // 创建一个新的div元素，这将是我们的悬浮球
@@ -18,4 +15,21 @@ const 创建悬浮球 = () => {
 
     // 将悬浮球添加到页面中
     document.body.appendChild(悬浮球);
+    return 悬浮球
 };
+export function string2DOM(string) {
+    string = string.trim()
+    let div = document.createElement('div');
+    div.innerHTML = string;
+
+    // 如果 div 只有一个子元素，直接返回这个子元素
+    if (div.childNodes.length === 1) {
+        return div.firstChild;
+    }
+    // 否则，返回包含所有子元素的文档片段
+    let fragment = document.createDocumentFragment();
+    while (div.firstChild) {
+        fragment.appendChild(div.firstChild);
+    }
+    return fragment;
+}

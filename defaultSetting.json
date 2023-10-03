@@ -1,0 +1,52 @@
+{
+    "日志设置": {
+        "aiChat": false,
+        "aiShell": false,
+        "dataSet": false,
+        "MAGI": false,
+        "event": false
+    },
+    "向量工具设置": {
+        "默认文本向量化模型": "leolee9086/text2vec-base-chinese",
+        "默认模型托管平台":["huggingface","gitee","github"],
+        "最大句子长度": 496
+    },
+    "聊天工具设置": {
+        "默认AI": "paimon",
+        "决策级别": 0,
+        "默认聊天短期记忆": 7,
+        "自动给出参考": 1,
+        "自动发送当前文档": false,
+        "自动发送当前搜索结果": false,
+        "默认参考数量": 10,
+        "参考文字最大长度": 36,
+        "基础模型接口": "OPENAI",
+        "模型设置": {
+            "讯飞星火": {
+                "appid": "",
+                "api_key": "",
+                "api_secret": "",
+                "Spark_url": "",
+                "domain": ""
+            },
+            "RWKV": {
+                "apiBaseURL": "",
+                "apiKey": "",
+                "apiMaxTokens": 0,
+                "apiModel": "",
+                "apiProxy": "",
+                "apiTimeout": 60
+            },
+            "ChatGPT": {
+                "apiBaseURL": "",
+                "apiKey": "",
+                "apiMaxTokens": 0,
+                "apiModel": "",
+                "apiProxy": "",
+                "apiTimeout": 60
+            }
+        }
+    },
+    "块标动作设置": {},
+    "关键词动作设置": {}
+}

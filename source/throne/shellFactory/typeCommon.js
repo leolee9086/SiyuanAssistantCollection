@@ -214,7 +214,7 @@ export default class Shell extends EventEmitter {
             // 找到要删除的接口的索引
             const index = this.components[type].findIndex(component => 
                 { 
-                    console.error(component,interfaceToRemove)
+                    logger.error(component,interfaceToRemove)
                     return component.component === interfaceToRemove
                 });
             // 如果找到了接口
@@ -287,7 +287,7 @@ export default class Shell extends EventEmitter {
         for (let item of history) {
             await this.embeddingMessage(item)
             if (!item.content) {
-                console.warn(item)
+                logger.warn(item)
                 item.content = ''
             }
             if (item.content.length > 1024 && !item.memo) {

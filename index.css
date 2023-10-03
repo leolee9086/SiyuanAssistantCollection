@@ -125,3 +125,6 @@
     padding: 16px 0;
     margin: 0 24px;
 }
+#ai-setting-interface > ul{
+    min-width: 30%;
+}

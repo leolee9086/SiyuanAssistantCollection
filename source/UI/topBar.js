@@ -17,10 +17,6 @@ topBarButton.addEventListener(
 )
 topBarButton.addEventListener(
     'contextmenu', async () => {
-        设置对话框( {
-            日志设置:{
-                aiChat:''
-            }
-        })
+        设置对话框()
     }
 )

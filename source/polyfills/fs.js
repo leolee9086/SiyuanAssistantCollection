@@ -23,6 +23,29 @@ export let readFile = async (file) => {
     return buf;
   }
 };
+export function readFileSync(file) {
+  let xhr = new XMLHttpRequest();
+  xhr.open("POST", "/api/file/getFile", false); // false means synchronous
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.send(JSON.stringify({ path: file }));
+
+  if (xhr.status !== 200 && xhr.status !== 202) {
+    console.error(`${file}读取错误`);
+    return;
+  }
+  if (xhr.status === 202) {
+    console.error(`${file}不存在,内容为undefined`);
+    return;
+  }
+
+  let mime = xhr.getResponseHeader("Content-Type");
+  if (isText(mime)) {
+    return xhr.responseText;
+  } else {
+    // For binary files, you might need to handle the response differently
+    return xhr.response;
+  }
+}
 let mimetype = {};
 Object.getOwnPropertyNames(mimes).forEach((type) => {
   let extensions = mimes[type]["extensions"];
@@ -135,6 +158,7 @@ export let initFile = async (path, data) => {
 };
 
 let fs = {
+  readFileSync,
   readFile,
   writeFile,
   readDir,
