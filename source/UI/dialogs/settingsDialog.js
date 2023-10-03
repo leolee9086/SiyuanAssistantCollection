@@ -17,7 +17,7 @@ export const 设置对话框 = async (settingList, base) => {
         destroyCallback: () => {
 
         },
-        width: '600px',
+        width: '60vw',
         height: 'auto',
         transparent: true,
         disableClose: false,
