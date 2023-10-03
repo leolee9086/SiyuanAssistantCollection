@@ -61,39 +61,39 @@ class PluginConfigurer {
   validateNewValue(oldValue, value) {
     // 检查旧值是否存在
     if (oldValue !== undefined) {
-        // 检查旧值类型与新值类型是否相同
-        if (typeof oldValue !== typeof value) {
-            // 检查新值是否为字符串或数组
-            if (!(typeof value === 'string' || Array.isArray(value))) {
-                // 检查旧值是否有$value属性
-                if (oldValue.$value) {
-                    throw new Error(`New value must be the same type as the old value. Old value: ${oldValue}, new value: ${value}`);
-                }
-            }
+      // 检查旧值类型与新值类型是否相同
+      if (typeof oldValue !== typeof value) {
+        // 检查新值是否为字符串或数组
+        if (!(typeof value === 'string' || Array.isArray(value))) {
+          // 检查旧值是否有$value属性
+          if (oldValue.$value) {
+            throw new Error(`New value must be the same type as the old value. Old value: ${oldValue}, new value: ${value}`);
+          }
         }
+      }
     }
 
     // 检查旧值是否存在且旧值是否有$type属性
     if (oldValue && oldValue.$type) {
-        // 检查新值是否没有$type属性或新值的$type与旧值的$type是否不同
-        console.log(typeof value)
-        if ((!value.$type&&(!(typeof value === 'string' || Array.isArray(value)))) || (value.$type&&oldValue.$type !== value.$type)) {
-            throw new Error(`New value must have the same $type as the old value. Old value: ${oldValue}, new value: ${value}`);
-        }
+      // 检查新值是否没有$type属性或新值的$type与旧值的$type是否不同
+      console.log(typeof value)
+      if ((!value.$type && (!(typeof value === 'string' || Array.isArray(value)))) || (value.$type && oldValue.$type !== value.$type)) {
+        throw new Error(`New value must have the same $type as the old value. Old value: ${oldValue}, new value: ${value}`);
+      }
     }
 
     // 检查新值是否有$value属性
     if (value.$value) {
-        // 检查新值是否没有$type属性
-        if (!value.$type) {
-            throw new Error(`The $value of the new value must have a $type. Old value: ${oldValue}, new value: ${value}`);
-        }
-        // 检查新值的$value是否不是字符串也不是数组
-        else if (typeof value.$value !== 'string' && !Array.isArray(value.$value)) {
-            throw new Error(`The $value of the new value must be a string or array. Old value: ${oldValue}, new value: ${value}`);
-        }
+      // 检查新值是否没有$type属性
+      if (!value.$type) {
+        throw new Error(`The $value of the new value must have a $type. Old value: ${oldValue}, new value: ${value}`);
+      }
+      // 检查新值的$value是否不是字符串也不是数组
+      else if (typeof value.$value !== 'string' && !Array.isArray(value.$value)) {
+        throw new Error(`The $value of the new value must be a string or array. Old value: ${oldValue}, new value: ${value}`);
+      }
     }
-}
+  }
   get(...args) {
     let target = this.target;
     for (let i = 0; i < args.length; i++) {
