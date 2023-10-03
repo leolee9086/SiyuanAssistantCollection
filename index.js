@@ -76,7 +76,6 @@ class PluginConfigurer {
     }
     return paths;
   }
-
   recursiveQuery(path, base = '') {
     let fullPath = base ? `${base}.${path}` : path;
     let value = this.get(...(fullPath.split('.'))).$value;
@@ -95,7 +94,6 @@ class PluginConfigurer {
       return [{ path: fullPath, value: value }];
     }
   }
-
   query(fields, base = '') {
     let paths = this.generatePaths(fields);
     let data = paths.reduce((result, element) => {
@@ -109,56 +107,7 @@ class PluginConfigurer {
     });
     return data;
   }
- /* query(fields, base = '') {
-    function generatePaths(obj, currentPath = '') {
-      let paths = [];
-      for (let key in obj) {
-        let newPath = currentPath ? `${currentPath}.${key}` : key;
-        if (Array.isArray(obj[key])) {
-          for (let subKey of obj[key]) {
-            paths.push(`${newPath}.${subKey}`);
-          }
-          if (obj[key].length === 0) {
-            paths.push(newPath);
-          }
-        } else if (typeof obj[key] === 'object' && Object.keys(obj[key]).length !== 0) {
-          paths = paths.concat(generatePaths(obj[key], newPath));
-        } else {
-          paths.push(newPath);
-        }
-      }
-      return paths;
-    }
-    function recursiveQuery(path) {
-      let fullPath = base ? `${base}.${path}` : path;
-      let value = this.get(...(fullPath.split('.'))).$value;
-      if (typeof value === 'object' && value !== null && !(value instanceof Array)) {
-        return Object.keys(value).reduce((result, key) => {
-          let subPath = `${path}.${key}`;
-          let subValue = recursiveQuery.call(this, subPath);
-          if (Array.isArray(subValue)) {
-            result = result.concat(subValue);
-          } else {
-            result.push({ path: subPath, value: subValue });
-          }
-          return result;
-        }, []);
-      } else {
-        return [{ path: fullPath, value: value }];
-      }
-    }
-    let paths = generatePaths(fields);
-    let data = paths.reduce((result, element) => {
-      let subData = recursiveQuery.call(this, element);
-      return result.concat(subData);
-    }, []);
-    data.forEach(obj => {
-      if (obj.value === undefined) {
-        obj.error = `属性路径${obj.path}不存在,请检查设置和查询参数`
-      }
-    });
-    return data;
-  }*/
+ 
   list() {
     return this.target
   }
