@@ -32,9 +32,8 @@ async function 批量渲染(动作表, 执行上下文, container) {
                 div.querySelector(".b3-card__body").appendChild(element);
             }
             let isDuplicate = Array.from(container.children).some(child => child.innerHTML === div.innerHTML);
-            if (!isDuplicate) {
                 frag.prepend(div);
-            }
+            
         }
     }
     container.prepend(frag);
