@@ -28,7 +28,7 @@ export const 设置对话框 = async (settingList, base) => {
 
         },
         width: '60vw',
-        height: 'auto',
+        height: '50vh',
         transparent: true,
         disableClose: false,
         disableAnimation: false

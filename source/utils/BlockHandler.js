@@ -1,4 +1,3 @@
-import { blockTableClomuns } from "./tables.js";
 import kernelApi from '../polyfills/kernelApi.js'
 import { clientApi, plugin } from "../asyncModules.js";
 let typeAbbrMap = {

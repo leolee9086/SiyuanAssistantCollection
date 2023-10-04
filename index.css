@@ -128,3 +128,7 @@
 #ai-setting-interface > ul{
     min-width: 250px;
 }
+.config__tab-container_SAC{
+    height: 100%;
+    overflow-y: scroll;
+}

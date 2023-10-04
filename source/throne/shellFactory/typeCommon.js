@@ -165,7 +165,6 @@ export default class Shell extends EventEmitter {
         })
     }
     showText(input) {
-        logger.aiShelllog('显示消息',input,this)
         try {
             this.components['textChat'].forEach(
                 chatInterface=>{

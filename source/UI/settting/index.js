@@ -35,21 +35,23 @@ export function buildSettingUI(settingList, base = '') {
             sideBarFragment.appendChild(li);
         }
         tab = createTab(pathArray, tabWrapper);
-        if (i === 0) {
-            firstTab = tab;
-        } else if (isSingleLevel) {
-            while (tab.firstChild) {
-                firstTab.appendChild(tab.firstChild);
-            }
-        }
+      
         tabWrapper.appendChild(tab);
         let elementGenerator = 获取设置UI(...fullPath.split('.'));
         let inputter = elementGenerator();
         handleInputter(inputter, pathArray, tab, tabWrapper);
+        if (i === 0) {
+            firstTab = tab;
+        } else if (isSingleLevel) {
+            console.log(tab,tab.querySelector('.config__item'))
+            while (tab.querySelector('.config__item')) {
+                firstTab.appendChild(tab.querySelector('.config__item'));
+            }
+        }
+
     }
     if (!isSingleLevel) {
         handleTabDisplay(tabWrapper);
-
         frag.appendChild(sideBarFragment);
     }
     frag.appendChild(tabWrapper);

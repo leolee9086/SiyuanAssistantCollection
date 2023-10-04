@@ -84,7 +84,6 @@ export class AIChatInterface extends EventEmitter {
     }
     提交用户消息(消息文字) {
         logger.aiChatlog(消息文字)
-
         this.shell.emit(`textChat_userMessage`, 消息文字)
     }
     setlute(lute) {
@@ -94,20 +93,16 @@ export class AIChatInterface extends EventEmitter {
         const 聊天容器 = document.createElement('div');
         聊天容器.id = 'chat-container';
         聊天容器.setAttribute('class', 'fn__flex-1')
-
         const 引用按钮 = document.createElement('button');
         引用按钮.innerHTML = `<svg><use xlink:href="#iconList"></use><svg>`;
         引用按钮.classList.add('ai-quote-btn')
-
         const 用户输入框 = document.createElement('textarea');
         用户输入框.id = 'user-input';
         用户输入框.placeholder = '请输入内容';
-
         const 提交按钮 = document.createElement('button');
         提交按钮.id = 'submit-btn';
         提交按钮.classList.add('ai-submit-btn')
         提交按钮.textContent = plugin.i18n.提交;
-
         const 用户输入区 = document.createElement('div');
         用户输入区.classList.add('user-input-container');
         用户输入区.appendChild(引用按钮);  // 将按钮添加到 userInputContainer 中
@@ -144,7 +139,6 @@ export class AIChatInterface extends EventEmitter {
                 this.添加AI消息(message.content)
                 break
         }
-
         this.聊天容器.scrollTop = this.聊天容器.scrollHeight;
     }
     显示用户消息(message) {
