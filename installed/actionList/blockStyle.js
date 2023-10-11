@@ -19,7 +19,7 @@ let dict = ''
                         en_US: `set color to ${颜色项.pinyin}`
                     }
                 },
-                hints: 颜色项.name,
+                hints: `${颜色项.name},颜色,background`,
                 active: (menu, element) => {
                     if (element.token) {
                         element.token.highlight()
@@ -50,7 +50,7 @@ let dict = ''
                         en_US: `set background to ${颜色项.pinyin}`
                     }
                 },
-                hints: 颜色项.name,
+                hints: `${颜色项.name},背景色,background`,
                 active: (menu, element) => {
                     if (element.token) {
                         element.token.select()
