@@ -1,7 +1,5 @@
 import { clientApi,plugin } from "../../asyncModules.js";
 import { panelElement } from "../search/vectorSearchUI.js";
-console.error(clientApi)
-
 export const 向量搜索窗口 = async ()=>{
     let dialog = new clientApi.Dialog({
         title: '搜索',

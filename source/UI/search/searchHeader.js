@@ -38,3 +38,7 @@ export let searchHeader = string2DOM(
         </div>
     </div>`
 )
+
+export let searchBlockIcons = string2DOM(
+    ``
+)

@@ -67,6 +67,5 @@ export class JsonSyAdapter {
             logger.datasetlog(this.文件保存地址, await fs.exists(this.文件保存地址))
             return {}
         }
-
     }
 }

@@ -78,16 +78,6 @@ plugin.eventBus.on('hint_tips', async (e) => {
                 }
             }
         });
-      /*  element.addEventListener('dblclick', (event) => {
-            const target = event.target.closest('.tips-card');
-            if (target) {
-                if (target.classList.contains('selected')) {
-                    target.classList.remove('selected');
-                } else {
-                    target.classList.add('selected');
-                }
-            }
-        });*/
     }
     if(container&&pinnedContainer){
     渲染tips(e.detail.备选动作表, e.detail.context)

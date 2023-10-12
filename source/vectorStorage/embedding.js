@@ -39,9 +39,6 @@ export async function 初始化配置(配置) {
     }
     return { msg: 'success' }
 }
-
-
-
 export async function 销毁管线() {
     if (extractor) {
         extractor.dispose()
@@ -75,7 +72,6 @@ export async function 提取向量(text, 最大句子长度) {
         return { msg: '错误', detail: e.message };
     }
 }
-
 export async function 矢量化块(block, 最大句子长度) {
     let { id, content } = block;
     let vector;
