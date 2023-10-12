@@ -105,3 +105,4 @@ const 日志代理 = new Proxy(日志记录器, {
 });
 
 export default 日志代理;
+export {日志代理 as logger}

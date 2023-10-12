@@ -1,5 +1,6 @@
 import Ghost from '../../../source/throne/ghostDomain/GhostProto.js'
-console.log(Ghost)
+import { logger } from '../../../source/logger/index.js';
+logger.aiGhostlog(Ghost)
 // 引入 art-template-web 库
 export class DummyGhost extends Ghost {
     constructor(name = "REI01", Persona) {
