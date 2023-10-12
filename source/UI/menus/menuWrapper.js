@@ -1,11 +1,11 @@
 import { Context } from "../Context.js";
-import { plugin,clientApi,kernelApi } from "../index.js";
+import { plugin, clientApi, kernelApi } from "../index.js";
 import BlockHandler from '../../utils/BlockHandler.js'
-import { 根据上下文获取动作表,根据动作序列生成菜单组 } from "../tokenMenu.js";
+import { 根据上下文获取动作表, 根据动作序列生成菜单组 } from "../tokenMenu.js";
 import { 动作总表 } from "../../actionList/index.js";
 import path from '../../polyfills/path.js'
 let 已监听菜单元素 = []
-let currentHintAction 
+let currentHintAction
 export const 监听菜单选中项变化 = (菜单, 选中回调函数, 反选回调函数) => {
   if (!已监听菜单元素.includes(menu.menu.element)) {
     const observer = new MutationObserver((mutationsList, observer) => {
@@ -148,16 +148,10 @@ export function 渲染块标菜单(event, eventType) {
     // 为每个分组创建一个菜单组
     for (let key of 路径组) {
       try {
-        //console.log(key)
         let 动作组 = 分组动作表[key]
         动作组 = 动作组 && 动作组.filter(item => { return item.blockAction });
-        /*  let div = siyuan.menus.menu.element.querySelector(
-            //item => { return item.getAttribute('data-list-path') == key }
-            `button div[data-list-path='${key}']`
-          )*/
+
         let div = divs.find(item => { return item.getAttribute('data-list-path') == key })
-        //console.log(动作组,div)
-        //console.log(div.parentElement)
         if (动作组 && 动作组[0]) {
           let 动作菜单组 = 根据动作序列生成菜单组(动作组, context);
           div.parentElement.parentElement.appendChild(动作菜单组);
@@ -171,11 +165,5 @@ export function 渲染块标菜单(event, eventType) {
       }
     }
 
-    /*
-        if(label1){
-        let 动作菜单组1 = 根据动作序列生成菜单组(动作表数组, context1)
-        div1.parentElement.parentElement.appendChild(动作菜单组1)
-        div1.parentElement.remove()
-      }*/
   }, 0)
 }
