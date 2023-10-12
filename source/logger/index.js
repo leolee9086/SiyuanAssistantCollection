@@ -1,49 +1,6 @@
 import fs from '../polyfills/fs.js'
 import { pluginInstance as plugin } from '../asyncModules.js';
 let chunk = []
-function safeStringify(obj, depth = 5, arrayLimit = 50) {
-  const cache = new Set();
-  return JSON.stringify(obj, (key, value) => {
-    if (depth <= 0) {
-      return '[Max Depth Reached]';
-    }
-    if (typeof value === 'object' && value !== null) {
-      if (cache.has(value)) {
-        // 移除循环引用
-        return '[Circular]';
-      }
-      cache.add(value);
-      if (Array.isArray(value)) {
-        // 处理大型数组
-        if (value.length > arrayLimit) {
-          return `[Array (${value.length})] ${JSON.stringify(value.slice(0, arrayLimit))}...`;
-        }
-      } else if (Object.keys(value).length > arrayLimit) {
-        // 处理大型对象
-        const limitedObj = {};
-        Object.keys(value).slice(0, arrayLimit).forEach(key => {
-          limitedObj[key] = value[key];
-        });
-        return `[Object (${Object.keys(value).length})] ${JSON.stringify(limitedObj)}...`;
-      } else if (value instanceof Error) {
-        // 处理 Error 对象
-        return value.toString();
-      } else if (value instanceof Date) {
-        // 将 Date 对象转换为字符串
-        return value.toISOString();
-      } else if (value instanceof Buffer) {
-        // 将 Buffer 转换为字符串
-        return value.toString();
-      } else if (value instanceof fs.ReadStream) {
-        // 将文件流转换为文件路径
-        return `File: ${value.path}`;
-      }
-      depth--;
-    }
-    return value;
-  });
-}
-
 const writeToFile = async () => {
   let currentHour = new Date().toISOString().slice(0, 13)
   let filename = '/temp/cclog/' + plugin.name + '_' + currentHour + '.txt'

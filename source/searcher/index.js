@@ -1,18 +1,6 @@
-/**
- * 根据类型获取搜索器
- * @param {string} 搜索器类型 - 搜索器的类型
- * @returns {Object} 返回搜索器对象
- */
-export const 以类型获取搜索器 = (搜索器类型) => {
-    return 搜索器注册表.get(搜索器类型)
-}
-
-/**
- * 模糊获取搜索器
- * @param {string} query - 搜索的文本
- * @param {string} 搜索器类型 - 搜索器的类型
- * @returns {Object} 返回搜索器对象
- */
-export const 模糊获取搜索器 = (query, 搜索器类型) => {
-   
+import { plugin } from "../asyncModules.js"
+export async function 以文本查找最相近文档(textContent, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数) {
+    let embedding = await plugin.文本处理器.提取文本向量(textContent)
+    let vectors = plugin.块数据集.以向量搜索数据('vector', embedding, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数)
+    return vectors
 }

@@ -4,7 +4,7 @@ import { 使用worker处理数据 } from "../utils/workerHandler.js"
 import logger from "../logger/index.js"
 import kernelApi from "../polyfills/kernelApi.js"
 import { 创建笔记本字典 } from "../utils/blockDataProcessor.js"
-const {statusMonitor,eventBus,configurer} = plugin
+const { statusMonitor, eventBus, configurer } = plugin
 export const 向量存储 = {
     公开向量数据库实例: new 数据库('/data/public/vectorStorage'),
     插件向量数据库实例: new 数据库('/data/storage/petal'),
@@ -13,15 +13,15 @@ export const 向量存储 = {
     简易向量数据原型: 数据库
 }
 export let blockDataSet = plugin.块数据集
-export let seachWithVector =async(...args)=>{return await plugin.块数据集.以向量搜索数据(...args)}
+export let seachWithVector = async (...args) => { return await plugin.块数据集.以向量搜索数据(...args) }
 const embeddingWorkerURL = import.meta.resolve(`./embeddingWorker.js`)
 const 向量工具设置 = plugin.configurer.get('向量工具设置').$value
 
 
 export const 开始索引 = async () => {
     await 初始化数据集()
-    if (!statusMonitor.get('索引器','已加载').$value) {
-        statusMonitor.set('索引器','已加载',(await 创建索引器(configurer.get('向量工具设置').$value, embeddingWorkerURL))?true:false)
+    if (!statusMonitor.get('索引器', '已加载').$value) {
+        statusMonitor.set('索引器', '已加载', (await 创建索引器(configurer.get('向量工具设置').$value, embeddingWorkerURL)) ? true : false)
         eventBus.emit('blockIndexerReady')
     }
     let 全块数组 = await 获取全块数组()
@@ -145,7 +145,7 @@ export const 获取全块数组 = async () => {
     if (!hash值表[0]) {
         hash语句 = ''
     }
-    logger.log(plugin.块数据集,hash值表)
+    logger.log(plugin.块数据集, hash值表)
     let 全块数组 = kernelApi.sql.sync({ stmt: `select *  from blocks where length>8  ${hash语句} and type !='l' and type != 'i' and type != 's'  order by updated desc limit 102400` })
     logger.log('待处理块数量:' + 全块数组.length)
     return 全块数组
@@ -159,7 +159,7 @@ export const 处理子切片数组 = async (子切片数组) => {
     }
 }
 export const 打印索引完成信息 = (总块数量, 总处理时长) => {
-    plugin.statusMonitor.set('blockIndex','progress','完成')
+    plugin.statusMonitor.set('blockIndex', 'progress', '完成')
     console.log(`笔记向量索引完成,索引了${总块数量}个块,总处理时长${总处理时长}秒,单块处理时长约${总处理时长 / 总块数量}秒,使用模型为${向量工具设置.默认文本向量化模型}`)
 }
 

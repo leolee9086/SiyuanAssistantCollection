@@ -1,6 +1,8 @@
 import { emitEvent, string2DOM } from "../builders/index.js"
 import { searchHeader } from "./searchHeader.js"
 import { searchResult } from "./searchResult.js"
+import { 以文本查找最相近文档 } from "../../searcher/index.js"
+import { kernelApi } from "../../asyncModules.js"
 export const panelHTML = `
 <div class="fn__flex-column" style="height: 100%;border-radius: var(--b3-border-radius-b);overflow: hidden;">
 </div>
@@ -78,8 +80,13 @@ export let tips = string2DOM(`  <div class="search__tip">
 <kbd>Esc</kbd> 退出搜索
 </div>`)
 
-searchHeader.addEventListener('query-change',(e)=>{
-    emitEvent(searchResult,'resultID-setted',{id:"20231011203156-3htnon3"})
+searchHeader.addEventListener('query-change',async(e)=>{
+    let data =await 以文本查找最相近文档(e.detail.value, 10, '', false, null, )
+    console.log(data)
+    if(data[0]){
+        emitEvent(searchResult,'resultID-setted',{id:data[0].id})
+        emitEvent(searchResult,'result-added',{data:data})
+    }
 })
 panelElement.appendChild(searchHeader)
 panelElement.appendChild(searchHistoryController)
