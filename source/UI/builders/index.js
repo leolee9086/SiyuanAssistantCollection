@@ -1,6 +1,3 @@
-
-
-
 export function string2DOM(string) {
     string = string?string.trim():""
     let div = document.createElement('div');

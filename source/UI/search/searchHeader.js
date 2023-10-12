@@ -7,7 +7,13 @@ export let searchHeader = string2DOM(
         </span>
         <input id="searchInput" style="padding-right: 60px" class="b3-text-field b3-text-field--text" placeholder="输入文字将进行矢量搜索">
         <div id="searchHistoryList" data-close="false" class="fn__none b3-menu b3-list b3-list--background"></div>
-        <div class="block__icons">
+        
+    </div>`
+)
+
+export let searchBlockIcons = string2DOM(
+    `
+    <div class="block__icons">
             <span id="searchRefresh" aria-label="刷新" class="block__icon b3-tooltips b3-tooltips__w">
                 <svg><use xlink:href="#iconRefresh"></use></svg>
             </span>
@@ -36,9 +42,8 @@ export let searchHeader = string2DOM(
                 <svg><use xlink:href="#iconExact"></use></svg>
             </span>
         </div>
-    </div>`
+    `
 )
-
-export let searchBlockIcons = string2DOM(
-    ``
+searchHeader.appendChild(
+    searchBlockIcons
 )
