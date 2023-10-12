@@ -40,19 +40,16 @@ class 日志记录器原型 {
     if (typeof level !== 'string' || level.trim() === '') {
       throw new Error('Invalid level name');
     }
-    
     // Validate writter
     if (typeof writter !== 'object' || typeof writter.write !== 'function') {
       throw new Error('Invalid writter');
     }
-
     // Check if the new level conflicts with any existing level
     for (const existingLevel of this.config.writters.keys()) {
       if (level.endsWith(existingLevel) || existingLevel.endsWith(level)) {
         throw new Error(`Level ${level} conflicts with existing level ${existingLevel}`);
       }
     }
-
     this.config.writters.set(level, [writter]);
   }
 
@@ -64,10 +61,11 @@ class 日志记录器原型 {
     const 原始调用栈 = new Error().stack;
     const lines = 原始调用栈.split('\n')
     const newStackTrace = lines.slice(3).join('\n')  // Join the remaining lines back together
-
     if(!plugin.configurer.get('日志设置',日志名称).$value){
+      //将日志级别初始化为false
       if(plugin.configurer.get('日志设置',日志名称).$value===undefined){
-        console.warn('没有设置日志类型',日志名称,'请注意',newStackTrace)
+        plugin.configurer.set('日志设置',日志名称,false)
+        console.warn('没有设置日志类型,初始化为false',日志名称,'请注意',newStackTrace)
       }
       return
     }
@@ -93,7 +91,6 @@ class 日志记录器原型 {
 }
 
 const 日志记录器 = new 日志记录器原型();
-
 const 日志代理 = new Proxy(日志记录器, {
   get(target, prop) {
     if (typeof prop === 'string') {
