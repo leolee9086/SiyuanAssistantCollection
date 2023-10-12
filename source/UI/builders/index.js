@@ -18,7 +18,7 @@ const 创建悬浮球 = () => {
     return 悬浮球
 };
 export function string2DOM(string) {
-    string = string.trim()
+    string = string?string.trim():""
     let div = document.createElement('div');
     div.innerHTML = string;
 

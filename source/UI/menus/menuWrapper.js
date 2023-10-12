@@ -132,19 +132,7 @@ export function 渲染块标菜单(event, eventType) {
     icon: "iconSparkles",
     label: label,
     submenu: submenu,
-  });/*
-  if(label1){
-    let submenu1 = [
-      {
-        element: div1
-      }
-    ];
-    menu.addItem({
-      icon: "iconSparkles",
-      label: label1,
-      submenu: submenu1,
-    });
-  }*/
+  });
   setTimeout(async () => {
     let 动作表数组 = await 根据上下文获取动作表(context, blocks);
 
