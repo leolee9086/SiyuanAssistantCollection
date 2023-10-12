@@ -14,3 +14,10 @@ export function string2DOM(string) {
     }
     return fragment;
 }
+export function emitEvent(element, eventName, detail) {
+    // 创建一个新的 CustomEvent 对象
+    let event = new CustomEvent(eventName, { detail });
+
+    // 使用 dispatchEvent 方法触发事件
+    element.dispatchEvent(event);
+}

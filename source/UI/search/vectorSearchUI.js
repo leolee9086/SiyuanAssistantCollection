@@ -1,11 +1,12 @@
-import { string2DOM } from "../builders/index.js"
+import { emitEvent, string2DOM } from "../builders/index.js"
 import { searchHeader } from "./searchHeader.js"
-export const panelHTML =`
+import { searchResult } from "./searchResult.js"
+export const panelHTML = `
 <div class="fn__flex-column" style="height: 100%;border-radius: var(--b3-border-radius-b);overflow: hidden;">
 </div>
 `
 export let panelElement = string2DOM(panelHTML)
-export let replaceController= string2DOM(
+export let replaceController = string2DOM(
     `    
     <div class="b3-form__icon search__header fn__none">
         <span class="fn__a" id="replaceHistoryBtn">
@@ -22,8 +23,8 @@ export let replaceController= string2DOM(
     </div>
     `
 )
-export let searchHistoryController =string2DOM(
-`<div id="criteria" class="fn__flex" style="min-height:40px;background-color: var(--b3-theme-background)">
+export let searchHistoryController = string2DOM(
+    `<div id="criteria" class="fn__flex" style="min-height:40px;background-color: var(--b3-theme-background)">
 <div class="b3-chips">
 </div>
 <span class="fn__flex-1"></span>
@@ -76,19 +77,10 @@ export let tips = string2DOM(`  <div class="search__tip">
 <kbd>Alt+./Alt+Click</kbd> 右侧分屏打开
 <kbd>Esc</kbd> 退出搜索
 </div>`)
-export let searchResult = string2DOM(
-`  <div class="search__layout">
-<div id="searchList" class="fn__flex-1 search__list b3-list b3-list--background">
-<div data-type="search-item" class="b3-list-item b3-list-item--focus" data-node-id="20231008190851-50oo19h" data-root-id="20231008183626-fjbvsbs">
-        <svg class="b3-list-item__graphic"><use xlink:href="#iconParagraph"></use></svg>
-        <span class="b3-list-item__text">Positive prompt words are used to inform the model of the desired features, style elements, and visual characteristics of the image. Detailed prompt words can help generate better images.@score:0.7284316953640915</span>
-        <span class="b3-list-item__meta b3-list-item__meta--ellipsis ariaLabel" aria-label="电子书和资料/人力资本理论">电子书和资料/人力资本理论</span>
-</div>
-</div>
-<div class="search__drag"></div>
-<div id="searchPreview" class="fn__flex-1 search__preview protyle" data-loading="finished">
-</div>`
-)
+
+searchHeader.addEventListener('query-change',(e)=>{
+    emitEvent(searchResult,'resultID-setted',{id:"20231011203156-3htnon3"})
+})
 panelElement.appendChild(searchHeader)
 panelElement.appendChild(searchHistoryController)
 panelElement.appendChild(blockIcons)
