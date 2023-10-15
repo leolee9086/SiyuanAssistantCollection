@@ -33,7 +33,6 @@ export const 开始索引 = async () => {
 }
 
 export const 创建索引器 = async (向量工具设置, 向量生成器地址) => {
-    console.log(向量工具设置, 向量生成器地址)
     await logger.blockIndexlog('开始创建索引')
     await 使用worker处理数据(
         向量工具设置,
@@ -49,9 +48,9 @@ export const 初始化数据集 = async () => {
         'id',
         'box'
     )
-    logger.log('开始加载数据')
+    logger.blockIndexlog('开始加载数据')
     await 块数据集.加载数据()
-    logger.log(块数据集)
+    logger.blockIndexlog(块数据集)
 
     plugin.块数据集 = 块数据集
     plugin.块数据集已加载 = true
@@ -106,7 +105,7 @@ export const 批处理索引切片 = async (原始数据) => {
     }
     let box = 原始数据[0].box
     let noteBookInfo = await 根据笔记本ID获取笔记本(box)
-    logger.log(`开始处理笔记本:${noteBookInfo.name}${原始数据[0].box},总计${原始数据.length}个块`);
+    logger.blockIndexlog(`开始处理笔记本:${noteBookInfo.name}${原始数据[0].box},总计${原始数据.length}个块`);
     let 处理开始时间 = Date.now();
     const 切片数组 = await 创建切片(原始数据, 100);
     const worker数量 = navigator.hardwareConcurrency || 8;
@@ -118,7 +117,7 @@ export const 批处理索引切片 = async (原始数据) => {
         打印处理进度(原始数据, 已处理数量, 处理开始时间);
     }
     let 处理时长 = (performance.now() - 处理开始时间) / 1000;
-    logger.log(`笔记本:${原始数据[0].box}处理时长为${处理时长},总计块${原始数据.length},单块处理时长约${处理时长 / 原始数据.length || 0}秒`);
+    logger.blockIndexlog(`笔记本:${原始数据[0].box}处理时长为${处理时长},总计块${原始数据.length},单块处理时长约${处理时长 / 原始数据.length || 0}秒`);
     await 清理索引();
     return { 块数量: 原始数据.length, 处理时长: 处理时长 };
 }
@@ -136,7 +135,7 @@ export const 清理索引 = async () => {
         let id数组1 = id数组.filter(
             item => { return !data.includes(item) }
         )
-        logger.log(`删除${id数组1.length}条多余索引`)
+        logger.blockIndexlog(`删除${id数组1.length}条多余索引`)
         plugin.块数据集.删除数据(id数组1)
         await plugin.块数据集.保存数据()
     }
@@ -150,9 +149,9 @@ export const 获取全块数组 = async () => {
     if (!hash值表[0]) {
         hash语句 = ''
     }
-    logger.log(plugin.块数据集, hash值表)
+    logger.blockIndexlog(plugin.块数据集, hash值表)
     let 全块数组 = kernelApi.sql.sync({ stmt: `select *  from blocks where length>8  ${hash语句} and type !='l' and type != 'i' and type != 's'  order by updated desc limit 102400` })
-    logger.log('待处理块数量:' + 全块数组.length)
+    logger.blockIndexlog('待处理块数量:' + 全块数组.length)
     return 全块数组
 }
 export const 处理子切片数组 = async (子切片数组) => {
@@ -165,14 +164,14 @@ export const 处理子切片数组 = async (子切片数组) => {
 }
 export const 打印索引完成信息 = (总块数量, 总处理时长) => {
     plugin.statusMonitor.set('blockIndex', 'progress', '完成')
-    console.log(`笔记向量索引完成,索引了${总块数量}个块,总处理时长${总处理时长}秒,单块处理时长约${总处理时长 / 总块数量}秒,使用模型为${向量工具设置.默认文本向量化模型}`)
+    logger.blockIndexlog(`笔记向量索引完成,索引了${总块数量}个块,总处理时长${总处理时长}秒,单块处理时长约${总处理时长 / 总块数量}秒,使用模型为${向量工具设置.默认文本向量化模型}`)
 }
 
 export const 打印处理进度 = (原始数据, 已处理数量, 处理开始时间) => {
     const 处理时长 = (Date.now() - 处理开始时间) / 1000;
     const 单块处理时长 = 处理时长 / 已处理数量 / 100;
     const 剩余块数量 = 原始数据.length - 已处理数量 * 100;
-    console.log(`笔记本:${原始数据[0].box}已处理${已处理数量 * 100}个块,剩余${剩余块数量},单块处理时长约${单块处理时长}秒,请耐心等候,你可以继续记录,不受影响`);
+    logger.blockIndexlog(`笔记本:${原始数据[0].box}已处理${已处理数量 * 100}个块,剩余${剩余块数量},单块处理时长约${单块处理时长}秒,请耐心等候,你可以继续记录,不受影响`);
 }
 
 

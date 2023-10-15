@@ -39,7 +39,6 @@ export class JsonSyAdapter {
                     文件路径列表.push(this.文件保存地址 + 文件项.name + '/')
                 }
             }
-            console.log(文件路径列表)
             for (let 子文件夹路径 of 文件路径列表) {
                 let log = ''
                 for (let i = 0; i < this.总文件数; i++) {
@@ -53,7 +52,6 @@ export class JsonSyAdapter {
                         }
                     }
                     数据集对象 = Object.assign(数据集对象, content)
-                    console.log(数据集对象,content)
                 }
                 if (log) {
                     if (this.logLevel === 'debug') {
@@ -64,7 +62,6 @@ export class JsonSyAdapter {
                     logger.datasetlog(`数据文件夹${子文件夹路径}读取完成`)
                 }
             }
-            console.log(数据集对象)
             return 数据集对象 
         } else {
             logger.datasetlog(this.文件保存地址, await fs.exists(this.文件保存地址))
