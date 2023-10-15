@@ -133,7 +133,7 @@ export const 使用worker处理数据 = async (数据组, worker文件地址, �
       let result = await 可用worker.处理任务(数据组, 任务名);
       return result;
     } catch (error) {
-      logger.error(`处理任务时出错: ${error}`);
+      logger.error(`处理任务时出错${worker文件地址}: ${error},\n${数据组}`);
       // 在这里你可以处理错误，例如返回一个默认值或者重新抛出错误
       return null; // 返回一个默认值
     }
@@ -142,7 +142,7 @@ export const 使用worker处理数据 = async (数据组, worker文件地址, �
     try {
       return await 处理广播任务(worker线程池, 数据组, 任务名, worker文件名);
     } catch (error) {
-      logger.error(`任务处理出错 出错: ${error}`);
+      logger.error(`任务处理出错${worker文件地址}: ${error},\n${数据组}`);
     }
   }
 };
