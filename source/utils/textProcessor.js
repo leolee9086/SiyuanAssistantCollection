@@ -1,7 +1,7 @@
 import { 使用worker处理数据 } from "./workerHandler.js";
 import { plugin } from "../asyncModules.js";
 const 向量生成器地址 =`/plugins/SiyuanAssistantCollection/source/vectorStorage/embeddingWorker.js`
-const 向量工具设置 = plugin.configurer.get('向量工具设置')
+const 向量工具设置 = plugin.configurer.get('向量工具设置').$value
 
 export const 计算Levenshtein距离 = (a, b) => {
     const m = a.length;
