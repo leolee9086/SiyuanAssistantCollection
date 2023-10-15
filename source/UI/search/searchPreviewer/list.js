@@ -18,6 +18,6 @@ export const genSearchResultItem = (block) => {
 searchResultList.addEventListener('result-added', (e) => {
     let { data } = e.detail
     data.forEach(block => {
-        searchResultList.appendChild(genSearchResultItem(block))
+        searchResultList.appendChild(genSearchResultItem(block.meta))
     });
 })

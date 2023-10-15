@@ -119,6 +119,7 @@ class 数据集 {
                 查询结果.push(obj)
             }
         )
+        console.log(this.数据集对象,this.主键列表,查询结果)
         return 查询结果
     }
     删除数据(主键名数组) {
@@ -274,6 +275,7 @@ class 数据集 {
     }
     async 加载数据() {
         this.数据集对象= await this.文件适配器.加载全部数据(this.数据集对象)
+        console.log(this)
        /* let 总文件数 = this.文件总数
         let 数据集对象 = this.数据集对象
         let 文件保存根地址 = this.文件保存地址

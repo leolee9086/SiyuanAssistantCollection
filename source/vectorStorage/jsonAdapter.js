@@ -4,7 +4,7 @@ import logger from '../logger/index.js'
 
 export class JsonSyAdapter {
     constructor(文件保存地址) {
-        this.文件总数 = 8
+        this.总文件数 = 8
         this.文件保存地址 = 文件保存地址
     }
     async 创建原子写入操作(待保存分片数据, 分片号, 文件路径名) {
@@ -39,6 +39,7 @@ export class JsonSyAdapter {
                     文件路径列表.push(this.文件保存地址 + 文件项.name + '/')
                 }
             }
+            console.log(文件路径列表)
             for (let 子文件夹路径 of 文件路径列表) {
                 let log = ''
                 for (let i = 0; i < this.总文件数; i++) {
@@ -52,6 +53,7 @@ export class JsonSyAdapter {
                         }
                     }
                     数据集对象 = Object.assign(数据集对象, content)
+                    console.log(数据集对象,content)
                 }
                 if (log) {
                     if (this.logLevel === 'debug') {
@@ -62,6 +64,7 @@ export class JsonSyAdapter {
                     logger.datasetlog(`数据文件夹${子文件夹路径}读取完成`)
                 }
             }
+            console.log(数据集对象)
             return 数据集对象 
         } else {
             logger.datasetlog(this.文件保存地址, await fs.exists(this.文件保存地址))

@@ -4,6 +4,7 @@ import { 使用worker处理数据 } from "../utils/workerHandler.js"
 import logger from "../logger/index.js"
 import kernelApi from "../polyfills/kernelApi.js"
 import { 创建笔记本字典 } from "../utils/blockDataProcessor.js"
+import { 根据笔记本ID获取笔记本 } from "../utils/notebooks.js"
 const { statusMonitor, eventBus, configurer } = plugin
 export const 向量存储 = {
     公开向量数据库实例: new 数据库('/data/public/vectorStorage'),
@@ -50,6 +51,8 @@ export const 初始化数据集 = async () => {
     )
     logger.log('开始加载数据')
     await 块数据集.加载数据()
+    logger.log(块数据集)
+
     plugin.块数据集 = 块数据集
     plugin.块数据集已加载 = true
 }
@@ -101,7 +104,9 @@ export const 批处理索引切片 = async (原始数据) => {
     if (!Array.isArray(原始数据) || 原始数据.length === 0) {
         throw new Error('原始数据必须是一个非空数组');
     }
-    logger.log(`开始处理笔记本:${原始数据[0].box},总计${原始数据.length}个块`);
+    let box = 原始数据[0].box
+    let noteBookInfo = await 根据笔记本ID获取笔记本(box)
+    logger.log(`开始处理笔记本:${noteBookInfo.name}${原始数据[0].box},总计${原始数据.length}个块`);
     let 处理开始时间 = Date.now();
     const 切片数组 = await 创建切片(原始数据, 100);
     const worker数量 = navigator.hardwareConcurrency || 8;

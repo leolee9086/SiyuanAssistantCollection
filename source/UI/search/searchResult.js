@@ -20,7 +20,7 @@ searchResult.addEventListener(
     'result-added', (e) => {
         logger.uilog(e)
         if (e.detail && e.detail.data) {
-            emitEvent(searchResultList,'result-added',{data})
+            emitEvent(searchResultList,'result-added',{data:e.detail.data})
         }
     }
 )
