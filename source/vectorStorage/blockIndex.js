@@ -107,7 +107,8 @@ export const 批处理索引切片 = async (原始数据) => {
     let noteBookInfo = await 根据笔记本ID获取笔记本(box)
     logger.blockIndexlog(`开始处理笔记本:${noteBookInfo.name}${原始数据[0].box},总计${原始数据.length}个块`);
     let 处理开始时间 = Date.now();
-    const 切片数组 = await 创建切片(原始数据, 100);
+    //这里给出设置
+    const 切片数组 = await 创建切片(原始数据, plugin.configurer.get('向量工具设置','块索引分片大小').$value);
     const worker数量 = navigator.hardwareConcurrency || 8;
     let 已处理数量 = 0;
     for (let i = 0; i < 切片数组.length; i += worker数量) {
@@ -169,7 +170,7 @@ export const 打印索引完成信息 = (总块数量, 总处理时长) => {
 
 export const 打印处理进度 = (原始数据, 已处理数量, 处理开始时间) => {
     const 处理时长 = (Date.now() - 处理开始时间) / 1000;
-    const 单块处理时长 = 处理时长 / 已处理数量 / 100;
+    const 单块处理时长 = 处理时长 / 已处理数量 / plugin.configurer.get('向量工具设置','块索引分片大小').$value;
     const 剩余块数量 = 原始数据.length - 已处理数量 * 100;
     logger.blockIndexlog(`笔记本:${原始数据[0].box}已处理${已处理数量 * 100}个块,剩余${剩余块数量},单块处理时长约${单块处理时长}秒,请耐心等候,你可以继续记录,不受影响`);
 }

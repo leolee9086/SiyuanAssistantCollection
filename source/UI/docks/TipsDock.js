@@ -8,10 +8,11 @@ let element
 async function 批量渲染(动作表, 执行上下文, container) {
     let frag = document.createDocumentFragment();
     for (let 动作 of 动作表) {
-        if (动作.tipRender instanceof Function) {
-            const div = document.createElement('div');
-            div.setAttribute('class', 'tips-card');
-            div.innerHTML = `
+        try {
+            if (动作.tipRender instanceof Function) {
+                const div = document.createElement('div');
+                div.setAttribute('class', 'tips-card');
+                div.innerHTML = `
                 <div class="fn__flex-1 fn__flex-column">
                     <div class="b3-card__info b3-card__info--left fn__flex-1">
                         ${动作.label} <span class="ft__on-surface ft__smaller">${动作.describe || ""}</span>
@@ -22,18 +23,20 @@ async function 批量渲染(动作表, 执行上下文, container) {
                     <div>Tips for block: <a href="siyuan://blocks/${执行上下文.blocks[0].id}">${执行上下文.blocks[0].id}</div>
                 </div>
             `;
-            let { element, markdown } = await 动作.tipRender(执行上下文);
-            if (!markdown) {
-                console.warn('至少需要提供markdown,没有markdown内容的tips不会给AI参考')
-            } else (
-                div.setAttribute('markdown-content', markdown)
-            )
-            if (element instanceof HTMLElement && !(element.tagName === 'SCRIPT')) {
-                div.querySelector(".b3-card__body").appendChild(element);
-            }
-            let isDuplicate = Array.from(container.children).some(child => child.innerHTML === div.innerHTML);
+                let { element, markdown } = await 动作.tipRender(执行上下文);
+                if (!markdown) {
+                    console.warn('至少需要提供markdown,没有markdown内容的tips不会给AI参考')
+                } else (
+                    div.setAttribute('markdown-content', markdown)
+                )
+                if (element instanceof HTMLElement && !(element.tagName === 'SCRIPT')) {
+                    div.querySelector(".b3-card__body").appendChild(element);
+                }
+                let isDuplicate = Array.from(container.children).some(child => child.innerHTML === div.innerHTML);
                 frag.prepend(div);
-            
+            }
+        }catch(e){
+            logger.tipswarn(e)
         }
     }
     container.prepend(frag);
@@ -57,8 +60,8 @@ const 渲染tips = 智能防抖(async (动作表, 执行上下文) => {
 plugin.eventBus.on('hint_tips', async (e) => {
     let _element = await plugin.statusMonitor.get('tipsConainer', 'main').$value;
     if (_element && _element !== element) {
-        element=_element
-       // tipsApp.mount(_element)
+        element = _element
+        // tipsApp.mount(_element)
         element = _element
         container = element.querySelector('#SAC-TIPS')
         pinnedContainer = element.querySelector('#SAC-TIPS_pinned')
@@ -79,10 +82,10 @@ plugin.eventBus.on('hint_tips', async (e) => {
             }
         });
     }
-    if(container&&pinnedContainer){
-    渲染tips(e.detail.备选动作表, e.detail.context)
-    }else{
-        logger.tipswarn('渲染tips出错,容器可能不存在:',container,pinnedContainer)
+    if (container && pinnedContainer) {
+        渲染tips(e.detail.备选动作表, e.detail.context)
+    } else {
+        logger.tipswarn('渲染tips出错,容器可能不存在:', container, pinnedContainer)
     }
 })
 

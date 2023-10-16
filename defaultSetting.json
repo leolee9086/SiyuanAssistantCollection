@@ -14,7 +14,8 @@
             "$type":"singleSelect",
             "options":["huggingface","gitee","github"]
         },
-        "最大句子长度": 496
+        "最大句子长度": 496,
+        "块索引分片大小":10
     },
     "聊天工具设置": {
         "默认AI": {
