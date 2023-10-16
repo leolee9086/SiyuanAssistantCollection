@@ -275,46 +275,6 @@ class 数据集 {
     }
     async 加载数据() {
         this.数据集对象= await this.文件适配器.加载全部数据(this.数据集对象)
-        console.log(this)
-       /* let 总文件数 = this.文件总数
-        let 数据集对象 = this.数据集对象
-        let 文件保存根地址 = this.文件保存地址
-        if (await fs.exists(this.文件保存地址)) {
-            let 文件列表 = await fs.readDir(文件保存根地址)
-            let 文件路径列表 = [this.文件保存地址]
-            for (let 文件项 of 文件列表) {
-                if (文件项.isDir) {
-                    文件路径列表.push(this.文件保存地址 + 文件项.name + '/')
-                }
-            }
-            for (let 子文件夹路径 of 文件路径列表) {
-                let log = ''
-                for (let i = 0; i < 总文件数; i++) {
-                    let content = {}
-                    if (await fs.exists(子文件夹路径 + 'chunk' + i + '.json')) {
-                        try {
-                            content = await fs.readFile(子文件夹路径 + 'chunk' + i + '.json')
-                            content = JSON.parse(content)
-                        } catch (e) {
-                            log += 子文件夹路径 + 'chunk' + i + '.json已经损坏或不存在,将忽略' + '\n' + e.message + '\n'
-                        }
-                    }
-                    数据集对象 = Object.assign(数据集对象, content)
-                }
-                if (log) {
-                    if (this.logLevel === 'debug') {
-                        logger.datasetwarn(log)
-                    }
-                }
-                if (this.logLevel === 'debug') {
-                    logger.datasetlog(`数据文件夹${子文件夹路径}读取完成`)
-                }
-            }
-            this.数据集对象 = 数据集对象
-            数据集对象 = undefined
-        } else {
-            logger.datasetlog(this.文件保存地址, await fs.exists(this.文件保存地址))
-        }*/
     }
 }
 
