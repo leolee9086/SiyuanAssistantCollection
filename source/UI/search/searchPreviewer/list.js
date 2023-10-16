@@ -21,3 +21,6 @@ searchResultList.addEventListener('result-added', (e) => {
         searchResultList.appendChild(genSearchResultItem(block.meta))
     });
 })
+searchResultList.addEventListener('result-clear', (e) => {
+    searchResultList.innerHTML = ""
+})
