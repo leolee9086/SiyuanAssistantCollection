@@ -362,6 +362,11 @@ class SiyuanAssistantCollection extends ccPlugin {
         sanitize: e.detail.options.preview.markdown.sanitize,
       }) : null;
     });
+    this.eventBus.on("click-editorcontent", (e) => {
+      this.protyles.push(e.detail.protyle);
+      this.protyles = Array.from(new Set(this.protyles));
+   
+    })
     this.创建顶栏按钮()
     this.创建AI侧栏容器()
     this.创建TIPS侧栏容器()

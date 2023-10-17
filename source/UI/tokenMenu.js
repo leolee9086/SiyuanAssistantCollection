@@ -9,7 +9,9 @@ export { 根据上下文获取动作表 as 根据上下文获取动作表 }
 function 获取元素所在protyle(element) {
   let { protyles } = plugin
   console.log(protyles)
-  return protyles.find(protyle => { return protyle.contentElement.contains(element) })
+  return protyles.find(protyle => { 
+    return protyle.contentElement.contains(element) 
+  })
 }
 
 let isComposing = false;
