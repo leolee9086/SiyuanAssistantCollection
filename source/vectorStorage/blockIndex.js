@@ -17,8 +17,6 @@ export let blockDataSet = plugin.块数据集
 export let seachWithVector = async (...args) => { return await plugin.块数据集.以向量搜索数据(...args) }
 const embeddingWorkerURL = import.meta.resolve(`./embeddingWorker.js`)
 const 向量工具设置 = plugin.configurer.get('向量工具设置').$value
-
-
 export const 开始索引 = async () => {
     await 初始化数据集()
     if (!statusMonitor.get('索引器', '已加载').$value) {
@@ -167,15 +165,12 @@ export const 打印索引完成信息 = (总块数量, 总处理时长) => {
     plugin.statusMonitor.set('blockIndex', 'progress', '完成')
     logger.blockIndexlog(`笔记向量索引完成,索引了${总块数量}个块,总处理时长${总处理时长}秒,单块处理时长约${总处理时长 / 总块数量}秒,使用模型为${向量工具设置.默认文本向量化模型}`)
 }
-
 export const 打印处理进度 = (原始数据, 已处理数量, 处理开始时间) => {
     const 处理时长 = (Date.now() - 处理开始时间) / 1000;
     const 单块处理时长 = 处理时长 / 已处理数量 / plugin.configurer.get('向量工具设置','块索引分片大小').$value;
     const 剩余块数量 = 原始数据.length - 已处理数量 * 100;
     logger.blockIndexlog(`笔记本:${原始数据[0].box}已处理${已处理数量 * 100}个块,剩余${剩余块数量},单块处理时长约${单块处理时长}秒,请耐心等候,你可以继续记录,不受影响`);
 }
-
-
 export const 处理所有笔记本数据 = async (boxMap) => {
     let 总块数量 = 0, 总处理时长 = 0
     for (const 笔记本数据 of boxMap.values()) {

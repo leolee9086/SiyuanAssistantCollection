@@ -23,7 +23,6 @@ export async function 修改配置(配置) {
     }
 }
 export async function 初始化配置(配置) {
-    console.log(配置)
     工具配置 = 配置
     if (extractor) {
         return { msg: 'success' }
@@ -35,7 +34,6 @@ export async function 初始化配置(配置) {
     } catch (error) {
         console.error(error)
         return { msg: '错误', detail: error.message };
-
     }
     return { msg: 'success' }
 }
@@ -45,12 +43,10 @@ export async function 销毁管线() {
     }
     return { msg: 'sucess' }
 }
-
 export async function 提取向量(text, 最大句子长度) {
     if (!extractor) {
         return { msg: '错误', detail: 'extractor没有初始化' };
     }
-
     let 句子组 = 将文本拆分为句子(text, 最大句子长度);
     let 句子长度比例组 = 句子组.map(句子 => 句子.length / text.length);
     try {

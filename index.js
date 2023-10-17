@@ -535,9 +535,6 @@ class SiyuanAssistantCollection extends ccPlugin {
   //这里是用于块标菜单的渲染，
 }
 module.exports = SiyuanAssistantCollection;
-
-
-
 function 获取文件名(moduleURL) {
   // 替换所有的 '\\' 为 '/'
   moduleURL = moduleURL.replace(/\\/g, '/');
@@ -558,9 +555,6 @@ function 获取文件名(moduleURL) {
   }
   return fileName;
 }
-
-
-
 /**
  * 递归合并两个对象
  * @param {Object} 目标对象 - 要合并到的对象

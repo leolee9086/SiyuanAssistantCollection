@@ -1,6 +1,6 @@
-import fs from "../polyfills/fs.js";
-import path from "../polyfills/path.js";
-import logger from '../logger/index.js'
+import fs from "../../polyfills/fs.js";
+import path from "../../polyfills/path.js";
+import logger from '../../logger/index.js'
 
 export class JsonSyAdapter {
     constructor(文件保存地址) {

@@ -1,6 +1,6 @@
 import logger from '../logger/index.js'
 import { 计算余弦相似度, 计算欧氏距离相似度, 查找最相似点 } from './vector.js';
-import { JsonSyAdapter } from './jsonAdapter.js';
+import { JsonSyAdapter } from '../fileSysManager/workspaceAdapters/jsonAdapter.js';
 globalThis._blockActionDataBase = globalThis._blockActionDataBase || {}
 export class 数据库 {
     constructor(文件保存地址) {
