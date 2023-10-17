@@ -1,5 +1,7 @@
-export class ChatSession {
+import { EventEmitter } from "../../../../eventsManager/EventEmitter.js";
+export class ChatSession extends EventEmitter {
     constructor() {
+        super()
         this.messages = []; // 初始化 messages 数组
     }
     addAsSystem(systemMessage) {

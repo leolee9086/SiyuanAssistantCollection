@@ -67,7 +67,6 @@ export class sparkChat extends ChatSession {
         let wsUrl = await this.gen_url();
         let that = this
         return new Promise((resolve, reject) => {
-            console.log(chat)
             let answer =''
             let ws = new WebSocket(wsUrl);
             ws.onerror = function (event) {
@@ -87,8 +86,8 @@ export class sparkChat extends ChatSession {
                     let choices = data["payload"]["choices"];
                     let status = choices["status"];
                     let content = choices["text"][0]["content"];
-                    console.log(content);
                     answer += content;
+                    this.emit('aiTextData',content)
                     if (status == 2) {
                         console.log(answer)
                         let data= {choices:[{message:{role:'assistant',content:answer}}]}
@@ -97,7 +96,6 @@ export class sparkChat extends ChatSession {
                     }
                 }
             };
-
         })
     }
 }

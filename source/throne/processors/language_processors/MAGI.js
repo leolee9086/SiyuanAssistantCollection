@@ -2,9 +2,10 @@ import { Melchior } from "./wise/Melchior.js";
 import { Balthazar } from "./wise/Belthazar.js"
 import { Casper } from "./wise/Casper.js"
 import logger from '../../../logger/index.js'
-export class MAGI {
+import { EventEmitter } from "../../../eventsManager/EventEmitter.js";
+export class MAGI extends EventEmitter {
     constructor(BaseApi, config = {}, persona) {
-        console.log(BaseApi, config, persona)
+        super()
         this.BaseApi =BaseApi
         this.config = config
         this._persona = persona
@@ -18,7 +19,6 @@ export class MAGI {
         this.wiseMens = {
             Melchior: this.Melchior, Balthazar: this.Balthazar, Casper: this.Casper, echo: this.echo
         }
-      
         this.replyCount = 0;
         /**
          * 用户通常会更喜欢情感丰富的回答
@@ -207,17 +207,24 @@ export class MAGI {
             } else {
                 logger.MAGIlog(this.currentWise + ` as ${this.persona.name} is the current leader`);
                 let reply;
+                let f = (t)=>{
+                    this.emit('aiTextData',t)
+                }
+                let currentWise
                 switch (this.currentWise) {
                     case "Melchior":
-                        reply = await this.Melchior.reply(userInput);
+                        currentWise =  this.Melchior;
                         break;
                     case "Balthazar":
-                        reply = await this.Balthazar.reply(userInput);
+                        currentWise =  this.Balthazar;
                         break;
                     case "Casper":
-                        reply = await this.Casper.reply(userInput);
+                        currentWise = this.Casper
                         break;
                 }
+                currentWise.on('aiTextData',f)
+                reply =await currentWise.reply(userInput)
+                currentWise.off('aiTextData',f)
                 return [{ name: `replyFrom${this.currentWise}`, action: reply.choices[0].message.content }]
             }
         }
