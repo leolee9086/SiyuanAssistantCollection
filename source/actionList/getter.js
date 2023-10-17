@@ -14,10 +14,9 @@ export async function 根据上下文获取动作表(context,signal) {
         }
         try {
             let 动作表 = 动作总表[i];
-            if(设置器.get("关键词动作设置",动作表.provider).$value){
-                if(设置器.get("关键词动作设置",动作表.provider).$value.disabled){
+            if(设置器.get("动作设置","关键词动作设置",动作表.provider).$value!==true){
                    continue
-                }
+                
             }
             if(signal&&signal.aborted){
                 return []

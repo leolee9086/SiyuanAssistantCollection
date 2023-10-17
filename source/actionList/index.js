@@ -50,9 +50,15 @@ export const 导入所有动作表 = async () => {
         try {
             _module = await import(moduleURL);
             _module['default']._动作表路径 = path.join(动作表安装路径, 动作表.name)
-            _module['default'].provider = 动作表.name
+            _module['default'].provider = 动作表.name.replace(/\./g,"_")
             动作总表.push(_module['default'] || [])
             await 添加字典(_module.dict)
+            if(plugin.configurer.get("动作设置",'关键词动作设置',动作表.name.replace(/\./g,"_")).$value===undefined){
+                plugin.configurer.set("动作设置",'关键词动作设置',动作表.name.replace(/\./g,"_"),false)
+            }
+            if(plugin.configurer.get("动作设置",'块标动作设置',动作表.name.replace(/\./g,"_")).$value===undefined){
+                plugin.configurer.set("动作设置",'块标动作设置',动作表.name.replace(/\./g,"_"),false)
+            }
         } catch (e) {
             logger.actionListwarn(`动作表${动作表.name}`, e)
         }
