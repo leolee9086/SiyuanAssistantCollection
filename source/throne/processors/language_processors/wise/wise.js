@@ -1,6 +1,7 @@
 import { EventEmitter } from "../../../../eventsManager/EventEmitter.js"
-export class WISE {
+export class WISE extends EventEmitter {
     constructor(BaseApi, config, persona) {
+        super()
         this.BaseApi = BaseApi
         this.config = config
         this.persona = persona
@@ -27,19 +28,18 @@ export class WISE {
     The AI MUST always answer questions in Markdown format
 `)
         let f = (t)=>{
-            this.emit('aiTextData',t)
+            this.emit('aiTextData',t.detail)
         }
         api.on('aiTextData',f)
         await api.addAsSystem(this.replyPrompt);
+        let data =await api.postBatch(userInput);
         api.off('aiTextData',f)
-        return await api.postBatch(userInput);
+        return data
     }
     async summarize(userInput) {
         let api = new this.BaseApi(this.config)
-
         await api.addAsSystem(this.summarizePrompt);
         let userMessage = JSON.stringify(userInput);
-
         return await api.postAsUser(userMessage);
     }
 }

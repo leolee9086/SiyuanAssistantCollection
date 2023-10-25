@@ -5,6 +5,7 @@ const socket1 = new WebSocket(`${protocol}//${window.location.host}/ws/broadcast
 
 // 发送消息
 logger.wslog(socket)
+addAutoReconnect(socket)
 function sendMessage(message) {
   socket.send(message);
 }
@@ -21,3 +22,26 @@ setInterval(() => {
     const timeString = now.toLocaleTimeString();
     sendMessage(timeString);
   }, 1000);
+
+
+  function addAutoReconnect(socket, initialDelay = 100) {
+    let delay = initialDelay;
+    socket.addEventListener('close', function handleSocketClose() {
+      setTimeout(() => {
+        console.log(`Attempting to reconnect with delay: ${delay}ms`);
+        const newSocket = new WebSocket(socket.url);
+        newSocket.addEventListener('open', function handleSocketOpen() {
+          console.log('Reconnected successfully');
+          // Remove the event listener to prevent memory leaks
+          newSocket.removeEventListener('open', handleSocketOpen);
+          // Reset the delay
+          delay = initialDelay;
+          // Add auto reconnect to the new socket
+          addAutoReconnect(newSocket, initialDelay);
+        });
+        newSocket.addEventListener('close', handleSocketClose);
+      }, delay);
+      // Increase the delay exponentially
+      delay *= 2;
+    });
+  }

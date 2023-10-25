@@ -49,7 +49,7 @@ let eventBus
 if(plugin){
     eventBus=plugin.eventBus
 }else{
-    eventBus=new EventBusDummy
+    eventBus=new EventBusDummy()
 }
 
 

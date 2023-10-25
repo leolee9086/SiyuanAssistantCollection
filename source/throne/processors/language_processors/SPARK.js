@@ -1,13 +1,18 @@
 import { sparkChat } from "./LLMAPIS/sparkChat.js";
 import { MAGI } from './MAGI.js'
-export class LanguageProcessor {
+import { EventEmitter } from "../../../eventsManager/EventEmitter.js";
+export class LanguageProcessor extends EventEmitter{
     constructor(persona) {
+        super()
         this.magi = new MAGI(
             sparkChat,
             {
                 chatMode:'simple'
             }, persona
         )
+        this.magi.on('aiTextData',(t)=>{
+            console.log(t)
+        })
     }
     async completeChat(chat) {
         try {

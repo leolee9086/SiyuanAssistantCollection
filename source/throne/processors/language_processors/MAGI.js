@@ -148,7 +148,15 @@ export class MAGI extends EventEmitter {
              */
             logger.MAGIlog(userInput)
             if (this.config.simple) {
-                return await this.Casper.reply(userInput)
+                let f = (t)=>{
+                    console.log(t)
+                    this.emit('aiTextData',t.detail)
+                }
+                let currentWise=  this.Casper
+                currentWise.on('aiTextData',f)
+                let data =await currentWise.reply(userInput)
+                currentWise.off('aiTextData',f)
+                return data
             }
             //记录回复次数
             this.replyCount++;
@@ -208,7 +216,8 @@ export class MAGI extends EventEmitter {
                 logger.MAGIlog(this.currentWise + ` as ${this.persona.name} is the current leader`);
                 let reply;
                 let f = (t)=>{
-                    this.emit('aiTextData',t)
+                    console.log(t)
+                    this.emit('aiTextData',t.detail)
                 }
                 let currentWise
                 switch (this.currentWise) {
@@ -223,6 +232,7 @@ export class MAGI extends EventEmitter {
                         break;
                 }
                 currentWise.on('aiTextData',f)
+                console.log(currentWise)
                 reply =await currentWise.reply(userInput)
                 currentWise.off('aiTextData',f)
                 return [{ name: `replyFrom${this.currentWise}`, action: reply.choices[0].message.content }]
