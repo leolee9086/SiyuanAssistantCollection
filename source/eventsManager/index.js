@@ -5,6 +5,7 @@ import "./documentEvents.js"
 import { 渲染块标菜单 } from "../UI/menus/menuWrapper.js";
 import { 事件注册表 } from "./eventTypeList.js";
 import './wsChanel.js'
+import { setSync } from "../fileSysManager/index.js";
 const eventBusProxy = new Proxy(plugin.eventBus, {
     get: (target, propKey, receiver) => {
         const origMethod = target[propKey];
@@ -75,6 +76,18 @@ eventBus.on('click-editorcontent',()=>{
         plugin.statusMonitor.set('editorStatus','selectedText',selectedText)
     }else{
         plugin.statusMonitor.set('editorStatus','selectedText','')
+
+    }
+})
+eventBus.on('settingChange',async(e)=>{
+    let {detail} = e
+    if(detail.name==="向量工具设置.同步时忽略向量存储文件夹"){
+        await setSync('public/onnxModels/**',detail.value)
+        window.location.reload()
+    }
+    if(detail.name==="向量工具设置.同步时忽略向量模型文件夹"){
+        await setSync('public/vectorStorage/**',detail.value)
+        window.location.reload()
 
     }
 })

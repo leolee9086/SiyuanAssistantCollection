@@ -16,28 +16,28 @@ export class 数据库 {
             } return this._数据库[数据集名称]
         }
         this._数据库[数据集名称] = new 数据集(
-            数据集名称, 
-            主键名, 
-            文件路径名, 
-            静态化, 
+            数据集名称,
+            主键名,
+            文件路径名,
+            静态化,
             this.logLevel,
             {
-                文件保存地址:this.文件保存地址
+                文件保存地址: this.文件保存地址
             }
-            )
-     
+        )
+
         return this._数据库[数据集名称]
     }
 }
 class 数据集 {
-    constructor(数据集名称, 主键名, 文件路径键名, 静态化, logLevel,数据库) {
+    constructor(数据集名称, 主键名, 文件路径键名, 静态化, logLevel, 数据库) {
         //数据集对象用于存储实际数据
         this.静态化 = 静态化 ? true : false
         this.主键名 = 主键名
         this.文件路径键名 = 文件路径键名 || ''
         this.数据集名称 = 数据集名称
         this.logLevel = logLevel
-        this.数据库= 数据库
+        this.数据库 = 数据库
         //数据集对象临时存储了所有数据
         this.数据集对象 = {
 
@@ -69,21 +69,23 @@ class 数据集 {
         }
 
         for (let 数据项 of 数据组) {
-            let 数据项主键 = 数据项[主键名];
-            if (!this.校验主键(数据项主键)) {
-                logger.datacollecterror('主键必须以14位数字开头');
-                continue;
-            }
-            this.记录待保存数据项(数据项);
+            if (数据项 && 数据项[主键名]) {
+                let 数据项主键 = 数据项[主键名];
+                if (!this.校验主键(数据项主键)) {
+                    logger.datacollecterror('主键必须以14位数字开头');
+                    continue;
+                }
+                this.记录待保存数据项(数据项);
 
-            if (静态化) {
-                //如果数据是静态化的,那就添加一个拷贝
-                数据集对象[数据项主键] = JSON.parse(JSON.stringify(数据项));
-            } else {
-                //否则就直接添加原始数据项目
-                数据集对象[数据项主键] = 数据项;
+                if (静态化) {
+                    //如果数据是静态化的,那就添加一个拷贝
+                    数据集对象[数据项主键] = JSON.parse(JSON.stringify(数据项));
+                } else {
+                    //否则就直接添加原始数据项目
+                    数据集对象[数据项主键] = 数据项;
+                }
+                修改标记 = true;
             }
-            修改标记 = true;
         }
 
         if (修改标记) {
@@ -228,13 +230,13 @@ class 数据集 {
         return 临时数据对象;
     }
     async 创建写入操作(临时数据对象, 总文件数, 文件路径名) {
-        let 待保存分片字典= {}
+        let 待保存分片字典 = {}
         for (let i = 0; i < 总文件数; i++) {
-            if(this.待保存数据分片[i]){
-                待保存分片字典[i]=临时数据对象[i]
+            if (this.待保存数据分片[i]) {
+                待保存分片字典[i] = 临时数据对象[i]
             }
         }
-        let 写入操作对象 = await this.文件适配器.创建批处理写入操作(待保存分片字典,文件路径名)
+        let 写入操作对象 = await this.文件适配器.创建批处理写入操作(待保存分片字典, 文件路径名)
         return 写入操作对象
     }
     async 保存数据(force) {
@@ -252,7 +254,7 @@ class 数据集 {
             let 分组数据对象 = 分组数据[文件路径名];
             let 临时数据对象 = await this.创建临时数据对象(分组数据对象, 总文件数);
             let { 写入操作, 记录数组 } = await this.创建写入操作(临时数据对象, 总文件数, 文件路径名);
-           
+
             try {
                 await Promise.all(写入操作);
             } catch (err) {
@@ -273,7 +275,7 @@ class 数据集 {
         this.已经修改 = false;
     }
     async 加载数据() {
-        this.数据集对象= await this.文件适配器.加载全部数据(this.数据集对象)
+        this.数据集对象 = await this.文件适配器.加载全部数据(this.数据集对象)
     }
 }
 

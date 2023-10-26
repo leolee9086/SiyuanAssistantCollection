@@ -7,7 +7,6 @@ import { typeToInputter, handleInputter } from "./inputter.js";
 import { plugin } from "../../asyncModules.js";
 import { string2DOM } from "../builders/index.js";
 export function buildSettingUI(settingList, base = '') {
-    console.log(settingList)
     let keys = plugin.configurer.query(settingList, base);
     let frag = document.createDocumentFragment();
     let tabWrapper = string2DOM(`<div class="config__tab-wrap"></div>`);

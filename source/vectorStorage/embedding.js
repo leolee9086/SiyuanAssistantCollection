@@ -15,7 +15,10 @@ export async function 修改配置(配置) {
         if (extractor) {
             extractor.dispose();
         }
-        extractor = await transformers.pipeline('feature-extraction', 工具配置.默认文本向量化模型, 工具配置.默认文本向量化配置);
+        let 默认文本向量化模型 = 工具配置.默认文本向量化模型.$value||工具配置.默认文本向量化模型
+        console.log(默认文本向量化模型)
+
+        extractor = await transformers.pipeline('feature-extraction',默认文本向量化模型, 工具配置.默认文本向量化配置);
         return { msg: 'success' };
     } catch (error) {
         console.error(`修改配置失败:`, error);
@@ -29,8 +32,8 @@ export async function 初始化配置(配置) {
 
     }
     try {
-       
-        extractor = await transformers.pipeline('feature-extraction', 工具配置.默认文本向量化模型, 工具配置.默认文本向量化配置)
+        let 默认文本向量化模型 = 工具配置.默认文本向量化模型.$value||工具配置.默认文本向量化模型
+        extractor = await transformers.pipeline('feature-extraction', 默认文本向量化模型, 工具配置.默认文本向量化配置)
     } catch (error) {
         console.error(error)
         return { msg: '错误', detail: error.message };

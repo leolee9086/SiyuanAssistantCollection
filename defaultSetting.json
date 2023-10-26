@@ -8,7 +8,11 @@
         "actionList":true
     },
     "向量工具设置": {
-        "默认文本向量化模型": "leolee9086/text2vec-base-chinese",
+        "默认文本向量化模型": {
+            "$value":"leolee9086/text2vec-base-chinese",
+            "$type":"singleSelect",
+            "options":["leolee9086/text2vec-base-chinese","openAI"]
+        },
         "默认模型托管平台":{
             "$value":"huggingface",
             "$type":"singleSelect",
@@ -17,7 +21,9 @@
         "最大句子长度": 496,
         "块索引分片大小":10,
         "索引占用核心":1,
-        "手动索引":true
+        "手动索引":true,
+        "同步时忽略向量存储文件夹":false,
+        "同步时忽略向量模型文件夹":false
     },
     "聊天工具设置": {
         "默认AI": {

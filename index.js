@@ -45,7 +45,7 @@ class PluginConfigurer {
     try{
     this.validateNewValue(oldValue, value);
     }catch(e){
-      this.plugin.eventBus.emit(`${this.prop}Change`, { name: path.join('.'), oldValue });
+      this.plugin.eventBus.emit(`${this.prop}Change`, { name: path.join('.'), value:oldValue });
       throw(e)
     }
     // 如果传入的设置值为字符串或数组，且原始值有$value属性且其类型与传入值相同，将传入设置值传递给原始值的$value属性
@@ -68,10 +68,14 @@ class PluginConfigurer {
       // 检查旧值类型与新值类型是否相同
       if (typeof oldValue !== typeof value) {
         // 检查新值是否为字符串或数组
+
         if (!(typeof value === 'string' || Array.isArray(value))) {
           // 检查旧值是否有$value属性
           if (oldValue.$value) {
-            throw new Error(`New value must be the same type as the old value. Old value: ${oldValue}, new value: ${value}`);
+            let $type = oldValue.$type
+            if($type!==typeof value&&$type!==value.$type){
+            throw new Error(`New value must be the same type as the old value. Old value: ${JSON.stringify(oldValue)}, new value: ${value}`);
+            }
           }
         }
       }
@@ -80,7 +84,7 @@ class PluginConfigurer {
     // 检查旧值是否存在且旧值是否有$type属性
     if (oldValue && oldValue.$type) {
       // 检查新值是否没有$type属性或新值的$type与旧值的$type是否不同
-      if ((!value.$type || oldValue.$type !== value.$type)&&!(typeof value === 'string' || Array.isArray(value))) {
+      if ((!value.$type || oldValue.$type !== value.$type)&&!(typeof value === 'string' || Array.isArray(value)||typeof value ===oldValue.$type||typeof oldValue===value.$type )) {
         throw new Error(`New value must have the same $type as the old value. Old value: ${oldValue}, new value: ${value}`);
       }
     }
@@ -577,7 +581,16 @@ function 递归合并(目标对象, 源对象) {
         递归合并(目标对象[键], 源对象[键]);
       } else {
         // 否则，直接复制属性值，如果有$value属性，就使用$value的值
+        if(目标对象[键]===undefined){
+          目标对象[键]=源对象[键]
+        }
+        if(目标对象[键].$value!==undefined&&源对象[键].$value===undefined){
+          目标对象[键].$value=源对象[键]
+        }else if(目标对象.$value===undefined&&源对象.$value!==undefined){
+          目标对象[键] = 源对象[键]
+        }else {
         目标对象[键] = 源对象[键]
+        }
       }
     }
   }

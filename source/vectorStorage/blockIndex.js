@@ -5,10 +5,12 @@ import logger from "../logger/index.js"
 import kernelApi from "../polyfills/kernelApi.js"
 import { 创建笔记本字典 } from "../utils/blockDataProcessor.js"
 import { 根据笔记本ID获取笔记本 } from "../utils/notebooks.js"
-
 import { hash过滤全块数组语句 } from "./utils/sql.js"
 
+
+
 const { statusMonitor, eventBus, configurer } = plugin
+
 export const 向量存储 = {
     公开向量数据库实例: new 数据库('/data/public/vectorStorage'),
     插件向量数据库实例: new 数据库('/data/storage/petal'),
