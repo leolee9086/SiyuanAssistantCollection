@@ -1,3 +1,4 @@
+import { plugin } from "../asyncModules.js";
 import logger from "../logger/index.js";
 let worker线程池 = {}
 worker线程池 = globalThis[Symbol.for('_worker线程池_')] || worker线程池
@@ -84,7 +85,7 @@ function 初始化Worker线程池(worker文件地址, characters) {
   if (!worker线程池[worker文件名]) {
     worker线程池[worker文件名] = [];
     let worker线程组 = worker线程池[worker文件名];
-    let cpu核心数 = navigator.hardwareConcurrency/2 || 4;
+    let cpu核心数 = 计算cpu核心数量();
     for (let i = 0; i < cpu核心数; i++) {
       let worker = 创建Worker线程(worker文件地址);
       let 任务列表 = [];
@@ -96,6 +97,13 @@ function 初始化Worker线程池(worker文件地址, characters) {
       });
     }
   }
+}
+function 计算cpu核心数量(){
+  let cpu核心数 = navigator.hardwareConcurrency/2 || 4;
+  cpu核心数 = plugin.configurer.get('向量工具设置','索引性能占用').$value||cpu核心数
+  plugin.configurer.set('向量工具设置','索引性能占用',cpu核心数)
+  logger.workerlog(cpu核心数)
+  return cpu核心数
 }
 function 正规化URL(原始URL) {
   // 创建一个URL对象
