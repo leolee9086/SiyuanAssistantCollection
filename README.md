@@ -1,113 +1,78 @@
-## 注意
+## Features
 
-本插件尚在早期开发阶段，使用时注意务必注意数据安全
+This is a practical function and AI assistant geometry plugin (SiyuanAssistantCollection), not meaning Stand Alone Complex.
 
-## 功能
+It mainly consists of some practical small functions and some AI assistant interface docking.
 
-这是一个实用功能和AI助手集合插件（SiyuanAssistantCollection），不是Stand Alone Complex的意思。
+## Composition
 
-主要是一些实用小工功能，还有一些AI助手的界面对接。
+### Vector data generation, storage and query
 
-## 组成
+#### Data structure
 
-### 向量数据生成、存储和查询
+Since some attributes are not suitable to be placed in the Siyuan database (because all custom attributes will be rendered to the DOM), we have created a new key-value pair storage.
 
-#### 数据结构
+For all objects with IDs in Siyuan, their attribute content can be extended through this KV storage.
 
-由于部分属性其实并不适合放到思源的数据库里面(因为所有的自定义属性都会被渲染到DOM中),所以我们重新创建了一个新的键值对存储.
+#### Data synchronization
 
-对于思源中所有有ID的对象,都可以通过这个KV存储来扩展它们的属性内容.
+Data synchronization plans to use websocket. When any front-end webpage updates data, it will do these things:
 
-#### 数据同步
+1. Broadcast to remind all ends to update the local database instance via websocket.
 
-数据同步计划使用websocket,当任意一个前端网页发生数据更新时,它会做这几件事:
+2. Copy the new database to disk for storage
 
-1.通过websocket广播提醒各个端更新本地数据库实例.
+#### Performance optimization
 
-2.将新的数据库拷贝落盘存储
+In order to achieve better performance, all data will be stored in a json file according to the value of ID modulo 8.
 
-#### 性能优化
+When the corresponding ID is queried, it will use K-nearest neighbor retrieval to query the nearest 1000 IDs and load them into memory. The retrieval vector comes from embedding.
 
-为了达到比较好的性能,所有的数据将会按照ID对8取模的值,存储在一个json文件中.
+#### Server and client
 
-当对应的ID被查询时,将会以K近邻检索查询最近的1000个ID并将它们也载入到内存,检索向量来自embedding,
+This simple vector database does not have a server and uses the file interface of Siyuan.
 
+#### Model selection
 
-#### 服务端与客户端
+Currently, the effect and performance of shibing624/text2vec-base-chinese are more suitable under experiment.
 
-这个简易向量数据库没有服务端，使用的是思源的文件接口。
+In order to be more convenient to use on the web, a quantized version has been made.
 
-#### 模型选择
+### Real-time word segmentation menu and word segmentation tips generation
 
-目前实验下使用shibing624/text2vec-base-chinese的效果和性能比较合适.
+Calculate available reference materials and functions while inputting, using multiple anti-shake and AbortController to ensure content generation performance. The current test is basically available when there are 280,000 content blocks. (i5 10400,32g).
 
-为了能够更方便在web端使用,做了一个量化版本，中文环境下从我的gitee仓库拉取，英文环境下从huggingface拉取
+We will continue to optimize the performance here. Real-time menus and real-time references are the basis of AI assistance.
 
-### 实时分词菜单和分词tips生成
+### Calculation method
 
-在输入的同时计算可用的参考资料和功能,采用了多重防抖以及AbortController保证内容生成性能,目前的测试是在28万个内容块的时候基本可用.(i5 10400,32g).
+Generate menus through user-defined action generation tables. Menu items with lower generation performance will be blocked when users input quickly.
 
-之后还会继续优化这里地性能表现,实时菜单和实时参考是AI辅助的基础.
+So you can use a little more menu items.
 
-### 计算方法
+### Action list example
 
-通过用户自定义的动作生成表生成菜单,生成性能较低的菜单项在用户快速输入时会被阻断.
+Located in the installed/actionList folder, you can try to write your own action table
 
-所以能够使用相对更多一点的菜单项目.
+## Protocol
 
-### 动作列表示例
+Please refer to their respective protocols for the external dependencies used. There is no time to list them for the time being.
+In addition, use AGPL-3.0-or-later, for the content of the agreement, refer to the official website and the license file in this folder.
 
-位于installed/actionList文件夹,你可以尝试编写自己的动作表
+## Thanks
 
-#### 格式
+The vector embedding part uses the transformers.js library
 
-所有的动作表文件必须有一个默认导出，其内容可以为一个动作列表生成函数或者动作列表。
+The vector embedding part uses shibing624's text2vec-base-chinese model
 
-动作表生成函数可以使用异步方式生成（生成速度过慢的动作表将在快速输入时被自动禁用）。
+Word segmentation depends on jieba and pinyin
 
-动作表的每一项结构可以参考实例。
+## Others
 
-除了动作之外，动作表也可以导出一个dict项，这一项中的文本将会被添加到分词器中。
+About the beam design: We are actually doing interior design (well, architectural planning, landscape and garden are also done), if you don't believe it, you can see our Little Red Book and Zhihu, if someone wants to do interior design, you can contact us~~~
 
-#### 导出动作为插件（@todo）
+In addition, if you think this thing is useful, you can invite us to have a cup of coffee. There should be a QR code below, but they are broken. Wait for me to get the picture bed. Well, this is the begging link of Aifadian: https://afdian.net/a/leolee9086
 
-将动作的必要依赖打包后导出为插件，其中hintAction将会转化为插件的自定义斜杠菜单项（将失去关键词触发功能和拼音触发功能，需要通过斜杠菜单触发）。
+![Alipay]('./assets/AlipayQRCode1.jpg')
 
-blockAction将会转化为插件的自定义块标菜单项。
-
-#### 笔记内的动作（@todo）
-
-## 日志
-
-日志组件的设置可以在顶栏进行。
-
-设置界面的每一项代表一个日志类别。
-
-没有触发过的日志不会出现在设置页面中。
-
-## 协议
-
-使用的外部依赖请参考他们各自的协议,暂时没有时间列出.
-除此之外使用AGPL-3.0-or-later,有关协议内容参考官网和本文件夹下的license文件.
-
-
-## 感谢
-
-向量嵌入部分使用了transformers.js库
-
-向量嵌入部分使用了shibing624的text2vec-base-chinese模型
-
-分词依赖jieba与pinyin
-
-## 其他
-
-有关椽承设计:我们其实是做装修设计的(额,建筑规划景观园林其实也做),不信可以看我们的小红书和知乎,要是有人要做室内设计可以联系我们啊~~~
-
-另外如果觉得这玩意有用可以请我们喝杯咖啡,下面应有二维码但是他们裂了,等我弄下图床,嗯,这是爱发电的讨饭链接:https://afdian.net/a/leolee9086
-
-
-如果它对你有用可以请我们喝一杯咖啡
-
-![](https://ccds-1300128285.cos.ap-guangzhou.myqcloud.com/%E5%BE%AE%E4%BF%A1%E6%94%B6%E6%AC%BE%E7%A0%811.jpg)
-
-![](https://ccds-1300128285.cos.ap-guangzhou.myqcloud.com/%E6%94%AF%E4%BB%98%E5%AE%9D%E6%94%B6%E6%AC%BE%E7%A0%811.jpg)
+![WeChat]('./assets/WeChatQRCode1.jpg')
