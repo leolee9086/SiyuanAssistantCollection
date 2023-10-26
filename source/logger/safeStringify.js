@@ -1,6 +1,5 @@
-import fs from '../polyfills/fs.js';
 
-function safeStringify(obj, depth = 5, arrayLimit = 50) {
+export function safeStringify(obj, depth = 5, arrayLimit = 50) {
   const cache = new Set();
   return JSON.stringify(obj, (key, value) => {
     if (depth <= 0) {

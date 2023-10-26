@@ -1,5 +1,6 @@
 import fs from '../polyfills/fs.js'
 import { pluginInstance as plugin } from '../asyncModules.js';
+import { safeStringify } from './safeStringify.js';
 let chunk = []
 const writeToFile = async () => {
   let currentHour = new Date().toISOString().slice(0, 13)
@@ -24,11 +25,11 @@ class 日志记录器原型 {
   constructor(config) {
     this.config = {
       writters: new Map([
-        ['log', [{ write: console.log }]],
-        ['warn', [{ write: console.warn }]],
-        ['info', [{ write: console.info }]],
-        ['error', [{ write: console.error }]],
-        ['debug', [{ write: console.debug }]]
+        ['log', [{ write: async function(...message) { console.log(...message); chunk.push(safeStringify(message)) } }]],
+        ['warn', [{ write: async function(...message) { console.warn(...message); chunk.push(safeStringify(message)) } }]],
+        ['info', [{ write: async function(...message) { console.info(...message); chunk.push(safeStringify(message))} }]],
+        ['error', [{ write: async function(...message) { console.error(...message); chunk.push(safeStringify(message)) } }]],
+        ['debug', [{ write: async function(...message) { console.debug(...message); chunk.push(safeStringify(message)) } }]]
       ]),
       maxRetries: 5,
       ...config
@@ -61,11 +62,11 @@ class 日志记录器原型 {
     const 原始调用栈 = new Error().stack;
     const lines = 原始调用栈.split('\n')
     const newStackTrace = lines.slice(3).join('\n')  // Join the remaining lines back together
-    if(!plugin.configurer.get('日志设置',日志名称).$value){
+    if (!plugin.configurer.get('日志设置', 日志名称).$value) {
       //将日志级别初始化为false
-      if(plugin.configurer.get('日志设置',日志名称).$value===undefined){
-        plugin.configurer.set('日志设置',日志名称,false)
-        console.warn('没有设置日志类型,初始化为false',日志名称,'请注意',newStackTrace)
+      if (plugin.configurer.get('日志设置', 日志名称).$value === undefined) {
+        plugin.configurer.set('日志设置', 日志名称, false)
+        console.warn('没有设置日志类型,初始化为false', 日志名称, '请注意', newStackTrace)
       }
       return
     }
@@ -105,4 +106,4 @@ const 日志代理 = new Proxy(日志记录器, {
 });
 
 export default 日志代理;
-export {日志代理 as logger}
+export { 日志代理 as logger }
