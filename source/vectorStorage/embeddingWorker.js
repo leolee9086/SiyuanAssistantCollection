@@ -6,6 +6,7 @@ onmessage = async (event) => {
         }
     } 
     if(event.data&&event.data.任务名){
+        console.log(event.data)
         let {任务数据,任务名,任务id}=event.data
         let 处理结果
         try{
@@ -26,4 +27,8 @@ onmessage = async (event) => {
     }
 }
 
+onerror=async (error)=>{
+    console.error({错误: error})
+    postMessage({错误: error})
 
+}

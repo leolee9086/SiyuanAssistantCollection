@@ -3,42 +3,46 @@ import {
 } from '../utils/sentence.js';
 import { 将向量单位化, 计算加权平均向量 } from './vector.js';
 import * as transformers from '../../static/transformers@2.5.3.js';
+import './utils/initConfig.js'
+import { 使用openAI生成嵌入 } from '../throne/processors/language_processors/LLMAPIS/openAIembedding.js';
 transformers.env.backends.onnx.wasm.wasmPaths = '/plugins/SiyuanAssistantCollection/static/';
 transformers.env.allowRemoteModels = true;
 transformers.env.localModelPath = '/public/onnxModels/';
 let extractor
 let 工具配置 = {
 }
-export async function 修改配置(配置) {
+async function 配置处理器(配置) {
+    工具配置 = 配置;
+    if (配置.siyuan&&配置.siyuan.config) {
+        globalThis.siyuan.config = 配置.siyuan.config
+    }
+    if (extractor) {
+        extractor.dispose? extractor.dispose():null;
+    }
+    let 默认文本向量化模型 = 工具配置.默认文本向量化模型.$value || 工具配置.默认文本向量化模型;
     try {
-        工具配置 = 配置;
-        if (extractor) {
-            extractor.dispose();
+        if(默认文本向量化模型 !=="openAI"){
+            extractor = await transformers.pipeline('feature-extraction', 默认文本向量化模型, 工具配置.默认文本向量化配置);
+        }else{
+            extractor = 使用openAI生成嵌入
         }
-        let 默认文本向量化模型 = 工具配置.默认文本向量化模型.$value||工具配置.默认文本向量化模型
-        console.log(默认文本向量化模型)
-
-        extractor = await transformers.pipeline('feature-extraction',默认文本向量化模型, 工具配置.默认文本向量化配置);
         return { msg: 'success' };
     } catch (error) {
-        console.error(`修改配置失败:`, error);
+        console.error(`配置处理失败:`, error);
         return { msg: '错误', detail: error.message };
     }
 }
-export async function 初始化配置(配置) {
-    工具配置 = 配置
-    if (extractor) {
-        return { msg: 'success' }
 
+export async function 修改配置(配置) {
+    
+    return await 配置处理器(配置);
+}
+
+export async function 初始化配置(配置) {
+    if (extractor) {
+        return { msg: 'success' };
     }
-    try {
-        let 默认文本向量化模型 = 工具配置.默认文本向量化模型.$value||工具配置.默认文本向量化模型
-        extractor = await transformers.pipeline('feature-extraction', 默认文本向量化模型, 工具配置.默认文本向量化配置)
-    } catch (error) {
-        console.error(error)
-        return { msg: '错误', detail: error.message };
-    }
-    return { msg: 'success' }
+    return await 配置处理器(配置);
 }
 export async function 销毁管线() {
     if (extractor) {
