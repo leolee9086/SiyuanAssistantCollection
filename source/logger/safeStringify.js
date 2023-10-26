@@ -32,10 +32,7 @@ export function safeStringify(obj, depth = 5, arrayLimit = 50) {
       } else if (value instanceof Buffer) {
         // 将 Buffer 转换为字符串
         return value.toString();
-      } else if (value instanceof fs.ReadStream) {
-        // 将文件流转换为文件路径
-        return `File: ${value.path}`;
-      }
+      } 
       depth--;
     }
     return value;

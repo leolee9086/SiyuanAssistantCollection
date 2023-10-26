@@ -1,6 +1,8 @@
+import { EventEmitter } from "../../../../eventsManager/EventEmitter.js";
 
-export  class openAiChat {
+export  class openAiChat extends EventEmitter{
     constructor(options = {}) {
+        super()
         this.options = {
                 apiKey: "",
                 apiTimeout: 60,
