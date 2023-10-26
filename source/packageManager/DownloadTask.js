@@ -40,7 +40,6 @@ export class DownloadTask extends EventEmitter {
         const chunkFileName = `${this.fileName}.chunk`; // 分块文件名
         if (await fs.exists(chunkFileName)) { // 如果文件存在
             const buffer = await fs.readFile(chunkFileName); // 读取文件
-            console.log(buffer);
             this.已接收数据 = [new Uint8Array(buffer)]; // 更新已接收的数据
             this.总接收字节 = buffer.byteLength; // 更新总接收字节
         }

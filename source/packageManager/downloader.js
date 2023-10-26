@@ -1,15 +1,17 @@
 import { clientApi } from "../asyncModules.js";
 import { DownloadTask } from "./DownloadTask.js";
-
+import { plugin } from "../asyncModules.js";
 export class DownloadDialog extends clientApi.Dialog {
     constructor(url, fileName,pauseAble) {
         super({
-            title: "下载" + fileName,
+            title: "下载",
             content: `<div id="download-interface" class='fn__flex-column' style="pointer-events: auto;overflow:hidden">
             <div style="position: relative;">
             <progress id="download-progress" value="100" max="100" style="width: 100%;height: 50px;"></progress>
             <span id="download-percentage" style="position: absolute;top:15px; left: 10%; transform: translateX(-10%);">Download progress: 100%, 74.50MB/74.50MB</span>
         </div>
+        <div>从${url}</div>
+        <div>下载到${fileName}</div>
                         <button id="pause-resume-button" >暂停</button>
                         <button id="cancel-button" >取消</button>
                       </div>`,
@@ -18,7 +20,7 @@ export class DownloadDialog extends clientApi.Dialog {
             },
             width: '600px',
             height: 'auto',
-            transparent: false,
+            transparent: true,
             //disableClose: pauseAble?false:true,
             disableAnimation: false
         },);
@@ -45,19 +47,19 @@ export class DownloadDialog extends clientApi.Dialog {
         document.getElementById('pause-resume-button').addEventListener('click', () => {
             console.log(this.task.shouldPause)
             if (this.task.shouldPause) {
-
-                this.task.resume();
+                this.task.恢复();
             } else {
-                this.task.pause();
+                this.task.暂停();
             }
         });
-
         document.getElementById('cancel-button').addEventListener('click', () => {
-            this.task.pause();
+            this.task.暂停();
+            this.destroy()
         });
-
         this.task.start()
-
+        this.task.on('complete',()=>{
+            this.destroy()
+        })
         this.element.style.pointerEvents = 'none'
         this.element.style.zIndex = '1'
         this.element.querySelector(".b3-dialog__container").style.pointerEvents = 'auto'

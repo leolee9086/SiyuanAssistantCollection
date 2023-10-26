@@ -1,5 +1,4 @@
 import { 获取文件下载链接, 获取最新发布版本信息 } from '../packageManager/adapters/gitee.js';
-import { DownloadTask } from '../packageManager/DownloadTask.js';
 import kernelApi from '../polyfills/kernelApi.js';
 import fs from '../polyfills/fs.js';
 import path from '../polyfills/path.js'
@@ -31,14 +30,11 @@ export async function 下载模型(模型名称) {
         console.warn('huggingface无法联通,尝试从gitee下载模型文件')
         let 所有者 = 模型名称.split('/')[0]
         let 仓库名 = 模型名称.split('/')[1]
-        console.log(所有者, 仓库名)
         let 下载已经完成 = await fs.exists(`/temp/models/${模型名称}/model.zip`)
         if (!下载已经完成) {
             let 发布信息 = await 获取最新发布版本信息(所有者, 仓库名)
             let 文件下载链接 = await 获取文件下载链接(发布信息, 'model.zip')
             let 下载任务 = new DownloadDialog(文件下载链接, `/temp/models/${模型名称}/model.zip`,false)
-            console.log(下载任务)
-          //  await 下载任务.开始()
         } else {
             await kernelApi.unzip({ zipPath: path.join(workspaceDir, `/temp/models/leolee9086/text2vec-base-chinese/model.zip`), path: path.join(workspaceDir, 模型存放地址, 模型名称) })
         }
