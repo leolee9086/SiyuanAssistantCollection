@@ -53,11 +53,12 @@ export const 导入所有动作表 = async () => {
             _module['default'].provider = 动作表.name.replace(/\./g,"_")
             动作总表.push(_module['default'] || [])
             await 添加字典(_module.dict)
+            let 默认配置= plugin.configurer.get("动作设置",'默认开启新动作表').$value
             if(plugin.configurer.get("动作设置",'关键词动作设置',动作表.name.replace(/\./g,"_")).$value===undefined){
-                plugin.configurer.set("动作设置",'关键词动作设置',动作表.name.replace(/\./g,"_"),false)
+                plugin.configurer.set("动作设置",'关键词动作设置',动作表.name.replace(/\./g,"_"),默认配置)
             }
             if(plugin.configurer.get("动作设置",'块标动作设置',动作表.name.replace(/\./g,"_")).$value===undefined){
-                plugin.configurer.set("动作设置",'块标动作设置',动作表.name.replace(/\./g,"_"),false)
+                plugin.configurer.set("动作设置",'块标动作设置',动作表.name.replace(/\./g,"_"),默认配置)
             }
         } catch (e) {
             logger.actionListwarn(`动作表${动作表.name}`, e)

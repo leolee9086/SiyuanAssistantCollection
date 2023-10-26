@@ -19,6 +19,12 @@ export async function 根据上下文获取动作表(context, signal) {
                 if (动作表.provider !== 'meta_js') {
                     continue
                 }
+                if(设置器.get("动作设置", "关键词动作设置", 动作表.provider).$value===undefined){
+                    let 默认配置 = 设置器.get("动作设置", "默认开启新动作表").$value
+                    if(!默认配置){
+                        continue
+                    }
+                }
             }
             if (signal && signal.aborted) {
                 return []
