@@ -119,7 +119,6 @@ class 数据集 {
                 查询结果.push(obj)
             }
         )
-        console.log(this.数据集对象,this.主键列表,查询结果)
         return 查询结果
     }
     删除数据(主键名数组) {

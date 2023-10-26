@@ -28,6 +28,26 @@ let list = ()=>{
                 }
             }
         }
-    ).filter(item=>{return item})
+    ).filter(item=>{return item}).concat(
+        [
+            {
+                icon: '',
+                label: `标记为待索引`,
+                hints: 'index,索引,矢量索引',
+                blockAction:async(context)=>{
+                    context.blocks.forEach(
+                        block=>{
+                            block.setAttributes(
+                                {
+                                    'custom-publish-vectorindex':"true"
+                                }
+                            )
+                        }
+                    )
+                }
+
+            }
+        ]
+    )
 }
 export default list

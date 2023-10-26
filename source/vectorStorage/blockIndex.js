@@ -5,6 +5,9 @@ import logger from "../logger/index.js"
 import kernelApi from "../polyfills/kernelApi.js"
 import { 创建笔记本字典 } from "../utils/blockDataProcessor.js"
 import { 根据笔记本ID获取笔记本 } from "../utils/notebooks.js"
+
+import { hash过滤全块数组语句 } from "./utils/sql.js"
+
 const { statusMonitor, eventBus, configurer } = plugin
 export const 向量存储 = {
     公开向量数据库实例: new 数据库('/data/public/vectorStorage'),
@@ -16,7 +19,7 @@ export const 向量存储 = {
 export let blockDataSet = plugin.块数据集
 export let seachWithVector = async (...args) => { return await plugin.块数据集.以向量搜索数据(...args) }
 const embeddingWorkerURL = import.meta.resolve(`./embeddingWorker.js`)
-const 向量工具设置 = plugin.configurer.get('向量工具设置').$value
+const 向量工具设置 = configurer.get('向量工具设置').$value
 export const 开始索引 = async () => {
     await 初始化数据集()
     if (!statusMonitor.get('索引器', '已加载').$value) {
@@ -144,12 +147,9 @@ export const 清理索引 = async () => {
 export const 获取全块数组 = async () => {
     let hash表 = plugin.块数据集.根据路径获取值('meta.hash')
     let hash值表 = hash表.map(item => { return `'${item.hash}'` })
-    let hash语句 = `and hash not in (${hash值表.join(',')})`
-    if (!hash值表[0]) {
-        hash语句 = ''
-    }
+    let 全块数组获取语句 = hash过滤全块数组语句(hash值表)
     logger.blockIndexlog(plugin.块数据集, hash值表)
-    let 全块数组 = kernelApi.sql.sync({ stmt: `select *  from blocks where length>8  ${hash语句} and type !='l' and type != 'i' and type != 's'  order by updated desc limit 102400` })
+    let 全块数组 = kernelApi.sql.sync({ stmt:全块数组获取语句})
     logger.blockIndexlog('待处理块数量:' + 全块数组.length)
     return 全块数组
 }

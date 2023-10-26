@@ -1,8 +1,14 @@
+## Note
+
+This plugin is still in the early stages of development, please be sure to pay attention to data safety when using it.
+
+After the initial installation, indexing may take a long time, and the whitelist and blacklist filtering of indexing is under development.
+
 ## Features
 
-This is a practical function and AI assistant geometry plugin (SiyuanAssistantCollection), not meaning Stand Alone Complex.
+This is a practical function and AI assistant collection plugin (SiyuanAssistantCollection), not the meaning of Stand Alone Complex.
 
-It mainly consists of some practical small functions and some AI assistant interface docking.
+Mainly some practical small functions, and some AI assistant interface docking.
 
 ## Composition
 
@@ -30,49 +36,30 @@ When the corresponding ID is queried, it will use K-nearest neighbor retrieval t
 
 #### Server and client
 
-This simple vector database does not have a server and uses the file interface of Siyuan.
+This simple vector database has no server and uses the file interface of Siyuan.
 
 #### Model selection
 
-Currently, the effect and performance of shibing624/text2vec-base-chinese are more suitable under experiment.
+Currently, the effect and performance of using shibing624/text2vec-base-chinese are more suitable under experiment.
 
-In order to be more convenient to use on the web, a quantized version has been made.
+In order to be more convenient to use on the web, a quantized version has been made. It is pulled from my gitee repository in the Chinese environment and from huggingface in the English environment.
 
 ### Real-time word segmentation menu and word segmentation tips generation
 
-Calculate available reference materials and functions while inputting, using multiple anti-shake and AbortController to ensure content generation performance. The current test is basically available when there are 280,000 content blocks. (i5 10400,32g).
+Calculate available reference materials and functions while inputting, using multiple debounces and AbortController to ensure content generation performance. The current test is basically usable when there are 280,000 content blocks (i5 10400,32g).
 
-We will continue to optimize the performance here. Real-time menus and real-time references are the basis of AI assistance.
+The performance here will continue to be optimized in the future, and real-time menus and real-time references are the basis of AI assistance.
 
 ### Calculation method
 
-Generate menus through user-defined action generation tables. Menu items with lower generation performance will be blocked when users input quickly.
+Generate menus through user-defined action generation tables. Menu items with low generation performance will be blocked when users input quickly.
 
-So you can use a little more menu items.
+So you can use relatively more menu items.
 
 ### Action list example
 
 Located in the installed/actionList folder, you can try to write your own action table
 
-## Protocol
+#### Format
 
-Please refer to their respective protocols for the external dependencies used. There is no time to list them for the time being.
-In addition, use AGPL-3.0-or-later, for the content of the agreement, refer to the official website and the license file in this folder.
-
-## Thanks
-
-The vector embedding part uses the transformers.js library
-
-The vector embedding part uses shibing624's text2vec-base-chinese model
-
-Word segmentation depends on jieba and pinyin
-
-## Others
-
-About the beam design: We are actually doing interior design (well, architectural planning, landscape and garden are also done), if you don't believe it, you can see our Little Red Book and Zhihu, if someone wants to do interior design, you can contact us~~~
-
-In addition, if you think this thing is useful, you can invite us to have a cup of coffee. There should be a QR code below, but they are broken. Wait for me to get the picture bed. Well, this is the begging link of Aifadian: https://afdian.net/a/leolee9086
-
-![Alipay]('./assets/AlipayQRCode1.jpg')
-
-![WeChat]('./assets/WeChatQRCode1.jpg')
+All action table files must have a default export, which can be an action list generation function or an action list
