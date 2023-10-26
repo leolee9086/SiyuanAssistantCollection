@@ -49,7 +49,6 @@ function 从块标菜单事件获取块列表(event) {
   let blocks = [];
   if (event.detail.data) {
     let _block = event.detail.data;
-    console.log(event.detail.data)
     blocks = [new BlockHandler(_block.id)];
   } else if (event.detail.blockElements) {
     event.detail.blockElements.forEach((element) => {
@@ -102,7 +101,6 @@ export function 渲染块标菜单(event, eventType) {
   let submenu = [
 
   ];
-  console.log(动作总表)
   let 路径组 = []
   动作总表.forEach(
     动作表 => {
@@ -127,7 +125,6 @@ export function 渲染块标菜单(event, eventType) {
       )
     }
   )
-  console.log(submenu)
   menu.addItem({
     icon: "iconSparkles",
     label: label,
