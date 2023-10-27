@@ -1,6 +1,7 @@
 import kernelApi from '../../polyfills/kernelApi.js';
 import { plugin } from '../../asyncModules.js'
 import fs from '../../polyfills/fs.js'
+import { logger } from '../../logger/index.js';
 class Ghost {
     constructor(persona = {}) {
         this.persona = persona;
@@ -38,7 +39,7 @@ class Ghost {
             this.organizeWorkingMemory(); // 整理工作记忆
             return JSON.parse(JSON.stringify(this.workingMemory))
         }
-        console.log(`message from ${message.role}:${message.content}`, (new Date()).toLocaleString())
+        logger.log(`message from ${message.role}:${message.content}`, (new Date()).toLocaleString())
     }
     //----//
     use(shell) {

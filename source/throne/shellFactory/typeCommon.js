@@ -17,7 +17,7 @@ export default class Shell extends EventEmitter {
         super();
         // 驱动应该是一个对象，键是驱动类型，值是驱动的原型
         logger.aiShelllog(this)
-        this.created= Date.now()
+        this.created = Date.now()
         this.drivers = {
             textChat: AIChatInterface,
             search: [],
@@ -34,10 +34,10 @@ export default class Shell extends EventEmitter {
         };
         this.type = type
         this.thinkingTip = '等待中...'
-        this.已经初始化=false
+        this.已经初始化 = false
     }
     async 初始化事件监听器() {
-        if(this.已经初始化){
+        if (this.已经初始化) {
             return
         }
         this.chanel = 'Ai_shell_' + this.ghost.persona.name
@@ -45,9 +45,9 @@ export default class Shell extends EventEmitter {
             logger.aiShelllog(event.detail)
             this.replyChat(event.detail)
         })
-        plugin.eventBus.on('baseProcessorChange',(event)=>{
+        plugin.eventBus.on('baseProcessorChange', (event) => {
             let processor = getLanguageProcessor()
-            this.changeProcessor('languageProcessor',new processor(this.ghost.persona))
+            this.changeProcessor('languageProcessor', new processor(this.ghost.persona))
         })
         this.已经初始化 = true
     }
@@ -106,10 +106,16 @@ export default class Shell extends EventEmitter {
                 if (item.content.trim() === message.content.trim()) {
                     flag = false
                 }
-                if (this.ghost.workingMemory.find(item => { return (item.id == message.id) || item.content.trim() == message.content.trim() })) {
+                //此处content有时候会是undefined
+                let messageContent = message.content.trim();
+                if (this.ghost.workingMemory.find(item => {
+                    return item && item.content && ((item.id == message.id) || item.content.trim() == messageContent)
+                })) {
                     flag = false
                 }
-                if (this.ghost.shortTermMemory.find(item => { return item.content.trim() == message.content.trim() })) {
+                if (this.ghost.shortTermMemory.find(item => {
+                    return item && item.content && item.content.trim() == messageContent
+                })) {
                     flag = false
                 }
                 return flag
@@ -167,8 +173,8 @@ export default class Shell extends EventEmitter {
     showText(input) {
         try {
             this.components['textChat'].forEach(
-                chatInterface=>{
-                    if(chatInterface){
+                chatInterface => {
+                    if (chatInterface) {
                         chatInterface.component.emit(
                             'textWithRole',
                             input
@@ -176,7 +182,7 @@ export default class Shell extends EventEmitter {
                     }
                 }
             )
-        //    this.emit(`textChat_${this.name}_textWithRole`, input);
+            //    this.emit(`textChat_${this.name}_textWithRole`, input);
         } catch (e) {
             logger.warn('当前没有已初始化的聊天模块,无法显示聊天', e);
         }
@@ -207,15 +213,14 @@ export default class Shell extends EventEmitter {
         this.初始化界面(type, component)
         return component
     }
-    removeInterface(interfaceToRemove,type) {
+    removeInterface(interfaceToRemove, type) {
         // 遍历所有类型的接口
         for (let type in this.components) {
             // 找到要删除的接口的索引
-            const index = this.components[type].findIndex(component => 
-                { 
-                    logger.error(component,interfaceToRemove)
-                    return component.component === interfaceToRemove
-                });
+            const index = this.components[type].findIndex(component => {
+                logger.error(component, interfaceToRemove)
+                return component.component === interfaceToRemove
+            });
             // 如果找到了接口
             if (index !== -1) {
                 // 如果接口有 'dispose' 方法，调用它进行清理
@@ -229,7 +234,7 @@ export default class Shell extends EventEmitter {
             }
         }
     }
-     初始化界面(type, component) {
+    初始化界面(type, component) {
         switch (type) {
             case 'textChat':
                 this.ghost.longTermMemory.history.forEach(
@@ -253,13 +258,13 @@ export default class Shell extends EventEmitter {
                     }
                 }
             )
-            let selectedBlocks =document.querySelectorAll('.protyle-wysiwyg--select')
+            let selectedBlocks = document.querySelectorAll('.protyle-wysiwyg--select')
             selectedBlocks.forEach(
-                el=>{
-                    refs+=`\n[${(new BlockHandler(el.getAttribute('data-node-id'))).content}](siyuan://blocks/${el.getAttribute('data-node-id')})`
+                el => {
+                    refs += `\n[${(new BlockHandler(el.getAttribute('data-node-id'))).content}](siyuan://blocks/${el.getAttribute('data-node-id')})`
                 }
             )
-            let selectedText =plugin.statusMonitor.get('editorStatus','selectedText').$value
+            let selectedText = plugin.statusMonitor.get('editorStatus', 'selectedText').$value
             refs += selectedText
             if (refs) {
                 return prompt + '\n' + refs
