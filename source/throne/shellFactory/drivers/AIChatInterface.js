@@ -149,7 +149,6 @@ export class AIChatInterface extends EventEmitter {
         const aiMessage = createElement("div", ["ai-message"], "");
         this.聊天容器.appendChild(aiMessage);
         aiMessage.setAttribute('draggable', "true")
-     
         aiMessage.innerHTML = `<div class='protyle-wysiwyg protyle-wysiwyg--attr'><strong>AI:</strong> ${this.lute ? this.lute.Md2BlockDOM(message) : message}</div>`;
         aiMessage.querySelectorAll('[contenteditable="true"]').forEach(elem => elem.contentEditable = false);
         aiMessage.addEventListener('click', function (event) {
@@ -163,12 +162,11 @@ export class AIChatInterface extends EventEmitter {
             event.dataTransfer.setData('text/html', aiMessage.innerHTML);
         });
         this.用户输入框.removeAttribute('disabled')
-        this.添加插入按钮(aiMessage, this.当前用户输入);
-
+        this.添加插入按钮(aiMessage,this.当前用户输入,message);
         return aiMessage;
     }
-    添加插入按钮(aiMessage, userInput) {
-        let button = new aiMessageButton({ doll: this.doll, aiMessage, currentAiReply: this.当前AI回复, userInput });
+    添加插入按钮(aiMessage, userInput,message) {
+        let button = new aiMessageButton({ doll: this.doll, aiMessage, currentAiReply: message, userInput });
         aiMessage.appendChild(button.button);
     }
    

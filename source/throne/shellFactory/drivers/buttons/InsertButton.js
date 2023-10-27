@@ -21,7 +21,13 @@ export class aiMessageButton extends EventEmitter {
         this.button.addEventListener("dragstart", this.handleDragStart.bind(this));
     }
     handleClick(event) {
-        let detail = { event, message: this.currentAiReply, userInput: this.userInput, doll: this.doll, button: this.button }
+        let detail = { 
+            event, 
+            message: this.currentAiReply, 
+            userInput: this.userInput, 
+            doll: this.doll, 
+            button: this.button 
+        }
         showAImenu(detail)
         this.emit('aiMessageButtonClicked',detail );
         event.stopPropagation()

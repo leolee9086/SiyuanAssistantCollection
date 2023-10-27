@@ -93,17 +93,28 @@ eventBus.on('settingChange', async (e) => {
 })
 eventBus.on('sac-open-menu-aichatmessage', async (e) => {
     let { detail } = e
-    let { menu, doll,message,userInput } = detail
+    let { menu, doll, message, userInput } = detail
     console.log(detail)
     menu.addItem({
         icon: "iconSparkles",
-        label: "插入到当前块",
+        label: "插入到当前块之后",
         click: () => {
             const context = plugin.statusMonitor.get('runtime', 'currentContext').$value
-            if(context){
+            if (context) {
                 context.blocks[0].insertAfter(`## ${userInput}`)
                 context.blocks[0].insertAfter(`${message}`)
 
+            }
+        }
+    },
+    )
+    menu.addItem({
+        icon: "iconSparkles",
+        label: "插入到当前块之前",
+        click: () => {
+            const context = plugin.statusMonitor.get('runtime', 'currentContext').$value
+            if (context) {
+                context.blocks[0].insertBefore(`${message}`)
             }
         }
     },
