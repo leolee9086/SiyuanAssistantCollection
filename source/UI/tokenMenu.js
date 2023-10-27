@@ -23,7 +23,6 @@ let signal =controller.signal
 
 let 显示token菜单 = (e) => {
   //上下方向键不重新渲染菜单
-
   if(signal.aborted){
     return
   }
@@ -60,7 +59,6 @@ let 显示token菜单 = (e) => {
     return
   }
   const menu = new clientApi.Menu("tokenMenu", async () => {
-    // plugin.currentHintAction=null
     menu.menu.element.querySelectorAll('.b3-menu__item').forEach(
       item => {
         if (item.deactive) {
@@ -74,37 +72,16 @@ let 显示token菜单 = (e) => {
   const 选区位置 = plugin.选区处理器.获取选区屏幕坐标(最近块元素, range);
   plugin.lastTokenArray = 分词结果数组
   //创建一个临时文档片段元素以加快渲染速度
-  let time2 = process.hrtime()
   分词结果数组.forEach(
     async (分词结果) => {
-      const h3 = process.hrtime()
-      /*  let 执行上下文 = {
-            blocks: [block],
-            token: 分词结果,
-            protyle: 获取元素所在protyle(最近块元素).getInstance(),
-            menu: menu,
-            plugin: plugin,
-            kernelApi: plugin.kernelApi,
-            clientApi: clientApi,
-            eventType: 'blockAction_token',
-            allTokens:分词结果数组
-        }*/
       let 执行上下文 = new Context([block], 分词结果, 获取元素所在protyle(最近块元素).getInstance(), menu, plugin, kernelApi, clientApi, 'blockAction_token', 分词结果数组)
-      const h4 = process.hrtime()
       let 备选动作表 = await 根据上下文获取动作表(执行上下文,signal)
-      //console.log('获取动作表耗时', process.hrtime(h4)[1] / 1000000)
       //这一步排序对性能的影响微乎其微
-      const h5 = process.hrtime()
       let 菜单动作表 = 备选动作表.filter(item => { return item.hintAction })
       let tips动作表 = 备选动作表.filter(item => { return item.tipRender })
-      
-      //source\UI\docks\TipsDock.js
       plugin.eventBus.emit('hint_tips',{备选动作表:tips动作表,context:执行上下文})
-
       let 动作菜单组 = 根据动作序列生成菜单组(菜单动作表, 执行上下文, '分词菜单')
-      //      console.log('生成菜单耗时', process.hrtime(h5)[1] / 1000000)
       menu.menu.element.querySelector('.b3-menu__items').appendChild(动作菜单组)
-      //      console.log('动作组生成耗时', process.hrtime(h3)[1] / 1000000)
       menu.open({
         x: 选区位置.left + 10,
         y: 获取光标底部位置(),
@@ -140,9 +117,6 @@ function 获取光标底部位置() {
   const rect = range.getClientRects()[0];
   return rect ? rect.bottom : null;
 }
-
-
-
 export const 开始渲染 = () => {
   document.addEventListener('compositionstart', () => {
     isComposing = true;
@@ -262,13 +236,9 @@ const 执行动作 = async (动作, context, 触发事件类型) => {
   plugin.命令历史.push(动作);
   动作.lastContext = context;
 }
-
-
-
 //对命令进行排序
 //Levenshtein距离是一种用于计算两个字符串之间的相似度的算法。
 //它衡量了将一个字符串转换为另一个字符串所需的最少编辑操作次数，包括插入、删除和替换字符。
-
 export function 根据动作序列生成菜单组(动作序列, 执行上下文, 触发事件类型) {
   let 子菜单元素片段 = document.createDocumentFragment();
   动作序列.forEach(
@@ -283,8 +253,6 @@ export function 根据动作序列生成菜单组(动作序列, 执行上下文,
   )
   return 子菜单元素片段
 }
-
-
 // 对事件触发进行智能防抖
 const averageExecutionTime = 100; // 平均执行时间，单位为毫秒
 // 监听 compositionstart 事件

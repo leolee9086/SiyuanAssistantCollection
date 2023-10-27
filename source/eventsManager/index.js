@@ -12,8 +12,8 @@ const eventBusProxy = new Proxy(plugin.eventBus, {
         if (propKey === 'emit') {
             return (...args) => {
                 const 事件名 = args[0];
-                if (!事件注册表.查找事件({事件名})) {
-                    logger.eventwarn(`未注册的事件: ${事件名}`,(new Error('Stack trace')).stack);
+                if (!事件注册表.查找事件({ 事件名 })) {
+                    logger.eventwarn(`未注册的事件: ${事件名}`, (new Error('Stack trace')).stack);
                 }
                 return origMethod.apply(target, args);
             };
@@ -29,7 +29,7 @@ const 开始自动索引 = () => {
     let backgroundTaskCount = 0;
     plugin.eventBus.on(
         'ws-main', (e) => {
-            if(! plugin.statusMonitor.get('blockIndex','progress').$value){
+            if (!plugin.statusMonitor.get('blockIndex', 'progress').$value) {
                 return
             }
             let d = e.detail
@@ -70,24 +70,42 @@ document.addEventListener("keyup", (event) => {
 }, { capture: true, passive: true }
 )
 
-eventBus.on('click-editorcontent',()=>{
+eventBus.on('click-editorcontent', () => {
     let selectedText = window.getSelection().toString();
-    if(selectedText){
-        plugin.statusMonitor.set('editorStatus','selectedText',selectedText)
-    }else{
-        plugin.statusMonitor.set('editorStatus','selectedText','')
+    if (selectedText) {
+        plugin.statusMonitor.set('editorStatus', 'selectedText', selectedText)
+    } else {
+        plugin.statusMonitor.set('editorStatus', 'selectedText', '')
 
     }
 })
-eventBus.on('settingChange',async(e)=>{
-    let {detail} = e
-    if(detail.name==="向量工具设置.同步时忽略向量存储文件夹"){
-        await setSync('public/onnxModels/**',detail.value)
+eventBus.on('settingChange', async (e) => {
+    let { detail } = e
+    if (detail.name === "向量工具设置.同步时忽略向量存储文件夹") {
+        await setSync('public/onnxModels/**', detail.value)
         window.location.reload()
     }
-    if(detail.name==="向量工具设置.同步时忽略向量模型文件夹"){
-        await setSync('public/vectorStorage/**',detail.value)
+    if (detail.name === "向量工具设置.同步时忽略向量模型文件夹") {
+        await setSync('public/vectorStorage/**', detail.value)
         window.location.reload()
 
     }
+})
+eventBus.on('sac-open-menu-aichatmessage', async (e) => {
+    let { detail } = e
+    let { menu, doll,message,userInput } = detail
+    console.log(detail)
+    menu.addItem({
+        icon: "iconSparkles",
+        label: "插入到当前块",
+        click: () => {
+            const context = plugin.statusMonitor.get('runtime', 'currentContext').$value
+            if(context){
+                context.blocks[0].insertAfter(`## ${userInput}`)
+                context.blocks[0].insertAfter(`${message}`)
+
+            }
+        }
+    },
+    )
 })

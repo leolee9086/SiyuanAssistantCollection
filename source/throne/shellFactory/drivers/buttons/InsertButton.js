@@ -1,6 +1,5 @@
-import { pluginInstance as plugin, clientApi } from '../../../../asyncModules.js';
+import { pluginInstance as plugin, clientApi, pluginInstance } from '../../../../asyncModules.js';
 import { EventEmitter } from '../../../../eventsManager/EventEmitter.js';
-import BlockHandler from '../../../../utils/BlockHandler.js';
 export class aiMessageButton extends EventEmitter {
     constructor({ doll, aiMessage, currentAiReply, userInput }) {
         super()
@@ -8,43 +7,27 @@ export class aiMessageButton extends EventEmitter {
         this.aiMessage = aiMessage;
         this.currentAiReply = currentAiReply;
         this.userInput = userInput;
-
         this.button = document.createElement("button");
         this.button.classList.add("insert-button");
         this.button.setAttribute('aria-label', '插入到笔记');
-
         const img = document.createElement("img");
         img.src = this.doll.avatarImage || `${plugin.selfURL}/assets/laughingman.png`;
         img.style.width = '100%';
         img.style.height = '100%';
         img.style.objectFit = 'cover';
         this.button.appendChild(img);
-
         this.button.addEventListener("click", this.handleClick.bind(this));
         this.button.addEventListener("contextmenu", this.handleClick.bind(this));
         this.button.addEventListener("dragstart", this.handleDragStart.bind(this));
     }
     handleClick(event) {
-        this.emit('aiMessageButtonClicked', { event, message: this.currentAiReply, userInput: this.userInput, doll: this.doll, button: this.button });
-        showAImenu(this.button)
+        let detail = { event, message: this.currentAiReply, userInput: this.userInput, doll: this.doll, button: this.button }
+        showAImenu(detail)
+        this.emit('aiMessageButtonClicked',detail );
         event.stopPropagation()
     }
-    /*handleDragStart(event) {
-        const newEvent = new Event('dragstart');
-        const messageContent = this.aiMessage.querySelector('.protyle-wysiwyg.protyle-wysiwyg--attr');
-        if (messageContent) {
 
-            messageContent.dispatchEvent(newEvent);
-         //   newEvent.dataTransfer.setData('text/plain', messageContent.innerHTML);
-
-            event.stopPropagation();
-            event.preventDefault();
-        } else {
-            console.error('No element found for selector .protyle-wysiwyg.protyle-wysiwyg--attr');
-        }
-    }*/
     async handleDragStart(event) {
-
         const messageContent = this.aiMessage.querySelector('.protyle-wysiwyg.protyle-wysiwyg--attr');
         event.dataTransfer.setData('text/plain', messageContent.innerText);
         let selectedIdElements = messageContent.querySelectorAll(`:scope > [data-node-id]`);
@@ -57,46 +40,23 @@ export class aiMessageButton extends EventEmitter {
             }
         }
         navigator.clipboard.writeText(messageContent.innerHTML)
-        /* event.dataTransfer.setData(`${'application/siyuan-gutter'}${messageContent.getAttribute("data-type")}${"\u200b"}${messageContent.getAttribute("data-subtype")}${"\u200b"}${ids}`,
-             messageContent.innerHTML);*/
-        // 创建一个新的 DragEvent
-        /* if(!event.ctrlKey){
-             event.stopPropagation()
-             event.preventDefault
- 
-             const newEvent = new DragEvent('dragstart', {
-                 ctrlKey: true
-             });
-             newEvent.dataTransfer.setData('text/plain', messageContent.innerText);
-             this.button.dispatchEvent(newEvent);
-         }*/
-
-        // 触发新的 DragEvent
-
     }
 }
 
-const showAImenu = (button) => {
+const showAImenu = async (detail) => {
     window.siyuan.menus.menu.remove()
     let menu = new clientApi.Menu(
         'aiMessageButtonMenu', () => { }
     )
-    menu.addItem({
-        icon: "iconSparkles",
-        label: "插入到当前块",
-        submenu: [],
-        click: () => {
-            if (plugin.statusMonitor.get('runtime', 'currentContext').$value) {
-                let blockId = plugin.statusMonitor.get('runtime', 'currentContext').$value.blocks[0].id
-                let block = new BlockHandler(blockId)
-                block.insertAfter('测试')
-            }
+    //使用事件通知
+    for (const pluginItem of plugin.app.plugins) {
+        try {
+            await pluginItem.eventBus.emit('sac-open-menu-aichatmessage', { ...detail,...{menu} });
+        } catch (e) {
+            console.warn(e, plugin);
         }
-    },
-    )
-
-    let rect = button.getClientRects()[0]
-    console.log(rect)
+    }
+    let rect = detail.button.getClientRects()[0]
     menu.open({
         x: rect.right - 25 - 76,
         y: rect.bottom,
