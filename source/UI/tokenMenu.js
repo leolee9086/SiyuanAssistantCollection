@@ -5,12 +5,14 @@ import { 智能防抖 } from "../utils/functionTools.js"
 import { 根据上下文获取动作表 } from '../actionList/getter.js'
 import kernelApi from "../polyfills/kernelApi.js";
 import { Context } from "./Context.js";
+import tokenMenuDialog from './dialogs/fakeMenu.js'
+import { logger } from "../logger/index.js";
 export { 根据上下文获取动作表 as 根据上下文获取动作表 }
 function 获取元素所在protyle(element) {
   let { protyles } = plugin
-  console.log(protyles)
-  return protyles.find(protyle => { 
-    return protyle.contentElement.contains(element) 
+  logger.tokenmenulog(protyles)
+  return protyles.find(protyle => {
+    return protyle.contentElement.contains(element)
   })
 }
 
@@ -18,18 +20,15 @@ let isComposing = false;
 //这一段是token菜单的渲染逻辑
 //记录选区位置,如果发生了变化就不再执行后面的逻辑
 let controller = new AbortController();
-let signal =controller.signal
+let signal = controller.signal
 
 
 let 显示token菜单 = (e) => {
   //上下方向键不重新渲染菜单
-  if(signal.aborted){
+  if (signal.aborted) {
     return
   }
   if (!plugin.块数据集) {
-    return
-  }
-  if (e.code && (e.code === "ArrowUp" || e.code === "ArrowDown")) {
     return
   }
   //如果不是在编辑器里就不渲染了
@@ -58,38 +57,30 @@ let 显示token菜单 = (e) => {
   if (!获取光标底部位置()) {
     return
   }
-  const menu = new clientApi.Menu("tokenMenu", async () => {
-    menu.menu.element.querySelectorAll('.b3-menu__item').forEach(
-      item => {
-        if (item.deactive) {
-          item.deactive(menu, item)
-        }
-      }
-    );
-  });
-  监听选中项变化(menu)
   const range = getSelection().getRangeAt(0);
   const 选区位置 = plugin.选区处理器.获取选区屏幕坐标(最近块元素, range);
   plugin.lastTokenArray = 分词结果数组
   //创建一个临时文档片段元素以加快渲染速度
   分词结果数组.forEach(
     async (分词结果) => {
-      let 执行上下文 = new Context([block], 分词结果, 获取元素所在protyle(最近块元素).getInstance(), menu, plugin, kernelApi, clientApi, 'blockAction_token', 分词结果数组)
-      let 备选动作表 = await 根据上下文获取动作表(执行上下文,signal)
+      let 执行上下文 = new Context([block], 分词结果, 获取元素所在protyle(最近块元素).getInstance(), tokenMenuDialog, plugin, kernelApi, clientApi, 'blockAction_token', 分词结果数组)
+      let 备选动作表 = await 根据上下文获取动作表(执行上下文, signal)
       //这一步排序对性能的影响微乎其微
       let 菜单动作表 = 备选动作表.filter(item => { return item.hintAction })
       let tips动作表 = 备选动作表.filter(item => { return item.tipRender })
-      plugin.eventBus.emit('hint_tips',{备选动作表:tips动作表,context:执行上下文})
+      plugin.eventBus.emit('hint_tips', { 备选动作表: tips动作表, context: 执行上下文 })
       let 动作菜单组 = 根据动作序列生成菜单组(菜单动作表, 执行上下文, '分词菜单')
-      menu.menu.element.querySelector('.b3-menu__items').appendChild(动作菜单组)
-      menu.open({
+     
+      tokenMenuDialog.clear()
+      tokenMenuDialog.moveTo({
         x: 选区位置.left + 10,
         y: 获取光标底部位置(),
         isLeft: false,
-      });
+      })
+
+      tokenMenuDialog.element.querySelector("#sacmenu").appendChild(动作菜单组)
     }
   )
-  plugin.tokenMenu = menu.menu
 }
 
 export function findTokenElement(current, range) {
@@ -117,46 +108,6 @@ function 获取光标底部位置() {
   const rect = range.getClientRects()[0];
   return rect ? rect.bottom : null;
 }
-export const 开始渲染 = () => {
-  document.addEventListener('compositionstart', () => {
-    isComposing = true;
-  },
-    { capture: true });
-    document.addEventListener(
-    "keyup",
-    (e) => {
-      if (e.code && (e.code === "ArrowUp" || e.code === "ArrowDown")) {
-        if (!上下键频率判定(e)) {
-          plugin.tokenMenu && plugin.tokenMenu.menu ? plugin.tokenMenu.menu.remove() : null
-          return
-        }
-      }
-      controller.abort()
-      controller = new AbortController();
-      signal=controller.signal
-    
-      if (!isComposing) {
-        // 触发事件的逻辑
-        setTimeout(()=>{显示token菜单(e,signal)},100)
-      }
-    },
-    { capture: true, passive: true }
-  );
-
-  // 监听 compositionend 事件
-  document.addEventListener('compositionend', (e) => {
-    isComposing = false;
-    controller.abort()
-    controller = new AbortController();
-    signal=controller.signal
-
-    setTimeout(()=>{显示token菜单(e,signal)},100)
-
-  },
-    { capture: true });
-
-}
-
 
 let observedMenuElements = []
 //这里的menu只能传入思源的menus对象
@@ -247,28 +198,12 @@ export function 根据动作序列生成菜单组(动作序列, 执行上下文,
         let 动作菜单项 = 根据上下文生成动作菜单项(执行上下文, 动作, 触发事件类型)
         子菜单元素片段.appendChild(动作菜单项)
       } catch (e) {
-        console.log(执行上下文, 动作, e)
+        logger.tokenmenuerror(执行上下文, 动作, e)
       }
     }
   )
   return 子菜单元素片段
 }
-// 对事件触发进行智能防抖
-const averageExecutionTime = 100; // 平均执行时间，单位为毫秒
-// 监听 compositionstart 事件
-let 判定次数 = 0
-let 上下键频率判定 = 智能防抖((e) => {
-  if (e.code && (e.code === "ArrowUp" || e.code === "ArrowDown")) {
-    if (判定次数 < 4) {
-      判定次数 += 1
-      return true
-    } else {
-      判定次数 = 0
-      return true
-    }
-
-  }
-}, undefined, 1000 / 6)
 function 生成元素(tag名, 属性配置, html, 事件配置) {
   let 元素 = document.createElement(tag名)
   Object.getOwnPropertyNames(属性配置).forEach(
@@ -284,3 +219,41 @@ function 生成元素(tag名, 属性配置, html, 事件配置) {
   元素.insertAdjacentHTML('beforeEnd', html)
   return 元素
 }
+
+
+
+export const 开始渲染 = () => {
+  document.addEventListener('compositionstart', () => {
+    isComposing = true;
+  },
+    { capture: true });
+  document.addEventListener(
+    "keydown",
+    (e) => {
+      if (e.code && (e.code === "ArrowUp" || e.code === "ArrowDown")) {
+        if(window.siyuan.altIsPressed){
+          tokenMenuDialog.switchCurrent(e.code)
+        }
+      }
+      controller.abort()
+      controller = new AbortController();
+      signal = controller.signal
+
+      if (!isComposing) {
+        // 触发事件的逻辑
+        setTimeout(() => { 显示token菜单(e, signal) }, 100)
+      }
+    },
+    { capture: true, passive: true }
+  )
+  // 监听 compositionend 事件
+  document.addEventListener('compositionend', (e) => {
+    isComposing = false;
+    controller.abort()
+    controller = new AbortController();
+    signal = controller.signal
+    setTimeout(() => { 显示token菜单(e, signal) }, 100)
+  },
+    { capture: true });
+}
+
