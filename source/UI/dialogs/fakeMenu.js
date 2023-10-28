@@ -1,4 +1,5 @@
 import { clientApi,pluginInstance as plugin } from '../../asyncModules.js'
+import { string2DOM } from '../builders/index.js';
 let menu = new clientApi.Dialog({
     title: "SAC",
     content: `<div id="sacmenu" class='fn__flex-column' style="pointer-events: auto;overflow:hidden">
@@ -21,7 +22,22 @@ menu.element.style.zIndex = '1'
 menu.element.querySelector(".b3-dialog__container").style.pointerEvents = 'auto'
 menu.element.querySelector(".b3-dialog__container").style.position = 'fixed'
 menu.element.querySelector(".b3-dialog__container").classList.add("b3-menu")
+let button =string2DOM(`<button class="b3-menu__item"><svg class="b3-menu__icon" style="">
+<use xlink:href="#iconHelp"></use>
+</svg>
+<span class="b3-menu__label" style="  display: inline-block;
+width: 200px; 
+white-space: nowrap; 
+overflow: hidden;
+text-overflow: ellipsis; 
+">打开帮助</span></button>`)
+button.addEventListener(
+    'click',(e)=>{
+        plugin.eventBus.emit(`openHelp-plugin-${plugin.name}`)
+    }
+)
 let container = menu.element.querySelector(".b3-dialog__container");
+container.appendChild(button)
 container.addEventListener('mouseover', function(event) {
     // 通过事件委托，找到具有 'b3-menu__item' 类名的元素
     let target = event.target;

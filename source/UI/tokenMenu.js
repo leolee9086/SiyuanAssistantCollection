@@ -24,6 +24,8 @@ let signal = controller.signal
 
 
 let 显示token菜单 = (e) => {
+  tokenMenuDialog.clear()
+
   //上下方向键不重新渲染菜单
   if (signal.aborted) {
     return
@@ -70,8 +72,7 @@ let 显示token菜单 = (e) => {
       let tips动作表 = 备选动作表.filter(item => { return item.tipRender })
       plugin.eventBus.emit('hint_tips', { 备选动作表: tips动作表, context: 执行上下文 })
       let 动作菜单组 = 根据动作序列生成菜单组(菜单动作表, 执行上下文, '分词菜单')
-     
-      tokenMenuDialog.clear()
+
       tokenMenuDialog.moveTo({
         x: 选区位置.left + 10,
         y: 获取光标底部位置(),
@@ -231,9 +232,27 @@ export const 开始渲染 = () => {
     "keydown",
     (e) => {
       if (e.code && (e.code === "ArrowUp" || e.code === "ArrowDown")) {
-        if(window.siyuan.altIsPressed){
+        let altFlag = !plugin.configurer.get('动作设置', '上下键选择动作').$value ? e.altKey : !e.altKey
+        if (altFlag) {
           tokenMenuDialog.switchCurrent(e.code)
+          e.preventDefault()
+          e.stopPropagation()
+          return
         }
+      }
+      if (e.code === "Enter"&& e.altKey) {
+        let items = Array.from(tokenMenuDialog.element.querySelectorAll('.b3-menu__item'));
+        let currentIndex = items.findIndex(item => item.classList.contains('b3-menu__item--current'));
+
+        // 如果有选中的菜单项
+        if (currentIndex !== -1) {
+          // 触发选中的菜单项
+          items[currentIndex].click();
+
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        tokenMenuDialog.clear()
       }
       controller.abort()
       controller = new AbortController();
@@ -244,7 +263,7 @@ export const 开始渲染 = () => {
         setTimeout(() => { 显示token菜单(e, signal) }, 100)
       }
     },
-    { capture: true, passive: true }
+    { capture: true }
   )
   // 监听 compositionend 事件
   document.addEventListener('compositionend', (e) => {

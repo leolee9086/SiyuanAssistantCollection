@@ -1,4 +1,4 @@
-import { pluginInstance as plugin } from "../asyncModules.js"
+import { pluginInstance as plugin, Constants, kernelApi } from "../asyncModules.js"
 import { 智能防抖 } from "./debouncer.js";
 import logger from "../logger/index.js";
 import "./documentEvents.js"
@@ -6,6 +6,9 @@ import { 渲染块标菜单 } from "../UI/menus/menuWrapper.js";
 import { 事件注册表 } from "./eventTypeList.js";
 import './wsChanel.js'
 import { setSync } from "../fileSysManager/index.js";
+import path from '../polyfills/path.js';
+import fs from "../polyfills/fs.js";
+
 const eventBusProxy = new Proxy(plugin.eventBus, {
     get: (target, propKey, receiver) => {
         const origMethod = target[propKey];
@@ -119,4 +122,22 @@ eventBus.on('sac-open-menu-aichatmessage', async (e) => {
         }
     },
     )
+})
+eventBus.on(`openHelp-plugin-${plugin.name}`, async () => {
+    const helpID = Constants.HELP_PATH[siyuan.config.lang]
+    kernelApi.removeNotebook.sync({ notebook: helpID, callback: Constants.CB_MOUNT_REMOVE })
+    let pluginHelpPath = Constants.Plugin_Help_path[siyuan.config.lang] || Constants.Plugin_Help_path['zh_CN']
+    let bin = await fs.readFile(path.join(plugin.selfPath, 'assets', 'help', pluginHelpPath))
+    await kernelApi.openNotebook({ notebook: helpID })
+    let data = new FormData();
+    let blob = new Blob([bin], {
+        type:  "application/zip",
+      });
+    let file = new File([blob], pluginHelpPath, {
+        lastModified: Date.now(),
+    });
+    data.append("file", file);
+    data.append("toPath", '/');
+    data.append("notebook", helpID);
+    await kernelApi.importSY(data)
 })

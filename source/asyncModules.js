@@ -9,3 +9,19 @@ export {clientApiInstance as clientApi}
 export {pluginInstance as pluginInstance}
 export {pluginInstance as plugin}
 export {kernelApi as kernelApi}
+
+
+export const Constants = {
+    helpID:'20231028183434-6oflpzo',
+    HELP_PATH : {
+        zh_CN: "20210808180117-czj9bvb",
+        zh_CHT: "20211226090932-5lcq56f",
+        en_US: "20210808180117-6v0mkxr",
+        fr_FR: "20210808180117-6v0mkxr",
+    },
+    Plugin_Help_path:{
+        zh_CN: "SAC插件帮助.sy.zip",
+    },
+
+    CB_MOUNT_REMOVE:"cb-mount-remove"
+}
