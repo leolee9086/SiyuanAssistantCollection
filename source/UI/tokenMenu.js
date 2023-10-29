@@ -5,9 +5,23 @@ import { 智能防抖 } from "../utils/functionTools.js"
 import { 根据上下文获取动作表 } from '../actionList/getter.js'
 import kernelApi from "../polyfills/kernelApi.js";
 import { Context } from "./Context.js";
-import tokenMenuDialog from './dialogs/fakeMenu.js'
+import buildMenu from './dialogs/fakeMenu.js'
 import { logger } from "../logger/index.js";
 export { 根据上下文获取动作表 as 根据上下文获取动作表 }
+let tokenMenuDialog=buildMenu()
+plugin.eventBus.on(
+    "settingChange",(e)=>{
+      let {detail}=e
+      if(detail.name==="动作设置.关闭动作监听"){
+        if(detail.value){
+          tokenMenuDialog.destroy()
+          tokenMenuDialog = undefined
+        }else{
+          tokenMenuDialog=buildMenu()
+        }
+      }
+    }
+)
 function 获取元素所在protyle(element) {
   let { protyles } = plugin
   logger.tokenmenulog(protyles)
@@ -15,17 +29,14 @@ function 获取元素所在protyle(element) {
     return protyle.contentElement.contains(element)
   })
 }
-
 let isComposing = false;
 //这一段是token菜单的渲染逻辑
 //记录选区位置,如果发生了变化就不再执行后面的逻辑
 let controller = new AbortController();
 let signal = controller.signal
 
-
-let 显示token菜单 = (e) => {
+let 显示token菜单 = (e,signal) => {
   tokenMenuDialog.clear()
-
   //上下方向键不重新渲染菜单
   if (signal.aborted) {
     return
@@ -231,6 +242,13 @@ export const 开始渲染 = () => {
   document.addEventListener(
     "keydown",
     (e) => {
+      controller.abort()
+      controller = new AbortController();
+      signal = controller.signal
+
+      if(!tokenMenuDialog){
+        return
+      }
       if (e.code && (e.code === "ArrowUp" || e.code === "ArrowDown")) {
         let altFlag = !plugin.configurer.get('动作设置', '上下键选择动作').$value ? e.altKey : !e.altKey
         if (altFlag) {
@@ -243,23 +261,18 @@ export const 开始渲染 = () => {
       if (e.code === "Enter"&& e.altKey) {
         let items = Array.from(tokenMenuDialog.element.querySelectorAll('.b3-menu__item'));
         let currentIndex = items.findIndex(item => item.classList.contains('b3-menu__item--current'));
-
         // 如果有选中的菜单项
         if (currentIndex !== -1) {
           // 触发选中的菜单项
           items[currentIndex].click();
-
           e.preventDefault();
           e.stopPropagation();
         }
         tokenMenuDialog.clear()
       }
-      controller.abort()
-      controller = new AbortController();
-      signal = controller.signal
-
       if (!isComposing) {
         // 触发事件的逻辑
+        
         setTimeout(() => { 显示token菜单(e, signal) }, 100)
       }
     },
@@ -271,6 +284,9 @@ export const 开始渲染 = () => {
     controller.abort()
     controller = new AbortController();
     signal = controller.signal
+    if(!tokenMenuDialog){
+      return
+    }
     setTimeout(() => { 显示token菜单(e, signal) }, 100)
   },
     { capture: true });
