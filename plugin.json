@@ -2,7 +2,7 @@
   "name": "SiyuanAssistantCollection",
   "author": "椽承设计",
   "url": "https://github.com/leolee9086/SiyuanAssistantCollection",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "displayName": {
     "default": "SiyuanAssistantCollection",
     "zh_CN": "思源小助手"
@@ -22,5 +22,6 @@
     "custom": [
       "https://afdian.net/a/leolee9086"
     ]
-  }
+  },
+  "keywords":["ai","ChatGPT","聊天助手","样式","椽承设计"]
 }
