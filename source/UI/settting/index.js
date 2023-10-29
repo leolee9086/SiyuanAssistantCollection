@@ -42,9 +42,9 @@ export function buildSettingUI(settingList, base = '') {
         if (i === 0) {
             firstTab = tab;
         } else if (isSingleLevel) {
-            console.log(tab,tab.querySelector('.config__item'))
-            while (tab.querySelector('.config__item')) {
-                firstTab.appendChild(tab.querySelector('.config__item'));
+           console.log(tab,tab.querySelector('.config__item'))
+            while (tab.querySelector('.config__item')&&firstTab!==tab) {
+               firstTab.appendChild(tab.querySelector('.config__item'));
             }
         }
 

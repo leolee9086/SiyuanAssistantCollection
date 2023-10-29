@@ -129,7 +129,6 @@ class PluginConfigurer {
     } else {
       getterFunction.$value = target;
       getterFunction.$raw = target;
-
     }
     return getterFunction;
   }
