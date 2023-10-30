@@ -51,7 +51,6 @@ let list = () => {
     )
     try {
         let 情景模式列表 = plugin.configurer.get('动作设置', '情景模式').$raw.options
-        console.log(情景模式列表)
         情景模式列表.forEach(
             (情景名)=>{
                 L.push(

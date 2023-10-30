@@ -366,6 +366,19 @@ class SiyuanAssistantCollection extends ccPlugin {
         sanitize: e.detail.options.preview.markdown.sanitize,
       }) : null;
     });
+    //适配新版本
+    this.eventBus.on("loaded-protyle-static", (e) => {
+      this.protyles.push(e.detail);
+      this.protyles = Array.from(new Set(this.protyles));
+      this.setLute ? this._lute = this.setLute({
+        emojiSite: e.detail.options.hint.emojiPath,
+        emojis: e.detail.options.hint.emoji,
+        headingAnchor: false,
+        listStyle: e.detail.options.preview.markdown.listStyle,
+        paragraphBeginningSpace: e.detail.options.preview.markdown.paragraphBeginningSpace,
+        sanitize: e.detail.options.preview.markdown.sanitize,
+      }) : null;
+    });
     this.eventBus.on("click-editorcontent", (e) => {
       this.protyles.push(e.detail.protyle);
       this.protyles = Array.from(new Set(this.protyles));
