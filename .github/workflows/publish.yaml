@@ -20,7 +20,7 @@ jobs:
       - name: Zip the package
         run: |
           VERSION=$(node -p "require('./plugin.json').version")
-          zip -r package.zip . -x "./static/*"
+          zip -r package.zip . -x "./static/*" -x "./.github/*" -x "./.git/*"
           echo "VERSION=$(node -p "require('./plugin.json').version")" >> $GITHUB_ENV
       - name: Create Release
         id: create_release
