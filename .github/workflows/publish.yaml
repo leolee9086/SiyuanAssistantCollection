@@ -24,12 +24,12 @@ jobs:
 
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
+        uses: actions/create-release@${{VERSION}}
         env:
           GITHUB_TOKEN: ${{ secrets.token }}
         with:
-          tag_name: $VERSION
-          release_name: Release $VERSION
+          tag_name: ${{VERSION}}
+          release_name: Release ${{VERSION}}
           draft: true
           prerelease: true
 
