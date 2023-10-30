@@ -16,7 +16,9 @@ export class AIChatInterface extends EventEmitter {
         this.当前参考内容组 = []
         this.当前用户输入 = ''
         this.当前AI回复 = ''
-        this.lute = plugin.lute
+    }
+    get lute(){
+        return  plugin.lute||window.Lute.New()
     }
     dispose() {
         this.container.innerHTML = ''
@@ -86,9 +88,7 @@ export class AIChatInterface extends EventEmitter {
         logger.aiChatlog(消息文字)
         this.shell.emit(`textChat_userMessage`, 消息文字)
     }
-    setlute(lute) {
-        this.aiChatUI.lute = lute
-    }
+
     初始化UI(element) {
         const 聊天容器 = document.createElement('div');
         聊天容器.id = 'chat-container';

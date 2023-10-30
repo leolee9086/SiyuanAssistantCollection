@@ -247,8 +247,8 @@ export default class Shell extends EventEmitter {
     async searchRef(message) {
         let prompt = `
         You can use these references to answer the user's questions, note that you must list all the references you used in your answer.
-        Do not fabricate non-existent references, do not use references that you think are irrelevant to the question.
-        ---REFERENCES---
+        Do not fabricate non-existent references, do not use references that you think are irrelevant to the question, even if they are listed below.
+                        ---REFERENCES---
         `
         //这里的部分是从tips里面获取参考
         try {

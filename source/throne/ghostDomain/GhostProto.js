@@ -92,15 +92,20 @@ class Ghost {
     async organizeWorkingMemory() {
         // 调用shell的处理工作记忆方法
         try {
-            let result = await this.summryRecentMemory(this.workingMemory, this.workingMemoryCapacity, 'workingMemory');
-            if (result) {
-                this.shortTermMemory.push(result); // 将结果添加到短期记忆中
-                this.longTermMemory.history.push(result);
+            if(plugin.configurer.get('聊天工具设置','自动工作记忆总结').$value){
+                let result = await this.summryRecentMemory(this.workingMemory, this.workingMemoryCapacity, 'workingMemory');
+                if (result) {
+                    this.shortTermMemory.push(result); // 将结果添加到短期记忆中
+                    this.longTermMemory.history.push(result);
+                }
             }
-            let result1 = await this.summryRecentMemory(this.shortTermMemory, this.shortTermMemoryCapacity, 'shortTermMemory');
-            if (result1) {
-                this.shortTermMemory.push(result1);
-                this.shortTermMemory.shift();
+            if(plugin.configurer.get('聊天工具设置','自动工作记忆总结').$value){
+                let result1 = await this.summryRecentMemory(this.shortTermMemory, this.shortTermMemoryCapacity, 'shortTermMemory');
+                if (result1) {
+                    this.shortTermMemory.push(result1);
+                    this.shortTermMemory.shift();
+                }
+    
             }
         } catch (e) {
             console.error(e)
