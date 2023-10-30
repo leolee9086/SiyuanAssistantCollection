@@ -274,7 +274,7 @@ export default class Shell extends EventEmitter {
 
             } 
         } catch (e) {
-            logger.error(e)
+            logger.aiShellerror(e)
         }
         //从启用的搜索器获取参考
         const searchers= this.drivers.search
@@ -282,13 +282,12 @@ export default class Shell extends EventEmitter {
         try{
             for(let searcher of searchers){
                 const result  =await searcher.search(message)
-                console.log(result)
-
                 prompt +=result
             }
         }catch(e){
-            logger.error(e)
+            logger.aiShellerror(e)
         }
+        logger.aiShelllog(message,prompt)
         return prompt
     }
     //这里是整理记忆的方法

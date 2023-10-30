@@ -30,11 +30,9 @@ You MUST return a JSON in same Format as input WITH NOTHING ELSE.
 export class Balthazar extends WISE {
     constructor(BaseApi, config, persona) {
         super(BaseApi, config, persona);
-        console.log(BaseApi, config, persona)
         this.votePrompt =votePrompt;
         this.summarizePrompt = summarizePrompt;
         this.replyPrompt=this.persona.bootPrompts[`${persona.name}_as_${persona.name}`].content
-        console.log(this.replyPrompt)
     }
 
     async voteFor(functions, descriptions, inputs, goal) {

@@ -12,9 +12,9 @@ export const typeToInputter = (args,item) => {
         'multiSelect': () => createSelectInputter(args, item, true),
     }
 };
-export function handleInputter(inputter, pathArray, tab, tabWrapper) {
+export function handleInputter(inputter, pathArray, tab, tabWrapper,fullPath) {
     if (inputter) {
-        let label = tabWrapper.querySelector(`[data-group="${pathArray[0] + '.' + pathArray[1]}"]`) || genLabel(pathArray, inputter);
+        let label = tabWrapper.querySelector(`[data-group="${pathArray[0] + '.' + pathArray[1]}"]`) || genLabel(pathArray, inputter,fullPath);
         tab.appendChild(label);
     } 
 }

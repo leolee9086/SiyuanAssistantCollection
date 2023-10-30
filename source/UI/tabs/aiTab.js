@@ -2,7 +2,6 @@ import { plugin,clientApi } from "../../asyncModules.js";
 import throneManager from '../../throne/index.js'
 import logger from '../../logger/index.js'
 let tabGroups = plugin.statusMonitor.get("aiTabContainer").$value
-console.log(tabGroups)
 if(plugin.statusMonitor.get("aiTabContainer").$value){
     for(let persona in tabGroups){
         let tabs = tabGroups[persona]
@@ -38,6 +37,7 @@ function createAiTab(tab){
 }
 plugin.eventBus.on("open-siyuan-url-plugin",(event)=>{
     logger.AiTablog(event.detail)
+
     const tab = clientApi.openTab({
             app: plugin.app,
             custom: {
@@ -51,3 +51,20 @@ plugin.eventBus.on("open-siyuan-url-plugin",(event)=>{
     })
     logger.AiTablog(tab)
 })
+plugin.eventBus.on("openAiTab",(event)=>{
+    logger.AiTablog(event.detail)
+
+    const tab = clientApi.openTab({
+            app: plugin.app,
+            custom: {
+                icon: "iconFace",
+                title:  event.detail,
+                data: {
+                    persona: event.detail,
+                },
+                fn:plugin.aiTabContainer
+            },
+    })
+    logger.AiTablog(tab)
+})
+

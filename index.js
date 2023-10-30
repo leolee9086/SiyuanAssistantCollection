@@ -370,6 +370,7 @@ class SiyuanAssistantCollection extends ccPlugin {
     this.eventBus.on("loaded-protyle-static", (e) => {
       this.protyles.push(e.detail);
       this.protyles = Array.from(new Set(this.protyles));
+      try{
       this.setLute ? this._lute = this.setLute({
         emojiSite: e.detail.options.hint.emojiPath,
         emojis: e.detail.options.hint.emoji,
@@ -378,6 +379,9 @@ class SiyuanAssistantCollection extends ccPlugin {
         paragraphBeginningSpace: e.detail.options.preview.markdown.paragraphBeginningSpace,
         sanitize: e.detail.options.preview.markdown.sanitize,
       }) : null;
+      }catch(e){
+        console.warn(e,e.detail)
+      }
     });
     this.eventBus.on("click-editorcontent", (e) => {
       this.protyles.push(e.detail.protyle);

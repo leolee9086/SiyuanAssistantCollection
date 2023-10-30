@@ -7,6 +7,7 @@ import kernelApi from "../polyfills/kernelApi.js";
 import { Context } from "./Context.js";
 import buildMenu from './dialogs/fakeMenu.js'
 import { logger } from "../logger/index.js";
+import { 设置对话框 } from "./dialogs/settingsDialog.js";
 export { 根据上下文获取动作表 as 根据上下文获取动作表 }
 let tokenMenuDialog=buildMenu()
 plugin.eventBus.on(
@@ -26,7 +27,7 @@ function 获取元素所在protyle(element) {
   let { protyles } = plugin
   logger.tokenmenulog(protyles)
   return protyles.find(protyle => {
-    return protyle.contentElement.contains(element)
+    return protyle.contentElement?protyle.contentElement.contains(element):protyle.protyle.contentElement.contains(element)
   })
 }
 let isComposing = false;
@@ -153,25 +154,44 @@ const 根据上下文生成动作菜单项 = (执行上下文, 动作, 触发事
     菜单项文字内容 = 动作.label(执行上下文)
     菜单项文字内容 = 菜单项文字内容[window.siyuan.config.lang] || 菜单项文字内容.zh_CN || 菜单项文字内容
   }
+  let span = `<svg class="b3-menu__icon" style="">
+  <use xlink:href="#${Lute.EscapeHTMLStr(动作.icon)}"></use>
+</svg>
+<span class="b3-menu__label"
+style='  display: inline-block;
+width: 200px; 
+white-space: nowrap; 
+overflow: hidden;
+text-overflow: ellipsis; 
+
+'
+>${菜单项文字内容}</span>`
+let div = `<div><svg class="b3-menu__icon" style="">
+<use xlink:href="#${Lute.EscapeHTMLStr(动作.icon)}"></use>
+</svg>
+<span class="b3-menu__label"
+style='  display: inline-block;
+width: 200px; 
+white-space: nowrap; 
+overflow: hidden;
+text-overflow: ellipsis; 
+
+'
+>${菜单项文字内容}</span></div> <div class="b3-label__text">${动作.describe}</div>}`
   let 菜单项元素 = 生成元素(
     'button',
     {
       class: "b3-menu__item"
     },
-    `<svg class="b3-menu__icon" style="">
-        <use xlink:href="#${Lute.EscapeHTMLStr(动作.icon)}"></use>
-      </svg>
-      <span class="b3-menu__label"
-      style='  display: inline-block;
-      width: 200px; 
-      white-space: nowrap; 
-      overflow: hidden;
-      text-overflow: ellipsis; 
-    '
-      >${菜单项文字内容}</span>`
+    动作.describe?div:span
     ,
     {
-      click: () => { 执行动作(动作, 执行上下文, 触发事件类型) }
+      click: () => { 执行动作(动作, 执行上下文, 触发事件类型) },
+      contextmenu:()=>{
+        let list ={}
+        list[动作.provider]=true
+        设置对话框(list,`动作设置.关键词动作设置`)
+      }
     }
   )
   菜单项元素.token = 执行上下文.token

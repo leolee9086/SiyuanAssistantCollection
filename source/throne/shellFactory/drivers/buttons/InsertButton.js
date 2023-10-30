@@ -63,6 +63,13 @@ const showAImenu = async (detail) => {
         }
     }
     let rect = detail.button.getClientRects()[0]
+    menu.addItem({
+        icon: "iconFace",
+        label:"在tab打开",
+        click:()=>{
+            plugin.eventBus.emit("openAiTab",detail.doll.ghost.persona.name)
+        }
+    })
     menu.open({
         x: rect.right - 25 - 76,
         y: rect.bottom,

@@ -6,6 +6,7 @@ import {
 import { typeToInputter, handleInputter } from "./inputter.js";
 import { plugin } from "../../asyncModules.js";
 import { string2DOM } from "../builders/index.js";
+import './describe.js'
 export function buildSettingUI(settingList, base = '') {
     let keys = plugin.configurer.query(settingList, base);
     let frag = document.createDocumentFragment();
@@ -38,7 +39,7 @@ export function buildSettingUI(settingList, base = '') {
         tabWrapper.appendChild(tab);
         let elementGenerator = 获取设置UI(...fullPath.split('.'));
         let inputter = elementGenerator();
-        handleInputter(inputter, pathArray, tab, tabWrapper);
+        handleInputter(inputter, pathArray, tab, tabWrapper,fullPath);
         if (i === 0) {
             firstTab = tab;
         } else if (isSingleLevel) {

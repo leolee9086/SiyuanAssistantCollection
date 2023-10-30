@@ -51,12 +51,13 @@ export function handleTabDisplay(tabWrapper) {
         }
     }
 }
-export function genLabel(pathArray, inputter) {
+export function genLabel(pathArray, inputter,fullPath) {
     if (pathArray.length <= 2) {
         let labelFragment = string2DOM(`
         <label class="fn__flex b3-label config__item">
             <div class="fn__flex-center fn__flex-1 ft__on-surface">
                 ${pathArray[pathArray.length - 1]}
+                ${plugin.statusMonitor.get('settingDescribe',fullPath).$value?`<div class="b3-label__text">${plugin.statusMonitor.get('settingDescribe',fullPath).$value}</div>`:""}
             </div>
             <span class="fn__space"></span>
         </label>`

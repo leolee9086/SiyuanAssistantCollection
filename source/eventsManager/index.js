@@ -8,6 +8,7 @@ import './wsChanel.js'
 import { setSync } from "../fileSysManager/index.js";
 import path from '../polyfills/path.js';
 import fs from "../polyfills/fs.js";
+import buildMenu from "../UI/dialogs/fakeMenu.js";
 
 const eventBusProxy = new Proxy(plugin.eventBus, {
     get: (target, propKey, receiver) => {
@@ -91,7 +92,11 @@ eventBus.on('settingChange', async (e) => {
     if (detail.name === "向量工具设置.同步时忽略向量模型文件夹") {
         await setSync('public/vectorStorage/**', detail.value)
         window.location.reload()
-
+    }
+    if (detail.name === "菜单.显示关键词菜单") {
+        if(detail.value){
+            buildMenu()
+        }
     }
 })
 eventBus.on('sac-open-menu-aichatmessage', async (e) => {

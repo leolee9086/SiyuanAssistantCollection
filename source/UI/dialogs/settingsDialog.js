@@ -1,7 +1,10 @@
 import { clientApi, plugin } from "../../asyncModules.js";
 import { buildSettingUI } from "../settting/index.js";
+import { logger } from "../../logger/index.js";
+import { 计算zindex } from "./util/zIndex.js";
 export const 设置对话框 = async (settingList, base) => {
     // 获取 settingList 的所有键
+    logger.settinglog(settingList, base)
     if(!settingList||settingList=={}){
         settingList = plugin.configurer.list()
     }
@@ -36,7 +39,7 @@ export const 设置对话框 = async (settingList, base) => {
 
     });
     dialog.element.style.pointerEvents = 'none'
-    dialog.element.style.zIndex = '1'
+    dialog.element.style.zIndex = 计算zindex('.layout__resize--lr.layout__resize')
     dialog.element.querySelector(".b3-dialog__container").style.pointerEvents = 'auto'
     dialog.element.querySelector(".config__panel_SAC").appendChild(buildSettingUI(settingList, base))
     return dialog

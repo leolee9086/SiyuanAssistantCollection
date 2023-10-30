@@ -1,12 +1,15 @@
 import { clientApi,pluginInstance as plugin } from '../../asyncModules.js'
 import { string2DOM } from '../builders/index.js';
+import { 计算zindex } from './util/zIndex.js';
+let menu
 export const buildMenu = ()=>{
-    let menu = new clientApi.Dialog({
+    menu= new clientApi.Dialog({
         title: "SAC",
         content: `<div id="sacmenu" class='fn__flex-column' style="pointer-events: auto;overflow:hidden">
         </div>`,
         destroyCallback: () => {
             plugin.statusMonitor.set('菜单','关键词菜单','显示',false)
+            plugin.configurer.set('菜单','显示关键词菜单',false)
         },
         width: '300px',
         height: 'auto',
@@ -14,12 +17,12 @@ export const buildMenu = ()=>{
         disableClose: true,
         disableAnimation: false
     }, () => {
-        
+
     });
     menu.origin={x:0,y:0}
     menu.position2origin={x:0,y:0}
     menu.element.style.pointerEvents = 'none'
-    menu.element.style.zIndex = '1'
+    menu.element.style.zIndex = 计算zindex('.layout__resize--lr.layout__resize')
     menu.element.querySelector(".b3-dialog__container").style.pointerEvents = 'auto'
     menu.element.querySelector(".b3-dialog__container").style.position = 'fixed'
     menu.element.querySelector(".b3-dialog__container").classList.add("b3-menu")
@@ -55,7 +58,8 @@ export const buildMenu = ()=>{
         }
     });
     container.querySelector('.b3-dialog__header').addEventListener(
-        "dbclick",()=>{
+        "dblclick",()=>{
+            console.log(menu.pined)
             menu.pined=!menu.pined
         }
     )
@@ -99,6 +103,7 @@ export const buildMenu = ()=>{
     // 开始观察
     observer.observe(container, config);
     menu.moveTo = (options) => {
+        menu.element.style.zIndex = 计算zindex('.layout__resize--lr.layout__resize,.block__popover--open')
         if(menu.pined){
             return
         }

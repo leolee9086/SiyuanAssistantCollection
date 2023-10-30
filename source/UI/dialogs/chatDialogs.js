@@ -1,14 +1,16 @@
 import kernelApi from '../../polyfills/kernelApi.js'
 import { clientApi,pluginInstance as plugin } from '../../asyncModules.js'
 import throneManager from '../../throne/index.js'
-
+import { 计算zindex } from './util/zIndex.js';
 export const AI对话框 = async (标题, aiIdentifier) => {
     let aiChatInterface
-    let dialog = new clientApi.Dialog({
+    let dialog 
+    dialog= new clientApi.Dialog({
         title: 标题,
         content: `<div id="ai-chat-interface" class='fn__flex-column' style="pointer-events: auto;overflow:hidden"></div>`,
         destroyCallback: () => {
-            
+            dialog.控制器.isOpen=false
+
             aiChatInterface.aiChatUI = undefined;
         },
         width: '600px',
@@ -26,7 +28,7 @@ export const AI对话框 = async (标题, aiIdentifier) => {
         }
     );
     dialog.element.style.pointerEvents = 'none'
-    dialog.element.style.zIndex = '1'
+    dialog.element.style.zIndex = 计算zindex('.layout__resize--lr.layout__resize')
     dialog.element.querySelector(".b3-dialog__container").style.pointerEvents = 'auto'
     dialog.controller=aiChatInterface;
     return dialog
@@ -49,6 +51,7 @@ export class AI对话框控制器{
             }
         )
         this.对话框实例 = 对话框
+        对话框.控制器= this
         this.isOpen = true
     }
     async hide(){

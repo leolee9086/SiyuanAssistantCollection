@@ -29,7 +29,6 @@ You MUST return  a JSON in same Format as input WITH NOTHING ELSE.
 export class Melchior extends WISE {
     constructor(baseApi, config, persona) {
         super(baseApi, config, persona);
-        console.log(baseApi, config, persona)
         this.votePrompt =votePrompt;
         this.summarizePrompt = summarizePrompt;
         this.replyPrompt=this.persona.bootPrompts[`${persona.name}_not_${persona.name}`].content

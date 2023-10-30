@@ -85,6 +85,7 @@ function 创建过滤器函数(动作表) {
             try {
                 let 动作 = _动作表[j];
                 动作._动作表路径 = 动作表._动作表路径
+                动作.provider=动作表.provider
                 let flag;
                 if (context.token) {
                     if (动作.hintArray && 动作.matcher(context.token ? context.token.word : null, 动作.hintArray || [], context)) {
