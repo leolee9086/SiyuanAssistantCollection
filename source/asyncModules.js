@@ -22,6 +22,8 @@ export const Constants = {
     Plugin_Help_path:{
         zh_CN: "SAC插件帮助.sy.zip",
     },
-
+    Plugin_Help_name:{
+        zh_CN: "SAC-请从这里开始",
+    },
     CB_MOUNT_REMOVE:"cb-mount-remove"
 }

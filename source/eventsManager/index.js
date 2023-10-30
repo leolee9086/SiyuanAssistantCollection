@@ -1,4 +1,4 @@
-import { pluginInstance as plugin, Constants, kernelApi } from "../asyncModules.js"
+import { pluginInstance as plugin, Constants, kernelApi,clientApi } from "../asyncModules.js"
 import { 智能防抖 } from "./debouncer.js";
 import logger from "../logger/index.js";
 import "./documentEvents.js"
@@ -97,7 +97,6 @@ eventBus.on('settingChange', async (e) => {
 eventBus.on('sac-open-menu-aichatmessage', async (e) => {
     let { detail } = e
     let { menu, doll, message, userInput } = detail
-    console.log(detail)
     menu.addItem({
         icon: "iconSparkles",
         label: "插入到当前块之后",
@@ -125,8 +124,10 @@ eventBus.on('sac-open-menu-aichatmessage', async (e) => {
 })
 eventBus.on(`openHelp-plugin-${plugin.name}`, async () => {
     const helpID = Constants.HELP_PATH[siyuan.config.lang]
-    kernelApi.removeNotebook.sync({ notebook: helpID, callback: Constants.CB_MOUNT_REMOVE })
+   // kernelApi.removeNotebook.sync({ notebook: helpID, callback: Constants.CB_MOUNT_REMOVE })
     let pluginHelpPath = Constants.Plugin_Help_path[siyuan.config.lang] || Constants.Plugin_Help_path['zh_CN']
+    let pluginHelpName = Constants.Plugin_Help_name[siyuan.config.lang] || Constants.Plugin_Help_name['zh_CN']
+
     let bin = await fs.readFile(path.join(plugin.selfPath, 'assets', 'help', pluginHelpPath))
     await kernelApi.openNotebook({ notebook: helpID })
     let data = new FormData();
@@ -140,4 +141,17 @@ eventBus.on(`openHelp-plugin-${plugin.name}`, async () => {
     data.append("toPath", '/');
     data.append("notebook", helpID);
     await kernelApi.importSY(data)
+    setTimeout(async()=>{
+        let sql = `select * from blocks where box ='${helpID}' and hpath = '/${pluginHelpName}'`
+        let blocks = await kernelApi.sql({stmt:sql})
+        if(blocks[0]){
+            await clientApi.openTab({
+                app: plugin.app,
+                doc: {
+                    id: blocks[0].id,
+                }
+            });
+        }
+    
+    },3000)
 })
