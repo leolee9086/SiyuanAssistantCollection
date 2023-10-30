@@ -4,7 +4,6 @@ import marduk from '../../../index.js'
 export const show=async(element,AIChatInterface)=>{
     const menu = new clientApi.Menu()
     const ghosts =await roster.listGhostNames()
-    console.log(ghosts)
     ghosts.forEach(
         ghost=>{
             menu.addItem({

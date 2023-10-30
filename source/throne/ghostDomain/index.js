@@ -13,27 +13,40 @@ if (!_roster) {
     window[Symbol.for('ghostRoster')] = _roster
 }
 for (let persona of personas) {
-    console.log(persona, personas)
     if (persona.name == 'DummySys') {
         let module = await import(`${GhostURL}/${persona.name}/Ghost.js`)
         _roster.set(persona.name, module['default'])
-        console.log(persona, personas)
         continue
     }
     if (persona.isDir && persona.name) {
-        console.log(persona)
         if (await fs.exists(path.join(GhostPath, persona.name, 'persona.js'))) {
             let module = await import(`${GhostURL}/${persona.name}/persona.js`)
             let ghost = new  Ghost(module['default'])
             _roster.set(persona.name, ghost)
             plugin.statusMonitor.set('AiGhosts', persona.name, ghost)
-        } else if (await fs.exists(path.join(GhostPath, persona.name, 'Ghost.js'))) {
+        } 
+        else if (await fs.exists(path.join(GhostPath, persona.name, 'Ghost.js'))) {
             let module = await import(`${GhostURL}/${persona.name}/Ghost.js`)
-            console.log(module['default'])
             let ghost =new (module['default'])()
             _roster.set(persona.name, ghost)
-
             plugin.statusMonitor.set('AiGhosts', persona.name, ghost)
+        } 
+        else if (await fs.exists(path.join(GhostPath, persona.name, 'persona.txt'))){
+            let systemContent = await fs.readFile(path.join(GhostPath, persona.name, 'persona.txt'))
+            let DummySysSetting = {
+                bootPrompts:{
+                }
+            }
+            DummySysSetting.bootPrompts[persona.name]=systemContent
+            DummySysSetting.bootPrompts[`${persona.name}_as_${persona.name}`]=systemContent
+            DummySysSetting.bootPrompts[`${persona.name}_not_${persona.name}`]=systemContent
+        }
+        //初始化记忆文件
+        await fs.initFile(path.join(AkashicPath,`${persona.name}.mem`),'{}')
+        //添加到默认AI选择界面
+        let 默认AI列表 = plugin.configurer.get("聊天工具设置","默认AI").$raw.options
+        if(默认AI列表.indexOf(persona.name)<0){
+            默认AI列表.push(persona.name)
         }
     }
 }

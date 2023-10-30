@@ -39,7 +39,7 @@ class Ghost {
             this.organizeWorkingMemory(); // 整理工作记忆
             return JSON.parse(JSON.stringify(this.workingMemory))
         }
-        logger.log(`message from ${message.role}:${message.content}`, (new Date()).toLocaleString())
+        logger.ghostlog(`message from ${message.role}:${message.content}`, (new Date()).toLocaleString())
     }
     //----//
     use(shell) {
@@ -47,8 +47,22 @@ class Ghost {
     }
     async onWakeUp() {
         this.longTermMemory = (await plugin.loadData(`Akashic/${this.persona.name}.mem`)) || this.longTermMemory
-        this.shortTermMemory = JSON.parse(JSON.stringify(this.longTermMemory.shortTermMemoryBackup)) || []
-        this.workingMemory = JSON.parse(JSON.stringify(this.longTermMemory.workingMemoryBackup)) || []
+        this.longTermMemory.shortTermMemoryBackup=this.longTermMemory.shortTermMemoryBackup||[]
+        this.longTermMemory.workingMemoryBackup=this.longTermMemory.workingMemoryBackup||[]
+        this.longTermMemory.history=this.longTermMemory.history||[]
+
+        try {
+            this.shortTermMemory = JSON.parse(JSON.stringify(this.longTermMemory.shortTermMemoryBackup)) || []
+        } catch (e) {
+            logger.ghosterror
+            this.shortTermMemory = []
+        }
+        try {
+            this.workingMemory = JSON.parse(JSON.stringify(this.longTermMemory.workingMemoryBackup)) || []
+        } catch (e) {
+            logger.ghosterror
+            this.workingMemory = []
+        }
         // 初始化 undefined 的 content 为 ""
         this.shortTermMemory.forEach(item => {
             if (item.content === undefined) {
@@ -78,26 +92,26 @@ class Ghost {
     async organizeWorkingMemory() {
         // 调用shell的处理工作记忆方法
         try {
-            let result = await this.summryRecentMemory(this.workingMemory, this.workingMemoryCapacity,'workingMemory');
+            let result = await this.summryRecentMemory(this.workingMemory, this.workingMemoryCapacity, 'workingMemory');
             if (result) {
                 this.shortTermMemory.push(result); // 将结果添加到短期记忆中
                 this.longTermMemory.history.push(result);
             }
-            let result1 = await this.summryRecentMemory(this.shortTermMemory, this.shortTermMemoryCapacity,'shortTermMemory');
+            let result1 = await this.summryRecentMemory(this.shortTermMemory, this.shortTermMemoryCapacity, 'shortTermMemory');
             if (result1) {
                 this.shortTermMemory.push(result1);
                 this.shortTermMemory.shift();
             }
-        }catch(e){
+        } catch (e) {
             console.error(e)
         }
         await this.storeLongTermMemory(); // 存储长期记忆
     }
-    async summryRecentMemory(memory, capacity,memoryType) {
+    async summryRecentMemory(memory, capacity, memoryType) {
         if (memory.length >= capacity && JSON.stringify(memory).length > 2000) {
             //无论总结是否成功,都会触发遗忘,避免token消耗过大
-           let _memory = JSON.parse(JSON.stringify(memory.slice(-7)));
-           this[memoryType]=_memory
+            let _memory = JSON.parse(JSON.stringify(memory.slice(-7)));
+            this[memoryType] = _memory
             let result = await this.shell.summryMemory(memory);
             this[memoryType] = [result].concat(this[memoryType]);
             return result;
