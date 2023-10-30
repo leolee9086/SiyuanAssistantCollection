@@ -1,6 +1,7 @@
 import { seachWithVector } from '../../../vectorStorage/blockIndex.js'
 import { jieba } from '../../../utils/tokenizer.js'
 import kernelApi from '../../../polyfills/kernelApi.js'
+import { plugin } from '../../../asyncModules.js'
 export const seachBlockWithVector = async (vector) => {
     let blocks = await seachWithVector('vector', vector, 30)
     return blocks.map(item => { return item.meta&&item.score>0.8}).filter(item=>{return item})
@@ -38,7 +39,7 @@ export const seachBlockWithText = async (text) => {
     else return []
 }
 export const searchBlock = async (message, vector) => {
-    let blocks1 = await seachBlockWithText(message.meta.content)
+    let blocks1 = await seachBlockWithText(message.content||(message.meta&&message.meta.content))
     let blocks2 = await seachBlockWithVector(vector)
     let blocks = blocks1.concat(blocks2)
     return buildRefs(blocks)
@@ -47,11 +48,12 @@ function buildRefs(blocks) {
     let refs = ""
     let seen1 = new Set()
     let seen2 = new Set()
+    let 最大文字长度 = plugin.configurer.get('聊天工具设置','参考文字最大长度').$value
     blocks.forEach(ref => {
 
         if (ref.id && ref.content && !seen1.has(ref.id) ) {
             let obj = { id: ref.id, content: ref.content }
-            refs += `\n[${obj.content.substring(0, 512)}](siyuan://blocks/${obj.id})`
+            refs += `\n[${obj.content.substring(0, 最大文字长度||512)}](siyuan://blocks/${obj.id})`
             seen1.add(ref.id)
             seen2.add(ref.content)
         }

@@ -244,10 +244,13 @@ export default class Shell extends EventEmitter {
                 )
         }
     }
-    async searchRef(text) {
+    async searchRef(message) {
         let prompt = `
+        You can use these references to answer the user's questions, note that you must list all the references you used in your answer.
+        Do not fabricate non-existent references, do not use references that you think are irrelevant to the question.
         ---REFERENCES---
         `
+        //这里的部分是从tips里面获取参考
         try {
             let refs
             let refsElement = document.querySelectorAll('.tips-card.selected')
@@ -267,15 +270,26 @@ export default class Shell extends EventEmitter {
             let selectedText = plugin.statusMonitor.get('editorStatus', 'selectedText').$value
             refs += selectedText
             if (refs) {
-                return prompt + '\n' + refs
+                 prompt + '\n' + refs
 
-            } else {
-                return ""
-            }
+            } 
         } catch (e) {
             logger.error(e)
-            return ""
         }
+        //从启用的搜索器获取参考
+        const searchers= this.drivers.search
+        
+        try{
+            for(let searcher of searchers){
+                const result  =await searcher.search(message)
+                console.log(result)
+
+                prompt +=result
+            }
+        }catch(e){
+            logger.error(e)
+        }
+        return prompt
     }
     //这里是整理记忆的方法
     async summryMemory(workingMemory) {

@@ -25,7 +25,7 @@ class Ghost {
         await this.shell.embeddingMessage(message)
         //收到用户的消息时
         if (message.role === 'user') {
-            let referenceMessage = { role: 'system', content: await this.shell.searchRef(message.content) }
+            let referenceMessage = { role: 'system', content: await this.shell.searchRef(message) }
             if (referenceMessage.content) {
                 this.workingMemory.push(referenceMessage)
             }

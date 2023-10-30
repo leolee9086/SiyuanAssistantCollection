@@ -1,8 +1,9 @@
+import { plugin } from "../../asyncModules.js";
 import fs from "../../polyfills/fs.js";
 import path from "../../polyfills/path.js"
+import { searchRef } from "./drivers/searcher.js";
 let meta= import.meta
 let factoryURL =path.dirname(new URL(meta.url).pathname)
-
 let factoryLocation =path.join('/data',factoryURL)
 export async function listShells(){
     let shells = [];
@@ -26,7 +27,6 @@ export async function listShells(){
     }
     return shellList;
 }
-
 export async function buildShell(requiredType, drivers, processors){
     let type = fixTypeName(requiredType)
     let Shells = await listShells();
@@ -51,6 +51,14 @@ export async function buildShell(requiredType, drivers, processors){
         processors?copy.changeProcessor(processors):null;
     } catch(e) {
         console.warn("Error configuring shell:", e);
+    }
+    //如果自动给出参考,就给shell添加搜索器
+    if(plugin.configurer.get('聊天工具设置','自动给出参考').$value){
+        copy.drivers.search.push(
+            {
+                search:searchRef
+            }
+        )
     }
     return copy;
 }
