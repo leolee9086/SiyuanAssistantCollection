@@ -1,7 +1,7 @@
 import fs from "../../polyfills/fs.js";
 import path from "../../polyfills/path.js";
 import logger from '../../logger/index.js'
-
+import { 读取工作空间文件列表 } from "../utils/glob.js";
 export class JsonSyAdapter {
     constructor(文件保存地址) {
         this.总文件数 = 8
@@ -30,15 +30,10 @@ export class JsonSyAdapter {
     async 反序列化(data){
         return JSON.parse(data)
     }
+  
     async 加载全部数据(数据集对象){
         if (await fs.exists(this.文件保存地址)) {
-            let 文件列表 = await fs.readDir(this.文件保存地址)
-            let 文件路径列表 = [this.文件保存地址]
-            for (let 文件项 of 文件列表) {
-                if (文件项.isDir) {
-                    文件路径列表.push(this.文件保存地址 + 文件项.name + '/')
-                }
-            }
+            let 文件路径列表 = await 读取工作空间文件列表(this.文件保存地址)
             for (let 子文件夹路径 of 文件路径列表) {
                 let log = ''
                 for (let i = 0; i < this.总文件数; i++) {
