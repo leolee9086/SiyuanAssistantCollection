@@ -156,7 +156,7 @@ export const 处理子切片数组 = async (子切片数组) => {
     try {
         await Promise.all(子切片数组.map(子切片 => 处理子切片(子切片, plugin.最大句子长度)));
     } catch (error) {
-        console.error('处理子切片时出错:', error);
+        logger.blockIndexerror('处理子切片时出错:', error);
         throw error;
     }
 }
