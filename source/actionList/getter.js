@@ -14,34 +14,7 @@ export async function 根据上下文获取动作表(context, signal) {
         }
         try {
            let 动作表 = 动作总表[i];
-           
-            /* if (设置器.get("动作设置", "关键词动作设置", 动作表.provider).$value !== true) {
-                if (动作表.provider !== 'meta_js') {
-                    continue
-                }
-                if(设置器.get("动作设置", "关键词动作设置", 动作表.provider).$value===undefined){
-                    let 默认配置 = 设置器.get("动作设置", "默认开启新动作表").$value
-                    if(!默认配置){
-                        continue
-                    }
-                }
-            }
-            if (signal && signal.aborted) {
-                return []
-            }
-            // 筛选出合适的动作
-            let f = await 智能防抖(
-                获取过滤器函数(动作表, signal),
-                (当次执行间隔, 平均执行时间) => {
-                    logger.actionListwarn(`动作表${动作表._动作表路径}生成时间过长,已经阻断,当前执行间隔为${当次执行间隔},平均执行时间为${平均执行时间},优化生成函数可能改善`)
-                }
-            )
-            if (signal && signal.aborted) {
-                return []
-            }
-            f ? f(备选动作表, context, signal) : null*/
             await 处理动作表(动作表, 备选动作表, context, signal)
-
         } catch (e) {
             logger.actionListwarn(e, 动作总表[i]);
         }
@@ -87,7 +60,6 @@ function 获取过滤器函数(动作表, signal) {
             const oldestKey = 过滤器函数表.keys().next().value;
             过滤器函数表.delete(oldestKey);
         }
-
         let 过滤器函数 = 创建过滤器函数(动作表);
         过滤器函数表.set(动作表, 过滤器函数);
     }
