@@ -41,7 +41,7 @@ export class JsonSyAdapter {
                     if (await fs.exists(子文件夹路径 + 'chunk' + i + '.json')) {
                         try {
                             content = await fs.readFile(子文件夹路径 + 'chunk' + i + '.json')
-                            content = JSON.parse(content)
+                            content = await this.反序列化(content)
                         } catch (e) {
                             log += 子文件夹路径 + 'chunk' + i + '.json已经损坏或不存在,将忽略' + '\n' + e.message + '\n'
                         }
