@@ -65,8 +65,63 @@ function 获取过滤器函数(动作表, signal) {
     }
     return 过滤器函数表.get(动作表);
 }
+async function 处理动作(动作, 动作表, 备选动作表, context, signal) {
+    let flag;
+    if (context.token) {
+        if (动作.hintArray && 动作.matcher(context.token ? context.token.word : null, 动作.hintArray || [], context)) {
+            flag = true;
+        } else if (动作.matchMod === 'any') {
+            flag = true;
+        }
+    }
+    if (signal && signal.aborted) {
+        return
+    }
+    if (动作.blocksFilter && context.token) {
+        flag = flag && 动作.blocksFilter(context.blocks);
+    }
+    if (signal && signal.aborted) {
+        return
+    }
+    if (动作.blocksFilter && !context.token) {
+        flag = 动作.blocksFilter(context.blocks);
+    }
+    if (!动作.blocksFilter && !context.token) {
+        flag = true
+    }
+    if (flag) {
+        备选动作表.push(动作);
+    }
+}
 
 function 创建过滤器函数(动作表) {
+    return async function (备选动作表, context, signal) {
+        let _动作表 = 动作表;
+        if (signal && signal.aborted) {
+            return
+        }
+        if (_动作表 instanceof Function) {
+            _动作表 = 处理单个动作表(await (_动作表)(context, signal));
+        }
+        if (!_动作表 || !_动作表[0]) {
+            return;
+        }
+        for (let j = 0; j < _动作表.length; j++) {
+            if (signal && signal.aborted) {
+                return
+            }
+            try {
+                let 动作 = _动作表[j];
+                动作._动作表路径 = 动作表._动作表路径
+                动作.provider=动作表.provider
+                await 处理动作(动作, 动作表, 备选动作表, context, signal);
+            } catch (e) {
+                logger.actionListwarn(e, _动作表[j]);
+            }
+        }
+    };
+}
+/*function 创建过滤器函数(动作表) {
     return async function (备选动作表, context, signal) {
         let _动作表 = 动作表;
         if (signal && signal.aborted) {
@@ -121,4 +176,4 @@ function 创建过滤器函数(动作表) {
             // console.log(Date.now()-t0)
         }
     };
-}
+}*/
