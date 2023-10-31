@@ -37,12 +37,12 @@ export class DummyGhost extends Ghost {
             "gender":"female",
             ...Persona
         };
+        console.log(Persona,this.Persona)
         if(this.Persona.gender==='male'&&this.Persona.name==="REI01"){
             this.Persona.name="NAGISA01"
         }
         this.persona=DummyPersona(name,this.Persona)
         console.log(this.persona)
-
     }
 }
 const DummySys = {
@@ -80,15 +80,15 @@ let DummyPersona = (name,proto) => {
     let bootPrompts ={}
     bootPrompts[name] = {
         "role": "system",
-        "content": masquerade(proto,'Chat with the user, make the user happy','you must keep the conversation continue')
+        "content":(proto.bootPrompts&& proto.bootPrompts[name])||masquerade(proto,'Chat with the user, make the user happy','you must keep the conversation continue')
     }
     bootPrompts[`${name}_as_${name}`] = {
         "role": "system",
-        "content": masquerade(splitPersona(proto)[0],"Learn how to mimic human communication",'you must learn from conversation,build your own persona, and try to perform like a human')
+        "content":(proto.bootPrompts&&proto.bootPrompts[`${name}_as_${name}`])|| masquerade(splitPersona(proto)[0],"Learn how to mimic human communication",'you must learn from conversation,build your own persona, and try to perform like a human')
     }
-    bootPrompts[`${name}_not_${name}`] = {
+    bootPrompts[`${name}_not_${name}`] ={
         "role": "system",
-        "content": masquerade(splitPersona(proto)[1],'Provide professional and accurate advice',"you must keep logical and calm in your reply,never be emotional")
+        "content":(proto.bootPrompts&& proto.bootPrompts[`${name}_not_${name}`]) ||masquerade(splitPersona(proto)[1],'Provide professional and accurate advice',"you must keep logical and calm in your reply,never be emotional")
     }
     return {
         "name": name,

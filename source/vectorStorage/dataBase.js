@@ -1,7 +1,9 @@
 import logger from '../logger/index.js'
 import { 计算余弦相似度, 计算欧氏距离相似度, 查找最相似点 } from './vector.js';
-import { JsonSyAdapter } from '../fileSysManager/workspaceAdapters/jsonAdapter.js';
+import  jsonSyAdapter  from '../fileSysManager/workspaceAdapters/jsonAdapter.js';
+import msgSyAdapter from '../fileSysManager/workspaceAdapters/msgAdapter.js'
 import { 校验主键 } from './dataBase/keys.js';
+import { plugin,clientApi } from '../asyncModules.js';
 globalThis._blockActionDataBase = globalThis._blockActionDataBase || {}
 export class 数据库 {
     constructor(文件保存地址) {
@@ -47,7 +49,20 @@ class 数据集 {
         this.待保存数据分片 = []
         this.待保存路径值 = []
         this.保存队列 = [];
-        this.文件适配器 = new JsonSyAdapter(this.文件保存地址)
+        this.文件保存格式=plugin.configurer.get('向量工具设置','向量保存格式')
+    }
+    get 文件适配器(){
+        return this.文件保存格式==='msgpack'?new msgSyAdapter(this.文件保存地址):new jsonSyAdapter(this.文件保存地址)
+    }
+    async 迁移数据(新数据格式){
+        this.文件保存格式 = 新数据格式
+        this.主键列表.forEach(
+            主键值=>{
+                this.记录待保存数据项(this.数据集对象[主键值])
+            }
+        )
+        this.已经修改 =true
+        await this.保存数据()
     }
     get 文件保存地址() {
         return this.数据库.文件保存地址 + '/' + this.数据集名称 + '/'
@@ -125,7 +140,6 @@ class 数据集 {
                 if (数据集对象[主键值]) {
                     //这里不用担心动态模式下会删除源对象.因为这个只是个引用
                     this.记录待保存数据项(数据集对象[主键值])
-
                     delete 数据集对象[主键值]
                 }
             }

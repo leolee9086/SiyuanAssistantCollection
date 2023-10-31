@@ -93,6 +93,13 @@ eventBus.on('settingChange', async (e) => {
         await setSync('public/vectorStorage/**', detail.value)
         window.location.reload()
     }
+    if (detail.name === "向量工具设置.默认文本向量化模型") {
+        window.location.reload()
+    }
+    if (detail.name === "向量工具设置.向量保存格式") {
+        await plugin.块数据集.迁移数据(detail.value)
+        window.location.reload()
+    }
     if (detail.name === "菜单.显示关键词菜单") {
         if(detail.value){
             buildMenu()

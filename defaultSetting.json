@@ -23,7 +23,12 @@
         "索引占用核心":1,
         "手动索引":true,
         "同步时忽略向量存储文件夹":false,
-        "同步时忽略向量模型文件夹":false
+        "同步时忽略向量模型文件夹":false,
+        "向量保存格式":{
+            "$value":"json",
+            "$type":"singleSelect",
+            "options":["json","msgpack"]
+        }
     },
     "聊天工具设置": {
         "默认AI": {
