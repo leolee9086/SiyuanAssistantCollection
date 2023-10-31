@@ -202,22 +202,22 @@ text-overflow: ellipsis;
   }
   return 菜单项元素
 }
-const 执行动作 = async (动作, context, 触发事件类型) => {
+const 执行动作 = async (动作, 执行上下文, 触发事件类型) => {
   if (触发事件类型 == '分词菜单') {
     if (动作.hintAction) {
-      await 动作.hintAction(context);
+      await 动作.hintAction(执行上下文);
     } else if (动作.分词动作) {
-      await 动作.分词动作(context);
+      await 动作.分词动作(执行上下文);
     }
   } else {
     if (动作.blockAction) {
-      await 动作.blockAction(context);
+      await 动作.blockAction(执行上下文);
     } else if (动作.块动作) {
-      await 动作.块动作(context);
+      await 动作.块动作(执行上下文);
     }
   }
   plugin.命令历史.push(动作);
-  动作.lastContext = context;
+  动作.lastContext = 执行上下文;
 }
 //对命令进行排序
 //Levenshtein距离是一种用于计算两个字符串之间的相似度的算法。
