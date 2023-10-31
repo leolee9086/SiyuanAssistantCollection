@@ -178,7 +178,7 @@ text-overflow: ellipsis;
 
 '
 >${菜单项文字内容}</span></div> <div class="b3-label__text">${动作.describe}</div>}`
-  let 菜单项元素 = 生成元素(
+  let 菜单项元素 = 以tag名生成元素(
     'button',
     {
       class: "b3-menu__item"
@@ -236,7 +236,7 @@ export function 根据动作序列生成菜单组(动作序列, 执行上下文,
   )
   return 子菜单元素片段
 }
-function 生成元素(tag名, 属性配置, html, 事件配置) {
+function 以tag名生成元素(tag名, 属性配置, 内部html, 事件配置) {
   let 元素 = document.createElement(tag名)
   Object.getOwnPropertyNames(属性配置).forEach(
     prop => {
@@ -248,12 +248,9 @@ function 生成元素(tag名, 属性配置, html, 事件配置) {
       元素.addEventListener(事件名, 事件配置[事件名])
     }
   )
-  元素.insertAdjacentHTML('beforeEnd', html)
+  元素.insertAdjacentHTML('beforeEnd', 内部html)
   return 元素
 }
-
-
-
 export const 开始渲染 = () => {
   document.addEventListener('compositionstart', () => {
     isComposing = true;
@@ -292,7 +289,6 @@ export const 开始渲染 = () => {
       }
       if (!isComposing) {
         // 触发事件的逻辑
-        
         setTimeout(() => { 显示token菜单(e, signal) }, 100)
       }
     },
