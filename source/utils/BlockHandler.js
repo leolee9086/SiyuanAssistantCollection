@@ -87,7 +87,6 @@ class BlockHandler {
           // this.applyStyleToDOM();
           return true;
         },
-
       }
       )
     } else {
@@ -138,8 +137,6 @@ class BlockHandler {
     )
     return blockElements
   }
-
-
   baseAttrs = ["id", "type", "subtype"];
   //一个同步请求
   get _block() {
@@ -161,7 +158,6 @@ class BlockHandler {
     })[0];
 
   }
-
   async removeRoot() {
     this.kernelApi.removeDoc({
       notebook: this._block.box,

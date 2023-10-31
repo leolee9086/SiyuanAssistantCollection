@@ -2,6 +2,7 @@ import { 获取文件下载链接, 获取最新发布版本信息 } from '../pac
 import kernelApi from '../polyfills/kernelApi.js';
 import fs from '../polyfills/fs.js';
 import path from '../polyfills/path.js'
+import { checkConnectivity } from '../utils/network/check.js';
 let workspaceDir = globalThis.siyuan.config.system.workspaceDir
 export let baseModels = ['leolee9086/text2vec-base-chinese']
 let 模型存放地址 = '/data/public/onnxModels/'
@@ -19,8 +20,6 @@ export let 下载基础模型 = async() => {
 export async function 校验模型是否存在(模型名称) {
     return await fs.exists(path.join(模型存放地址, 模型名称))
 }
-
-
 export async function 下载模型(模型名称) {
     let huggingfaceOnline = await checkConnectivity('https://huggingface.co/')
     if (huggingfaceOnline) {
@@ -38,18 +37,5 @@ export async function 下载模型(模型名称) {
         } else {
             await kernelApi.unzip({ zipPath: path.join(workspaceDir, `/temp/models/leolee9086/text2vec-base-chinese/model.zip`), path: path.join(workspaceDir, 模型存放地址, 模型名称) })
         }
-    }
-
-}
-async function checkConnectivity(url) {
-    try {
-        const response = await fetch(url);
-        if (response.ok) {
-            console.log('联通成功');
-        } else {
-            console.log('联通失败，状态码：', response.status);
-        }
-    } catch (error) {
-        console.error('联通失败，错误：', error);
     }
 }

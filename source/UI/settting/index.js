@@ -7,6 +7,61 @@ import { typeToInputter, handleInputter } from "./inputter.js";
 import { plugin } from "../../asyncModules.js";
 import { string2DOM } from "../builders/index.js";
 import './describe.js'
+
+function createPathArray(item, base) {
+    return base ? item.path.replace(base, '').split('.').filter(item => { return item !== '' }) : item.path.split('.');
+}
+
+function createFullPath(pathArray, base) {
+    return base ? `${base}.${pathArray.join('.')}` : pathArray.join('.');
+}
+
+function handleFirstTab(i, tab, firstTab) {
+    if (i === 0) {
+        return tab;
+    } else {
+        while (tab.querySelector('.config__item') && firstTab !== tab) {
+            firstTab.appendChild(tab.querySelector('.config__item'));
+        }
+        return firstTab;
+    }
+}
+
+function processKey(item, base, tabWrapper) {
+    let pathArray = createPathArray(item, base);
+    let fullPath = createFullPath(pathArray, base);
+    let tab = createTab(pathArray, tabWrapper);
+    tabWrapper.appendChild(tab);
+    let elementGenerator = 获取设置UI(...fullPath.split('.'));
+    let inputter = elementGenerator();
+    handleInputter(inputter, pathArray, tab, tabWrapper,fullPath);
+    return tab
+}
+
+function createSingleLevel(keys, base, tabWrapper, firstTab) {
+    for (let i = 0; i < keys.length; i++) {
+        let item = keys[i];
+        if (item.error) {
+            continue;
+        }
+        let tab= processKey(item, base, tabWrapper)
+        firstTab = handleFirstTab(i, tab, firstTab);
+    }
+}
+
+function createMultiLevel(keys, base, tabWrapper, sideBarFragment) {
+    for (let i = 0; i < keys.length; i++) {
+        let item = keys[i];
+        if (item.error) {
+            continue;
+        }
+        let pathArray = createPathArray(item, base);
+        processKey(item, base, tabWrapper)
+        let li = createSideBar(pathArray, sideBarFragment, tabWrapper);
+        sideBarFragment.appendChild(li);
+    }
+}
+
 export function buildSettingUI(settingList, base = '') {
     let keys = plugin.configurer.query(settingList, base);
     let frag = document.createDocumentFragment();
@@ -18,46 +73,18 @@ export function buildSettingUI(settingList, base = '') {
         return prevPathParts.slice(0, -1).join('.') === currPathParts.slice(0, -1).join('.');
     });
     let sideBarFragment;
+    let firstTab;
     if (!isSingleLevel) {
         sideBarFragment = string2DOM(`<ul class="b3-tab-bar b3-list b3-list--background"></ul>`);
-    }
-    let firstTab;
-    for (let i = 0; i < keys.length; i++) {
-        let item = keys[i];
-        if (item.error) {
-            continue;
-        }
-        let pathArray = base ? item.path.replace(base, '').split('.').filter(item => { return item !== '' }) : item.path.split('.');
-        let fullPath = base ? `${base}.${pathArray.join('.')}` : pathArray.join('.');
-        let li, tab;
-        if (!isSingleLevel) {
-            li = createSideBar(pathArray, sideBarFragment, tabWrapper);
-            sideBarFragment.appendChild(li);
-        }
-        tab = createTab(pathArray, tabWrapper);
-      
-        tabWrapper.appendChild(tab);
-        let elementGenerator = 获取设置UI(...fullPath.split('.'));
-        let inputter = elementGenerator();
-        handleInputter(inputter, pathArray, tab, tabWrapper,fullPath);
-        if (i === 0) {
-            firstTab = tab;
-        } else if (isSingleLevel) {
-           console.log(tab,tab.querySelector('.config__item'))
-            while (tab.querySelector('.config__item')&&firstTab!==tab) {
-               firstTab.appendChild(tab.querySelector('.config__item'));
-            }
-        }
-
-    }
-    if (!isSingleLevel) {
+        createMultiLevel(keys, base, tabWrapper, sideBarFragment);
         handleTabDisplay(tabWrapper);
         frag.appendChild(sideBarFragment);
+    } else {
+        createSingleLevel(keys, base, tabWrapper, firstTab);
     }
     frag.appendChild(tabWrapper);
     return frag;
 }
-
 export function 获取设置UI(...args) {
     let UI生成函数 = plugin.statusMonitor.get('settingElements', ...args);
     if (!UI生成函数()) {

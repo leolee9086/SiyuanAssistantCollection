@@ -11,8 +11,6 @@ export function createSideBarFragment(pathArray) {
         </li>`);
     return li;
 }
-
-
 export function createTab(pathArray, tabWrapper) {
     return tabWrapper.querySelector(`[data-name="${pathArray[0]}"]`) || createTabWrapper(pathArray);
 }
@@ -40,8 +38,6 @@ export function createSideBar(pathArray, sideBarFragment, tabWrapper) {
     }
     return li;
 }
-
-
 export function handleTabDisplay(tabWrapper) {
     for (let i = 0; i < tabWrapper.children.length; i++) {
         if (i === 0) {
