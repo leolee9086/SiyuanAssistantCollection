@@ -1,6 +1,7 @@
 import logger from '../logger/index.js'
 import { 计算余弦相似度, 计算欧氏距离相似度, 查找最相似点 } from './vector.js';
 import { JsonSyAdapter } from '../fileSysManager/workspaceAdapters/jsonAdapter.js';
+import { 校验主键 } from './dataBase/keys.js';
 globalThis._blockActionDataBase = globalThis._blockActionDataBase || {}
 export class 数据库 {
     constructor(文件保存地址) {
@@ -62,21 +63,18 @@ class 数据集 {
         let 数据集对象 = this.数据集对象;
         let 静态化 = this.静态化;
         let 修改标记 = false;
-
         // 如果数据集对象一开始是空的，标记为已经修改
         if (Object.keys(数据集对象).length === 0) {
             this.已经修改 = true;
         }
-
         for (let 数据项 of 数据组) {
             if (数据项 && 数据项[主键名]) {
                 let 数据项主键 = 数据项[主键名];
-                if (!this.校验主键(数据项主键)) {
+                if (!校验主键(数据项主键)) {
                     logger.datacollecterror('主键必须以14位数字开头');
                     continue;
                 }
                 this.记录待保存数据项(数据项);
-
                 if (静态化) {
                     //如果数据是静态化的,那就添加一个拷贝
                     数据集对象[数据项主键] = JSON.parse(JSON.stringify(数据项));
@@ -87,14 +85,11 @@ class 数据集 {
                 修改标记 = true;
             }
         }
-
         if (修改标记) {
             this.已经修改 = true;
         }
     }
-    校验主键(主键值) {
-        return /^\d{14}$/.test(主键值.substring(0, 14));
-    }
+   
     根据路径获取值(path) {
         const keys = path.split('.');
         const resultKey = keys[keys.length - 1]
@@ -192,7 +187,6 @@ class 数据集 {
     获取主键模(主键值) {
         let num = 主键值.substring(0, 14);
         let mod = num % this.文件总数;
-
         return mod
     }
     记录待保存数据项(数据项) {
@@ -278,7 +272,4 @@ class 数据集 {
         this.数据集对象 = await this.文件适配器.加载全部数据(this.数据集对象)
     }
 }
-
-
-
 export default 数据库

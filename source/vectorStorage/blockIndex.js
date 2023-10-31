@@ -6,11 +6,7 @@ import kernelApi from "../polyfills/kernelApi.js"
 import { 创建笔记本字典 } from "../utils/blockDataProcessor.js"
 import { 根据笔记本ID获取笔记本 } from "../utils/notebooks.js"
 import { hash过滤全块数组语句 } from "./utils/sql.js"
-
-
-
 const { statusMonitor, eventBus, configurer } = plugin
-
 export const 向量存储 = {
     公开向量数据库实例: new 数据库('/data/public/vectorStorage'),
     插件向量数据库实例: new 数据库('/data/storage/petal'),
@@ -18,6 +14,7 @@ export const 向量存储 = {
     临时向量数据库实例: new 数据库('/temp/vectorStorage'),
     简易向量数据原型: 数据库
 }
+
 export let blockDataSet = plugin.块数据集
 export let seachWithVector = async (...args) => { return await plugin.块数据集.以向量搜索数据(...args) }
 const embeddingWorkerURL = import.meta.resolve(`./embeddingWorker.js`)
@@ -111,7 +108,7 @@ export const 批处理索引切片 = async (原始数据) => {
     logger.blockIndexlog(`开始处理笔记本:${noteBookInfo.name}${原始数据[0].box},总计${原始数据.length}个块`);
     let 处理开始时间 = Date.now();
     //这里给出设置
-    const 切片数组 = await 创建切片(原始数据, plugin.configurer.get('向量工具设置','块索引分片大小').$value);
+    const 切片数组 = await 创建切片(原始数据, plugin.configurer.get('向量工具设置', '块索引分片大小').$value);
     const worker数量 = navigator.hardwareConcurrency || 8;
     let 已处理数量 = 0;
     for (let i = 0; i < 切片数组.length; i += worker数量) {
@@ -151,7 +148,7 @@ export const 获取全块数组 = async () => {
     let hash值表 = hash表.map(item => { return `'${item.hash}'` })
     let 全块数组获取语句 = hash过滤全块数组语句(hash值表)
     logger.blockIndexlog(plugin.块数据集, hash值表)
-    let 全块数组 = kernelApi.sql.sync({ stmt:全块数组获取语句})
+    let 全块数组 = kernelApi.sql.sync({ stmt: 全块数组获取语句 })
     logger.blockIndexlog('待处理块数量:' + 全块数组.length)
     return 全块数组
 }
@@ -165,11 +162,11 @@ export const 处理子切片数组 = async (子切片数组) => {
 }
 export const 打印索引完成信息 = (总块数量, 总处理时长) => {
     plugin.statusMonitor.set('blockIndex', 'progress', '完成')
-    logger.blockIndexlog(`笔记向量索引完成,索引了${总块数量}个块,总处理时长${总处理时长}秒,单块处理时长约${总处理时长 / 总块数量}秒,使用模型为${向量工具设置.默认文本向量化模型}`)
+    logger.blockIndexlog(`笔记向量索引完成,索引了${总块数量}个块,总处理时长${总处理时长}秒,单块处理时长约${总处理时长 / 总块数量}秒,使用模型为${plugin.configurer.get('向量工具设置','默认文本向量化模型').$value}`)
 }
 export const 打印处理进度 = (原始数据, 已处理数量, 处理开始时间) => {
     const 处理时长 = (Date.now() - 处理开始时间) / 1000;
-    const 单块处理时长 = 处理时长 / 已处理数量 / plugin.configurer.get('向量工具设置','块索引分片大小').$value;
+    const 单块处理时长 = 处理时长 / 已处理数量 / plugin.configurer.get('向量工具设置', '块索引分片大小').$value;
     const 剩余块数量 = 原始数据.length - 已处理数量 * 100;
     logger.blockIndexlog(`笔记本:${原始数据[0].box}已处理${已处理数量 * 100}个块,剩余${剩余块数量},单块处理时长约${单块处理时长}秒,请耐心等候,你可以继续记录,不受影响`);
 }

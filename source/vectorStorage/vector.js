@@ -65,7 +65,6 @@ export const 计算余弦相似度=(vector1, vector2)=>{
 }
 
 export function 查找最相似点(输入点, 点数据集, 查找阈值 = 10, 相似度算法=计算余弦相似度, 过滤条件) {
-    
     let 拷贝点
     if (!Array.isArray(输入点)) {
         拷贝点 = JSON.parse(输入点)
