@@ -13,9 +13,9 @@ export async function 根据上下文获取动作表(context, signal) {
             return []
         }
         try {
-            let 动作表 = 动作总表[i];
+           let 动作表 = 动作总表[i];
            
-            if (设置器.get("动作设置", "关键词动作设置", 动作表.provider).$value !== true) {
+            /* if (设置器.get("动作设置", "关键词动作设置", 动作表.provider).$value !== true) {
                 if (动作表.provider !== 'meta_js') {
                     continue
                 }
@@ -39,7 +39,8 @@ export async function 根据上下文获取动作表(context, signal) {
             if (signal && signal.aborted) {
                 return []
             }
-            f ? f(备选动作表, context, signal) : null
+            f ? f(备选动作表, context, signal) : null*/
+            await 处理动作表(动作表, 备选动作表, context, signal)
 
         } catch (e) {
             logger.actionListwarn(e, 动作总表[i]);
@@ -47,6 +48,34 @@ export async function 根据上下文获取动作表(context, signal) {
     }
     return 备选动作表
 }
+async function 处理动作表(动作表, 备选动作表, 执行上下文, 取消信号) {
+    if (设置器.get("动作设置", "关键词动作设置", 动作表.provider).$value !== true) {
+        if (动作表.provider !== 'meta_js') {
+            return;
+        }
+        if(设置器.get("动作设置", "关键词动作设置", 动作表.provider).$value===undefined){
+            let 默认配置 = 设置器.get("动作设置", "默认开启新动作表").$value
+            if(!默认配置){
+                return;
+            }
+        }
+    }
+    if (取消信号 && 取消信号.aborted) {
+        return;
+    }
+    // 筛选出合适的动作
+    let f = await 智能防抖(
+        获取过滤器函数(动作表, 取消信号),
+        (当次执行间隔, 平均执行时间) => {
+            logger.actionListwarn(`动作表${动作表._动作表路径}生成时间过长,已经阻断,当前执行间隔为${当次执行间隔},平均执行时间为${平均执行时间},优化生成函数可能改善`)
+        }
+    )
+    if (取消信号 && 取消信号.aborted) {
+        return;
+    }
+    f ? f(备选动作表, 执行上下文, 取消信号) : null
+}
+
 let 过滤器函数表 = new Map();
 function 获取过滤器函数(动作表, signal) {
     if (signal && signal.aborted) {
