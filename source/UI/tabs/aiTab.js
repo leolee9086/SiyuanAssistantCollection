@@ -17,10 +17,7 @@ if(plugin.statusMonitor.get("aiTabContainer").$value){
         )
     }
 }
-plugin.eventBus.on('TabContainerInited',(event)=>{
-    logger.AiTablog(event.detail)
-     createAiTab(event.detail)
-})
+
 function createAiTab(tab){
     logger.AiTablog(tab)
     throneManager.buildDoll( plugin.configurer.get('聊天工具设置', '默认AI').$value).then(
@@ -35,6 +32,10 @@ function createAiTab(tab){
         }
     )
 }
+plugin.eventBus.on('TabContainerInited',(event)=>{
+    logger.AiTablog(event.detail)
+     createAiTab(event.detail)
+})
 plugin.eventBus.on("open-siyuan-url-plugin",(event)=>{
     logger.AiTablog(event.detail)
 
