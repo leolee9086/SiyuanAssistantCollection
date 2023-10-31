@@ -110,6 +110,13 @@ export const 批处理索引切片 = async (原始数据) => {
     //这里给出设置
     const 切片数组 = await 创建切片(原始数据, plugin.configurer.get('向量工具设置', '块索引分片大小').$value);
     const worker数量 = navigator.hardwareConcurrency || 8;
+    await 处理切片数组(切片数组, worker数量, 原始数据, 处理开始时间);
+    let 处理时长 = (performance.now() - 处理开始时间) / 1000;
+    logger.blockIndexlog(`笔记本:${原始数据[0].box}处理时长为${处理时长},总计块${原始数据.length},单块处理时长约${处理时长 / 原始数据.length || 0}秒`);
+    await 清理索引();
+    return { 块数量: 原始数据.length, 处理时长: 处理时长 };
+}
+const 处理切片数组 = async (切片数组, worker数量, 原始数据, 处理开始时间) => {
     let 已处理数量 = 0;
     for (let i = 0; i < 切片数组.length; i += worker数量) {
         const 子切片数组 = 切片数组.slice(i, i + worker数量);
@@ -117,10 +124,7 @@ export const 批处理索引切片 = async (原始数据) => {
         已处理数量 += 子切片数组.length;
         打印处理进度(原始数据, 已处理数量, 处理开始时间);
     }
-    let 处理时长 = (performance.now() - 处理开始时间) / 1000;
-    logger.blockIndexlog(`笔记本:${原始数据[0].box}处理时长为${处理时长},总计块${原始数据.length},单块处理时长约${处理时长 / 原始数据.length || 0}秒`);
-    await 清理索引();
-    return { 块数量: 原始数据.length, 处理时长: 处理时长 };
+    return 已处理数量;
 }
 export const 清理索引 = async () => {
     let id数组 = plugin.块数据集.主键列表
