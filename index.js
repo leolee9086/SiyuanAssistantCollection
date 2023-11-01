@@ -42,12 +42,12 @@ class PluginConfigurer {
 
     // 校验新值
     let oldValue = target[path[path.length - 1]];
-    
-    try{
-    this.validateNewValue(oldValue, value);
-    }catch(e){
-      this.plugin.eventBus.emit(`${this.prop}Change`, { name: path.join('.'), value:oldValue });
-      throw(e)
+
+    try {
+      this.validateNewValue(oldValue, value);
+    } catch (e) {
+      this.plugin.eventBus.emit(`${this.prop}Change`, { name: path.join('.'), value: oldValue });
+      throw (e)
     }
     // 如果传入的设置值为字符串或数组，且原始值有$value属性且其类型与传入值相同，将传入设置值传递给原始值的$value属性
     if ((typeof value === 'string' || Array.isArray(value)) && oldValue && oldValue.$value && typeof oldValue.$value === typeof value) {
@@ -74,8 +74,8 @@ class PluginConfigurer {
           // 检查旧值是否有$value属性
           if (oldValue.$value) {
             let $type = oldValue.$type
-            if($type!==typeof value&&$type!==value.$type){
-            throw new Error(`New value must be the same type as the old value. Old value: ${JSON.stringify(oldValue)}, new value: ${value}`);
+            if ($type !== typeof value && $type !== value.$type) {
+              throw new Error(`New value must be the same type as the old value. Old value: ${JSON.stringify(oldValue)}, new value: ${value}`);
             }
           }
         }
@@ -85,7 +85,7 @@ class PluginConfigurer {
     // 检查旧值是否存在且旧值是否有$type属性
     if (oldValue && oldValue.$type) {
       // 检查新值是否没有$type属性或新值的$type与旧值的$type是否不同
-      if ((!value.$type || oldValue.$type !== value.$type)&&!(typeof value === 'string' || Array.isArray(value)||typeof value ===oldValue.$type||typeof oldValue===value.$type )) {
+      if ((!value.$type || oldValue.$type !== value.$type) && !(typeof value === 'string' || Array.isArray(value) || typeof value === oldValue.$type || typeof oldValue === value.$type)) {
         throw new Error(`New value must have the same $type as the old value. Old value: ${oldValue}, new value: ${value}`);
       }
     }
@@ -145,7 +145,10 @@ class PluginConfigurer {
         }
       } else if (typeof obj[key] === 'object' && obj[key].$value && obj[key].$type) {
         paths.push(newPath);
-      } else if (typeof obj[key] === 'object' && Object.keys(obj[key]).length !== 0) {
+      } else if (typeof obj[key] === 'object' && obj[key].$value) {
+        paths.push(newPath);
+      }
+      else if (typeof obj[key] === 'object' && Object.keys(obj[key]).length !== 0) {
         paths = paths.concat(this.generatePaths(obj[key], newPath));
       } else {
         paths.push(newPath);
@@ -156,7 +159,7 @@ class PluginConfigurer {
   recursiveQuery(path, base = '') {
     let fullPath = base ? `${base}.${path}` : path;
     let value = this.get(...(fullPath.split('.'))).$value;
-    if (typeof value === 'object' && value !== null && !(value instanceof Array) && !(value.$value && value.$type)) {
+    if (typeof value === 'object' && value !== null && !(value instanceof Array) && !(value.$value)) {
       return Object.keys(value).reduce((result, key) => {
         let subPath = `${path}.${key}`;
         let subValue = this.recursiveQuery(subPath, base);
@@ -370,23 +373,23 @@ class SiyuanAssistantCollection extends ccPlugin {
     this.eventBus.on("loaded-protyle-static", (e) => {
       this.protyles.push(e.detail);
       this.protyles = Array.from(new Set(this.protyles));
-      try{
-      this.setLute ? this._lute = this.setLute({
-        emojiSite: e.detail.options.hint.emojiPath,
-        emojis: e.detail.options.hint.emoji,
-        headingAnchor: false,
-        listStyle: e.detail.options.preview.markdown.listStyle,
-        paragraphBeginningSpace: e.detail.options.preview.markdown.paragraphBeginningSpace,
-        sanitize: e.detail.options.preview.markdown.sanitize,
-      }) : null;
-      }catch(e){
-        console.warn(e,e.detail)
+      try {
+        this.setLute ? this._lute = this.setLute({
+          emojiSite: e.detail.options.hint.emojiPath,
+          emojis: e.detail.options.hint.emoji,
+          headingAnchor: false,
+          listStyle: e.detail.options.preview.markdown.listStyle,
+          paragraphBeginningSpace: e.detail.options.preview.markdown.paragraphBeginningSpace,
+          sanitize: e.detail.options.preview.markdown.sanitize,
+        }) : null;
+      } catch (e) {
+        console.warn(e, e.detail)
       }
     });
     this.eventBus.on("click-editorcontent", (e) => {
       this.protyles.push(e.detail.protyle);
       this.protyles = Array.from(new Set(this.protyles));
-   
+
     })
     this.创建顶栏按钮()
     this.创建AI侧栏容器()
@@ -598,16 +601,16 @@ function 递归合并(目标对象, 源对象) {
         递归合并(目标对象[键], 源对象[键]);
       } else {
         // 否则，直接复制属性值，如果有$value属性，就使用$value的值
-        
-        if(目标对象[键]===undefined){
-          目标对象[键]=源对象[键]
-        }
-        if(目标对象[键].$value!==undefined&&源对象[键].$value===undefined){
-          目标对象[键].$value=源对象[键]
-        }else if(目标对象.$value===undefined&&源对象.$value!==undefined){
+
+        if (目标对象[键] === undefined) {
           目标对象[键] = 源对象[键]
-        }else {
-        目标对象[键] = 源对象[键]
+        }
+        if (目标对象[键].$value !== undefined && 源对象[键].$value === undefined) {
+          目标对象[键].$value = 源对象[键]
+        } else if (目标对象.$value === undefined && 源对象.$value !== undefined) {
+          目标对象[键] = 源对象[键]
+        } else {
+          目标对象[键] = 源对象[键]
         }
       }
     }

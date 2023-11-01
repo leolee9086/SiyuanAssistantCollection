@@ -44,9 +44,10 @@ async function 批量渲染(动作表, 执行上下文, container) {
 }
 // 批量移除函数
 async function 批量移除(container) {
+    console.log(container.children.length)
     if (container.children.length > 50) {
         let children = Array.from(container.children);
-        let elementsToRemove = children.slice(0, children.length - 50).filter(element => !element.classList.contains('pinned'));
+        let elementsToRemove = children.slice(0, children.length - 50).filter(element =>{return !element.classList.contains('pinned')});
         elementsToRemove.forEach(element => container.removeChild(element));
     }
 }

@@ -1,12 +1,15 @@
-export  async function checkConnectivity(url) {
-    try {
-        const response = await fetch(url);
-        if (response.ok) {
+export function checkConnectivity(url) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.onload = function() {
+        if (xhr.status >= 200 && xhr.status < 300) {
             console.log('联通成功');
         } else {
-            console.log('联通失败，状态码：', response.status);
+            console.log('联通失败，状态码：', xhr.status);
         }
-    } catch (error) {
-        console.error('联通失败，错误：', error);
-    }
+    };
+    xhr.onerror = function() {
+        console.error('联通失败，错误：', xhr.status);
+    };
+    xhr.send();
 }

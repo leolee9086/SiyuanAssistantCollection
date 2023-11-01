@@ -115,23 +115,31 @@ export default (_context) => {
             tipRender:async(context)=>{
                 async function 以文本查找最相近文档(textContent, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数) {
                     let embedding = await context.plugin.文本处理器.提取文本向量(textContent)
-                    console.log(plugin == context.plugin)
 
                     let vectors = plugin.块数据集.以向量搜索数据('vector', embedding, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数)
                     return vectors
                 }
-                let results = await 以文本查找最相近文档(context.blocks[0].content, 3, '', false, null)
+                let results = await 以文本查找最相近文档(context.blocks[0].content, 30, '', false, null)
+                results= results.filter(
+                    item=>{
+                        return !document.querySelector(`[href="siyuan://blocks/${item.meta.id}"]`)
+                    }
+                )
                 let div = document.createElement('div')
                 let markdown = ''
-                for (let result of results) {
-                    div.insertAdjacentHTML(
-                        'beforeEnd',
-                        `<div><a href="siyuan://blocks/${result.meta.id}">${result.meta.content.substring(0,36)}@score:${result.similarityScore}</a></div>`
-
-                    )
-                    markdown+=`[${result.meta.content}](siyuan://blocks/${result.meta.id})`
+                if(results[0]){
+                    for (let result of results) {
+                        div.insertAdjacentHTML(
+                            'beforeEnd',
+                            `<div><a href="siyuan://blocks/${result.meta.id}">${result.meta.content.substring(0,36)}@score:${result.similarityScore}</a></div>`
+    
+                        )
+                        markdown+=`[${result.meta.content}](siyuan://blocks/${result.meta.id})`
+                        
+                    }
+                    return {element:div,markdown:markdown}
+    
                 }
-                return {element:div,markdown:markdown}
             }
         },
         {

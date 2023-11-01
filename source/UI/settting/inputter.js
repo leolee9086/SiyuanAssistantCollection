@@ -4,6 +4,7 @@ import {
     genLabel,
 } from "./dialogTabs/index.js";
 export const typeToInputter = (args,item) => {
+    console.log(args,item)
     return {
         'string': () => createInputter(args, 'text', item, (value, element) => { element.value =value.$value? value.$value:value}),
         'number': () => createInputter(args, 'number', item, (value, element) => { element.value = value.$value? value.$value:value }),

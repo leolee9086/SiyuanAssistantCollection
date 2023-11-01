@@ -90,6 +90,12 @@ export function 获取设置UI(...args) {
     if (!UI生成函数()) {
         let item = plugin.configurer.get(...args).$raw;
         let itemType = item && item.$type ? item.$type : typeof item;
+
+        if(item &&item.$value){
+            console.log(item)
+            itemType=item.$type?item.$type:typeof item.$value
+        }
+        console.log(item)
         let elementGenerator;
         elementGenerator = typeToInputter(args,item)[itemType] || (() => {
             let element = document.createElement('input');
