@@ -9,25 +9,25 @@ import buildMenu from './dialogs/fakeMenu.js'
 import { logger } from "../logger/index.js";
 import { 设置对话框 } from "./dialogs/settingsDialog.js";
 export { 根据上下文获取动作表 as 根据上下文获取动作表 }
-let tokenMenuDialog=buildMenu('SAC')
+
 plugin.eventBus.on(
-    "settingChange",(e)=>{
-      let {detail}=e
-      if(detail.name==="动作设置.关闭动作监听"){
-        if(detail.value){
-          tokenMenuDialog.destroy()
-          tokenMenuDialog = undefined
-        }else{
-          tokenMenuDialog=buildMenu()
-        }
+  "settingChange", (e) => {
+    let tokenMenuDialogs = plugin.statusMonitor.get('菜单', '关键词菜单', '菜单实例').$value
+    let { detail } = e
+    if (detail.name === "动作设置.关闭动作监听") {
+      if (detail.value) {
+        tokenMenuDialogs[0].destroy()
+      } else {
+        buildMenu("SAC")
       }
     }
+  }
 )
 function 获取元素所在protyle(element) {
   let { protyles } = plugin
   logger.tokenmenulog(protyles)
   return protyles.find(protyle => {
-    return protyle.contentElement?protyle.contentElement.contains(element):protyle.protyle.contentElement.contains(element)
+    return protyle.contentElement ? protyle.contentElement.contains(element) : protyle.protyle.contentElement.contains(element)
   })
 }
 let isComposing = false;
@@ -36,7 +36,12 @@ let isComposing = false;
 let controller = new AbortController();
 let signal = controller.signal
 
-let 显示token菜单 = (e,signal) => {
+let 显示token菜单 = (e, signal) => {
+  let tokenMenuDialogs = plugin.statusMonitor.get('菜单', '关键词菜单', '菜单实例').$value
+  if(!tokenMenuDialogs[0]){
+    return
+  }
+  let tokenMenuDialog=tokenMenuDialogs[0]
   tokenMenuDialog.clear()
   //上下方向键不重新渲染菜单
   if (signal.aborted) {
@@ -166,7 +171,7 @@ text-overflow: ellipsis;
 
 '
 >${菜单项文字内容}</span>`
-let div = `<div><svg class="b3-menu__icon" style="">
+  let div = `<div><svg class="b3-menu__icon" style="">
 <use xlink:href="#${Lute.EscapeHTMLStr(动作.icon)}"></use>
 </svg>
 <span class="b3-menu__label"
@@ -183,14 +188,14 @@ text-overflow: ellipsis;
     {
       class: "b3-menu__item"
     },
-    动作.describe?div:span
+    动作.describe ? div : span
     ,
     {
       click: () => { 执行动作(动作, 执行上下文, 触发事件类型) },
-      contextmenu:()=>{
-        let list ={}
-        list[动作.provider]=true
-        设置对话框(list,`动作设置.关键词动作设置`)
+      contextmenu: () => {
+        let list = {}
+        list[动作.provider] = true
+        设置对话框(list, `动作设置.关键词动作设置`)
       }
     }
   )
@@ -252,8 +257,9 @@ function 以tag名生成元素(tag名, 属性配置, 内部html, 事件配置) {
   return 元素
 }
 export const 开始渲染 = () => {
+  buildMenu("SAC")
   document.addEventListener('compositionstart', () => {
-    isComposing = true;
+    //isComposing = true;
   },
     { capture: true });
   document.addEventListener(
@@ -262,8 +268,9 @@ export const 开始渲染 = () => {
       controller.abort()
       controller = new AbortController();
       signal = controller.signal
+      let tokenMenuDialog = plugin.statusMonitor.get('菜单', '关键词菜单', '菜单实例').$value
 
-      if(!tokenMenuDialog){
+      if (!tokenMenuDialog) {
         return
       }
       if (e.code && (e.code === "ArrowUp" || e.code === "ArrowDown")) {
@@ -275,7 +282,7 @@ export const 开始渲染 = () => {
           return
         }
       }
-      if (e.code === "Enter"&& e.altKey) {
+      if (e.code === "Enter" && e.altKey) {
         let items = Array.from(tokenMenuDialog.element.querySelectorAll('.b3-menu__item'));
         let currentIndex = items.findIndex(item => item.classList.contains('b3-menu__item--current'));
         // 如果有选中的菜单项
@@ -289,21 +296,23 @@ export const 开始渲染 = () => {
       }
       if (!isComposing) {
         // 触发事件的逻辑
-        setTimeout(() => { 显示token菜单(e, signal) }, 100)
+       显示token菜单(e, signal)
       }
     },
     { capture: true }
   )
   // 监听 compositionend 事件
   document.addEventListener('compositionend', (e) => {
+    let tokenMenuDialog = plugin.statusMonitor.get('菜单', '关键词菜单', '菜单实例').$value
+
     isComposing = false;
     controller.abort()
     controller = new AbortController();
     signal = controller.signal
-    if(!tokenMenuDialog){
+    if (!tokenMenuDialog) {
       return
     }
-    setTimeout(() => { 显示token菜单(e, signal) }, 100)
+    显示token菜单(e, signal)
   },
     { capture: true });
 }

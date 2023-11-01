@@ -1,27 +1,28 @@
 import { clientApi, pluginInstance as plugin } from '../../asyncModules.js'
 import { string2DOM } from '../builders/index.js';
 import { 计算zindex } from './util/zIndex.js';
-let menu
 plugin.statusMonitor.set('菜单', '关键词菜单', '初次显示', true)
 export const buildMenu = (title) => {
-    if(!plugin.configurer.get('菜单设置','启动时显示关键词动作菜单').$value
-    &&plugin.statusMonitor.get('菜单', '关键词菜单', '初次显示').$value
-    ){
+    console.log(plugin.configurer.get('菜单设置', '启动时显示关键词动作菜单').$value)
+    if (!plugin.configurer.get('菜单设置', '启动时显示关键词动作菜单').$value
+        && plugin.statusMonitor.get('菜单', '关键词菜单', '初次显示').$value
+    ) {
         return
-    }   
-    if(    plugin.statusMonitor.get('菜单', '关键词菜单', '显示').$value
-    ){
+    }
+    if (plugin.statusMonitor.get('菜单', '关键词菜单', '显示').$value
+    ) {
         return
     }
     plugin.statusMonitor.set('菜单', '关键词菜单', '初次显示', false)
     plugin.statusMonitor.set('菜单', '关键词菜单', '显示', true)
-
-    menu = new clientApi.Dialog({
+    let menu = new clientApi.Dialog({
         title: title,
         content: `<div id="sacmenu" class='fn__flex-column' style="pointer-events: auto;overflow:hidden">
         </div>`,
         destroyCallback: () => {
             plugin.statusMonitor.set('菜单', '关键词菜单', '显示', false)
+            plugin.statusMonitor.set('菜单', '关键词菜单', '菜单实例', { $value: [],$type: 'menu' })
+
         },
         width: '300px',
         height: 'auto',
@@ -31,6 +32,7 @@ export const buildMenu = (title) => {
     }, () => {
 
     });
+    plugin.statusMonitor.set('菜单', '关键词菜单', '菜单实例', { $value: [menu], $type: 'menu' })
     menu.origin = { x: 0, y: 0 }
     menu.position2origin = { x: 0, y: 0 }
     menu.element.style.pointerEvents = 'none'
