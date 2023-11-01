@@ -9,7 +9,12 @@ export const buildMenu = (title) => {
     ){
         return
     }   
+    if(    plugin.statusMonitor.get('菜单', '关键词菜单', '显示').$value
+    ){
+        return
+    }
     plugin.statusMonitor.set('菜单', '关键词菜单', '初次显示', false)
+    plugin.statusMonitor.set('菜单', '关键词菜单', '显示', true)
 
     menu = new clientApi.Dialog({
         title: title,
@@ -17,7 +22,6 @@ export const buildMenu = (title) => {
         </div>`,
         destroyCallback: () => {
             plugin.statusMonitor.set('菜单', '关键词菜单', '显示', false)
-            plugin.configurer.set('菜单', '显示关键词菜单', false)
         },
         width: '300px',
         height: 'auto',
