@@ -5,56 +5,84 @@
         "dataSet": false,
         "MAGI": false,
         "event": false,
-        "actionList":true
+        "actionList": true
     },
     "向量工具设置": {
         "默认文本向量化模型": {
-            "$value":"leolee9086/text2vec-base-chinese",
-            "$type":"singleSelect",
-            "options":["leolee9086/text2vec-base-chinese","openAI"]
+            "$value": "leolee9086/text2vec-base-chinese",
+            "$type": "singleSelect",
+            "options": [
+                "leolee9086/text2vec-base-chinese",
+                "openAI"
+            ]
         },
-        "默认模型托管平台":{
-            "$value":"huggingface",
-            "$type":"singleSelect",
-            "options":["huggingface","gitee","github"]
+        "默认模型托管平台": {
+            "$value": "huggingface",
+            "$type": "singleSelect",
+            "options": [
+                "huggingface",
+                "gitee",
+                "github"
+            ]
         },
         "最大句子长度": 496,
-        "块索引分片大小":10,
-        "索引占用核心":1,
-        "手动索引":true,
-        "同步时忽略向量存储文件夹":false,
-        "同步时忽略向量模型文件夹":false,
-        "向量保存格式":{
-            "$value":"json",
-            "$type":"singleSelect",
-            "options":["json","msgpack"]
+        "块索引分片大小": 10,
+        "索引占用核心": 1,
+        "手动索引": true,
+        "同步时忽略向量存储文件夹": false,
+        "同步时忽略向量模型文件夹": false,
+        "向量保存格式": {
+            "$value": "json",
+            "$type": "singleSelect",
+            "options": [
+                "json",
+                "msgpack"
+            ]
         }
     },
     "聊天工具设置": {
         "默认AI": {
-            "$value":"paimon",
-            "$type":"singleSelect",
-            "options":["paimon","REI01"]
+            "$value": "paimon",
+            "$type": "singleSelect",
+            "options": [
+                "paimon",
+                "REI01"
+            ]
         },
         "决策级别": 0,
         "默认工作记忆长度": 7,
-        "自动工作记忆总结":false,
-        "自动短期记忆总结":false,
-        "默认短期记忆长度":20,
-        "自动对话备份":true,
-        "对话备份自动清理":false,
+        "自动工作记忆总结": false,
+        "自动短期记忆总结": false,
+        "默认短期记忆长度": 20,
+        "自动对话备份": true,
+        "对话备份自动清理": false,
         "自动给出参考": false,
         "自动发送最近文档": false,
         "自动发送当前搜索结果": false,
-        "自动发送上一次选择的块":false,
-        "发送参考时文档和标题块发送全部内容":false,
+        "自动发送上一次选择的块": false,
+        "发送参考时文档和标题块发送全部内容": {
+            "$value": false,
+            "$describe": {
+                "zh_CN": "开启之后token消耗会飙升,注意安全嗷"
+            }
+        },
+        "参考分数较高时给出文档全文": {
+            "$value": false,
+            "$describe": {
+                "zh_CN": "开启之后token消耗也会飙升,别把房子用掉了"
+            }
+        },
         "默认参考数量": 10,
         "参考文字最大长度": 36,
-        "总参考最大长度":1024,
+        "总参考最大长度": 1024,
         "基础模型接口": {
-            "$value":"ChatGPT",
-            "$type":"singleSelect",
-            "options":["SPARK","RWKV","OPENAI"]
+            "$value": "ChatGPT",
+            "$type": "singleSelect",
+            "options": [
+                "SPARK",
+                "RWKV",
+                "OPENAI"
+            ]
         }
     },
     "模型设置": {
@@ -82,32 +110,36 @@
             "apiTimeout": 60
         }
     },
-    "动作设置":{
+    "动作设置": {
         "块标动作设置": {},
         "关键词动作设置": {},
-        "默认开启新动作表":true,
-        "空格键调用动作":false,
-        "上下键选择动作":false,
-        "关闭动作监听":false,
-        "通过文件名过滤动作":true,
-        "通过标签文字过滤动作":true,
-        "情景模式":{
-            "$value":"情景1",
-            "$type":"singleSelect",
-            "options":["情景1","情景2","情景3"]
+        "默认开启新动作表": true,
+        "空格键调用动作": false,
+        "上下键选择动作": false,
+        "关闭动作监听": false,
+        "通过文件名过滤动作": true,
+        "通过标签文字过滤动作": true,
+        "情景模式": {
+            "$value": "情景1",
+            "$type": "singleSelect",
+            "options": [
+                "情景1",
+                "情景2",
+                "情景3"
+            ]
         }
     },
-    "菜单设置":{
-        "启动时显示关键词动作菜单":{
-            "$value":true,
-            "$describe":{
-                "zh_CN":"启动时显示关键词动作菜单"
+    "菜单设置": {
+        "启动时显示关键词动作菜单": {
+            "$value": true,
+            "$describe": {
+                "zh_CN": "启动时显示关键词动作菜单"
             }
         },
-        "打开动作菜单":{
-            "$value":"点击打开动作菜单",
-            "$type":"button",
-            "$emit":"sac-open-menu-hintmenu"
+        "打开动作菜单": {
+            "$value": "点击打开动作菜单",
+            "$type": "button",
+            "$emit": "sac-open-menu-hintmenu"
         }
     }
 }

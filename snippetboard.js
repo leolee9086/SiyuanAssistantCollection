@@ -1,3 +1,29 @@
+
+let observedMenuElements = []
+//这里的menu只能传入思源的menus对象
+function 监听选中项变化(menu) {
+  if (!observedMenuElements.includes(menu.menu.element)) {
+    const observer = new MutationObserver((mutationsList, observer) => {
+      // 在这里处理选中值变化的逻辑
+      const 选中项 = menu.menu.element.querySelector('.b3-menu__item--current');
+      plugin.currentHintAction = 选中项
+      menu.menu.element.querySelectorAll('.b3-menu__item:not(.b3-menu__item--current)').forEach(
+        item => {
+          if ((item !== 选中项) && item.deactive) {
+            item.deactive(menu, item)
+          }
+        }
+      );
+      if (选中项 && 选中项.active) {
+        选中项.active(menu, 选中项)
+      }
+
+    });
+    observer.observe(menu.menu.element, { attributes: true, subtree: true });
+    observedMenuElements.push(menu.menu.element)
+  }
+}
+
 /**
  * 这个文件没什么用,就是个剪贴板
  */
@@ -25,7 +51,7 @@ this.eventBus.on("click-editortitleicon", (e) => {
       var myHeaders = new Headers();
       myHeaders.append(
         "Authorization",
-        "Bearer fk200839-MLceAphddjCxYmxTIVVJEXNqXcnz0lbH"
+        ""
       );
       myHeaders.append("User-Agent", "Apifox/1.0.0 (https://apifox.com)");
       myHeaders.append("Content-Type", "application/json");

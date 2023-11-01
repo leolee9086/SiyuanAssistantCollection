@@ -1,6 +1,7 @@
 import { embeddingText } from "../../../utils/textProcessor.js"
 import { plugin } from "../../index.js"
 import { searchBlock } from "./blockSearcher.js"
+import { logger } from "../../../logger/index.js"
 export async function searchRef(message) {
     try {
         let { meta, vectors } = message
@@ -11,6 +12,7 @@ export async function searchRef(message) {
             vectors[model] = vector
         }
         let refs = await searchBlock(message, vector)
+        logger.aishelllog(refs)
         return refs
     } catch (error) {
         console.error(`searchRef失败:`, error);

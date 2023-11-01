@@ -38,10 +38,10 @@ let signal = controller.signal
 
 let 显示token菜单 = (e, signal) => {
   let tokenMenuDialogs = plugin.statusMonitor.get('菜单', '关键词菜单', '菜单实例').$value
-  if(!tokenMenuDialogs[0]){
+  if (!tokenMenuDialogs[0]) {
     return
   }
-  let tokenMenuDialog=tokenMenuDialogs[0]
+  let tokenMenuDialog = tokenMenuDialogs[0]
   tokenMenuDialog.clear()
   //上下方向键不重新渲染菜单
   if (signal.aborted) {
@@ -89,7 +89,6 @@ let 显示token菜单 = (e, signal) => {
       let tips动作表 = 备选动作表.filter(item => { return item.tipRender })
       plugin.eventBus.emit('hint_tips', { 备选动作表: tips动作表, context: 执行上下文 })
       let 动作菜单组 = 根据动作序列生成菜单组(菜单动作表, 执行上下文, '分词菜单')
-
       tokenMenuDialog.moveTo({
         x: 选区位置.left + 10,
         y: 获取光标底部位置(),
@@ -127,30 +126,7 @@ function 获取光标底部位置() {
   return rect ? rect.bottom : null;
 }
 
-let observedMenuElements = []
-//这里的menu只能传入思源的menus对象
-function 监听选中项变化(menu) {
-  if (!observedMenuElements.includes(menu.menu.element)) {
-    const observer = new MutationObserver((mutationsList, observer) => {
-      // 在这里处理选中值变化的逻辑
-      const 选中项 = menu.menu.element.querySelector('.b3-menu__item--current');
-      plugin.currentHintAction = 选中项
-      menu.menu.element.querySelectorAll('.b3-menu__item:not(.b3-menu__item--current)').forEach(
-        item => {
-          if ((item !== 选中项) && item.deactive) {
-            item.deactive(menu, item)
-          }
-        }
-      );
-      if (选中项 && 选中项.active) {
-        选中项.active(menu, 选中项)
-      }
 
-    });
-    observer.observe(menu.menu.element, { attributes: true, subtree: true });
-    observedMenuElements.push(menu.menu.element)
-  }
-}
 
 
 const 根据上下文生成动作菜单项 = (执行上下文, 动作, 触发事件类型) => {
@@ -233,6 +209,10 @@ export function 根据动作序列生成菜单组(动作序列, 执行上下文,
     (动作) => {
       try {
         let 动作菜单项 = 根据上下文生成动作菜单项(执行上下文, 动作, 触发事件类型)
+        //如果动作曾经执行缓慢,就给个提示
+        if (plugin.statusMonitor.get('动作表状态', 动作._provider).$value === "slow") {
+          动作菜单项.style.color = '--b3-card-warning-color'
+        }
         子菜单元素片段.appendChild(动作菜单项)
       } catch (e) {
         logger.tokenmenuerror(执行上下文, 动作, e)
@@ -268,11 +248,11 @@ export const 开始渲染 = () => {
       controller.abort()
       controller = new AbortController();
       signal = controller.signal
-      let tokenMenuDialog = plugin.statusMonitor.get('菜单', '关键词菜单', '菜单实例').$value
-
-      if (!tokenMenuDialog) {
+      let tokenMenuDialogs = plugin.statusMonitor.get('菜单', '关键词菜单', '菜单实例').$value
+      if (!tokenMenuDialogs[0]) {
         return
       }
+      let tokenMenuDialog = tokenMenuDialogs[0]
       if (e.code && (e.code === "ArrowUp" || e.code === "ArrowDown")) {
         let altFlag = !plugin.configurer.get('动作设置', '上下键选择动作').$value ? e.altKey : !e.altKey
         if (altFlag) {
@@ -296,15 +276,18 @@ export const 开始渲染 = () => {
       }
       if (!isComposing) {
         // 触发事件的逻辑
-       显示token菜单(e, signal)
+        显示token菜单(e, signal)
       }
     },
     { capture: true }
   )
   // 监听 compositionend 事件
   document.addEventListener('compositionend', (e) => {
-    let tokenMenuDialog = plugin.statusMonitor.get('菜单', '关键词菜单', '菜单实例').$value
-
+    let tokenMenuDialogs = plugin.statusMonitor.get('菜单', '关键词菜单', '菜单实例').$value
+    if (!tokenMenuDialogs[0]) {
+      return
+    }
+    let tokenMenuDialog = tokenMenuDialogs[0]
     isComposing = false;
     controller.abort()
     controller = new AbortController();

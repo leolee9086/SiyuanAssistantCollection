@@ -7,6 +7,9 @@ This is a utility function and AI assistant collection plugin (SiyuanAssistantCo
 
 It mainly includes some practical small functions, as well as some AI assistant interface docking.
 
+**Some features may consume a large amount of tokens, make sure you know what you're doing before enabling them**
+
+
 ## User Guide:
 
 Click on the "Open Help" on the SAC panel on the interface to open the user guide. Please also refer to the user guide for other content related to the plugin.

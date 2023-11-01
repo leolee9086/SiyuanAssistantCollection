@@ -2,6 +2,8 @@
 
 本插件尚在早期开发阶段，使用时注意务必注意数据安全
 
+**一些功能可能消耗大量token,开启务必保证知道你自己在做什么**
+
 ## 功能
 
 这是一个实用功能和AI助手集合插件（SiyuanAssistantCollection），不是Stand Alone Complex的意思。
