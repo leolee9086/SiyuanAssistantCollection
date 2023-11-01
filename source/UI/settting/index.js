@@ -89,13 +89,12 @@ export function 获取设置UI(...args) {
     let UI生成函数 = plugin.statusMonitor.get('settingElements', ...args);
     if (!UI生成函数()) {
         let item = plugin.configurer.get(...args).$raw;
-        let itemType = item && item.$type ? item.$type : typeof item;
-
-        if(item &&item.$value){
-            console.log(item)
-            itemType=item.$type?item.$type:typeof item.$value
+        let itemType = item && item.hasOwnProperty('$value') ? item.$type : typeof item;
+        if(item &&item.hasOwnProperty('$value')){
+            itemType=item.$type||(typeof item.$value)
+            let describe =item.$describe&& (item.$describe[siyuan.config.lang]?item.$describe[siyuan.config.lang]:item.$describe['zh_CN'])
+            describe&&plugin.statusMonitor.set('settingDescribe',args.join('.'),describe)
         }
-        console.log(item)
         let elementGenerator;
         elementGenerator = typeToInputter(args,item)[itemType] || (() => {
             let element = document.createElement('input');
@@ -104,7 +103,6 @@ export function 获取设置UI(...args) {
             element.disabled = true;
             return element;
         });
-
         return elementGenerator;
     } else {
         return UI生成函数;

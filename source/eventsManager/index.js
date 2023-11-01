@@ -102,9 +102,14 @@ eventBus.on('settingChange', async (e) => {
     }
     if (detail.name === "菜单.显示关键词菜单") {
         if(detail.value){
-            buildMenu()
+            buildMenu('SAC')
         }
     }
+})
+eventBus.on('sac-open-menu-hintmenu',()=>{
+    plugin.statusMonitor.set('菜单', '关键词菜单', '初次显示',false)
+        buildMenu('SAC')
+    
 })
 eventBus.on('sac-open-menu-aichatmessage', async (e) => {
     let { detail } = e

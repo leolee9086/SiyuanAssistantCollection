@@ -36,7 +36,6 @@ export default [
     }
 ]
 const getTitle = async (href) => {
-    console.log(href);
     let title = null;
     if (href.startsWith("http")) {
         let data = await forwardProxy(href, [{
@@ -66,9 +65,7 @@ async function forwardProxy(url, headers = [], timeout = 5000) {
 }
 
 async function request(url, data) {
-    // info(`Request: ${url}; data = ${JSON.stringify(data)}`);
     let response = await siyuan.fetchSyncPost(url, data);
-    // console.log(response);
     let res = response.code === 0 ? response.data : null;
     return res;
 }

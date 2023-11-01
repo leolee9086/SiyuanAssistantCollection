@@ -103,6 +103,11 @@
             "$describe":{
                 "zh_CN":"启动时显示关键词动作菜单"
             }
+        },
+        "打开动作菜单":{
+            "$value":"点击打开动作菜单",
+            "$type":"button",
+            "$emit":"sac-open-menu-hintmenu"
         }
     }
 }

@@ -3,21 +3,22 @@ import { plugin } from "../../asyncModules.js";
 import {
     genLabel,
 } from "./dialogTabs/index.js";
-export const typeToInputter = (args,item) => {
-    console.log(args,item)
+export const typeToInputter = (args, item) => {
     return {
-        'string': () => createInputter(args, 'text', item, (value, element) => { element.value =value.$value? value.$value:value}),
-        'number': () => createInputter(args, 'number', item, (value, element) => { element.value = value.$value? value.$value:value }),
-        'boolean': () => createInputter(args, 'boolean', item, (value, element) => { element.checked = value.$value? value.$value:value; }),
+        'string': () => createInputter(args, 'text', item, (value, element) => { element.value = value.$value ? value.$value : value }),
+        'number': () => createInputter(args, 'number', item, (value, element) => { element.value = value.$value ? value.$value : value }),
+        'boolean': () => createInputter(args, 'boolean', item, (value, element) => { element.checked = value.$value ? value.$value : value; }),
         'singleSelect': () => createSelectInputter(args, item, false),
         'multiSelect': () => createSelectInputter(args, item, true),
+        'button': () => createButton(args, item) 
     }
 };
-export function handleInputter(inputter, pathArray, tab, tabWrapper,fullPath) {
+
+export function handleInputter(inputter, pathArray, tab, tabWrapper, fullPath) {
     if (inputter) {
-        let label = tabWrapper.querySelector(`[data-group="${pathArray[0] + '.' + pathArray[1]}"]`) || genLabel(pathArray, inputter,fullPath);
+        let label = tabWrapper.querySelector(`[data-group="${pathArray[0] + '.' + pathArray[1]}"]`) || genLabel(pathArray, inputter, fullPath);
         tab.appendChild(label);
-    } 
+    }
 }
 export function createInputter(args, type, value, updateValue) {
     let element = createInputElement(type, value)
@@ -28,9 +29,24 @@ export function createInputter(args, type, value, updateValue) {
     plugin.eventBus.on('settingChange', settingChangeHandler);
     return element;
 }
+function createButton(args, item) {
+    let element = string2DOM(`
+    <button class="b3-button b3-button--outline fn__flex-center fn__size200">
+                    ${item.$value || args[args.length - 1]}
+                </button>
+`);
+    element.addEventListener('click', () => {
+        plugin.eventBus.emit('settingButtonClicked', args);
+        if(item.$emit){
+            plugin.eventBus.emit(item.$emit, args);
+        }
+    });
+    console.log(element)
+    return element
+}
 function createSelectInputter(args, item, isMultiple) {
-    let optionsHTML = item.options.map(option => 
-        `<option value="${option.value||option}">${option.text||option.text||option}</option>`
+    let optionsHTML = item.options.map(option =>
+        `<option value="${option.value || option}">${option.text || option.text || option}</option>`
     ).join('');
     let element = string2DOM(`
         <select  class="b3-select fn__flex-center fn__size200" ${isMultiple ? 'multiple' : ''}>
@@ -41,7 +57,7 @@ function createSelectInputter(args, item, isMultiple) {
     element.addEventListener('change', () => {
         plugin.configurer.set(...args, element.value);
     });
-    let settingChangeHandler = createSettingChangeHandler(args, element, (value, element) => { element.value = value.$value? value.$value:value; });
+    let settingChangeHandler = createSettingChangeHandler(args, element, (value, element) => { element.value = value.$value ? value.$value : value; });
     plugin.eventBus.on('settingChange', settingChangeHandler);
     return element;
 }

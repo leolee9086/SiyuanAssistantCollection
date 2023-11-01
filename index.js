@@ -81,7 +81,6 @@ class PluginConfigurer {
         }
       }
     }
-
     // 检查旧值是否存在且旧值是否有$type属性
     if (oldValue && oldValue.$type) {
       // 检查新值是否没有$type属性或新值的$type与旧值的$type是否不同
@@ -89,7 +88,6 @@ class PluginConfigurer {
         throw new Error(`New value must have the same $type as the old value. Old value: ${oldValue}, new value: ${value}`);
       }
     }
-
     // 检查新值是否有$value属性
     if (value.$value) {
       // 检查新值是否没有$type属性
@@ -101,7 +99,6 @@ class PluginConfigurer {
         throw new Error(`The $value of the new value must be a string or array. Old value: ${oldValue}, new value: ${value}`);
       }
     }
-
     // 当新旧值都有$value与$type属性时，新值所有属性必须与旧值所有属性类型一致（允许为undefined）
     if (oldValue && oldValue.$value && oldValue.$type && value.$value && value.$type) {
       for (let key in oldValue) {
@@ -122,7 +119,7 @@ class PluginConfigurer {
       target = target[args[i]];
     }
     const getterFunction = (nextArg) => this.get(...args, nextArg);
-    if (typeof target === 'object' && target.$type && target.$value) {
+    if (typeof target === 'object'  && target.hasOwnProperty('$value')) {
       getterFunction.$value = target.$value;
       getterFunction.$raw = target;
 
@@ -143,9 +140,9 @@ class PluginConfigurer {
         if (obj[key].length === 0) {
           paths.push(newPath);
         }
-      } else if (typeof obj[key] === 'object' && obj[key].$value && obj[key].$type) {
+      } else if (typeof obj[key] === 'object' && obj[key].hasOwnProperty('$value') && obj[key].$type) {
         paths.push(newPath);
-      } else if (typeof obj[key] === 'object' && obj[key].$value) {
+      } else if (typeof obj[key] === 'object' && obj[key].hasOwnProperty('$value')) {
         paths.push(newPath);
       }
       else if (typeof obj[key] === 'object' && Object.keys(obj[key]).length !== 0) {
@@ -176,6 +173,8 @@ class PluginConfigurer {
   }
   query(fields, base = '') {
     let paths = this.generatePaths(fields);
+    console.log(paths)
+
     let data = paths.reduce((result, element) => {
       let subData = this.recursiveQuery(element, base);
       return result.concat(subData);

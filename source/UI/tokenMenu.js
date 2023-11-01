@@ -9,7 +9,7 @@ import buildMenu from './dialogs/fakeMenu.js'
 import { logger } from "../logger/index.js";
 import { 设置对话框 } from "./dialogs/settingsDialog.js";
 export { 根据上下文获取动作表 as 根据上下文获取动作表 }
-let tokenMenuDialog=buildMenu()
+let tokenMenuDialog=buildMenu('SAC')
 plugin.eventBus.on(
     "settingChange",(e)=>{
       let {detail}=e
