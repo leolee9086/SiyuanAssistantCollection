@@ -37,12 +37,10 @@ export class DummyGhost extends Ghost {
             "gender":"female",
             ...Persona
         };
-        console.log(Persona,this.Persona)
         if(this.Persona.gender==='male'&&this.Persona.name==="REI01"){
             this.Persona.name="NAGISA01"
         }
         this.persona=DummyPersona(name,this.Persona)
-        console.log(this.persona)
     }
 }
 const DummySys = {

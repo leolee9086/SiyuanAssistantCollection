@@ -173,8 +173,6 @@ class PluginConfigurer {
   }
   query(fields, base = '') {
     let paths = this.generatePaths(fields);
-    console.log(paths)
-
     let data = paths.reduce((result, element) => {
       let subData = this.recursiveQuery(element, base);
       return result.concat(subData);

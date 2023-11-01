@@ -19,7 +19,7 @@ document.addEventListener(
                     plugin.currentHintAction.runAction();
 
                 } catch (e) {
-                    console.warn(e)
+                    logger.eventwarn(e)
                 }
             }
         }

@@ -9,13 +9,10 @@ let apiURL = import.meta.resolve('./LLMAPIS')
 let apiList = await fs.readDir('/data/plugins/'+apiURL.split('plugins')[1])
 apiList =apiList.filter(
     file=>{
-        console.log(file)
         return file.name.endsWith('Chat.js')&&!file.isDir
     }
 )
-for(let apiFile of apiList){
-        console.log(apiFile) 
-}
+
 let 模型字典 = {
     OPENAI,
     SPARK,

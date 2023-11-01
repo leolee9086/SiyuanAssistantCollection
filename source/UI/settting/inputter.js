@@ -3,6 +3,7 @@ import { plugin } from "../../asyncModules.js";
 import {
     genLabel,
 } from "./dialogTabs/index.js";
+import { logger } from "../../logger/index.js";
 export const typeToInputter = (args, item) => {
     return {
         'string': () => createInputter(args, 'text', item, (value, element) => { element.value = value.$value ? value.$value : value }),
@@ -41,7 +42,7 @@ function createButton(args, item) {
             plugin.eventBus.emit(item.$emit, args);
         }
     });
-    console.log(element)
+    logger.settinglog(element)
     return element
 }
 function createSelectInputter(args, item, isMultiple) {

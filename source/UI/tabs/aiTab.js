@@ -11,7 +11,7 @@ if(plugin.statusMonitor.get("aiTabContainer").$value){
                     createAiTab(tab)
 
                 }catch(e){
-                    console.error(e)
+                    logger.taberror(e)
                 }
             }
         )
