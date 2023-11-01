@@ -20,22 +20,26 @@ class Ghost {
         this.currentThoughts = []
 
     }
-    async introspectChat(message) {
+    async introspectChat(message,linkMap) {
         message.id = Lute.NewNodeID()
         await this.shell.embeddingMessage(message)
         //收到用户的消息时
         if (message.role === 'user') {
+            let refs ={prompt:'',linkMap:{}}
             if (plugin.configurer.get("聊天工具设置", '自动给出参考').$value) {
-                let referenceMessage = { role: 'system', content: await this.shell.searchRef(message) }
+                 refs = await this.shell.searchRef(message)
+                let referenceMessage = { role: 'system', content: refs.prompt,linkMap:refs.linkMap }
                 if (referenceMessage.content) {
                     this.workingMemory.push(referenceMessage)
                 }
             }
+            message.linkMap=refs.linkMap
             this.workingMemory.push(message)
             this.longTermMemory.history.push(message)
             return JSON.parse(JSON.stringify(this.workingMemory))
         }
         if (message.role === 'assistant') {
+            message.linkMap=linkMap
             this.workingMemory.push(message)
             this.longTermMemory.history.push(message)
             this.organizeWorkingMemory(); // 整理工作记忆

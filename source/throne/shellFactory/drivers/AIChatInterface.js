@@ -136,7 +136,7 @@ export class AIChatInterface extends EventEmitter {
                 this.显示用户消息(message.content)
                 break
             case 'assistant':
-                this.添加AI消息(message.content)
+                this.添加AI消息(message.content,message.linkMap)
                 break
         }
         this.聊天容器.scrollTop = this.聊天容器.scrollHeight;
@@ -145,7 +145,7 @@ export class AIChatInterface extends EventEmitter {
         const userMessage = createElement("div", ["user-message"], `<strong>User:</strong> ${message}`);
         this.聊天容器.appendChild(userMessage);
     }
-    添加AI消息(message) {
+    添加AI消息(message,linkMap) {
         const aiMessage = createElement("div", ["ai-message"], "");
         this.聊天容器.appendChild(aiMessage);
         aiMessage.setAttribute('draggable', "true")
@@ -161,6 +161,14 @@ export class AIChatInterface extends EventEmitter {
         aiMessage.addEventListener('dragstart', function (event) {
             event.dataTransfer.setData('text/html', aiMessage.innerHTML);
         });
+        let linkSpans = aiMessage.querySelectorAll('[data-type="a"]')
+        linkMap&&linkSpans.forEach(
+            link=>{
+                if(linkMap[link.getAttribute('data-href')]){
+                    link.setAttribute('data-href',linkMap[link.getAttribute('data-href')])
+                }
+            }
+        )
         this.用户输入框.removeAttribute('disabled')
         this.添加插入按钮(aiMessage,this.当前用户输入,message);
         return aiMessage;

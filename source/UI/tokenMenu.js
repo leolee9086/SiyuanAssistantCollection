@@ -276,7 +276,9 @@ export const 开始渲染 = () => {
       }
       if (!isComposing) {
         // 触发事件的逻辑
-        显示token菜单(e, signal)
+        setTimeout(() => {
+          显示token菜单(e, signal)
+        }, 0)
       }
     },
     { capture: true }
@@ -295,7 +297,10 @@ export const 开始渲染 = () => {
     if (!tokenMenuDialog) {
       return
     }
-    显示token菜单(e, signal)
+    setTimeout(() => {
+      显示token菜单(e, signal)
+    }, 0)
+
   },
     { capture: true });
 }

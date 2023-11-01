@@ -62,10 +62,14 @@ export default class Shell extends EventEmitter {
         logger.aiShelllog(text)
         let 消息对象 = { role: roles.USER, content: text }
         let result = await this.ghost.introspectChat(消息对象)
+        let linkMap = result[result.length - 1].linkMap
         this.showText(消息对象)
-        result = await this.completeChat(result)
+        let length = plugin.configurer.get('聊天工具设置', '默认工作记忆长度').$value
+        result = result.slice(-length); // 截取最近的 'length' 条工作记忆
+        result = await this.completeChat(result);
         //introspect系列的方法都是让ghost有机会对消息进行后处理的
-        result = await this.ghost.introspectChat({ role: roles.ASSISTANT, content: result })
+        result = await this.ghost.introspectChat({ role: roles.ASSISTANT, content: result },linkMap)
+        
         this.showText(result[result.length - 1])
         return result[result.length - 1]
     }
@@ -246,49 +250,139 @@ export default class Shell extends EventEmitter {
     }
     async searchRef(message) {
         let prompt = `
-        You can use these references to answer the user's questions, note that you must list all the references you used in your answer.
-        Do not fabricate non-existent references, do not use references that you think are irrelevant to the question, even if they are listed below.
-                        ---REFERENCES---
+You can use these references to answer the user's questions, note that you must list all the references you used in your answer.
+Do not fabricate non-existent references, do not use references that you think are irrelevant to the question, even if they are listed below.
+---REFERENCES---
         `
-        //这里的部分是从tips里面获取参考
-        try {
-            let refs
-            let refsElement = document.querySelectorAll('.tips-card.selected')
-            refsElement.forEach(
-                el => {
-                    if (el.getAttribute('markdown-content')) {
-                        refs += `\n${el.getAttribute('markdown-content')}`
+        //选中的块最先加上
+        if (plugin.configurer.get("聊天工具设置", '自动发送上一次选择的块').$value) {
+            try {
+                let refs
+                let selectedBlocks = document.querySelectorAll('.protyle-wysiwyg--select')
+                for (let el of selectedBlocks) {
+                    let text = `\n[${(new BlockHandler(el.getAttribute('data-node-id'))).content}](siyuan://blocks/${el.getAttribute('data-node-id')})`
+                        refs += `\n${text}`
+                    
+                }
+                if (refs) {
+                    prompt + '\n' + refs
+                }
+            } catch (e) {
+                logger.aiShellerror(e)
+            }
+        }
+        logger.aiShelllog(message, prompt)
+
+        //从启用的搜索器获取参考
+        if (plugin.configurer.get("聊天工具设置", '自动发送当前搜索结果').$value) {
+            const searchers = this.drivers.search
+            try {
+                for (let searcher of searchers) {
+                    const results = await searcher.search(message)
+                    for (let result of results) {
+                            prompt += result
+                        
                     }
                 }
-            )
-            let selectedBlocks = document.querySelectorAll('.protyle-wysiwyg--select')
-            selectedBlocks.forEach(
-                el => {
-                    refs += `\n[${(new BlockHandler(el.getAttribute('data-node-id'))).content}](siyuan://blocks/${el.getAttribute('data-node-id')})`
-                }
-            )
-            let selectedText = plugin.statusMonitor.get('editorStatus', 'selectedText').$value
-            refs += selectedText
-            if (refs) {
-                 prompt + '\n' + refs
-
-            } 
-        } catch (e) {
-            logger.aiShellerror(e)
-        }
-        //从启用的搜索器获取参考
-        const searchers= this.drivers.search
-        
-        try{
-            for(let searcher of searchers){
-                const result  =await searcher.search(message)
-                prompt +=result
+            } catch (e) {
+                logger.aiShellerror(e)
             }
-        }catch(e){
-            logger.aiShellerror(e)
         }
-        logger.aiShelllog(message,prompt)
-        return prompt
+        logger.aiShelllog(message, prompt)
+
+        //这里的部分是从tips里面获取参考
+        if (plugin.configurer.get("聊天工具设置", '自动发送当前所有tips').$value) {
+            try {
+                let refs = '';
+                let refsElements = document.querySelectorAll('.tips-card')
+                for (let el of refsElements) {
+                    if (el.getAttribute('markdown-content')) {
+                        let lines = el.getAttribute('markdown-content').split('\n');
+                        for (let line of lines) {
+                                refs += `\n${line}`;
+                            
+                        }
+                    }
+                }
+                if (refs) {
+                    prompt += '\n' + refs;
+                }
+
+            } catch (e) {
+                logger.aiShellerror(e);
+            }
+        } else {
+            try {
+                let refs = '';
+                let refsElements = document.querySelectorAll('.tips-card.selected')
+                for (let el of refsElements) {
+                    if (el.getAttribute('markdown-content')) {
+                        let lines = el.getAttribute('markdown-content').split('\n');
+                        for (let line of lines) {
+                                refs += `\n${line}`;
+                            
+                        }
+                    }
+                }
+                if (refs) {
+                    prompt += '\n' + refs;
+                }
+            } catch (e) {
+                logger.aiShellerror(e);
+            }
+
+        }
+        logger.aiShelllog(message, prompt)
+        //选中的文字
+        try {
+            let refs = '';
+            let selectedText = plugin.statusMonitor.get('editorStatus', 'selectedText').$value;
+            refs += selectedText;
+            if (refs) {
+                    refs += `\n${refs}`
+                
+                prompt += '\n' + refs;
+            }
+        } catch (e) {
+            logger.aiShellerror(e);
+        }
+        logger.aiShelllog(message, prompt)
+        //选中的块
+        prompt = prompt.split('\n') // 将prompt分割成行
+            .filter(line => line.trim() !== '' && line.trim() !== 'undefined') // 过滤掉空行和内容为"undefined"的行
+            .join('\n'); // 将过滤后的行重新组合成字符串
+        logger.aiShelllog(message, prompt)
+        prompt=plugin._lute.Md2HTML(prompt)
+        let parser = new DOMParser();
+        let doc = parser.parseFromString(prompt, 'text/html');
+        let links = doc.querySelectorAll('a');
+        let linkMap = {};
+        for (let i = 0; i < links.length; i++) {
+            let link = links[i];
+            let id = `SAClink${i + 1}`;
+            linkMap[id] = link.href;
+            link.href = id;
+        }
+        prompt = plugin._lute.HTML2Md(doc.body.innerHTML);
+        logger.aiShelllog(message, prompt)
+        let maxLength = plugin.configurer.get("聊天工具设置", '总参考最大长度').$value;
+        let lines = prompt.split('\n');
+        let result = '';
+        let currentLength = 0;
+        
+        for (let line of lines) {
+            if (currentLength + line.length <= maxLength) {
+                result += line + '\n';
+                currentLength += line.length;
+            } else {
+                break;
+            }
+        }
+        
+        prompt = result.trim(); // 去除最后一个换行符
+        logger.aiShelllog(message, prompt)
+
+        return {prompt,linkMap}
     }
     //这里是整理记忆的方法
     async summryMemory(workingMemory) {

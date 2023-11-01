@@ -126,15 +126,14 @@ export const searchBlock = async (message, vector) => {
     return buildRefs(blocks.slice(0, plugin.configurer.get('聊天工具设置', '默认参考数量').$value || 10))
 }
 function buildRefs(blocks) {
-    let refs = ""
+    let refs = []
     let seen1 = new Set()
     let seen2 = new Set()
     let 最大文字长度 = plugin.configurer.get('聊天工具设置', '参考文字最大长度').$value
-    let 总参考最大长度 = plugin.configurer.get('聊天工具设置', '总参考最大长度').$value
     blocks.forEach(ref => {
-        if (ref.id && ref.content && !seen1.has(ref.id) && refs.length < 总参考最大长度) {
+        if (ref.id && ref.content && !seen1.has(ref.id) ) {
             let obj = { id: ref.id, content: ref.content }
-            refs += `\n[${obj.content.substring(0, 最大文字长度 || 512)}](siyuan://blocks/${obj.id})`
+            refs.push (`\n[${obj.content.substring(0, 最大文字长度 || 512)}](siyuan://blocks/${obj.id})`)
             seen1.add(ref.id)
             seen2.add(ref.content)
         }
