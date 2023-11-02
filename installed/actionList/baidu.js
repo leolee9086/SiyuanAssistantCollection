@@ -7,7 +7,7 @@ export default [
         icon: "",
         tipRender:async (context) => {
             let text = context.blocks[0].content
-            let links =  await plugin.searchers.websearchers.baidu.search(text)
+            let links =  await plugin.searchers.baidu.search(text)
             let div = document.createElement('div');
             let aTags= plugin.lute.Md2HTML(links)
             div.innerHTML=aTags
