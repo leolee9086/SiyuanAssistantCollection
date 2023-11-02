@@ -1,71 +1,7 @@
 import { pluginInstance as plugin } from "../../../asyncModules.js";
+import { searchURL } from "./searcherWindow/electron.js";
 const cache = new Map();
-export const serachBaidu= (text)=>{
-    if(!window.require){
-        return ''
-    }
-    return new Promise((resolve, reject) => {
-        let searchUrl = `https://www.baidu.com/s?word=${encodeURIComponent(text)}`;
-        let hiddenDiv = document.createElement('div');
-        hiddenDiv.style.display = 'none';
-        document.body.appendChild(hiddenDiv);
-        hiddenDiv.innerHTML = `<webview id="webview" src="${searchUrl}" width="100%" height="300px"></webview>`;
-        let webview = hiddenDiv.querySelector('#webview');
-        let counter = 0;
-        const maxAttempts = 10;
-        const checkExist = setInterval(() => {
-            if (counter >= maxAttempts) {
-                clearInterval(checkExist);
-                document.body.removeChild(hiddenDiv);
-                reject(new Error('Maximum attempts reached'));
-                return;
-            }
-            webview.executeJavaScript(`
-                document.querySelectorAll('.result.c-container').length;
-            `).then((length) => {
-                if (length > 0) {
-                    clearInterval(checkExist);
-                    webview.executeJavaScript(`
-                        Array.from(document.querySelectorAll('.result.c-container')).map(el => {
-                            const title = el.querySelector('.c-title a').innerText;
-                            const link = el.querySelector('.c-title a').href;
-                            return { title, link };
-                        });
-                    `).then(results => {
-                        // 创建一个列表元素来显示搜索结果
-                        let markdown = ''
-                        results.forEach(result => {
-                            try {
-                                // 检查result.link是否是有效的URL
-                                new URL(result.link);
-                            
-                                // 对result.link进行编码以防止注入攻击
-                                let safeLink = encodeURI(result.link);
-                            
-                                // 添加到markdown
-                                markdown += plugin._lute ? `\n[${result.title}](${safeLink})` : '';
-                            } catch (e) {
-                                // 如果result.link不是有效的URL，URL构造函数会抛出一个错误
-                                console.error(`Invalid URL: ${result.link}`);
-                            }                        });
-                        // 将列表元素添加到 div 中
-                        // 解析 Promise，返回 div 和 markdown
-                        resolve( markdown );
-                        // 移除隐藏的 div
-                        try{
-                            document.body.removeChild(hiddenDiv);
-                        }catch(e){}
-                    }).catch(e=>{
-                        console.error(e)
-                        reject(e)
-    
-                    });
-                }
-                counter++;
-            });
-        }, 100); // 每100毫秒检查一次
-    });
-}
+
 /*
 // 1. 维基百科中文版
 async function queryWikipediaCN(query) {
@@ -105,6 +41,8 @@ async function queryDouban(query) {
         return "No results found.";
     }
 }
+
+await searchBaidu('xiaomi')
 //1. 维基百科中文版: 维基百科中文版提供了一个API供开发者查询数据。维基百科中文版API
 
 //2. 豆瓣API: 豆瓣API提供了电影、图书和音乐等信息的查询。豆瓣API
@@ -115,3 +53,50 @@ async function queryDouban(query) {
 
 //5. 开放中文知识图谱（OpenKG）: OpenKG是一个开放的中文知识图谱，它提供了各种领域的知识数据。开放中文知识图谱
 */
+// 创建一个脚本，这个脚本在百度的搜索结果页面上执行，获取搜索结果
+const baiduSearchScript = `
+Array.from(document.querySelectorAll('.result.c-container')).map(el => {
+    const title = el.querySelector('.c-title a').innerText;
+    const link = el.querySelector('.c-title a').href;
+    return { title, link };
+});
+`;
+const waitScript=`
+document.querySelectorAll('.result.c-container').length;
+`
+// 创建一个回调函数，这个函数处理搜索结果
+const handleBaiduSearchResults = (results, resolve, reject) => {
+    if (results && results.length > 0) {
+        
+        resolve(results);
+    } else {
+        reject(new Error('No results found'));
+    }
+};
+
+// 创建一个搜索百度的函数
+export const searchBaidu = (query) => {
+   // const url = `https://www.baidu.com/s?wd=${encodeURIComponent(query)}`;
+   
+    let searchUrl = `https://www.baidu.com/s?word=${encodeURIComponent(query)}`;
+    let results= searchURL(searchUrl,waitScript, baiduSearchScript,handleBaiduSearchResults);
+    let markdown = ''
+    results.forEach(result => {
+        try {
+            // 检查result.link是否是有效的URL
+            new URL(result.link);
+        
+            // 对result.link进行编码以防止注入攻击
+            let safeLink = encodeURI(result.link);
+        
+            // 添加到markdown
+            markdown += plugin._lute ? `\n[${result.title}](${safeLink})` : '';
+        } catch (e) {
+            // 如果result.link不是有效的URL，URL构造函数会抛出一个错误
+            console.error(`Invalid URL: ${result.link}`);
+        }                        });
+    // 将列表元素添加到 div 中
+    // 解析 Promise，返回 div 和 markdown
+
+    return markdown
+};

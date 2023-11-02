@@ -23,7 +23,72 @@ function 监听选中项变化(menu) {
     observedMenuElements.push(menu.menu.element)
   }
 }
-
+export const searchBaidu1= (text)=>{
+    if(!window.require){
+        return ''
+    }
+    return new Promise((resolve, reject) => {
+        let searchUrl = `https://www.baidu.com/s?word=${encodeURIComponent(text)}`;
+        let hiddenDiv = document.createElement('div');
+        hiddenDiv.style.display = 'none';
+        document.body.appendChild(hiddenDiv);
+        hiddenDiv.innerHTML = `<webview id="webview" src="${searchUrl}" width="100%" height="300px"></webview>`;
+        let webview = hiddenDiv.querySelector('#webview');
+        let counter = 0;
+        const maxAttempts = 10;
+        const checkExist = setInterval(() => {
+            if (counter >= maxAttempts) {
+                clearInterval(checkExist);
+                document.body.removeChild(hiddenDiv);
+                reject(new Error('Maximum attempts reached'));
+                return;
+            }
+            webview.executeJavaScript(`
+                document.querySelectorAll('.result.c-container').length;
+            `).then((length) => {
+                if (length > 0) {
+                    clearInterval(checkExist);
+                    webview.executeJavaScript(`
+                        Array.from(document.querySelectorAll('.result.c-container')).map(el => {
+                            const title = el.querySelector('.c-title a').innerText;
+                            const link = el.querySelector('.c-title a').href;
+                            return { title, link };
+                        });
+                    `).then(results => {
+                        // 创建一个列表元素来显示搜索结果
+                        let markdown = ''
+                        results.forEach(result => {
+                            try {
+                                // 检查result.link是否是有效的URL
+                                new URL(result.link);
+                            
+                                // 对result.link进行编码以防止注入攻击
+                                let safeLink = encodeURI(result.link);
+                            
+                                // 添加到markdown
+                                markdown += plugin._lute ? `\n[${result.title}](${safeLink})` : '';
+                            } catch (e) {
+                                // 如果result.link不是有效的URL，URL构造函数会抛出一个错误
+                                console.error(`Invalid URL: ${result.link}`);
+                            }                        });
+                        // 将列表元素添加到 div 中
+                        // 解析 Promise，返回 div 和 markdown
+                        resolve( markdown );
+                        // 移除隐藏的 div
+                        try{
+                            document.body.removeChild(hiddenDiv);
+                        }catch(e){}
+                    }).catch(e=>{
+                        console.error(e)
+                        reject(e)
+    
+                    });
+                }
+                counter++;
+            });
+        }, 100); // 每100毫秒检查一次
+    });
+}
 /**
  * 这个文件没什么用,就是个剪贴板
  */

@@ -2,7 +2,7 @@ import { embeddingText } from "../../../utils/textProcessor.js"
 import { plugin } from "../../index.js"
 import { searchBlock } from "./blockSearcher.js"
 import { logger } from "../../../logger/index.js"
-import { serachBaidu } from "./webSearcher.js"
+import { searchBaidu } from "./webSearcher.js"
 import { jieba } from '../../../utils/tokenizer.js'
 
 export async function searchRef(message) {
@@ -23,12 +23,12 @@ export async function searchRef(message) {
             let webSearcherResults = [];
 
             let text = message.content || (message.meta && message.meta.content)
-            let result1 = await serachBaidu(text);
+            let result1 = await searchBaidu(text);
             webSearcherResults.push(result1);
             let tokens = jieba.tokenize(text, "search")
             for (let token of tokens) {
                 if (token.word.length > 2) {
-                    let result = await serachBaidu(token.word);
+                    let result = await searchBaidu(token.word);
                     webSearcherResults.push(result);
                 }
             }
