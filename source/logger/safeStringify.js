@@ -1,4 +1,7 @@
-
+let _Buffer = class{}
+if(window.require){
+  _Buffer=Buffer
+}
 export function safeStringify(obj, depth = 5, arrayLimit = 50) {
   const cache = new Set();
   return JSON.stringify(obj, (key, value) => {
@@ -29,7 +32,7 @@ export function safeStringify(obj, depth = 5, arrayLimit = 50) {
       } else if (value instanceof Date) {
         // 将 Date 对象转换为字符串
         return value.toISOString();
-      } else if (value instanceof Buffer) {
+      } else if (window.require && value instanceof _Buffer) {
         // 将 Buffer 转换为字符串
         return value.toString();
       } 

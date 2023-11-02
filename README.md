@@ -41,4 +41,6 @@ If it's useful to you, you can buy us a cup of coffee.
 
 Thanks to the following GitHub users for their donations
 
-https://github.com/Lantern51816]{https://github.com/Lantern51816}
+[https://github.com/Lantern51816](https://github.com/Lantern51816)
+
+[今年精力花费在尝试解决财务自由上](https://2596981615@qq.com)

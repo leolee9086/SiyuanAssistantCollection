@@ -5,7 +5,9 @@ export default [
         hints: '搜索,baidu,百度搜索',
         matchMod: 'any',
         icon: "",
-        tipRender: (context) => {
+        tipRender:async (context) => {
+            let text = context.blocks[0].content
+            return await plugin.statusMonitor.get('searchers','websearchers','baidu').search(text)
             return new Promise((resolve, reject) => {
                 let searchUrl = `https://www.baidu.com/s?word=${encodeURIComponent(context.blocks[0].content)}`;
                 let div = document.createElement('div');

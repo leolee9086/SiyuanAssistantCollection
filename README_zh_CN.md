@@ -44,6 +44,8 @@
 
 ## 捐助名单
 
-感谢以下GitHub用户的捐助
+感谢以下朋友的捐助
 
-[https://github.com/Lantern51816]{https://github.com/Lantern51816}
+[https://github.com/Lantern51816](https://github.com/Lantern51816)
+
+[今年精力花费在尝试解决财务自由上](https://2596981615@qq.com)
