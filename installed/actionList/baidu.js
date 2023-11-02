@@ -7,7 +7,11 @@ export default [
         icon: "",
         tipRender:async (context) => {
             let text = context.blocks[0].content
-            return await plugin.statusMonitor.get('searchers','websearchers','baidu').search(text)
+            let links =  await plugin.searchers.websearchers.baidu.search(text)
+            let div = document.createElement('div');
+            let aTags= plugin.lute.Md2HTML(links)
+            div.innerHTML=aTags
+            return {element:div,markdown:links}
             return new Promise((resolve, reject) => {
                 let searchUrl = `https://www.baidu.com/s?word=${encodeURIComponent(context.blocks[0].content)}`;
                 let div = document.createElement('div');

@@ -61,13 +61,13 @@ Array.from(document.querySelectorAll('.result.c-container')).map(el => {
     return { title, link };
 });
 `;
-const waitScript=`
+const waitScript = `
 document.querySelectorAll('.result.c-container').length;
 `
 // 创建一个回调函数，这个函数处理搜索结果
 const handleBaiduSearchResults = (results, resolve, reject) => {
     if (results && results.length > 0) {
-        
+
         resolve(results);
     } else {
         reject(new Error('No results found'));
@@ -75,9 +75,9 @@ const handleBaiduSearchResults = (results, resolve, reject) => {
 };
 
 // 创建一个搜索百度的函数
-export const searchBaidu =async (query) => {
+export const searchBaidu = async (query) => {
     let searchUrl = `https://www.baidu.com/s?word=${encodeURIComponent(query)}`;
-    let results=await searchURL(searchUrl,waitScript, baiduSearchScript,handleBaiduSearchResults);
+    let results = await searchURL(searchUrl, waitScript, baiduSearchScript, handleBaiduSearchResults);
     let markdown = ''
     results.forEach(result => {
         try {
@@ -90,8 +90,15 @@ export const searchBaidu =async (query) => {
         } catch (e) {
             // 如果result.link不是有效的URL，URL构造函数会抛出一个错误
             console.error(`Invalid URL: ${result.link}`);
-        }                        });
+        }
+    });
     // 将列表元素添加到 div 中
     // 解析 Promise，返回 div 和 markdown
     return markdown
 };
+plugin.searchers = {}
+plugin.searchers.websearchers = {
+    baidu: {
+        search: searchBaidu
+    }
+}
