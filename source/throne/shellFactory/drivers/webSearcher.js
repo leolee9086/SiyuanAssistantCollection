@@ -76,7 +76,6 @@ const handleBaiduSearchResults = (results, resolve, reject) => {
 
 // 创建一个搜索百度的函数
 export const searchBaidu =async (query) => {
-   // const url = `https://www.baidu.com/s?wd=${encodeURIComponent(query)}`;
     let searchUrl = `https://www.baidu.com/s?word=${encodeURIComponent(query)}`;
     let results=await searchURL(searchUrl,waitScript, baiduSearchScript,handleBaiduSearchResults);
     let markdown = ''
