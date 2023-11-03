@@ -250,8 +250,13 @@ export default class Shell extends EventEmitter {
     }
     async searchRef(message) {
         let prompt = `
-You can use these references to answer the user's questions, note that you must list all the references you used in your answer.
-Do not fabricate non-existent references, do not use references that you think are irrelevant to the question, even if they are listed below.
+assistant can use these references to answer the user's questions, note that assistant must list all the references assistant used in the answer.
+Do not fabricate non-existent references, do not use references that assistant think are irrelevant to the question, even if they are listed below.
+If assistant need detailed content from a reference, please explain to the user.
+assistant CAN also use internet search to find more information.
+To do this, add the keywords at the end of  reply. 
+The link text should be the search keywords, and the link URL should be the search engine URL with the keywords. 
+For example: [[search keywords]]
 ---REFERENCES---
         `
         //选中的块最先加上
@@ -281,7 +286,6 @@ Do not fabricate non-existent references, do not use references that you think a
                     const results = await searcher.search(message)
                     for (let result of results) {
                             prompt += result
-                        
                     }
                 }
             } catch (e) {
@@ -289,7 +293,6 @@ Do not fabricate non-existent references, do not use references that you think a
             }
         }
         logger.aiShelllog(message, prompt)
-
         //这里的部分是从tips里面获取参考
         if (plugin.configurer.get("聊天工具设置", '自动发送当前所有tips').$value) {
             try {
@@ -300,7 +303,6 @@ Do not fabricate non-existent references, do not use references that you think a
                         let lines = el.getAttribute('markdown-content').split('\n');
                         for (let line of lines) {
                                 refs += `\n${line}`;
-                            
                         }
                     }
                 }
@@ -369,7 +371,6 @@ Do not fabricate non-existent references, do not use references that you think a
         let lines = prompt.split('\n');
         let result = '';
         let currentLength = 0;
-        
         for (let line of lines) {
             if (currentLength + line.length <= maxLength) {
                 result += line + '\n';
@@ -378,10 +379,8 @@ Do not fabricate non-existent references, do not use references that you think a
                 break;
             }
         }
-        
         prompt = result.trim(); // 去除最后一个换行符
         logger.aiShelllog(message, prompt)
-
         return {prompt,linkMap}
     }
     //这里是整理记忆的方法
