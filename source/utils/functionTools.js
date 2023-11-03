@@ -44,3 +44,10 @@ export  function 智能防抖(原始函数, 失败回调, 预期平均时间) {
       return 封装表.get(原始函数).封装函数;
     }
   }
+export   function 防抖(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}

@@ -3,6 +3,7 @@ import { pluginInstance as plugin } from '../../../asyncModules.js';
 import { aiMessageButton } from './buttons/InsertButton.js';
 import { show as showGhostSelector } from './menus/ghostSelector.js';
 import logger from '../../../logger/index.js'
+import { 防抖 } from '../../../utils/functionTools.js';
 export class AIChatInterface extends EventEmitter {
     constructor(element, doll) {
         super(`textChat_${doll.ghost.persona.name}`)
@@ -16,6 +17,7 @@ export class AIChatInterface extends EventEmitter {
         this.当前参考内容组 = []
         this.当前用户输入 = ''
         this.当前AI回复 = ''
+        this.临时聊天容器=document.createDocumentFragment()
     }
     get lute(){
         return  plugin.lute||window.Lute.New()
@@ -126,10 +128,29 @@ export class AIChatInterface extends EventEmitter {
         logger.aiChatlog(this.doll)
         element.appendChild(对话框内容元素);
         用户输入框.focus()
-
+        this.messageCache=[]
     }
-
     显示消息(message) {
+        this.messageCache.push(message);
+        this.processMessageCache();
+    }
+    processMessageCache =防抖( () => {
+        this.messageCache.forEach(message => {
+            switch (message.role) {
+                case "user":
+                    this.显示用户消息(message.content);
+                    break;
+                case 'assistant':
+                    this.添加AI消息(message.content, message.linkMap);
+                    break;
+            }
+        });
+        this.聊天容器.appendChild( this.临时聊天容器)
+        this.聊天容器.scrollTop = this.聊天容器.scrollHeight;
+        this.messageCache = [];  // 清空消息缓存
+        this.临时聊天容器 = document.createDocumentFragment()
+    },100)// 100毫秒的防抖时间
+    /*显示消息(message) {
         logger.aiChatlog(message)
         switch (message.role) {
             case "user":
@@ -140,14 +161,14 @@ export class AIChatInterface extends EventEmitter {
                 break
         }
         this.聊天容器.scrollTop = this.聊天容器.scrollHeight;
-    }
+    }*/
     显示用户消息(message) {
         const userMessage = createElement("div", ["user-message"], `<strong>User:</strong> ${message}`);
-        this.聊天容器.appendChild(userMessage);
+        this.临时聊天容器.appendChild(userMessage);
     }
     添加AI消息(message,linkMap) {
         const aiMessage = createElement("div", ["ai-message"], "");
-        this.聊天容器.appendChild(aiMessage);
+        this.临时聊天容器.appendChild(aiMessage);
         aiMessage.setAttribute('draggable', "true")
         aiMessage.innerHTML = `<div class='protyle-wysiwyg protyle-wysiwyg--attr'><strong>AI:</strong> ${this.lute ? this.lute.Md2BlockDOM(message) : message}</div>`;
         aiMessage.querySelectorAll('[contenteditable="true"]').forEach(elem => elem.contentEditable = false);
@@ -162,13 +183,23 @@ export class AIChatInterface extends EventEmitter {
             event.dataTransfer.setData('text/html', aiMessage.innerHTML);
         });
         let linkSpans = aiMessage.querySelectorAll('[data-type="a"]')
-        linkMap&&linkSpans.forEach(
-            link=>{
-                if(linkMap[link.getAttribute('data-href')]){
-                    link.setAttribute('data-href',linkMap[link.getAttribute('data-href')])
-                }
+        let _linkMap = this.doll.ghost.longTermMemory.history.reduce((acc, item) => {
+            if (item && item.linkMap) {
+                return { ...acc, ...item.linkMap };
             }
-        )
+            return acc;
+        }, {});
+        (async()=>{
+            let combinedLinkMap = { ..._linkMap, ...linkMap };
+            combinedLinkMap && linkSpans.forEach(link => {
+                const idShortCode = link.getAttribute('data-href').replace('ref:', '').split('-').pop().trim();
+                const foundLink = Object.keys(combinedLinkMap).find(key => key.endsWith(idShortCode));
+                if (foundLink) {
+                   link.setAttribute('data-href', combinedLinkMap[foundLink]);
+                }
+            });
+    
+        })()
         this.用户输入框.removeAttribute('disabled')
         this.添加插入按钮(aiMessage,this.当前用户输入,message);
         return aiMessage;

@@ -7,7 +7,8 @@ import { plugin } from "../../asyncModules.js";
 import { findSimilarity } from "../../vectorStorage/vector.js";
 import logger from "../../logger/index.js";
 import BlockHandler from "../../utils/BlockHandler.js";
-import { getPersonaSetting,initPersonaSetting } from "../setting/index.js";
+import { getPersonaSetting, initPersonaSetting } from "../setting/index.js";
+import { combinedSimilarityWithPenalty } from "../../searchers/sorters/index.js";
 let roles = {
     USER: 'user',
     SYSTEM: 'system',
@@ -47,7 +48,7 @@ export default class Shell extends EventEmitter {
             this.replyChat(event.detail)
         })
         plugin.eventBus.on('baseProcessorChange', (event) => {
-            let processor = getLanguageProcessor()
+            let processor = getLanguageProcessor(this.name)
             this.changeProcessor('languageProcessor', new processor(this.ghost.persona))
         })
         this.已经初始化 = true
@@ -60,19 +61,19 @@ export default class Shell extends EventEmitter {
         initPersonaSetting(this.ghost.persona.name)
         this.初始化事件监听器()
     }
-  
+
     async replyChat(text) {
         logger.aiShelllog(text)
         let 消息对象 = { role: roles.USER, content: text }
         let result = await this.ghost.introspectChat(消息对象)
         let linkMap = result[result.length - 1].linkMap
         this.showText(消息对象)
-        let length = plugin.configurer.get('聊天工具设置', '默认工作记忆长度').$value
+        let length = getPersonaSetting(this.name,'聊天工具设置', '默认工作记忆长度').$value
         result = result.slice(-length); // 截取最近的 'length' 条工作记忆
         result = await this.completeChat(result);
         //introspect系列的方法都是让ghost有机会对消息进行后处理的
-        result = await this.ghost.introspectChat({ role: roles.ASSISTANT, content: result },linkMap)
-        
+        result = await this.ghost.introspectChat({ role: roles.ASSISTANT, content: result }, linkMap)
+
         this.showText(result[result.length - 1])
         return result[result.length - 1]
     }
@@ -189,12 +190,10 @@ export default class Shell extends EventEmitter {
                     }
                 }
             )
-            //    this.emit(`textChat_${this.name}_textWithRole`, input);
         } catch (e) {
             logger.warn('当前没有已初始化的聊天模块,无法显示聊天', e);
         }
     }
-
 
     async OnAskedForHistory() {
         return this.ghost.longTermMemory.history
@@ -252,25 +251,22 @@ export default class Shell extends EventEmitter {
         }
     }
     async searchRef(message) {
-        let prompt = `
-assistant can use these references to answer the user's questions, note that assistant must list all the references assistant used in the answer.
-Do not fabricate non-existent references, do not use references that assistant think are irrelevant to the question, even if they are listed below.
-If assistant need detailed content from a reference, please explain to the user.
-assistant CAN also use internet search to find more information.
-To do this, add the keywords at the end of  reply. 
-The link text should be the search keywords, and the link URL should be the search engine URL with the keywords. 
-For example: [[search keywords]]
----REFERENCES---
-        `
+        let _prompt = `
+You can use these references to answer the user's questions, note that you must list all the references you used in your answer.
+Do not fabricate non-existent references, do not use references that you think are irrelevant to the question, even if they are listed below.
+If you need detailed content from a reference, please explain to the user.
+\n
+                `
+        let prompt
         //选中的块最先加上
-        if (plugin.configurer.get("聊天工具设置", '自动发送上一次选择的块').$value) {
+        if (getPersonaSetting(this.name,"聊天工具设置", '自动发送上一次选择的块').$value) {
             try {
                 let refs
                 let selectedBlocks = document.querySelectorAll('.protyle-wysiwyg--select')
                 for (let el of selectedBlocks) {
                     let text = `\n[${(new BlockHandler(el.getAttribute('data-node-id'))).content}](siyuan://blocks/${el.getAttribute('data-node-id')})`
-                        refs += `\n${text}`
-                    
+                    refs += `\n${text}`
+
                 }
                 if (refs) {
                     prompt + '\n' + refs
@@ -282,13 +278,13 @@ For example: [[search keywords]]
         logger.aiShelllog(message, prompt)
 
         //从启用的搜索器获取参考
-        if (plugin.configurer.get("聊天工具设置", '自动发送当前搜索结果').$value) {
+        if (getPersonaSetting(this.name,"聊天工具设置", '自动发送当前搜索结果').$value) {
             const searchers = this.drivers.search
             try {
                 for (let searcher of searchers) {
                     const results = await searcher.search(message)
                     for (let result of results) {
-                            prompt += result
+                        prompt += result
                     }
                 }
             } catch (e) {
@@ -297,7 +293,7 @@ For example: [[search keywords]]
         }
         logger.aiShelllog(message, prompt)
         //这里的部分是从tips里面获取参考
-        if (plugin.configurer.get("聊天工具设置", '自动发送当前所有tips').$value) {
+        if (getPersonaSetting(this.name,"聊天工具设置", '自动发送当前所有tips').$value) {
             try {
                 let refs = '';
                 let refsElements = document.querySelectorAll('.tips-card')
@@ -305,7 +301,7 @@ For example: [[search keywords]]
                     if (el.getAttribute('markdown-content')) {
                         let lines = el.getAttribute('markdown-content').split('\n');
                         for (let line of lines) {
-                                refs += `\n${line}`;
+                            refs += `\n${line}`;
                         }
                     }
                 }
@@ -324,8 +320,8 @@ For example: [[search keywords]]
                     if (el.getAttribute('markdown-content')) {
                         let lines = el.getAttribute('markdown-content').split('\n');
                         for (let line of lines) {
-                                refs += `\n${line}`;
-                            
+                            refs += `\n${line}`;
+
                         }
                     }
                 }
@@ -344,8 +340,8 @@ For example: [[search keywords]]
             let selectedText = plugin.statusMonitor.get('editorStatus', 'selectedText').$value;
             refs += selectedText;
             if (refs) {
-                    refs += `\n${refs}`
-                
+                refs += `\n${refs}`
+
                 prompt += '\n' + refs;
             }
         } catch (e) {
@@ -357,20 +353,31 @@ For example: [[search keywords]]
             .filter(line => line.trim() !== '' && line.trim() !== 'undefined') // 过滤掉空行和内容为"undefined"的行
             .join('\n'); // 将过滤后的行重新组合成字符串
         logger.aiShelllog(message, prompt)
-        prompt=plugin._lute.Md2HTML(prompt)
+        prompt = plugin._lute.Md2HTML(prompt)
         let parser = new DOMParser();
         let doc = parser.parseFromString(prompt, 'text/html');
-        let links = doc.querySelectorAll('a');
+        let links = Array.from(doc.querySelectorAll('a'))
+        let sorted = []
+        links.sort((a, b) => {
+            
+            const distanceA = combinedSimilarityWithPenalty(a.textContent, message.content,sorted);
+            sorted.push(a.textContent)
+            const distanceB = combinedSimilarityWithPenalty(b.textContent, message.content,sorted);
+            sorted.push(a.textContent)
+            return distanceA - distanceB;
+        });
+        // 计算词频
+        sorted = undefined
         let linkMap = {};
         for (let i = 0; i < links.length; i++) {
             let link = links[i];
-            let id = `SAClink${i + 1}`;
+            let id = Lute.NewNodeID();
             linkMap[id] = link.href;
-            link.href = id;
+            link.href = 'ref:' + id.split('-').pop();
         }
         prompt = plugin._lute.HTML2Md(doc.body.innerHTML);
         logger.aiShelllog(message, prompt)
-        let maxLength = plugin.configurer.get("聊天工具设置", '总参考最大长度').$value;
+        let maxLength = getPersonaSetting(this.name,"聊天工具设置", '总参考最大长度').$value;
         let lines = prompt.split('\n');
         let result = '';
         let currentLength = 0;
@@ -384,12 +391,16 @@ For example: [[search keywords]]
         }
         prompt = result.trim(); // 去除最后一个换行符
         logger.aiShelllog(message, prompt)
-        return {prompt,linkMap}
+        if (prompt) {
+            prompt = _prompt + prompt
+            return { prompt, linkMap }
+        }
     }
     //这里是整理记忆的方法
     async summryMemory(workingMemory) {
         let copied = workingMemory.map(item => { return { role: item.role, content: item.content || "" } })
         copied = copied.filter(item => { return item.role !== 'system' })
+
         logger.aiShelllog(copied)
         const result = await this.processors.languageProcessor.summarizeChat(copied)
 

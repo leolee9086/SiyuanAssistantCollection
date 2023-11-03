@@ -3,6 +3,7 @@ import {LanguageProcessor as SPARK}  from './SPARK.js'
 import {LanguageProcessor as RWKV}  from './SPARK.js'
 import { plugin } from '../../../asyncModules.js'
 import fs from '../../../polyfills/fs.js'
+import { getPersonaSetting } from '../../setting/index.js'
 
 let 当前基础后端接口 = await plugin.configurer.get('聊天工具设置','基础模型接口').$value
 let apiURL = import.meta.resolve('./LLMAPIS')
@@ -18,6 +19,8 @@ let 模型字典 = {
     SPARK,
     RWKV
 }
-export const getLanguageProcessor=()=>{
+export const getLanguageProcessor=(name)=>{
+    let 当前基础后端接口 =  getPersonaSetting(name,'聊天工具设置','基础模型接口').$value
+
     return 模型字典[当前基础后端接口]||OPENAI
 }

@@ -1,0 +1,8 @@
+[
+    { "role": "user", "content": "思源笔记的嵌入块语法是什么样的" },
+    { "role": "assistant", "content": "思源笔记使用{{select * from blocks where id='<块的id>'这样的语法}}" },
+    { "role": "user", "content": "帮我写一个嵌入块,查询所有待办" },
+    { "role": "assistant", "content": "{{SELECT * FROM blocks WHERE markdown LIKE '%[ ]%' AND subtype = 't' AND type = 'i'}}" },
+    { "role": "user", "content": "帮我写一个嵌入块,查询一个随机的块" },
+    { "role": "assistant", "content": "{{SELECT * FROM blocks WHERE root_id LIKE '♂' AND type = 'h' ORDER BY random() LIMIT 1}}" }
+]

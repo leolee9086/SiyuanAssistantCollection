@@ -20,26 +20,46 @@ class Ghost {
         this.currentThoughts = []
 
     }
-    async introspectChat(message,linkMap) {
+    async introspectChat(message, linkMap) {
         message.id = Lute.NewNodeID()
         await this.shell.embeddingMessage(message)
         //收到用户的消息时
         if (message.role === 'user') {
-            let refs ={prompt:'',linkMap:{}}
+            let refs = { prompt: '', linkMap: {} }
             if (plugin.configurer.get("聊天工具设置", '自动给出参考').$value) {
-                 refs = await this.shell.searchRef(message)
-                let referenceMessage = { role: 'system', content: refs.prompt,linkMap:refs.linkMap }
-                if (referenceMessage.content) {
-                    this.workingMemory.push(referenceMessage)
+                refs = await this.shell.searchRef(message)
+                if(refs){
+                    let referenceMessage = { role: 'system', content: refs.prompt, linkMap: refs.linkMap }
+                    if (referenceMessage.content) {
+                        this.workingMemory.push(referenceMessage)
+                    }
+    
                 }
             }
-            message.linkMap=refs.linkMap
+            if (plugin.configurer.get("聊天工具设置", '插入回复样本提示').$value) {
+                let conversationSample = this.persona.conversationSample
+                let userStartConversations = conversationSample.filter((item, index) => {
+                    return item.role === "user" && (index === 0 || conversationSample[index - 1].role === "assistant");
+                });
+
+                let randomConversation = userStartConversations[Math.floor(Math.random() * userStartConversations.length)];
+
+                let startIndex = conversationSample.indexOf(randomConversation);
+                let endIndex = conversationSample.findIndex((item, index) => index > startIndex && item.role === "user");
+
+                let selectedConversation = conversationSample.slice(startIndex, endIndex === -1 ? undefined : endIndex);
+                let selectedConversationText = selectedConversation.map(item => `${item.role}: ${item.content}`).join('\n');
+                let systemPrompt = `System prompt: This is a historical conversation. Please maintain consistent behavior with the assistant in the conversation.\n${selectedConversationText}`;
+                this.workingMemory.push({ role: 'system', content: systemPrompt })
+
+            }
+            message.linkMap = refs.linkMap
             this.workingMemory.push(message)
             this.longTermMemory.history.push(message)
             return JSON.parse(JSON.stringify(this.workingMemory))
         }
         if (message.role === 'assistant') {
-            message.linkMap=linkMap
+            message.linkMap = linkMap
             this.workingMemory.push(message)
             this.longTermMemory.history.push(message)
             this.organizeWorkingMemory(); // 整理工作记忆
@@ -56,7 +76,7 @@ class Ghost {
         this.longTermMemory.shortTermMemoryBackup = this.longTermMemory.shortTermMemoryBackup || []
         this.longTermMemory.workingMemoryBackup = this.longTermMemory.workingMemoryBackup || []
         this.longTermMemory.history = this.longTermMemory.history || []
-
+        let version = this.longTermMemory.pluginVersion
         try {
             this.shortTermMemory = JSON.parse(JSON.stringify(this.longTermMemory.shortTermMemoryBackup)) || []
         } catch (e) {
@@ -70,19 +90,58 @@ class Ghost {
             this.workingMemory = []
         }
         // 初始化 undefined 的 content 为 ""
+        let regex = /^\d{14}-[a-z]{7}$/;
         this.shortTermMemory.forEach(item => {
             if (item.content === undefined) {
                 item.content = "";
             }
+            if (!version) {
+                if (item && item.linkMap) {
+                    Object.keys(item.linkMap).forEach(key => {
+                        if (!regex.test(key)) {
+                            let id = Lute.NewNodeID()
+                            item.linkMap[id] = item.linkMap[key];
+                            delete item.linkMap[key];
+                            item.content = item.content.replace(`(${key})`, `(${id})`)
+                        }
+                    });
+                }
+            }
+            return item;
+
         });
         this.workingMemory.forEach(item => {
             if (item.content === undefined) {
                 item.content = "";
             }
+            if (!version) {
+                if (item && item.linkMap) {
+                    Object.keys(item.linkMap).forEach(key => {
+                        if (!regex.test(key)) {
+                            let id = Lute.NewNodeID()
+                            item.linkMap[id] = item.linkMap[key];
+                            delete item.linkMap[key];
+                            item.content = item.content.replace(`(${key})`, `(${id})`)
+                        }
+                    });
+                }
+            }
         });
         this.longTermMemory.history.forEach(item => {
             if (item.content === undefined) {
                 item.content = "";
+            }
+            if (!version) {
+                if (item && item.linkMap) {
+                    Object.keys(item.linkMap).forEach(key => {
+                        if (!regex.test(key)) {
+                            let id = Lute.NewNodeID()
+                            item.linkMap[id] = item.linkMap[key];
+                            delete item.linkMap[key];
+                            item.content = item.content.replace(`(${key})`, `(${id})`)
+                        }
+                    });
+                }
             }
         });
         if (this.shell) {
@@ -130,6 +189,7 @@ class Ghost {
         return null;
     }
     async storeLongTermMemory() {
+        this.longTermMemory.pluginVersion=plugin.meta&&plugin.meta.version
         this.longTermMemory.shortTermMemoryBackup = JSON.parse(JSON.stringify(this.shortTermMemory))
         this.longTermMemory.workingMemoryBackup = JSON.parse(JSON.stringify(this.workingMemory))
         if (this.longTermMemory.history[0]) {

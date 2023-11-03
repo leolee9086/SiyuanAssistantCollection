@@ -32,16 +32,19 @@ for (let persona of personas) {
             plugin.statusMonitor.set('AiGhosts', persona.name, ghost)
         } 
         else if (await fs.exists(path.join(GhostPath, persona.name, 'persona.txt'))){
-            let systemContent = await fs.readFile(path.join(GhostPath, persona.name, 'persona.txt'))
             let DummySysSetting = {
                 bootPrompts:{
                 }
+            }
+            let systemContent = await fs.readFile(path.join(GhostPath, persona.name, 'persona.txt'))
+            if(await fs.exists(path.join(GhostPath, persona.name, 'temp.json'))){
+                let tepmChats =  await fs.readFile(path.join(GhostPath, persona.name, 'temp.json'))
+                DummySysSetting.conversationSample=JSON.parse(tepmChats)
             }
             DummySysSetting.bootPrompts[persona.name]=systemContent
             DummySysSetting.bootPrompts[`${persona.name}_as_${persona.name}`]=systemContent
             DummySysSetting.bootPrompts[`${persona.name}_not_${persona.name}`]=systemContent
             plugin.statusMonitor.set('AiGhosts', persona.name, DummySysSetting)
-
         }
         //初始化记忆文件
         await fs.initFile(path.join(AkashicPath,`${persona.name}.mem`),'{}')

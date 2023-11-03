@@ -93,8 +93,7 @@ let DummyPersona = (name,proto) => {
         "id": name,
         "role":'friend',
         bootPrompts,
-        conversationSample: [
-        ]
+        conversationSample:proto.conversationSample||[]
     }
 }
 export default DummySys

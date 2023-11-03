@@ -400,6 +400,10 @@ class SiyuanAssistantCollection extends ccPlugin {
     xhr.send(null);
     this.设置 = JSON.parse(xhr.responseText)
     this.默认设置 =JSON.parse(xhr.responseText)
+    let xhr1 = new XMLHttpRequest();
+    xhr1.open("GET", `/plugins/${this.name}/plugin.json`, false); // false means synchronous
+    xhr1.send(null);
+    this.meta = JSON.parse(xhr1.responseText)
   }
   创建顶栏按钮() {
     let topBarButton = this.addTopBar(

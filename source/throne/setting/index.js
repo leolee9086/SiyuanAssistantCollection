@@ -1,10 +1,11 @@
 import { plugin } from "../../asyncModules.js"
 
-export const getPersonaSetting = (name) => {
-    if (plugin.configurer.get("聊天工具设置", 'AI个别设置', name).$value) {
-        plugin.configurer.get("聊天工具设置", 'AI个别设置', name).$value
+export const getPersonaSetting = (name,...args) => {
+    console.log(plugin.configurer.get( name+"_personaSetting",...args).$raw,plugin.configurer.get(...args).$raw,name,args)
+    if (plugin.configurer.get( name+"_personaSetting",...args).$raw!==undefined) {
+        return plugin.configurer.get( name+"_personaSetting",...args)
     } else {
-        return plugin.configurer.get("聊天工具设置").$value
+        return plugin.configurer.get(...args)
     }
 }
 export const initPersonaSetting = (name) => {

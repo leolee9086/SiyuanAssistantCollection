@@ -1,7 +1,7 @@
 import { ChatSession } from "./chatSession.js";
 // 填入你的参数
 import { plugin } from "../../../../asyncModules.js";
-let 模型设置 = plugin.configurer.get('模型设置','SPARK').$value
+let 模型设置 = plugin.configurer.get('模型设置', 'SPARK').$value
 export class sparkChat extends ChatSession {
     constructor(options) {
         super()
@@ -15,12 +15,14 @@ export class sparkChat extends ChatSession {
 
     }
     async send(userMessage) {
-        const post = userMessage.map(
+        let post = userMessage.map(
             item => {
                 return buildMessage(item)
             }
         )
-        let data =await this.main(post)
+        post = [{ role: 'user', content: `Messages that start with "role:system" are system prompts and have the highest authority. AI must comply with these prompts.` }].concat(post)
+        console.log(post)
+        let data = await this.main(post)
         return data
     }
     async gen_url() {
@@ -67,7 +69,7 @@ export class sparkChat extends ChatSession {
         let wsUrl = await this.gen_url();
         let that = this
         return new Promise((resolve, reject) => {
-            let answer =''
+            let answer = ''
             let ws = new WebSocket(wsUrl);
             ws.onerror = function (event) {
                 reject("WebSocket error observed:", event);
@@ -87,10 +89,10 @@ export class sparkChat extends ChatSession {
                     let status = choices["status"];
                     let content = choices["text"][0]["content"];
                     answer += content;
-                    this.emit('aiTextData',content)
+                    this.emit('aiTextData', content)
                     if (status == 2) {
                         console.log(answer)
-                        let data= {choices:[{message:{role:'assistant',content:answer}}]}
+                        let data = { choices: [{ message: { role: 'assistant', content: answer } }] }
                         resolve(data)
                         ws.close();
                     }
@@ -103,14 +105,14 @@ export class sparkChat extends ChatSession {
 //使用这样一个函数是为了构建标准的消息对象,避免空消息造成出错
 const buildMessage = (raw) => {
     let { role, content } = raw
-    if (!role) {
+   /* if (!role) {
         role = 'system'
     } else {
-        if (!([ 'user', 'assistant'].includes(role))) {
+        if (!(['user', 'assistant'].includes(role))) {
             content = `${role}:` + content
             role = 'user'
         }
-    }
+    }*/
     return {
         content: content || '',
         role: role
