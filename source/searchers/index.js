@@ -29,13 +29,11 @@ export async function set(name, values, type='webseacher'){
         $type: type,
         $value: currentValue
     })
-    console.log(plugin.statusMonitor.get('searchers',type,name).$value)
 }
 export const get=(type='webseacher',name)=>{
     let values =plugin.statusMonitor.get('searchers',type,name).$value
     if(values&&values[0]){
         return 组合函数(values.map(value=>{
-            console.log(value)
             return value.search
         }))
     }
