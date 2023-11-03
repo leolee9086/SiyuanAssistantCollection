@@ -96,8 +96,7 @@ export const searchBaidu = async (query) => {
     // 解析 Promise，返回 div 和 markdown
     return markdown
 };
-plugin.searchers = {
-    baidu: {
+plugin.searchers.set
+    ('baidu', {
         search: searchBaidu
-    }
-}
+    })

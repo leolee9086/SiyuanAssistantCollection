@@ -522,13 +522,13 @@ class SiyuanAssistantCollection extends ccPlugin {
     await this.从esm模块('./source/packageManager/index.js').合并子模块('包管理器')
     await this.包管理器.下载基础模型()
     await this.包管理器.解压依赖()
+    await this.从esm模块('./source/searchers/index.js').合并子模块("搜索管理器"),
     await this.从esm模块('./source/eventsManager/index.js').合并子模块('事件管理器')
   }
   async 加载子模块() {
     await Promise.all([
       this.从esm模块('./source/utils/index.js').合并子模块(),
       this.从esm模块('./source/vectorStorage/blockIndex.js').合并子模块('块索引器'),
-      this.从esm模块('./source/UI/index.js').合并子模块('界面'),
       //用于查询DOM
       this.从esm模块('./source/utils/DOMFinder.js').设置模块为只读属性('DOM查找器'),
       //用于处理选区相关
@@ -538,7 +538,7 @@ class SiyuanAssistantCollection extends ccPlugin {
       this.从esm模块('./source/polyfills/fs.js').合并成员为只读属性('default', { '别名': 'workspace' }),
       this.从esm模块('./source/utils/copyLute.js').合并成员为只读属性('setLute'),
       this.从esm模块('./source/actionList/index.js').合并子模块(),
-      this.从esm模块('./source/logger/index.js').合并子模块('日志记录器')
+      this.从esm模块('./source/logger/index.js').合并子模块('日志记录器'),
     ]);
   }
   async 初始化依赖项() {

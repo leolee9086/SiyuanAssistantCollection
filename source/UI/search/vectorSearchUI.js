@@ -1,7 +1,7 @@
 import { emitEvent, string2DOM } from "../builders/index.js"
 import { searchHeader } from "./searchHeader.js"
 import { searchResult } from "./searchResult.js"
-import { 以文本查找最相近文档 } from "../../searcher/index.js"
+import { 以文本查找最相近文档 } from "../../searchers/index.js"
 import { kernelApi } from "../../asyncModules.js"
 export const panelHTML = `
 <div class="fn__flex-column" style="height: 100%;border-radius: var(--b3-border-radius-b);overflow: hidden;">
