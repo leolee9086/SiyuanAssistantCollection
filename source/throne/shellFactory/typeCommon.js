@@ -7,6 +7,7 @@ import { plugin } from "../../asyncModules.js";
 import { findSimilarity } from "../../vectorStorage/vector.js";
 import logger from "../../logger/index.js";
 import BlockHandler from "../../utils/BlockHandler.js";
+import { getPersonaSetting,initPersonaSetting } from "../setting/index.js";
 let roles = {
     USER: 'user',
     SYSTEM: 'system',
@@ -56,8 +57,11 @@ export default class Shell extends EventEmitter {
         this.avatarImage = this.ghost.avatarImage
         this.thinkingTip = this.ghost.thinkingTip || '等待中...'
         this.name = this.ghost.persona.name
+        console.log(getPersonaSetting(this.ghost.persona.name))
+        initPersonaSetting(this.ghost.persona.name)
         this.初始化事件监听器()
     }
+  
     async replyChat(text) {
         logger.aiShelllog(text)
         let 消息对象 = { role: roles.USER, content: text }

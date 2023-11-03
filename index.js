@@ -352,6 +352,7 @@ class SiyuanAssistantCollection extends ccPlugin {
     //这里同步地读取基础设置,因为设置文件本身不大,所以问题应该不大
     this.读取基础设置()
     this.setting = this.设置
+    this.defaultSettings =this.默认设置
     this.状态 = {}
     this.status = this.状态
     this.eventBus.on("loaded-protyle", (e) => {
@@ -398,6 +399,7 @@ class SiyuanAssistantCollection extends ccPlugin {
     xhr.open("GET", `/plugins/${this.name}/defaultSetting.json`, false); // false means synchronous
     xhr.send(null);
     this.设置 = JSON.parse(xhr.responseText)
+    this.默认设置 =JSON.parse(xhr.responseText)
   }
   创建顶栏按钮() {
     let topBarButton = this.addTopBar(

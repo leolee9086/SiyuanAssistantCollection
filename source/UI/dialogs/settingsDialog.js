@@ -5,7 +5,7 @@ import { 计算zindex } from "./util/zIndex.js";
 export const 设置对话框 = async (settingList, base) => {
     // 获取 settingList 的所有键
     logger.settinglog(settingList, base)
-    if(!settingList||settingList=={}){
+    if (!settingList || settingList == {}) {
         settingList = plugin.configurer.list()
     }
     let keys = plugin.configurer.query(settingList, base)
@@ -28,7 +28,9 @@ export const 设置对话框 = async (settingList, base) => {
         title: title,
         content: `<div id="ai-setting-interface" class='fn__flex-1 fn__flex config__panel_SAC' style="pointer-events: auto;overflow:hidden;position: relative"></div>`,
         destroyCallback: () => {
-
+            plugin.eventBus.off('sac-rebuild-dialogs-setting',
+                dialog.rebuild
+            )
         },
         width: '60vw',
         height: '50vh',
@@ -42,6 +44,14 @@ export const 设置对话框 = async (settingList, base) => {
     dialog.element.style.zIndex = 计算zindex('.layout__resize--lr.layout__resize')
     dialog.element.querySelector(".b3-dialog__container").style.pointerEvents = 'auto'
     dialog.element.querySelector(".config__panel_SAC").appendChild(buildSettingUI(settingList, base))
+    dialog.rebuild = () => { 
+        dialog.element.querySelector(".config__panel_SAC").innerHTML=''
+        dialog.element.querySelector(".config__panel_SAC").appendChild(buildSettingUI(settingList, base)) 
+    }
+    plugin.eventBus.on('sac-rebuild-dialogs-setting',
+        dialog.rebuild
+    )
+    dialog.type = 'sacSetting'
     return dialog
 };
 
