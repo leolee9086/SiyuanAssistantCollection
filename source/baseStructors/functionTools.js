@@ -76,7 +76,6 @@ export function 等待参数达到长度后执行(原始函数, 预定长度) {
 export function 组合函数(...函数数组){
     // 使用 Array.prototype.flat 来确保函数数组总是一维的
     函数数组 = 函数数组.flat();
-    console.log(函数数组)
     // 类型检查：确保函数数组的每个元素都是函数
     函数数组.forEach(fn => {
         if (typeof fn !== 'function') {

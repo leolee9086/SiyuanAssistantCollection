@@ -53,6 +53,7 @@ export const searchURL = (url, wait,script,  cb, maxAttempts = 10) => {
             }
             executeScript(webview, wait, script, cb, resolve, reject, counter,checkExist);
         }, 100); // 每100毫秒检查一次
+        setTimeout(         ()=>{       cleanup(checkExist, webview.parentElement)},3000        )
     });
 };
 
