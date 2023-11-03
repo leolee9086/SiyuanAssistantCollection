@@ -14,7 +14,7 @@ function cleanup(checkExist, hiddenDiv) {
 }
 
 // 执行脚本并处理结果
-function executeScript(webview, wait, script, cb, resolve, reject, counter,checkExist) {
+function executeScript(webview, wait, script, cb, resolve, reject, counter, checkExist) {
     webview.executeJavaScript(wait).then(
         result => {
             if (result) {
@@ -38,7 +38,7 @@ function executeScript(webview, wait, script, cb, resolve, reject, counter,check
 
 
 // 主函数
-export const searchURL = (url, wait,script,  cb, maxAttempts = 10) => {
+export const searchURL = (url, wait, script, cb, maxAttempts = 10) => {
     if (!window.require) {
         return Promise.reject(new Error('window.require is not available'));
     }
@@ -51,9 +51,12 @@ export const searchURL = (url, wait,script,  cb, maxAttempts = 10) => {
                 reject(new Error('Maximum attempts reached'));
                 return;
             }
-            executeScript(webview, wait, script, cb, resolve, reject, counter,checkExist);
+            executeScript(webview, wait, script, cb, resolve, reject, counter, checkExist);
         }, 100); // 每100毫秒检查一次
-        setTimeout(         ()=>{       cleanup(checkExist, webview.parentElement)},3000        )
+        setTimeout(() => { 
+            cleanup(checkExist, webview.parentElement) 
+            reject(new Error('timeout'))
+        }, 3000)
     });
 };
 

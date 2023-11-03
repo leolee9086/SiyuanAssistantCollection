@@ -53,7 +53,7 @@ class Ghost {
                 this.workingMemory.push({ role: 'system', content: systemPrompt })
 
             }
-            message.linkMap = refs.linkMap
+            message.linkMap =refs&& refs.linkMap
             this.workingMemory.push(message)
             this.longTermMemory.history.push(message)
             return JSON.parse(JSON.stringify(this.workingMemory))

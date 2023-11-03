@@ -14,19 +14,20 @@ export default [
             let lines =links.split('\n')
             linkMap[id]=linkMap[id]||{}
 
-            lines.map(line=> {
+            lines= lines.map(line=> {
                 let obj = linkMap[id]
-                if (!obj[line]){ 
-                    obj[line]=true
+                if (!obj[line.split(']')[0]]){ 
+                    obj[line.split(']')[0]]=true
                     return line
                 }
             });
-
+            links=lines.join('\n')
             let div = document.createElement('div');
             let aTags= plugin.lute.Md2HTML(links)
             div.innerHTML=aTags
-            console.log(div,links,linkMap)
-            return {element:div,markdown:links}
+            if(div.innerText){
+                return {element:div,markdown:links}
+            }
         }
     }
 ]
