@@ -57,7 +57,6 @@ export default class Shell extends EventEmitter {
         this.avatarImage = this.ghost.avatarImage
         this.thinkingTip = this.ghost.thinkingTip || '等待中...'
         this.name = this.ghost.persona.name
-        console.log(getPersonaSetting(this.ghost.persona.name))
         initPersonaSetting(this.ghost.persona.name)
         this.初始化事件监听器()
     }
