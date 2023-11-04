@@ -528,7 +528,7 @@ class SiyuanAssistantCollection extends ccPlugin {
     await this.从esm模块('./source/packageManager/index.js').合并子模块('包管理器')
     await this.包管理器.下载基础模型()
     await this.包管理器.解压依赖()
-    await this.从esm模块('./source/searchers/index.js').合并子模块("搜索管理器"),
+    await this.从esm模块('./source/searchers/index.js').设置模块为只读属性("搜索管理器"),
     await this.从esm模块('./source/eventsManager/index.js').合并子模块('事件管理器')
   }
   async 加载子模块() {

@@ -9,6 +9,7 @@ import logger from "../../logger/index.js";
 import BlockHandler from "../../utils/BlockHandler.js";
 import { getPersonaSetting, initPersonaSetting } from "../setting/index.js";
 import { combinedSimilarityWithPenalty } from "../../searchers/sorters/index.js";
+import {创建选中块参考} from './buildRef.js'
 let roles = {
     USER: 'user',
     SYSTEM: 'system',
@@ -261,13 +262,8 @@ If you need detailed content from a reference, please explain to the user.
         //选中的块最先加上
         if (getPersonaSetting(this.name,"聊天工具设置", '自动发送上一次选择的块').$value) {
             try {
-                let refs
-                let selectedBlocks = document.querySelectorAll('.protyle-wysiwyg--select')
-                for (let el of selectedBlocks) {
-                    let text = `\n[${(new BlockHandler(el.getAttribute('data-node-id'))).content}](siyuan://blocks/${el.getAttribute('data-node-id')})`
-                    refs += `\n${text}`
-
-                }
+                
+                let refs = 创建选中块参考(message)
                 if (refs) {
                     prompt + '\n' + refs
                 }
