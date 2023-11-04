@@ -258,7 +258,7 @@ Do not fabricate non-existent references, do not use references that you think a
 If you need detailed content from a reference, please explain to the user.
 \n
                 `
-        let prompt
+        let prompt=''
         //选中的块最先加上
         if (getPersonaSetting(this.name,"聊天工具设置", '自动发送上一次选择的块').$value) {
             try {

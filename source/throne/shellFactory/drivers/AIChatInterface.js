@@ -1,5 +1,5 @@
 import { EventEmitter } from '../../../eventsManager/EventEmitter.js';
-import { pluginInstance as plugin } from '../../../asyncModules.js';
+import { clientApi, pluginInstance as plugin } from '../../../asyncModules.js';
 import { aiMessageButton } from './buttons/InsertButton.js';
 import { show as showGhostSelector } from './menus/ghostSelector.js';
 import logger from '../../../logger/index.js'
@@ -17,10 +17,10 @@ export class AIChatInterface extends EventEmitter {
         this.当前参考内容组 = []
         this.当前用户输入 = ''
         this.当前AI回复 = ''
-        this.临时聊天容器=document.createDocumentFragment()
+        this.临时聊天容器 = document.createDocumentFragment()
     }
-    get lute(){
-        return  plugin.lute||window.Lute.New()
+    get lute() {
+        return plugin.lute || window.Lute.New()
     }
     dispose() {
         this.container.innerHTML = ''
@@ -128,13 +128,13 @@ export class AIChatInterface extends EventEmitter {
         logger.aiChatlog(this.doll)
         element.appendChild(对话框内容元素);
         用户输入框.focus()
-        this.messageCache=[]
+        this.messageCache = []
     }
     显示消息(message) {
         this.messageCache.push(message);
         this.processMessageCache();
     }
-    processMessageCache =防抖( () => {
+    processMessageCache = 防抖(() => {
         this.messageCache.forEach(message => {
             switch (message.role) {
                 case "user":
@@ -145,40 +145,21 @@ export class AIChatInterface extends EventEmitter {
                     break;
             }
         });
-        this.聊天容器.appendChild( this.临时聊天容器)
+        this.聊天容器.appendChild(this.临时聊天容器)
         this.聊天容器.scrollTop = this.聊天容器.scrollHeight;
         this.messageCache = [];  // 清空消息缓存
         this.临时聊天容器 = document.createDocumentFragment()
-    },100)// 100毫秒的防抖时间
-    /*显示消息(message) {
-        logger.aiChatlog(message)
-        switch (message.role) {
-            case "user":
-                this.显示用户消息(message.content)
-                break
-            case 'assistant':
-                this.添加AI消息(message.content,message.linkMap)
-                break
-        }
-        this.聊天容器.scrollTop = this.聊天容器.scrollHeight;
-    }*/
+    }, 100)
     显示用户消息(message) {
         const userMessage = createElement("div", ["user-message"], `<strong>User:</strong> ${message}`);
         this.临时聊天容器.appendChild(userMessage);
     }
-    添加AI消息(message,linkMap) {
+    添加AI消息(message, linkMap) {
         const aiMessage = createElement("div", ["ai-message"], "");
         this.临时聊天容器.appendChild(aiMessage);
         aiMessage.setAttribute('draggable', "true")
         aiMessage.innerHTML = `<div class='protyle-wysiwyg protyle-wysiwyg--attr'><strong>AI:</strong> ${this.lute ? this.lute.Md2BlockDOM(message) : message}</div>`;
         aiMessage.querySelectorAll('[contenteditable="true"]').forEach(elem => elem.contentEditable = false);
-        aiMessage.addEventListener('click', function (event) {
-            const target = event.target;
-            if (target.tagName === 'SPAN' && target.hasAttribute('data-href')) {
-                const href = target.getAttribute('data-href');
-                window.open(href, '_blank');
-            }
-        });
         aiMessage.addEventListener('dragstart', function (event) {
             event.dataTransfer.setData('text/html', aiMessage.innerHTML);
         });
@@ -189,26 +170,67 @@ export class AIChatInterface extends EventEmitter {
             }
             return acc;
         }, {});
-        (async()=>{
+        (async () => {
             let combinedLinkMap = { ..._linkMap, ...linkMap };
             combinedLinkMap && linkSpans.forEach(link => {
                 const idShortCode = link.getAttribute('data-href').replace('ref:', '').split('-').pop().trim();
                 const foundLink = Object.keys(combinedLinkMap).find(key => key.endsWith(idShortCode));
                 if (foundLink) {
-                   link.setAttribute('data-href', combinedLinkMap[foundLink]);
+                    link.setAttribute('data-href', combinedLinkMap[foundLink]);
+                    link.addEventListener('click', (event) => {
+                        const target = event.target;
+                        const href = target.getAttribute('data-href');
+                        window.open(href, '_blank');
+
+                    });
+                } else {
+                    if(!link.getAttribute('data-href').startsWith('ref:')){
+                        link.setAttribute('data-real-href', link.getAttribute('data-href'));
+
+                        link.addEventListener('click', (e) => {
+                            clientApi.confirm(
+                                "这货又自己编参考来源了",
+                                '这个链接好像是它自己找的,你要尝试访问的话就点吧',
+                                (confirmed)=>{
+                                    if (confirmed) {
+                                        window.open(link.getAttribute('data-real-href', '_blank'))
+                                    }
+                                }
+                            )
+                            e.stopPropagation()
+                            e.preventDefault()
+                        })
+    
+                    }else{
+                        link.setAttribute('data-real-href', "这个肯定是它瞎编的不用想了");
+                        link.setAttribute('data-href', link.getAttribute('data-href')+"这个肯定是它瞎编的不用想了");
+                        link.addEventListener('click', (e) => {
+                            clientApi.confirm(
+                                "这货又自己编参考来源了",
+                                '这个链接好像是它编的,你要尝试访问的话就点吧',
+                                (confirmed)=>{
+                                    if (confirmed) {
+                                        window.open(link.getAttribute('data-real-href', '_blank'))
+                                    }
+                                }
+                            )
+                            e.stopPropagation()
+                            e.preventDefault()
+                        })
+                    }
+
                 }
             });
-    
+
         })()
         this.用户输入框.removeAttribute('disabled')
-        this.添加插入按钮(aiMessage,this.当前用户输入,message);
+        this.添加插入按钮(aiMessage, this.当前用户输入, message);
         return aiMessage;
     }
-    添加插入按钮(aiMessage, userInput,message) {
+    添加插入按钮(aiMessage, userInput, message) {
         let button = new aiMessageButton({ doll: this.doll, aiMessage, currentAiReply: message, userInput });
         aiMessage.appendChild(button.button);
     }
-   
     等待AI回复() {
         this.用户输入框.setAttribute('disabled', true)
     }
