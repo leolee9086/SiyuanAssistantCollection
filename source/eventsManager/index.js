@@ -9,6 +9,7 @@ import { setSync } from "../fileSysManager/index.js";
 import path from '../polyfills/path.js';
 import fs from "../polyfills/fs.js";
 import buildMenu from "../UI/dialogs/fakeMenu.js";
+import { string2DOM } from "../UI/builders/index.js";
 
 const eventBusProxy = new Proxy(plugin.eventBus, {
     get: (target, propKey, receiver) => {
@@ -114,6 +115,17 @@ eventBus.on('sac-open-menu-hintmenu',()=>{
 eventBus.on('sac-open-menu-aichatmessage', async (e) => {
     let { detail } = e
     let { menu, doll, message, userInput } = detail
+    console.log(doll)
+    let html = string2DOM(plugin._lute.Md2HTML(message))
+    let linkSpans = Array.from(html.querySelectorAll('a'))
+    for(let link of linkSpans){
+        const idShortCode = link.getAttribute('href').replace('ref:', '').split('-').pop().trim();
+        const foundLink = Object.keys(doll.ghost.linkMap).find(key => key.endsWith(idShortCode));
+        if (foundLink) {
+            link.setAttribute('data-href', combinedLinkMap[foundLink]);
+        }
+    }
+    message=plugin._lute.HTML2Md(message)
     menu.addItem({
         icon: "iconSparkles",
         label: "插入到当前块之后",

@@ -161,15 +161,10 @@ export class AIChatInterface extends EventEmitter {
         aiMessage.innerHTML = `<div class='protyle-wysiwyg protyle-wysiwyg--attr'><strong>AI:</strong> ${this.lute ? this.lute.Md2BlockDOM(message) : message}</div>`;
         aiMessage.querySelectorAll('[contenteditable="true"]').forEach(elem => elem.contentEditable = false);
         aiMessage.addEventListener('dragstart', function (event) {
-            event.dataTransfer.setData('text/html', aiMessage.innerHTML);
+            event.dataTransfer.setData('text/html',aiMessage.innerHTML);
         });
         let linkSpans = aiMessage.querySelectorAll('[data-type="a"]')
-        let _linkMap = this.doll.ghost.longTermMemory.history.reduce((acc, item) => {
-            if (item && item.linkMap) {
-                return { ...acc, ...item.linkMap };
-            }
-            return acc;
-        }, {});
+        let _linkMap = this.doll.ghost.linkMap;
         (async () => {
             let combinedLinkMap = { ..._linkMap, ...linkMap };
             combinedLinkMap && linkSpans.forEach(link => {
@@ -186,7 +181,6 @@ export class AIChatInterface extends EventEmitter {
                 } else {
                     if(!link.getAttribute('data-href').startsWith('ref:')){
                         link.setAttribute('data-real-href', link.getAttribute('data-href'));
-
                         link.addEventListener('click', (e) => {
                             clientApi.confirm(
                                 "这货又自己编参考来源了",
@@ -200,9 +194,8 @@ export class AIChatInterface extends EventEmitter {
                             e.stopPropagation()
                             e.preventDefault()
                         })
-    
                     }else{
-                        link.setAttribute('data-real-href', "这个肯定是它瞎编的不用想了");
+                        link.setAttribute('data-real-href', link.getAttribute('data-href'));
                         link.setAttribute('data-href', link.getAttribute('data-href')+"这个肯定是它瞎编的不用想了");
                         link.addEventListener('click', (e) => {
                             clientApi.confirm(

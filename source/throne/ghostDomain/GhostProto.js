@@ -56,6 +56,13 @@ class Ghost {
             message.linkMap =refs&& refs.linkMap
             this.workingMemory.push(message)
             this.longTermMemory.history.push(message)
+            this.linkMap=this.longTermMemory.history.reduce((acc, item) => {
+                if (item && item.linkMap) {
+                    return { ...acc, ...item.linkMap };
+                }
+                return acc;
+            }, {});
+
             return JSON.parse(JSON.stringify(this.workingMemory))
         }
         if (message.role === 'assistant') {
@@ -144,6 +151,13 @@ class Ghost {
                 }
             }
         });
+        this.linkMap=this.longTermMemory.history.reduce((acc, item) => {
+            if (item && item.linkMap) {
+                return { ...acc, ...item.linkMap };
+            }
+            return acc;
+        }, {});
+
         if (this.shell) {
             this.shell.Ghost唤醒回调()
         }
