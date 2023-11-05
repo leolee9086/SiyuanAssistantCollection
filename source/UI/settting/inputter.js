@@ -8,6 +8,8 @@ export const typeToInputter = (args, item) => {
     return {
         'string': () => createInputter(args, 'text', item, (value, element) => { element.value = value.$value ? value.$value : value }),
         'number': () => createInputter(args, 'number', item, (value, element) => { element.value = value.$value ? value.$value : value }),
+        'range': () => createInputter(args, 'range', item, (value, element) => { element.value = value.$value ? value.$value : value }),
+
         'boolean': () => createInputter(args, 'boolean', item, (value, element) => { element.checked = value.$value ? value.$value : value; }),
         'singleSelect': () => createSelectInputter(args, item, false),
         'multiSelect': () => createSelectInputter(args, item, true),
@@ -24,7 +26,10 @@ export function handleInputter(inputter, pathArray, tab, tabWrapper, fullPath) {
 export function createInputter(args, type, value, updateValue) {
     let element = createInputElement(type, value)
     element.addEventListener('change', () => {
-        plugin.configurer.set(...args, type !== 'boolean' ? element.value : element.checked);
+        if(type==='number'||type==='range'){
+            element.value = Number(element.value)?Number(element.value):0
+        }
+        plugin.configurer.set(...args, type !== 'boolean' ? Number(element.value)?Number(element.value):(element.value||0) : element.checked);
     });
     let settingChangeHandler = createSettingChangeHandler(args, element, updateValue);
     plugin.eventBus.on('settingChange', settingChangeHandler);
@@ -66,11 +71,13 @@ function createInputElement(type, value) {
     let el = string2DOM(
         `
         <input 
-        class="b3-text-field fn__flex-center fn__size200" 
-        step="1" 
-        min="0" 
+        class="${type!=='range'?"b3-text-field":''} fn__flex-center fn__size200" 
+        step="${value.$step||1}" 
+        min="${value.$min||0}" 
+        max="${value.$max||102400}" 
+
         type="${type}"
-        value="${value}">
+        value="${value.$value===undefined?value:value.$value}">
         `
     )
     if (type === 'boolean') {

@@ -3,6 +3,7 @@ import { EventEmitter } from "../../../../eventsManager/EventEmitter.js";
 export  class openAiChat extends EventEmitter{
     constructor(options = {}) {
         super()
+        console.log(options)
         this.options = {
                 apiKey: "",
                 apiTimeout: 60,
@@ -60,6 +61,7 @@ export  class openAiChat extends EventEmitter{
             body: JSON.stringify({
                 model: this.options.apiModel,
                 messages: post,
+                temperature:Number(this.options.temperature)?Number(this.options.temperature):0
                 //   safe_mode: false
             }),
             redirect: 'follow'

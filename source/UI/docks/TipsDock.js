@@ -1,6 +1,6 @@
 import { plugin } from "../../asyncModules.js";
 import { 智能防抖 } from "../../utils/functionTools.js";
-import { initVueApp } from "../componentsLoader.js";
+//import { initVueApp } from "../componentsLoader.js";
 import logger from '../../logger/index.js'
 let container
 let pinnedContainer

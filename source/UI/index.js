@@ -17,7 +17,7 @@ import './docks/TipsDock.js'
 //用于创建对话页签
 import './tabs/aiTab.js'
 //用于创建Vue实例
-import './componentsLoader.js'
+//import './componentsLoader.js'
 
 开始渲染token菜单()
 export {

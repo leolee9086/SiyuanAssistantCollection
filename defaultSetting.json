@@ -93,7 +93,7 @@
         "参考文字最大长度": 36,
         "总参考最大长度": 1024,
         "基础模型接口": {
-            "$value": "ChatGPT",
+            "$value": "OPENAI",
             "$type": "singleSelect",
             "options": [
                 "SPARK",
@@ -122,9 +122,32 @@
             "apiBaseURL": "",
             "apiKey": "",
             "apiMaxTokens": 0,
-            "apiModel": "",
+            "apiModel": {
+                "$value": "gpt-3.5-turbo",
+                "$type": "singleSelect",
+                "options": [
+                    "gpt-4",
+                    "gpt-4-0314",
+                    "gpt-4-0613",
+                    "gpt4-32k",
+                    "gpt4-32k-0613",
+                    "gpt4-32k-0314",
+                    "gpt-3.5-turbo",
+                    "gpt-3.5-turbo-0301",
+                    "gpt-3.5-turbo-0613",
+                    "gpt-3.5-turbo-16k",
+                    "gpt-3.5-turbo-16k-0613"
+                ]
+            },
             "apiProxy": "",
-            "apiTimeout": 60
+            "apiTimeout": 60,
+            "temperature":{
+                "$value":0,
+                "$type":"range",
+                "$min":0,
+                "$max":2,
+                "$step":0.1
+            }
         }
     },
     "动作设置": {

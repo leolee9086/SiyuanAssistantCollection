@@ -1,15 +1,21 @@
 import OpenAichatApi from './LLMAPIS/openAIChat.js'
 import { MAGI } from './MAGI.js'
 import { plugin } from '../../../asyncModules.js'
-let options = plugin.configurer.get('模型设置','OPENAI').$value
+let options =JSON.parse(JSON.stringify(plugin.configurer.get('模型设置','OPENAI').$value))
+options.apiModel= options.apiModel&&(options.apiModel.$value||options.apiModel)
+options.temperature= options.temperature&&(options.temperature.$value)
 
 export class LanguageProcessor {
     constructor(persona) {
-        this.magi = new MAGI(OpenAichatApi, {
-            ...options,
-            ...globalThis.siyuan.config.ai.openAI // 使用 siyuan.config.ai.openAI 对象进行初始化
-
-        }, persona)
+        let merged = { ...globalThis.siyuan.config.ai.openAI };
+        for (let key in options) {
+          if (options[key]) {
+            merged[key] = options[key];
+          }
+        }
+        this.magi = new MAGI(OpenAichatApi, 
+            merged
+        , persona)
     }
     async completeChat(chat) {
         try {
