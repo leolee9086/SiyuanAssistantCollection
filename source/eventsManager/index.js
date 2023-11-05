@@ -181,6 +181,5 @@ eventBus.on(`openHelp-plugin-${plugin.name}`, async () => {
                 }
             });
         }
-    
     },3000)
 })

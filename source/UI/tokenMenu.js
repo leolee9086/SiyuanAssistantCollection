@@ -255,12 +255,27 @@ export const 开始渲染 = () => {
       let tokenMenuDialog = tokenMenuDialogs[0]
       if (e.code && (e.code === "ArrowUp" || e.code === "ArrowDown")) {
         let altFlag = !plugin.configurer.get('动作设置', '上下键选择动作').$value ? e.altKey : !e.altKey
-        if (altFlag) {
+        if (altFlag && !e.repeat) {
           tokenMenuDialog.switchCurrent(e.code)
           e.preventDefault()
           e.stopPropagation()
           return
         }
+      }
+
+      if (e.code && (e.code === "Space" && plugin.configurer.get('动作设置', '空格键调用动作').$value)) {
+        console.log(e)
+
+        let items = Array.from(tokenMenuDialog.element.querySelectorAll('.b3-menu__item'));
+        let currentIndex = items.findIndex(item => item.classList.contains('b3-menu__item--current'));
+        // 如果有选中的菜单项
+        if (currentIndex !== -1) {
+          // 触发选中的菜单项
+          items[currentIndex].click();
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        tokenMenuDialog.clear()
       }
       if (e.code === "Enter" && e.altKey) {
         let items = Array.from(tokenMenuDialog.element.querySelectorAll('.b3-menu__item'));

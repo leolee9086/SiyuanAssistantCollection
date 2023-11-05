@@ -7,6 +7,7 @@ const actions = ()=>{
                 icon:"",
                 label:item.path.split('\\').pop(),
                 hints:item.path+','+'tempalte'+','+'模板',
+                matchMod:"any",
                 hintAction: (context) => {
                     const {content}=kernelApi.renderTemplate.sync({
                         id:context.blocks[0].root.id,
