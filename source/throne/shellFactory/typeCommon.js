@@ -9,7 +9,7 @@ import logger from "../../logger/index.js";
 import BlockHandler from "../../utils/BlockHandler.js";
 import { getPersonaSetting, initPersonaSetting } from "../setting/index.js";
 import { combinedSimilarityWithPenalty } from "../../searchers/sorters/index.js";
-import {创建选中块参考} from './buildRef.js'
+import { 创建选中块参考 } from './buildRef.js'
 let roles = {
     USER: 'user',
     SYSTEM: 'system',
@@ -69,7 +69,7 @@ export default class Shell extends EventEmitter {
         let result = await this.ghost.introspectChat(消息对象)
         let linkMap = result[result.length - 1].linkMap
         this.showText(消息对象)
-        let length = getPersonaSetting(this.name,'聊天工具设置', '默认工作记忆长度').$value
+        let length = getPersonaSetting(this.name, '聊天工具设置', '默认工作记忆长度').$value
         result = result.slice(-length); // 截取最近的 'length' 条工作记忆
         result = await this.completeChat(result);
         //introspect系列的方法都是让ghost有机会对消息进行后处理的
@@ -253,19 +253,51 @@ export default class Shell extends EventEmitter {
     }
     async searchRef(message) {
         let _prompt = `
-You can use these references to answer the user's questions, note that you must list all the references you used in your answer.
+You can use these references form web of user's note to answer the user's questions, note that you must list all the references you used in your answer.
 Do not fabricate non-existent references, do not use references that you think are irrelevant to the question, even if they are listed below.
 If you need detailed content from a reference, please explain to the user.
 \n
                 `
-        let prompt=''
+        let prompt = ''
         //选中的块最先加上
-        if (getPersonaSetting(this.name,"聊天工具设置", '自动发送上一次选择的块').$value) {
+        let AiRequestRefs = { local: true, web: true }
+        if (getPersonaSetting(this.name, "聊天工具设置", '由AI自行决定是否需要参考').$value) {
             try {
-                
+                let functions = [
+                    { name: 'noSearch', action: 'Do not search references to save user expenses' },
+                    { name: 'searchWeb', action: 'Search web references to better answer the question' },
+                    { name: 'searchLocal', action: 'Search local references from users note to better answer the question' },
+                    { name: 'searchBoth', action: 'Search both web and local references to better answer the question' },
+                ];
+
+                let descriptions = [
+                    'Do not search references to save user expenses, This method should be used for simple questions',
+                    'Search web references to better answer the question, but it will consume  more tokens. This method should be Only used for complex questions',
+                    'Search local references to better answer the question, but it will consume more tokens. This method should be Only used when the answer is most likely to be in local references',
+                    'Search both web and local references to better answer the question, but it will consume the most tokens. This method should be Only used for the most complex questions'
+                ];
+
+                let inputs = ['user asked:' + message.content];
+                let goal = "Better answer the user's question, save user expenses, and only perform additional searches when necessary";
+                let result = await this.processors.languageProcessor.voteFor(
+                    functions, descriptions, inputs, goal, false
+                )
+                AiRequestRefs = {
+                    local: result.name === 'searchLocal' || result.name === 'searchBoth',
+                    web: result.name === 'searchWeb' || result.name === 'searchBoth'
+                };
+                logger.aiShelllog("AIdescide:", result)
+            } catch (e) {
+                console.error(e)
+
+            }
+        }
+        if (getPersonaSetting(this.name, "聊天工具设置", '自动发送上一次选择的块').$value ) {
+            try {
+
                 let refs = 创建选中块参考(message)
                 if (refs) {
-                    prompt + '\n' + refs
+                    prompt += '\n' + '>these refs from users select:\n' + refs
                 }
             } catch (e) {
                 logger.aiShellerror(e)
@@ -274,13 +306,17 @@ If you need detailed content from a reference, please explain to the user.
         logger.aiShelllog(message, prompt)
 
         //从启用的搜索器获取参考
-        if (getPersonaSetting(this.name,"聊天工具设置", '自动发送当前搜索结果').$value) {
+        if (getPersonaSetting(this.name, "聊天工具设置", '自动发送当前搜索结果').$value) {
             const searchers = this.drivers.search
             try {
                 for (let searcher of searchers) {
-                    const results = await searcher.search(message)
-                    for (let result of results) {
-                        prompt += result
+                    const results = await searcher.search(message, AiRequestRefs)
+                    console.log(results)
+                    if (results) {
+                        for (let result of results) {
+                            prompt += result
+                        }
+
                     }
                 }
             } catch (e) {
@@ -289,7 +325,7 @@ If you need detailed content from a reference, please explain to the user.
         }
         logger.aiShelllog(message, prompt)
         //这里的部分是从tips里面获取参考
-        if (getPersonaSetting(this.name,"聊天工具设置", '自动发送当前所有tips').$value) {
+        if (getPersonaSetting(this.name, "聊天工具设置", '自动发送当前所有tips').$value && AiRequestRefs.local) {
             try {
                 let refs = '';
                 let refsElements = document.querySelectorAll('.tips-card')
@@ -302,7 +338,7 @@ If you need detailed content from a reference, please explain to the user.
                     }
                 }
                 if (refs) {
-                    prompt += '\n' + refs;
+                    prompt += '\n' + '>these refs calculate from user\'s input\n' + refs;
                 }
 
             } catch (e) {
@@ -316,7 +352,7 @@ If you need detailed content from a reference, please explain to the user.
                     if (el.getAttribute('markdown-content')) {
                         let lines = el.getAttribute('markdown-content').split('\n');
                         for (let line of lines) {
-                            refs += `\n${line}`;
+                            refs += `\n>these refs calculate from user\'s input\n${line}`;
 
                         }
                     }
@@ -338,7 +374,7 @@ If you need detailed content from a reference, please explain to the user.
             if (refs) {
                 refs += `\n${refs}`
 
-                prompt += '\n' + refs;
+                prompt += '\n' + '>these refs calculate from user\'s selection' + refs;
             }
         } catch (e) {
             logger.aiShellerror(e);
@@ -354,14 +390,14 @@ If you need detailed content from a reference, please explain to the user.
         let doc = parser.parseFromString(prompt, 'text/html');
         let links = Array.from(doc.querySelectorAll('a'))
         let sorted = []
-        links.sort((a, b) => {
+        /*links.sort((a, b) => {
             
             const distanceA = combinedSimilarityWithPenalty(a.textContent, message.content,sorted);
             sorted.push(a.textContent)
             const distanceB = combinedSimilarityWithPenalty(b.textContent, message.content,sorted);
             sorted.push(a.textContent)
             return distanceA - distanceB;
-        });
+        });*/
         // 计算词频
         sorted = undefined
         let linkMap = {};
@@ -373,7 +409,7 @@ If you need detailed content from a reference, please explain to the user.
         }
         prompt = plugin._lute.HTML2Md(doc.body.innerHTML);
         logger.aiShelllog(message, prompt)
-        let maxLength = getPersonaSetting(this.name,"聊天工具设置", '总参考最大长度').$value;
+        let maxLength = getPersonaSetting(this.name, "聊天工具设置", '总参考最大长度').$value;
         let lines = prompt.split('\n');
         let result = '';
         let currentLength = 0;

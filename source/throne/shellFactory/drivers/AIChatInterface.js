@@ -158,7 +158,7 @@ export class AIChatInterface extends EventEmitter {
         const aiMessage = createElement("div", ["ai-message"], "");
         this.临时聊天容器.appendChild(aiMessage);
         aiMessage.setAttribute('draggable', "true")
-        aiMessage.innerHTML = `<div class='protyle-wysiwyg protyle-wysiwyg--attr'><strong>AI:</strong> ${this.lute ? this.lute.Md2BlockDOM(message) : message}</div>`;
+        aiMessage.innerHTML = `<div class='protyle-wysiwyg protyle-wysiwyg--attr'><strong>${this.doll.ghost.persona.name}:</strong> ${this.lute ? this.lute.Md2BlockDOM(message) : message}</div>`;
         aiMessage.querySelectorAll('[contenteditable="true"]').forEach(elem => elem.contentEditable = false);
         aiMessage.addEventListener('dragstart', function (event) {
             event.dataTransfer.setData('text/html',aiMessage.innerHTML);

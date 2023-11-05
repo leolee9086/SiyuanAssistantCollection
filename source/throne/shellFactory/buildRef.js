@@ -8,7 +8,6 @@ export const 创建选中块参考=(message)=>{
     for (let el of selectedBlocks) {
         let text = `\n[${(new BlockHandler(el.getAttribute('data-node-id'))).content}](siyuan://blocks/${el.getAttribute('data-node-id')})`
         refs += `\n${text}`
-
     }
     return refs
 }

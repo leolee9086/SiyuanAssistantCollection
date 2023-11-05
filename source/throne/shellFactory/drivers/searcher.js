@@ -22,7 +22,7 @@ async function searchBlockRef(message) {
         logger.aishellerror(refs);
     }
     logger.aishelllog(refs);
-    return refs;
+    return '>these refs  from user\'s note\n'+ refs;
 }
 
 async function searchWebRef(message) {
@@ -39,7 +39,7 @@ async function searchWebRef(message) {
                     fArray.push(async () => { return await search(token.word); });
                 }
             }
-            refs += ('\n' + (await 组合函数(fArray)()).join('\n'));
+            refs += ('\n'+'>these refs calculate from websearch' + (await 组合函数(fArray)()).join('\n'));
         }
     } catch (e) {
         logger.aishellerror(refs, e);
@@ -48,10 +48,10 @@ async function searchWebRef(message) {
     return refs;
 }
 
-export async function searchRef(message) {
+export async function searchRef(message,AiRequestRefs) {
     try {
-        let blockRefs = await searchBlockRef(message);
-        let webRefs = await searchWebRef(message);
+        let blockRefs = AiRequestRefs.local?await searchBlockRef(message):''
+        let webRefs =AiRequestRefs.web?await searchWebRef(message):''
         return blockRefs + webRefs;
     } catch (error) {
         console.error(`searchRef失败:`, error);

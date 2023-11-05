@@ -150,6 +150,17 @@ eventBus.on('sac-open-menu-aichatmessage', async (e) => {
         }
     },
     )
+    menu.addItem({
+        icon: "iconClipboard",
+        label: "复制到剪贴板",
+        click: () => {
+            navigator.clipboard.writeText(message).then(function() {
+                console.log('Copying to clipboard was successful!');
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+    });
 })
 eventBus.on(`openHelp-plugin-${plugin.name}`, async () => {
     const helpID = Constants.HELP_PATH[siyuan.config.lang]

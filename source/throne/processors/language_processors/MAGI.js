@@ -6,7 +6,7 @@ import { EventEmitter } from "../../../eventsManager/EventEmitter.js";
 export class MAGI extends EventEmitter {
     constructor(BaseApi, config = {}, persona) {
         super()
-        this.BaseApi =BaseApi
+        this.BaseApi = BaseApi
         this.config = config
         this._persona = persona
         logger.MAGIlog('User selected intelligent mode, sysMAGI is online, energy consumption may be very high');
@@ -27,13 +27,13 @@ export class MAGI extends EventEmitter {
         this.currentWise = 'Balthazar';
         this.lastVoteResult = 'Balthazar';
         this.config = config
-        if(this.config.chatMode==='simple'){
-            this.echo.reply =async(...args)=>{
-                let data =  [{ name: `replyFrom${this.currentWise}`, action: (await this.Balthazar.reply(...args)).choices[0].message.content }]
+        if (this.config.chatMode === 'simple') {
+            this.echo.reply = async (...args) => {
+                let data = [{ name: `replyFrom${this.currentWise}`, action: (await this.Balthazar.reply(...args)).choices[0].message.content }]
 
                 return data
             }
-            this.echo.summarizeChat =(chat)=>{
+            this.echo.summarizeChat = (chat) => {
                 return undefined
             }
         }
@@ -123,13 +123,14 @@ export class MAGI extends EventEmitter {
             Your MUST REPLY AND ONLY REPLY A JSON REUSLT IN FORMAT {"Melchior": <weights for Melchior>, "Balthazar": <weights for Balthazar>, "Casper": <weights for Casper>,"reason":<reason of your coordinate>}
             `
             );
+        
             let userMessage = JSON.stringify(userInput);
             let result = await api.postAsUser(userMessage);
             result = JSON.parse(result.choices[0].message.content)
             return result;
         },
         summarize: async (userInput) => {
-            const currentWise =this.wiseMens[this.currentWise]||this.Balthazar
+            const currentWise = this.wiseMens[this.currentWise] || this.Balthazar
             let summary;
             try {
                 summary = await currentWise.summarize(userInput);
@@ -148,14 +149,14 @@ export class MAGI extends EventEmitter {
              */
             logger.MAGIlog(userInput)
             if (this.config.simple) {
-                let f = (t)=>{
+                let f = (t) => {
                     console.log(t)
-                    this.emit('aiTextData',t.detail)
+                    this.emit('aiTextData', t.detail)
                 }
-                let currentWise=  this.Casper
-                currentWise.on('aiTextData',f)
-                let data =await currentWise.reply(userInput)
-                currentWise.off('aiTextData',f)
+                let currentWise = this.Casper
+                currentWise.on('aiTextData', f)
+                let data = await currentWise.reply(userInput)
+                currentWise.off('aiTextData', f)
                 return data
             }
             //记录回复次数
@@ -166,8 +167,8 @@ export class MAGI extends EventEmitter {
             //正在进行的对话每超过七轮,就会发起一次投票
             let weights = { "Melchior": 100, "Balthazar": 100, "Casper": 100 }
             try {
-                let last = userInput[userInput.length-1]
-                let obj ={role:last.role,content:last.content}
+                let last = userInput[userInput.length - 1]
+                let obj = { role: last.role, content: last.content }
                 weights = await this.echo.coordinate({ history: obj, goal: 'give best reply to the user in the conversation,and pass the Turing test' })
             } catch (e) {
                 console.error(e, weights)
@@ -176,7 +177,7 @@ export class MAGI extends EventEmitter {
             weights.reason = undefined
             // 如果当前AI的权重最低，开始新的投票过程
             if (this.currentWise && weights[this.currentWise] === Math.min(...Object.values(weights))) {
-               this.needVote = true; // 如果评估结果是需要投票,那就进入投票流程,预投票只会考虑最近的回复
+                this.needVote = true; // 如果评估结果是需要投票,那就进入投票流程,预投票只会考虑最近的回复
             }
             if ((this.replyCount >= 7 || !this.currentWise) && this.needVote) {
                 let melchiorReply, BalthazarReply, casperReply;
@@ -209,32 +210,31 @@ export class MAGI extends EventEmitter {
                 }
                 this.currentWise = combinedReply[0].name.substring(9); // 从函数名中提取AI的名字
                 this.replyCount = 0; // 重置计数器
-                this.needVote=false
+                this.needVote = false
                 logger.MAGIlog(`${this.persona.name} Reply: ${combinedReply[0].action}`);
                 return combinedReply;
             } else {
                 logger.MAGIlog(this.currentWise + ` as ${this.persona.name} is the current leader`);
                 let reply;
-                let f = (t)=>{
-                    console.log(t)
-                    this.emit('aiTextData',t.detail)
+                let f = (t) => {
+                    this.emit('aiTextData', t.detail)
                 }
                 let currentWise
                 switch (this.currentWise) {
                     case "Melchior":
-                        currentWise =  this.Melchior;
+                        currentWise = this.Melchior;
                         break;
                     case "Balthazar":
-                        currentWise =  this.Balthazar;
+                        currentWise = this.Balthazar;
                         break;
                     case "Casper":
                         currentWise = this.Casper
                         break;
                 }
-                currentWise.on('aiTextData',f)
+                currentWise.on('aiTextData', f)
                 console.log(currentWise)
-                reply =await currentWise.reply(userInput)
-                currentWise.off('aiTextData',f)
+                reply = await currentWise.reply(userInput)
+                currentWise.off('aiTextData', f)
                 return [{ name: `replyFrom${this.currentWise}`, action: reply.choices[0].message.content }]
             }
         }

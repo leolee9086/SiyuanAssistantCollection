@@ -26,7 +26,9 @@ export class LanguageProcessor {
             return undefined;
         }
     }
-    
+    async voteFor(functions, descriptions, inputs, goal, multi){
+        return await this.magi.echo.voteFor(functions, descriptions, inputs, goal, multi)
+    }
     async summarizeChat(chat) {
         try {
             return await this.magi.echo.summarize(chat)
