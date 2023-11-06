@@ -149,6 +149,9 @@
                 "$max":2,
                 "$step":0.1
             }
+        },
+        "stable diffusion":{
+            "apiBaseURL": ""
         }
     },
     "动作设置": {

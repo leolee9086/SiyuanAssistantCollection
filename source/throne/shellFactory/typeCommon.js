@@ -74,9 +74,9 @@ export default class Shell extends EventEmitter {
         result = await this.completeChat(result);
         //introspect系列的方法都是让ghost有机会对消息进行后处理的
         result = await this.ghost.introspectChat({ role: roles.ASSISTANT, content: result }, linkMap)
-
         this.showText(result[result.length - 1])
         return result[result.length - 1]
+
     }
     async completeChat(chat) {
         let _chat

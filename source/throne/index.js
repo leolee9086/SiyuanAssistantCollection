@@ -6,6 +6,10 @@ export { database as database }
 import { pluginInstance as plugin } from "../asyncModules.js";
 import roster from "./ghostDomain/index.js";
 
+//@ts-expect-error
+import './processors/visual_processors/openAiText2Image.js'
+
+
 export { plugin as plugin }
 let chatSetting = plugin.configurer.get('chat').$value
 export { chatSetting as chatSetting }

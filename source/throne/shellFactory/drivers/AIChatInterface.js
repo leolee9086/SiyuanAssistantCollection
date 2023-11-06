@@ -141,7 +141,7 @@ export class AIChatInterface extends EventEmitter {
                     this.显示用户消息(message.content);
                     break;
                 case 'assistant':
-                    this.添加AI消息(message.content, message.linkMap);
+                    this.添加AI消息(message.content, message.linkMap,message.images);
                     break;
             }
         });
@@ -154,15 +154,29 @@ export class AIChatInterface extends EventEmitter {
         const userMessage = createElement("div", ["user-message"], `<strong>User:</strong> ${message}`);
         this.临时聊天容器.appendChild(userMessage);
     }
-    添加AI消息(message, linkMap) {
+    添加AI消息(message, linkMap,images) {
         const aiMessage = createElement("div", ["ai-message"], "");
         this.临时聊天容器.appendChild(aiMessage);
         aiMessage.setAttribute('draggable', "true")
-        aiMessage.innerHTML = `<div class='protyle-wysiwyg protyle-wysiwyg--attr'><strong>${this.doll.ghost.persona.name}:</strong> ${this.lute ? this.lute.Md2BlockDOM(message) : message}</div>`;
+        if(images){
+            let imageTags=`{{{row`
+            images.forEach(
+                image=>{
+                    imageTags+=`\n![${image.id}](${image})`
+                }
+            )
+            imageTags+='\n}}}'
+            aiMessage.innerHTML += `<div class='protyle-wysiwyg protyle-wysiwyg--attr images'> ${this.lute ? this.lute.Md2BlockDOM(imageTags) : ""}</div>`
+            aiMessage.querySelector('.protyle-wysiwyg.protyle-wysiwyg--attr.image')
+        }
+
+        aiMessage.innerHTML += `<div class='protyle-wysiwyg protyle-wysiwyg--attr'><strong>${this.doll.ghost.persona.name}:</strong> ${this.lute ? this.lute.Md2BlockDOM(message) : message}</div>`;
+
         aiMessage.querySelectorAll('[contenteditable="true"]').forEach(elem => elem.contentEditable = false);
         aiMessage.addEventListener('dragstart', function (event) {
             event.dataTransfer.setData('text/html',aiMessage.innerHTML);
         });
+
         let linkSpans = aiMessage.querySelectorAll('[data-type="a"]')
         let _linkMap = this.doll.ghost.linkMap;
         (async () => {
@@ -218,6 +232,7 @@ export class AIChatInterface extends EventEmitter {
         })()
         this.用户输入框.removeAttribute('disabled')
         this.添加插入按钮(aiMessage, this.当前用户输入, message);
+       
         return aiMessage;
     }
     添加插入按钮(aiMessage, userInput, message) {

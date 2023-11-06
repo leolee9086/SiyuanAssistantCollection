@@ -20,7 +20,7 @@ class Ghost {
         this.currentThoughts = []
 
     }
-    async introspectChat(message, linkMap) {
+    async introspectChat(message, linkMap, images) {
         message.id = Lute.NewNodeID()
         await this.shell.embeddingMessage(message)
         //收到用户的消息时
@@ -28,12 +28,12 @@ class Ghost {
             let refs = { prompt: '', linkMap: {} }
             if (plugin.configurer.get("聊天工具设置", '自动给出参考').$value) {
                 refs = await this.shell.searchRef(message)
-                if(refs){
+                if (refs) {
                     let referenceMessage = { role: 'system', content: refs.prompt, linkMap: refs.linkMap }
                     if (referenceMessage.content) {
                         this.workingMemory.push(referenceMessage)
                     }
-    
+
                 }
             }
             if (plugin.configurer.get("聊天工具设置", '插入回复样本提示').$value) {
@@ -50,13 +50,14 @@ class Ghost {
                 let selectedConversation = conversationSample.slice(startIndex, endIndex === -1 ? undefined : endIndex);
                 let selectedConversationText = selectedConversation.map(item => `${item.role}: ${item.content}`).join('\n');
                 let systemPrompt = `System prompt: This is a historical conversation. Please maintain consistent behavior with the assistant in the conversation.\n${selectedConversationText}`;
-                this.workingMemory.push({ role: 'system', content: systemPrompt })
 
+                // Check the role of the last message in workingMemory
+                this.workingMemory.splice(0, 0, { role: 'system', content: systemPrompt });
             }
-            message.linkMap =refs&& refs.linkMap
+            message.linkMap = refs && refs.linkMap
             this.workingMemory.push(message)
             this.longTermMemory.history.push(message)
-            this.linkMap=this.longTermMemory.history.reduce((acc, item) => {
+            this.linkMap = this.longTermMemory.history.reduce((acc, item) => {
                 if (item && item.linkMap) {
                     return { ...acc, ...item.linkMap };
                 }
@@ -67,6 +68,31 @@ class Ghost {
         }
         if (message.role === 'assistant') {
             message.linkMap = linkMap
+            if (this.afterReplyProcessor) {
+                try {
+                    let _result = JSON.parse(JSON.stringify(message));
+                    let images = (await this.afterReplyProcessor(_result)).images;
+                    _result.images=images
+                    // 校验 _result 是否具有 result[result.length - 1] 的所有属性并且值一致
+                    let isValid = true;
+                    let keys = Object.keys(message);
+                    for await (let key of keys) {
+                        if (!_result.hasOwnProperty(key) || JSON.stringify(_result[key]) !== JSON.stringify(message[key])) {
+                            isValid = false;
+                            break;
+                        }
+                    }
+                    
+                    if (isValid) {
+                        message = JSON.parse(JSON.stringify(_result));
+                    } else {
+                        throw new Error("processed does not have all properties of message or their values are not equal.");
+                    }
+                }
+                catch (e) {
+                    console.error(e)
+                }
+            }
             this.workingMemory.push(message)
             this.longTermMemory.history.push(message)
             this.organizeWorkingMemory(); // 整理工作记忆
@@ -87,7 +113,7 @@ class Ghost {
         try {
             this.shortTermMemory = JSON.parse(JSON.stringify(this.longTermMemory.shortTermMemoryBackup)) || []
         } catch (e) {
-            logger.ghosterror
+            logger.ghosterror(e)
             this.shortTermMemory = []
         }
         try {
@@ -151,7 +177,7 @@ class Ghost {
                 }
             }
         });
-        this.linkMap=this.longTermMemory.history.reduce((acc, item) => {
+        this.linkMap = this.longTermMemory.history.reduce((acc, item) => {
             if (item && item.linkMap) {
                 return { ...acc, ...item.linkMap };
             }
@@ -203,7 +229,7 @@ class Ghost {
         return null;
     }
     async storeLongTermMemory() {
-        this.longTermMemory.pluginVersion=plugin.meta&&plugin.meta.version
+        this.longTermMemory.pluginVersion = plugin.meta && plugin.meta.version
         this.longTermMemory.shortTermMemoryBackup = JSON.parse(JSON.stringify(this.shortTermMemory))
         this.longTermMemory.workingMemoryBackup = JSON.parse(JSON.stringify(this.workingMemory))
         if (this.longTermMemory.history[0]) {
