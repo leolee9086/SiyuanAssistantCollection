@@ -41,7 +41,7 @@ export class DummyGhost extends Ghost {
             this.Persona.name="NAGISA01"
         }
         this.persona=DummyPersona(name,this.Persona)
-        if(Persona.afterReplyProcessor){
+        if(Persona&&Persona.afterReplyProcessor){
             this.afterReplyProcessor=Persona.afterReplyProcessor
         }
     }
