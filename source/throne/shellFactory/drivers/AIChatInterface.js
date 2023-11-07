@@ -1,41 +1,56 @@
 import { EventEmitter } from '../../../eventsManager/EventEmitter.js';
-import { clientApi, pluginInstance as plugin } from '../../../asyncModules.js';
+import { clientApi, pluginInstance as plugin, kernelApi } from '../../../asyncModules.js';
 import { aiMessageButton } from './buttons/InsertButton.js';
 import { show as showGhostSelector } from './menus/ghostSelector.js';
 import logger from '../../../logger/index.js'
 import { 防抖 } from '../../../utils/functionTools.js';
+import { 获取嵌入块内容 } from './render/index.js';
+import BlockHandler from '../../../utils/BlockHandler.js';
 export class AIChatInterface extends EventEmitter {
     constructor(element, doll) {
         super(`textChat_${doll.ghost.persona.name}`)
         this.doll = doll
-        this.初始化UI(element)
+        this.element = element
+        this.初始化()
+        this.on('refresh',()=>{this.初始化.bind(this)()})
+    }
+    初始化() {
+        this.off(
+            'textWithRole',
+            this.消息显示回调
+        )
+        this.dispose()
+        this.初始化UI(this.element)
         this.describe = {
             showHistory: '显示所有之前的聊天记录',
         }
-        this.container = element
+        this.container = this.element
         this.初始化事件监听器()
         this.当前参考内容组 = []
         this.当前用户输入 = ''
         this.当前AI回复 = ''
         this.临时聊天容器 = document.createDocumentFragment()
+        this.messageCache = []
     }
     get lute() {
         return plugin.lute || window.Lute.New()
     }
-    dispose() {
-        this.container.innerHTML = ''
 
+    dispose() {
+        this.container ? this.container.innerHTML = '' : null
+    }
+    消息显示回调=(event)=> {
+        let 消息对象 = event.detail
+        if (!消息对象.id) {
+            throw new Error('消息没有ID,请检查')
+        }
+
+        this.显示消息(消息对象)
     }
     初始化事件监听器() {
         this.on(
             'textWithRole',
-            (event) => {
-                let 消息对象 = event.detail
-                if (!消息对象.id) {
-                    throw new Error('消息没有ID,请检查')
-                }
-                this.显示消息(消息对象)
-            }
+             this.消息显示回调
         )
         this.提交按钮.addEventListener("click", this.提交按钮点击回调);
         this.用户输入框.addEventListener("keydown", this.用户输入回调);
@@ -85,13 +100,16 @@ export class AIChatInterface extends EventEmitter {
             this.提交用户消息(this.当前用户输入)
             this.等待AI回复()
         }
+        this.doll.components['textChat'].current = this
     }
     提交用户消息(消息文字) {
         logger.aiChatlog(消息文字)
         this.shell.emit(`textChat_userMessage`, 消息文字)
     }
-
     初始化UI(element) {
+        let that=this
+        this.off("waitForReply", that.等待AI回复)
+
         const 聊天容器 = document.createElement('div');
         聊天容器.id = 'chat-container';
         聊天容器.setAttribute('class', 'fn__flex-1')
@@ -124,11 +142,12 @@ export class AIChatInterface extends EventEmitter {
         this.用户输入框 = 用户输入框;
         this.聊天容器 = 聊天容器;
         this.引用按钮 = 引用按钮
-
         logger.aiChatlog(this.doll)
         element.appendChild(对话框内容元素);
         用户输入框.focus()
+        this.on("waitForReply", that.等待AI回复)
         this.messageCache = []
+
     }
     显示消息(message) {
         this.messageCache.push(message);
@@ -138,10 +157,10 @@ export class AIChatInterface extends EventEmitter {
         this.messageCache.forEach(message => {
             switch (message.role) {
                 case "user":
-                    this.显示用户消息(message.content);
+                    this.显示用户消息(message, message.id);
                     break;
                 case 'assistant':
-                    this.添加AI消息(message.content, message.linkMap,message.images);
+                    this.添加AI消息(message, message.linkMap, message.images);
                     break;
             }
         });
@@ -151,30 +170,47 @@ export class AIChatInterface extends EventEmitter {
         this.临时聊天容器 = document.createDocumentFragment()
     }, 100)
     显示用户消息(message) {
-        const userMessage = createElement("div", ["user-message"], `<strong>User:</strong> ${message}`);
+        let { content, id } = message
+        const userMessage = createElement("div", ["user-message", "fn__flex"], `<div class="fn__flex"><strong>User:</strong> ${content}</div>`);
+        userMessage.appendChild(createElement('div', ["fn__space", "fn__flex-1"], ``))
+        let trashButton = createElement('span', [], `<svg class="b3-menu__icon " style=""><use xlink:href="#iconTrashcan"></use></svg>`)
+        userMessage.appendChild(trashButton)
+        trashButton.addEventListener('click', () => { this.doll.emit('human-forced-forget-to', id) })
+        let refreshButton = createElement('span', [], `<svg class="b3-menu__icon " style=""><use xlink:href="#iconRefresh"></use></svg>`)
+        userMessage.appendChild(refreshButton)
+        refreshButton.addEventListener('click', () => {
+            this.doll.emit('human-forced-forget-to', { id:  id})
+            this.doll.components['textChat'].current = this
+
+            this.提交用户消息(message.content)
+        }
+        )
         this.临时聊天容器.appendChild(userMessage);
+        userMessage.setAttribute('data-message-id', id)
+        this.doll.components['textChat'].current
     }
-    添加AI消息(message, linkMap,images) {
+    添加AI消息(message, linkMap, images) {
         const aiMessage = createElement("div", ["ai-message"], "");
+        aiMessage.setAttribute('data-message-id', message.id)
         this.临时聊天容器.appendChild(aiMessage);
         aiMessage.setAttribute('draggable', "true")
-        if(images){
-            let imageTags=`{{{row`
+        if (images) {
+            let imageTags = `{{{row`
             images.forEach(
-                image=>{
-                    imageTags+=`\n![${image.id}](${image})`
+                image => {
+                    imageTags += `\n![${image.id}](${image})`
                 }
             )
-            imageTags+='\n}}}'
+            imageTags += '\n}}}'
             aiMessage.innerHTML += `<div class='protyle-wysiwyg protyle-wysiwyg--attr images'> ${this.lute ? this.lute.Md2BlockDOM(imageTags) : ""}</div>`
             aiMessage.querySelector('.protyle-wysiwyg.protyle-wysiwyg--attr.image')
         }
 
-        aiMessage.innerHTML += `<div class='protyle-wysiwyg protyle-wysiwyg--attr'><strong>${this.doll.ghost.persona.name}:</strong> ${this.lute ? this.lute.Md2BlockDOM(message) : message}</div>`;
+        aiMessage.innerHTML += `<div class='protyle-wysiwyg protyle-wysiwyg--attr'><strong>${this.doll.ghost.persona.name}:</strong> ${this.lute ? this.lute.Md2BlockDOM(message.content) : message.content}</div>`;
 
         aiMessage.querySelectorAll('[contenteditable="true"]').forEach(elem => elem.contentEditable = false);
         aiMessage.addEventListener('dragstart', function (event) {
-            event.dataTransfer.setData('text/html',aiMessage.innerHTML);
+            event.dataTransfer.setData('text/html', aiMessage.innerHTML);
         });
 
         let linkSpans = aiMessage.querySelectorAll('[data-type="a"]')
@@ -193,13 +229,13 @@ export class AIChatInterface extends EventEmitter {
 
                     });
                 } else {
-                    if(!link.getAttribute('data-href').startsWith('ref:')){
+                    if (!link.getAttribute('data-href').startsWith('ref:')) {
                         link.setAttribute('data-real-href', link.getAttribute('data-href'));
                         link.addEventListener('click', (e) => {
                             clientApi.confirm(
                                 "这货又自己编参考来源了",
                                 '这个链接好像是它自己找的,你要尝试访问的话就点吧',
-                                (confirmed)=>{
+                                (confirmed) => {
                                     if (confirmed) {
                                         window.open(link.getAttribute('data-real-href', '_blank'))
                                     }
@@ -208,14 +244,14 @@ export class AIChatInterface extends EventEmitter {
                             e.stopPropagation()
                             e.preventDefault()
                         })
-                    }else{
+                    } else {
                         link.setAttribute('data-real-href', link.getAttribute('data-href'));
-                        link.setAttribute('data-href', link.getAttribute('data-href')+"这个肯定是它瞎编的不用想了");
+                        link.setAttribute('data-href', link.getAttribute('data-href') + "这个肯定是它瞎编的不用想了");
                         link.addEventListener('click', (e) => {
                             clientApi.confirm(
                                 "这货又自己编参考来源了",
                                 '这个链接好像是它编的,你要尝试访问的话就点吧',
-                                (confirmed)=>{
+                                (confirmed) => {
                                     if (confirmed) {
                                         window.open(link.getAttribute('data-real-href', '_blank'))
                                     }
@@ -232,14 +268,33 @@ export class AIChatInterface extends EventEmitter {
         })()
         this.用户输入框.removeAttribute('disabled')
         this.添加插入按钮(aiMessage, this.当前用户输入, message);
-       
+        this.embedBlocksContent = ''
+
+        try {
+            let blockIDs = []
+            aiMessage.querySelectorAll(`[data-type="NodeBlockQueryEmbed"]`).forEach(
+                embedBlock => {
+                    let 最近文档ID = kernelApi.sql.sync({ stmt: `select * from blocks where type ='d' ORDER BY updated DESC` })
+                    embedBlock.innerHTML = 获取嵌入块内容(embedBlock, 最近文档ID[0].id)
+                    Array.from(embedBlock.querySelectorAll('[data-node-id]')).forEach(
+                        block => {
+                            blockIDs.push(block.getAttribute('data-node-id'))
+                            this.embedBlocksContent += `\n${(new BlockHandler(block.getAttribute('data-node-id'))).markdown}[from block:${block.getAttribute('data-node-id')}}](siyuan://blocks/${block.getAttribute('data-node-id')})`
+
+                        }
+                    )
+                }
+            )
+        } catch (e) {
+            console.error(e)
+        }
         return aiMessage;
     }
     添加插入按钮(aiMessage, userInput, message) {
         let button = new aiMessageButton({ doll: this.doll, aiMessage, currentAiReply: message, userInput });
         aiMessage.appendChild(button.button);
     }
-    等待AI回复() {
+    等待AI回复=()=> {
         this.用户输入框.setAttribute('disabled', true)
     }
 }

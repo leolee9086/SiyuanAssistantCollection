@@ -18,10 +18,52 @@ class Ghost {
         this.shortTermMemoryCapacity = plugin.configurer.get('聊天工具设置', '默认短期记忆长度').$value || 32; // 短期记忆容量
         this.workingMemoryCapacity = plugin.configurer.get('聊天工具设置', '默认工作记忆长度').$value || 7; // 工作记忆容量
         this.currentThoughts = []
+    }
+    async forgetToLatest(id,role) {
+        // 如果没有提供id，直接返回
+        if (!id) {
+            return;
+        }
+
+        // 删除工作记忆中的记录，直到找到指定的id
+        let index = this.workingMemory.findIndex(item => item.id === id);
+        if (index !== -1) {
+            // 从id再往上找到第一条用户消息
+            let userMsgIndex = this.workingMemory.slice(0, index + 1).findLastIndex(item => item.role === role||'user');
+            if (userMsgIndex !== -1) {
+                // 删除从该用户消息之后的所有消息
+                this.workingMemory = this.workingMemory.slice(0, userMsgIndex );
+            }
+        }
+
+        // 删除短期记忆中的记录，直到找到指定的id
+        index = this.shortTermMemory.findIndex(item => item.id === id);
+        if (index !== -1) {
+            let userMsgIndex = this.shortTermMemory.slice(0, index + 1).findLastIndex(item => item.role === role||'user');
+            if (userMsgIndex !== -1) {
+                // 删除从该用户消息之后的所有消息
+                this.shortTermMemory = this.shortTermMemory.slice(0, userMsgIndex );
+            }
+        }
+
+        // 删除长期记忆的history中的记录，直到找到指定的id
+        index = this.longTermMemory.history.findIndex(item => item.id === id);
+        if (index !== -1) {
+            index = this.longTermMemory.history.findIndex(item => item.id === id);
+            if (index !== -1) {
+                let userMsgIndex = this.longTermMemory.history.slice(0, index + 1).findLastIndex(item => item.role ===role||'user');
+                if (userMsgIndex !== -1) {
+                    // 删除从该用户消息之后的所有消息
+                    this.longTermMemory.history = this.longTermMemory.history.slice(0, userMsgIndex );
+                }
+            }
+        }
+        await this.storeLongTermMemory()
+        console.log(id,this.workingMemory,this.longTermMemory)
 
     }
     async introspectChat(message, linkMap, images) {
-        message.id = Lute.NewNodeID()
+        message.id =message.id|| Lute.NewNodeID()
         await this.shell.embeddingMessage(message)
         //收到用户的消息时
         if (message.role === 'user') {
@@ -68,11 +110,12 @@ class Ghost {
         }
         if (message.role === 'assistant') {
             message.linkMap = linkMap
+            let _result
             if (this.afterReplyProcessor) {
                 try {
-                    let _result = JSON.parse(JSON.stringify(message));
+                     _result = JSON.parse(JSON.stringify(message));
                     let images = (await this.afterReplyProcessor(_result)).images;
-                    _result.images=images
+                    _result.images = images
                     // 校验 _result 是否具有 result[result.length - 1] 的所有属性并且值一致
                     let isValid = true;
                     let keys = Object.keys(message);
@@ -82,15 +125,16 @@ class Ghost {
                             break;
                         }
                     }
-                    
+
                     if (isValid) {
                         message = JSON.parse(JSON.stringify(_result));
                     } else {
+
                         throw new Error("processed does not have all properties of message or their values are not equal.");
                     }
                 }
                 catch (e) {
-                    console.error(e)
+                    console.error(e, message, _result)
                 }
             }
             this.workingMemory.push(message)
@@ -105,7 +149,15 @@ class Ghost {
         this.shell = shell;
     }
     async onWakeUp() {
-        this.longTermMemory = (await plugin.loadData(`Akashic/${this.persona.name}.mem`)) || this.longTermMemory
+        try{
+        if(await fs.exists(`/data/storage/petal/${plugin.name}/Akashic/${this.persona.name}.mem`)){
+            let content = (await fs.readFile(`/data/storage/petal/${plugin.name}/Akashic/${this.persona.name}.mem`)) || this.longTermMemory
+            this.longTermMemory=JSON.parse(content)
+        }
+        }catch(e){
+            logger.ghosterror(e)
+            this.longTermMemory
+        }
         this.longTermMemory.shortTermMemoryBackup = this.longTermMemory.shortTermMemoryBackup || []
         this.longTermMemory.workingMemoryBackup = this.longTermMemory.workingMemoryBackup || []
         this.longTermMemory.history = this.longTermMemory.history || []
@@ -234,28 +286,29 @@ class Ghost {
         this.longTermMemory.workingMemoryBackup = JSON.parse(JSON.stringify(this.workingMemory))
         if (this.longTermMemory.history[0]) {
             await this.shell.processHistory(this.longTermMemory.history)
-            let oldData = await fs.readFile(`/data/storage/petal/${plugin.name}/Akashic/${this.persona.name}.mem`)
-            if (plugin.configurer.get('聊天工具设置', '自动对话备份').$value) {
-                await fs.writeFile(`/data/storage/petal/${plugin.name}/Akashic/${this.persona.name}${Date.now()}.back.mem`, oldData)
-            }
-            await plugin.saveData(`Akashic/${this.persona.name}.mem`, this.longTermMemory, null, 2)
-
-            if (plugin.configurer.get('聊天工具设置', '对话备份自动清理').$value) {
-                const path = `/data/storage/petal/${plugin.name}/Akashic/`;
-                const files = await fs.readDir(path)
-                const now = Date.now();
-                const threeDaysAgo = now - (3 * 24 * 60 * 60 * 1000);
-
-                files.forEach(
-                    file => {
-                        const timestamp = file.name.split('.')[0].split(this.persona.name)[1];
-                        if (Number(timestamp) < threeDaysAgo && file.name.endsWith('.back.mem')) {
-                            fs.removeFile(`${path}${file.name}`);
-                        }
-                    }
-                )
-            }
         }
+        let oldData = await fs.readFile(`/data/storage/petal/${plugin.name}/Akashic/${this.persona.name}.mem`)
+        if (plugin.configurer.get('聊天工具设置', '自动对话备份').$value) {
+            await fs.writeFile(`/data/storage/petal/${plugin.name}/Akashic/${this.persona.name}${Date.now()}.back.mem`, oldData)
+        }
+        await fs.writeFile(`/data/storage/petal/${plugin.name}/Akashic/${this.persona.name}.mem`, JSON.stringify(this.longTermMemory), null, 2)
+
+        if (plugin.configurer.get('聊天工具设置', '对话备份自动清理').$value) {
+            const path = `/data/storage/petal/${plugin.name}/Akashic/`;
+            const files = await fs.readDir(path)
+            const now = Date.now();
+            const threeDaysAgo = now - (3 * 24 * 60 * 60 * 1000);
+
+            files.forEach(
+                file => {
+                    const timestamp = file.name.split('.')[0].split(this.persona.name)[1];
+                    if (Number(timestamp) < threeDaysAgo && file.name.endsWith('.back.mem')) {
+                        fs.removeFile(`${path}${file.name}`);
+                    }
+                }
+            )
+        }
+
     }
     async attemptAction(action, context, content) {
         try {

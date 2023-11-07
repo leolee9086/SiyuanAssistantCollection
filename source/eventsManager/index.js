@@ -116,16 +116,16 @@ eventBus.on('sac-open-menu-aichatmessage', async (e) => {
     let { detail } = e
     let { menu, doll, message, userInput } = detail
     console.log(doll)
-    let html = string2DOM(plugin._lute.Md2HTML(message))
+    let html = string2DOM(plugin._lute.Md2HTML(message.content))
     let linkSpans = Array.from(html.querySelectorAll('a'))
     for(let link of linkSpans){
         const idShortCode = link.getAttribute('href').replace('ref:', '').split('-').pop().trim();
         const foundLink = Object.keys(doll.ghost.linkMap).find(key => key.endsWith(idShortCode));
         if (foundLink) {
-            link.setAttribute('data-href', combinedLinkMap[foundLink]);
+            link.setAttribute('data-href', doll.ghost.linkMap[foundLink]);
         }
     }
-    message=plugin._lute.HTML2Md(message)
+    let md=plugin._lute.HTML2Md(message.content)
     menu.addItem({
         icon: "iconSparkles",
         label: "插入到当前块之后",
@@ -133,19 +133,19 @@ eventBus.on('sac-open-menu-aichatmessage', async (e) => {
             const context = plugin.statusMonitor.get('runtime', 'currentContext').$value
             if (context) {
                 context.blocks[0].insertAfter(`## ${userInput}`)
-                context.blocks[0].insertAfter(`${message}`)
-
+                context.blocks[0].insertAfter(`${md}`)
             }
         }
     },
     )
+    
     menu.addItem({
         icon: "iconSparkles",
         label: "插入到当前块之前",
         click: () => {
             const context = plugin.statusMonitor.get('runtime', 'currentContext').$value
             if (context) {
-                context.blocks[0].insertBefore(`${message}`)
+                context.blocks[0].insertBefore(`${md}`)
             }
         }
     },
@@ -154,13 +154,23 @@ eventBus.on('sac-open-menu-aichatmessage', async (e) => {
         icon: "iconClipboard",
         label: "复制到剪贴板",
         click: () => {
-            navigator.clipboard.writeText(message).then(function() {
+            navigator.clipboard.writeText(md).then(function() {
                 console.log('Copying to clipboard was successful!');
             }, function(err) {
                 console.error('Could not copy text: ', err);
             });
         }
     });
+    menu.addItem({
+        icon: "iconSparkles",
+        label: "从上一条回复重新开始",
+        click: () => {
+            console.log(message)
+            let {id} = message
+            doll.emit('human-forced-forget-to',id)
+        }
+    },
+    )
 })
 eventBus.on(`openHelp-plugin-${plugin.name}`, async () => {
     const helpID = Constants.HELP_PATH[siyuan.config.lang]

@@ -48,10 +48,17 @@ export default class Shell extends EventEmitter {
             logger.aiShelllog(event.detail)
             this.replyChat(event.detail)
         })
+        this.on(
+           'human-forced-forget-to',async(e)=>{
+            await this.ghost.forgetToLatest(e.detail.id?e.detail.id:e.detail,e.detail.role)
+            this.showHistory()
+           }
+        )
         plugin.eventBus.on('baseProcessorChange', (event) => {
             let processor = getLanguageProcessor(this.name)
             this.changeProcessor('languageProcessor', new processor(this.ghost.persona))
         })
+
         this.已经初始化 = true
     }
     async Ghost唤醒回调() {
@@ -65,6 +72,16 @@ export default class Shell extends EventEmitter {
 
     async replyChat(text) {
         logger.aiShelllog(text)
+        this.components['textChat'].forEach(
+            chatInterface => {
+                if (chatInterface) {
+                    chatInterface.component.emit(
+                        'waitForReply',
+                    )
+                }
+            }
+        )
+
         let 消息对象 = { role: roles.USER, content: text }
         let result = await this.ghost.introspectChat(消息对象)
         let linkMap = result[result.length - 1].linkMap
@@ -76,7 +93,6 @@ export default class Shell extends EventEmitter {
         result = await this.ghost.introspectChat({ role: roles.ASSISTANT, content: result }, linkMap)
         this.showText(result[result.length - 1])
         return result[result.length - 1]
-
     }
     async completeChat(chat) {
         let _chat
@@ -168,7 +184,15 @@ export default class Shell extends EventEmitter {
     }
     /** */
     showHistory() {
-        let history = this.ghost.longTermMemory.history
+        let history =getPersonaSetting(this.name, "聊天工具设置", "显示全部历史").$value?this.ghost.longTermMemory.history: this.ghost.workingMemory
+        this.components['textChat'].forEach(
+            chatInterface => {
+                if (chatInterface) {
+                    chatInterface.component.emit('refresh')
+                }
+            }
+        )
+
         history.forEach(historyItem => {
             //因为古早版本没有ID,这里需要加上
             if (!historyItem.id) {
@@ -216,6 +240,7 @@ export default class Shell extends EventEmitter {
             component = new driver(options)
             this.components[type].push(component)
         }
+        this.components[type]=Array.from(new Set(this.components[type]))
         component.shell = this
         this.初始化界面(type, component)
         return component
@@ -261,6 +286,12 @@ If you need detailed content from a reference, please explain to the user.
         let prompt = ''
         //选中的块最先加上
         let AiRequestRefs = { local: true, web: true }
+        if(getPersonaSetting(this.name, "聊天工具设置", "允许AI自行阅读它编写的嵌入块").$value){
+            let embedBlocks= this.components['textChat'].current.embedBlocksContent
+            if (embedBlocks) {
+                prompt += '\n' + '>these refs from AI embedBlock query:\n' + embedBlocks
+            }
+        }
         if (getPersonaSetting(this.name, "聊天工具设置", '由AI自行决定是否需要参考').$value) {
             try {
                 let functions = [
@@ -311,7 +342,6 @@ If you need detailed content from a reference, please explain to the user.
             try {
                 for (let searcher of searchers) {
                     const results = await searcher.search(message, AiRequestRefs)
-                    console.log(results)
                     if (results) {
                         for (let result of results) {
                             prompt += result

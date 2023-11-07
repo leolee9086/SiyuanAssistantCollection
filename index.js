@@ -74,7 +74,7 @@ class PluginConfigurer {
           // 检查旧值是否有$value属性
           if (oldValue.$value) {
             let $type = oldValue.$type
-            if ($type !== typeof value && $type !== value.$type) {
+            if ($type !== typeof value && $type !== value.$type&&!(typeof value==='number'&&oldValue.$type==='range')) {
               throw new Error(`New value must be the same type as the old value. Old value: ${JSON.stringify(oldValue)}, new value: ${value}`);
             }
           }
@@ -84,7 +84,9 @@ class PluginConfigurer {
     // 检查旧值是否存在且旧值是否有$type属性
     if (oldValue && oldValue.$type) {
       // 检查新值是否没有$type属性或新值的$type与旧值的$type是否不同
-      if ((!value.$type || oldValue.$type !== value.$type) && !(typeof value === 'string' || Array.isArray(value) || typeof value === oldValue.$type || typeof oldValue === value.$type)) {
+    
+      if (
+        (!value.$type || oldValue.$type !== value.$type) && !(typeof value === 'string' || Array.isArray(value) || typeof value === oldValue.$type || typeof oldValue === value.$type||typeof value==='number'&&oldValue.$type==='range')) {
         throw new Error(`New value must have the same $type as the old value. Old value: ${oldValue}, new value: ${value}`);
       }
     }

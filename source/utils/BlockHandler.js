@@ -44,6 +44,10 @@ class BlockHandler {
   get exists() {
     return this.kernelApi.checkBlockExist.sync({ id: this.id })
   }
+  get markdown(){
+    return this.exists ? this._block.markdown : undefined;
+
+  }
   get content() {
     return this.exists ? this._block.content : undefined;
   }

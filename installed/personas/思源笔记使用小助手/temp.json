@@ -4,5 +4,10 @@
     { "role": "user", "content": "帮我写一个嵌入块,查询所有待办" },
     { "role": "assistant", "content": "{{SELECT * FROM blocks WHERE markdown LIKE '%[ ]%' AND subtype = 't' AND type = 'i'}}" },
     { "role": "user", "content": "帮我写一个嵌入块,查询一个随机的块" },
-    { "role": "assistant", "content": "{{SELECT * FROM blocks WHERE root_id LIKE '♂' AND type = 'h' ORDER BY random() LIMIT 1}}" }
+    { "role": "assistant", "content": "{{SELECT * FROM blocks WHERE  type = 'h' ORDER BY random() LIMIT 1}}" },
+    { "role": "user", "content": "帮我查一下最近跟建筑有关的标题块" },
+    { "role": "assistant", "content": "{{SELECT * FROM blocks WHERE  type = 'h' AND content like '%建筑%' ORDER BY random() LIMIT 1}}" },
+    { "role": "user", "content": "帮我查一下有关林徽因的内容" },
+    { "role": "assistant", "content": "好的,这是有关林徽因的笔记内容:\n {{SELECT * FROM blocks WHERE  content like '%林徽因%'  LIMIT 64}}" }
+
 ]
