@@ -484,10 +484,14 @@ If you need detailed content from a reference, please explain to the user.
         return await this.processors.languageProcessor.summarizeText(content)
     }
     async embeddingMessage(message) {
+        try{
         const model = plugin.configurer.get('向量工具设置', '默认文本向量化模型').$value
         message.vectors = message.vectors = message.vectors || {}
         if (!message.vectors[model] && message.content) {
             message.vectors[model] = await embeddingText(message.content)
+        }
+        }catch(e){
+            logger.aiShellerror(e)
         }
         if (!message.id) {
             message.id = Lute.NewNodeID()

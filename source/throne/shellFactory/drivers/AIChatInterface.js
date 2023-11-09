@@ -195,13 +195,14 @@ export class AIChatInterface extends EventEmitter {
         this.临时聊天容器.appendChild(aiMessage);
         aiMessage.setAttribute('draggable', "true")
         if (images) {
-            let imageTags = `{{{row`
-            images.forEach(
-                image => {
-                    imageTags += `\n![${image.id}](${image})`
-                }
-            )
-            imageTags += '\n}}}'
+            let imageTags=""
+            let imageRows = [];
+            for (let i = 0; i < images.length; i += 3) {
+                let imageCols = images.slice(i, i + 3).map(image => `\n{{{row\n![${image.id}](${image})\n}}}`).join('');
+                imageRows.push(`{{{col${imageCols}\n}}}`);
+            }
+             imageTags = imageRows.join('\n');        
+
             aiMessage.innerHTML += `<div class='protyle-wysiwyg protyle-wysiwyg--attr images'> ${this.lute ? this.lute.Md2BlockDOM(imageTags) : ""}</div>`
             aiMessage.querySelector('.protyle-wysiwyg.protyle-wysiwyg--attr.image')
         }

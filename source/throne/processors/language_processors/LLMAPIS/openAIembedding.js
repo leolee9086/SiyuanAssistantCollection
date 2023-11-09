@@ -1,8 +1,21 @@
 export async function 使用openAI生成嵌入(textContent,options={}) {
     options={
         options,
-        ...globalThis.siyuan.config.ai.openAI
+        ...globalThis.siyuan.config.ai.openAI,
     }
+    let _options
+    if(globalThis.modelSetting.OPENAI){
+        let OPENAI =globalThis.modelSetting.OPENAI
+         _options={
+            "apiBaseURL": OPENAI.apiBaseURL,
+            "apiKey": OPENAI.apiKey,
+        }
+        options={
+            options,
+            ..._options
+        }
+    }
+    
     let myHeaders = new Headers();
     myHeaders.append(
         "Authorization",

@@ -3,7 +3,6 @@ import { EventEmitter } from "../../../../eventsManager/EventEmitter.js";
 export  class openAiChat extends EventEmitter{
     constructor(options = {}) {
         super()
-        console.log(options)
         this.options = {
                 apiKey: "",
                 apiTimeout: 60,

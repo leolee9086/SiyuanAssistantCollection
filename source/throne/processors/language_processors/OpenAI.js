@@ -13,6 +13,7 @@ export class LanguageProcessor {
             merged[key] = options[key];
           }
         }
+        this.merged=merged
         this.magi = new MAGI(OpenAichatApi, 
             merged
         , persona)
@@ -40,7 +41,7 @@ export class LanguageProcessor {
     async summarizeText(content){
        try{ 
        let prompt =`summarize this content,within 100 token,in same language as it:${content}`
-        return (await (new OpenAichatApi()).postAsUser(prompt)).choices[0].message.content
+        return (await (new OpenAichatApi(this.merged)).postAsUser(prompt)).choices[0].message.content
        }catch(e){
         return ""
        }

@@ -5,7 +5,7 @@
     },
     {
         "role": "assistant",
-        "content": "{\"Prompt\":\"<lora:ARTSTYLE_EsadRibic_ownwaifu-15:0.7> ARTSTYLE_EsadRibic_ownwaifu, painting (medium) , a Georgian woman marvel hero with a proportional body, in a combat stance, ready for action as the danger approaches. From Portugal, wearing Neon_green colored the wind. Wearing a powerful bracelet and doing Hair styling in a location: locations_simple. wielding a powerful weapon, yellow eye color and auburn messy hair. Dynamic angle., (Masterpiece:1.3) (best quality:1.2) (high quality:1.1)\",\"Negative prompt\":\"3D, photo, anime, (worst quality, low quality:1.4), text, watermark, bad hands, bad anatomy, interlocked fingers,censored\"}"
+        "content": "[{\"Prompt\":\"<lora:ARTSTYLE_EsadRibic_ownwaifu-15:0.7> ARTSTYLE_EsadRibic_ownwaifu, painting (medium) , a Georgian woman marvel hero with a proportional body, in a combat stance, ready for action as the danger approaches. From Portugal, wearing Neon_green colored the wind. Wearing a powerful bracelet and doing Hair styling in a location: locations_simple. wielding a powerful weapon, yellow eye color and auburn messy hair. Dynamic angle., (Masterpiece:1.3) (best quality:1.2) (high quality:1.1)\",\"Negative prompt\":\"3D, photo, anime, (worst quality, low quality:1.4), text, watermark, bad hands, bad anatomy, interlocked fingers,censored\"}]"
     },
     {
         "role":"user",
@@ -13,7 +13,7 @@
     },
     {
         "role": "assistant",
-        "content":"{\"Prompt\":\"Woman in a leather jacket, against the background of a rainy city, (Wet hair:1.2) <lora:DS65_AlSe1024_100_128:0.7> <lora:DetaliSlider:2>, maximum details\",\"Negative prompt\":\"(Umbrella:1.1), [deformed | disfigured], poorly drawn, [bad : wrong] anatomy, [extra | missing | floating | disconnected] limb, (mutated hands and fingers), blurry\"}"        
+        "content":"[{\"Prompt\":\"Woman in a leather jacket, against the background of a rainy city, (Wet hair:1.2) <lora:DS65_AlSe1024_100_128:0.7> <lora:DetaliSlider:2>, maximum details\",\"Negative prompt\":\"(Umbrella:1.1), [deformed | disfigured], poorly drawn, [bad : wrong] anatomy, [extra | missing | floating | disconnected] limb, (mutated hands and fingers), blurry\"}]"        
     },
     {
         "role":"user",
@@ -21,7 +21,7 @@
     },
     {
         "role": "assistant",
-        "content":"{\"Prompt\":\"hyperrealistic art Capturing landscapes Art Inspired by Ancient Civilizations ethereal fantasy concept art of landscape, river, forest, mountains, summer, magnificent, celestial, ethereal, painterly, epic, majestic, magical, fantasy art, cover art, dreamy, Creating art inspired by ancient civilizations, often for historical interpretation, archeological insights, or cultural reverence., including natural scenery, urban environments, and seascapes. . extremely high-resolution details, photographic, realism pushed to extreme, fine texture, incredibly lifelike in Brooding landscapes, epic scale, German myth, layered symbolic density\",\"Negative prompt\":\"2d art, 3d art, ((illustration)), anime, cartoon, bad_pictures, bad-artist, EasyNegative,(worst quality:1.6), (low quality:1.6), (normal quality:1.6), lowres, bad anatomy, bad hands, ((monochrome)), ((grayscale)), collapsed eyeshadow, multiple eyebrow, (cropped), oversaturated, extra limb, missing limbs, deformed hands, long neck, long body, imperfect, (bad hands), signature, watermark, username, artist name, conjoined fingers, deformed fingers, ugly eyes, imperfect eyes, skewed eyes, unnatural face, unnatural body, error, bad image, bad photo, modern art, digital design, portrait photography, abstract painting, simplified, abstract, unrealistic, impressionistic, low resolution, Abbreviated sketches, intimate subjects, specificity of place, direct expression\"}"
+        "content":"[{\"Prompt\":\"hyperrealistic art Capturing landscapes Art Inspired by Ancient Civilizations ethereal fantasy concept art of landscape, river, forest, mountains, summer, magnificent, celestial, ethereal, painterly, epic, majestic, magical, fantasy art, cover art, dreamy, Creating art inspired by ancient civilizations, often for historical interpretation, archeological insights, or cultural reverence., including natural scenery, urban environments, and seascapes. . extremely high-resolution details, photographic, realism pushed to extreme, fine texture, incredibly lifelike in Brooding landscapes, epic scale, German myth, layered symbolic density\",\"Negative prompt\":\"2d art, 3d art, ((illustration)), anime, cartoon, bad_pictures, bad-artist, EasyNegative,(worst quality:1.6), (low quality:1.6), (normal quality:1.6), lowres, bad anatomy, bad hands, ((monochrome)), ((grayscale)), collapsed eyeshadow, multiple eyebrow, (cropped), oversaturated, extra limb, missing limbs, deformed hands, long neck, long body, imperfect, (bad hands), signature, watermark, username, artist name, conjoined fingers, deformed fingers, ugly eyes, imperfect eyes, skewed eyes, unnatural face, unnatural body, error, bad image, bad photo, modern art, digital design, portrait photography, abstract painting, simplified, abstract, unrealistic, impressionistic, low resolution, Abbreviated sketches, intimate subjects, specificity of place, direct expression\"}]"
     },
     {
         "role":"user",
@@ -29,6 +29,14 @@
     },
     {
         "role": "assistant",
-        "content":"{\"Prompt\":\"top view , colorful big flowers, green grass, blue, yellow, orange, red flowers\"}"
+        "content":"[{\"Prompt\":\"top view , colorful big flowers, green grass, blue, yellow, orange, red flowers\"}]"
+    },
+    {
+        "role":"user",
+        "content":"一位健身的男士在展示肌肉,给我四张"
+    },
+    {
+        "role": "assistant",
+        "content":"[{\"Prompt\":\"A muscular bodybuilder posing to display muscles, confident posture, well-defined features, charismatic expression, modern urban background, appropriate lighting and mood, capturing the essence of strength, (muscular:1.2), (confident:1.1), (well-defined features:1.1), (charismatic expression:1.1), (modern urban background:1.2), (appropriate lighting:1.05)\", \"Negative prompt\":\"Bad outfit, low quality:1.2, unnatural expression, poor lighting, lack of confidence or charisma, unappealing posture, unattractive features\"},{\"Prompt\":\"A muscular bodybuilder posing to display muscles, confident posture, well-defined features, charismatic expression, modern urban background, appropriate lighting and mood, capturing the essence of strength, (muscular:1.2), (confident:1.1), (well-defined features:1.1), (charismatic expression:1.1), (modern urban background:1.2), (appropriate lighting:1.05)\", \"Negative prompt\":\"Bad outfit, low quality:1.2, unnatural expression, poor lighting, lack of confidence or charisma, unappealing posture, unattractive features\",\"Seed\":12586},{\"Prompt\":\"A muscular bodybuilder posing to display muscles, confident posture, well-defined features, charismatic expression, modern urban background, appropriate lighting and mood, capturing the essence of strength, (muscular:1.2), (confident:1.1), (well-defined features:1.1), (charismatic expression:1.1), (modern urban background:1.2), (appropriate lighting:1.05)\", \"Negative prompt\":\"Bad outfit, low quality:1.2, unnatural expression, poor lighting, lack of confidence or charisma, unappealing posture, unattractive features\",\"Seed\":789012},{\"Prompt\":\"A muscular bodybuilder posing to display muscles, confident posture, well-defined features, charismatic expression, modern urban background, appropriate lighting and mood, capturing the essence of strength, (muscular:1.2), (confident:1.1), (well-defined features:1.1), (charismatic expression:1.1), (modern urban background:1.2), (appropriate lighting:1.05)\", \"Negative prompt\":\"Bad outfit, low quality:1.2, unnatural expression, poor lighting, lack of confidence or charisma, unappealing posture, unattractive features\",\"Seed\":55212}]"
     }
 ]

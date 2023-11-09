@@ -86,11 +86,9 @@ class Roster {
                 let DummySys = _roster.get("DummySys")
                 let ghost=DummySys.fake(name, plugin.statusMonitor.get('AiGhosts', name).$value)
                 await  plugin.statusMonitor.set('AiGhosts', name,ghost)
-                console.log(plugin.statusMonitor.get('AiGhosts', name).$value)
 
                 return ghost
             }else{
-                console.log(plugin.statusMonitor.get('AiGhosts', name).$value)
 
                 return plugin.statusMonitor.get('AiGhosts', name).$value
 

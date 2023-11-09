@@ -11,6 +11,7 @@ transformers.env.localModelPath = '/public/onnxModels/';
 let extractor
 let 工具配置 = {
 }
+
 async function 配置处理器(配置) {
     工具配置 = 配置;
     if (配置.siyuan&&配置.siyuan.config) {
