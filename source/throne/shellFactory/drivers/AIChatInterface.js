@@ -109,9 +109,7 @@ export class AIChatInterface extends EventEmitter {
     初始化UI(element) {
         let that=this
         this.off("waitForReply", that.等待AI回复)
-        const 聊天容器 = document.createElement('div');
-        聊天容器.id = 'chat-container';
-        聊天容器.setAttribute('class', 'fn__flex-1')
+        const 聊天容器 = this.创建聊天容器()
         const 引用按钮 = document.createElement('button');
         引用按钮.innerHTML = `<svg><use xlink:href="#iconList"></use><svg>`;
         引用按钮.classList.add('ai-quote-btn')
@@ -144,6 +142,12 @@ export class AIChatInterface extends EventEmitter {
         用户输入框.focus()
         this.on("waitForReply", that.等待AI回复)
         this.messageCache = []
+    }
+    创建聊天容器(){
+        const 聊天容器 = document.createElement('div');
+        聊天容器.id = 'chat-container';
+        聊天容器.setAttribute('class', 'fn__flex-1')
+        return 聊天容器
     }
     显示消息(message) {
         this.messageCache.push(message);
