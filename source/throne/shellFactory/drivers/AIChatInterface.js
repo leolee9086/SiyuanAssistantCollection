@@ -109,7 +109,6 @@ export class AIChatInterface extends EventEmitter {
     初始化UI(element) {
         let that=this
         this.off("waitForReply", that.等待AI回复)
-
         const 聊天容器 = document.createElement('div');
         聊天容器.id = 'chat-container';
         聊天容器.setAttribute('class', 'fn__flex-1')
@@ -131,12 +130,10 @@ export class AIChatInterface extends EventEmitter {
         const 对话框容器 = document.createElement('div');
         对话框容器.classList.add('dialog-container');
         对话框容器.appendChild(用户输入区);
-
         const 对话框内容元素 = document.createElement('div');
         对话框内容元素.classList.add('b3-dialog__content', 'fn__flex-column', 'ai-dialog');
         对话框内容元素.appendChild(聊天容器);
         对话框内容元素.appendChild(对话框容器);
-
         用户输入区.appendChild(提交按钮);
         this.提交按钮 = 提交按钮;
         this.用户输入框 = 用户输入框;
@@ -147,13 +144,12 @@ export class AIChatInterface extends EventEmitter {
         用户输入框.focus()
         this.on("waitForReply", that.等待AI回复)
         this.messageCache = []
-
     }
     显示消息(message) {
         this.messageCache.push(message);
-        this.processMessageCache();
+        this.处理消息缓存();
     }
-    processMessageCache = 防抖(() => {
+    处理消息缓存 = 防抖(() => {
         this.messageCache.forEach(message => {
             switch (message.role) {
                 case "user":
@@ -171,17 +167,16 @@ export class AIChatInterface extends EventEmitter {
     }, 100)
     显示用户消息(message) {
         let { content, id } = message
-        const userMessage = createElement("div", ["user-message", "fn__flex"], `<div class="fn__flex"><strong>User:</strong> ${content}</div>`);
-        userMessage.appendChild(createElement('div', ["fn__space", "fn__flex-1"], ``))
-        let trashButton = createElement('span', [], `<svg class="b3-menu__icon " style=""><use xlink:href="#iconTrashcan"></use></svg>`)
+        const userMessage = createElementWithTagname("div", ["user-message", "fn__flex"], `<div class="fn__flex"><strong>User:</strong> ${content}</div>`);
+        userMessage.appendChild(createElementWithTagname('div', ["fn__space", "fn__flex-1"], ``))
+        let trashButton = createElementWithTagname('span', [], `<svg class="b3-menu__icon " style=""><use xlink:href="#iconTrashcan"></use></svg>`)
         userMessage.appendChild(trashButton)
         trashButton.addEventListener('click', () => { this.doll.emit('human-forced-forget-to', id) })
-        let refreshButton = createElement('span', [], `<svg class="b3-menu__icon " style=""><use xlink:href="#iconRefresh"></use></svg>`)
+        let refreshButton = createElementWithTagname('span', [], `<svg class="b3-menu__icon " style=""><use xlink:href="#iconRefresh"></use></svg>`)
         userMessage.appendChild(refreshButton)
         refreshButton.addEventListener('click', () => {
             this.doll.emit('human-forced-forget-to', { id:  id})
             this.doll.components['textChat'].current = this
-
             this.提交用户消息(message.content)
         }
         )
@@ -190,7 +185,7 @@ export class AIChatInterface extends EventEmitter {
         this.doll.components['textChat'].current
     }
     添加AI消息(message, linkMap, images) {
-        const aiMessage = createElement("div", ["ai-message"], "");
+        const aiMessage = createElementWithTagname("div", ["ai-message"], "");
         aiMessage.setAttribute('data-message-id', message.id)
         this.临时聊天容器.appendChild(aiMessage);
         aiMessage.setAttribute('draggable', "true")
@@ -202,18 +197,14 @@ export class AIChatInterface extends EventEmitter {
                 imageRows.push(`{{{col${imageCols}\n}}}`);
             }
              imageTags = imageRows.join('\n');        
-
             aiMessage.innerHTML += `<div class='protyle-wysiwyg protyle-wysiwyg--attr images'> ${this.lute ? this.lute.Md2BlockDOM(imageTags) : ""}</div>`
             aiMessage.querySelector('.protyle-wysiwyg.protyle-wysiwyg--attr.image')
         }
-
         aiMessage.innerHTML += `<div class='protyle-wysiwyg protyle-wysiwyg--attr'><strong>${this.doll.ghost.persona.name}:</strong> ${this.lute ? this.lute.Md2BlockDOM(message.content) : message.content}</div>`;
-
         aiMessage.querySelectorAll('[contenteditable="true"]').forEach(elem => elem.contentEditable = false);
         aiMessage.addEventListener('dragstart', function (event) {
             event.dataTransfer.setData('text/html', aiMessage.innerHTML);
         });
-
         let linkSpans = aiMessage.querySelectorAll('[data-type="a"]')
         let _linkMap = this.doll.ghost.linkMap;
         (async () => {
@@ -270,7 +261,6 @@ export class AIChatInterface extends EventEmitter {
         this.用户输入框.removeAttribute('disabled')
         this.添加插入按钮(aiMessage, this.当前用户输入, message);
         this.embedBlocksContent = ''
-
         try {
             let blockIDs = []
             aiMessage.querySelectorAll(`[data-type="NodeBlockQueryEmbed"]`).forEach(
@@ -299,7 +289,7 @@ export class AIChatInterface extends EventEmitter {
         this.用户输入框.setAttribute('disabled', true)
     }
 }
-function createElement(tagName, classNames, innerHTML) {
+function createElementWithTagname(tagName, classNames, innerHTML) {
     const element = document.createElement(tagName);
     element.classList.add(...classNames);
     element.innerHTML = innerHTML;
