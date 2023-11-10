@@ -110,9 +110,7 @@ export class AIChatInterface extends EventEmitter {
         let that=this
         this.off("waitForReply", that.等待AI回复)
         const 聊天容器 = this.创建聊天容器()
-        const 引用按钮 = document.createElement('button');
-        引用按钮.innerHTML = `<svg><use xlink:href="#iconList"></use><svg>`;
-        引用按钮.classList.add('ai-quote-btn')
+        const 输入菜单按钮 = this.创建输入菜单按钮()
         const 用户输入框 = document.createElement('textarea');
         用户输入框.id = 'user-input';
         用户输入框.placeholder = '请输入内容';
@@ -122,7 +120,7 @@ export class AIChatInterface extends EventEmitter {
         提交按钮.textContent = plugin.i18n.提交;
         const 用户输入区 = document.createElement('div');
         用户输入区.classList.add('user-input-container');
-        用户输入区.appendChild(引用按钮);  // 将按钮添加到 userInputContainer 中
+        用户输入区.appendChild(输入菜单按钮);  // 将按钮添加到 userInputContainer 中
         用户输入区.appendChild(用户输入框);
         用户输入区.appendChild(提交按钮);
         const 对话框容器 = document.createElement('div');
@@ -136,12 +134,18 @@ export class AIChatInterface extends EventEmitter {
         this.提交按钮 = 提交按钮;
         this.用户输入框 = 用户输入框;
         this.聊天容器 = 聊天容器;
-        this.引用按钮 = 引用按钮
+        this.引用按钮 = 输入菜单按钮
         logger.aiChatlog(this.doll)
         element.appendChild(对话框内容元素);
         用户输入框.focus()
         this.on("waitForReply", that.等待AI回复)
         this.messageCache = []
+    }
+    创建输入菜单按钮(){
+        const 引用按钮 = document.createElement('button');
+        引用按钮.innerHTML = `<svg><use xlink:href="#iconList"></use><svg>`;
+        引用按钮.classList.add('ai-quote-btn')
+        return 引用按钮
     }
     创建聊天容器(){
         const 聊天容器 = document.createElement('div');
