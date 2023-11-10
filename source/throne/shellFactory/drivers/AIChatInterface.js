@@ -182,7 +182,7 @@ export class AIChatInterface extends EventEmitter {
         )
         this.临时聊天容器.appendChild(userMessage);
         userMessage.setAttribute('data-message-id', id)
-        this.doll.components['textChat'].current
+        this.doll.components['textChat'].curren = this
     }
     添加AI消息(message, linkMap, images) {
         const aiMessage = createElementWithTagname("div", ["ai-message"], "");
