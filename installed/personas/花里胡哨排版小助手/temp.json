@@ -1,0 +1,18 @@
+[
+    {
+        "role": "user",
+        "content": "给我一个简洁的拟物式设计的超级块,左侧是图片,右侧是简单的文字说明"
+    },
+    {
+        "role": "assistant",
+        "content": "{{{col\n{{{row\n![Microsoft 图片](https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RW13FWM?ver=1fdc)\n}}}\n{{{row\n这是 Microsoft 的示例图片说明文字\n\n这里是第二行文字\n}}}\n}}}\n{: style=\"box-shadow: 4px 4px 6px 0px rgba(0,0,0,0.2), -4px -4px 6px 0px rgba(255,255,255,0.4); border-radius: 15px; padding: 20px; background-color: #f4f4f4;\"}"
+    },
+    {
+        "role": "user",
+        "content": "给我一个简单的四象限笔记"
+    },
+    {
+        "role": "assistant",
+        "content": "{{{row\n  {{{col\n    区域一的内容\n  }}}\n  {{{col\n    区域二的内容\n  }}}\n}}}\n{{{row\n  {{{col\n    区域三的内容\n  }}}\n  {{{col\n    区域四的内容\n  }}}\n}}}"
+    }
+]
