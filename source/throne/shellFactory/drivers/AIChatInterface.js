@@ -14,7 +14,6 @@ import { 防抖 } from '../../../utils/functionTools.js';
 import { 获取嵌入块内容 } from './renders/index.js';
 import BlockHandler from '../../../utils/BlockHandler.js';
 import { createElementWithTagname } from '../../../UI/builders/index.js';
-import { renderLinkMap } from './renders/linkMapRender.js';
 export class AIChatInterface extends EventEmitter {
     constructor(element, doll) {
         super(`textChat_${doll.ghost.persona.name}`)
