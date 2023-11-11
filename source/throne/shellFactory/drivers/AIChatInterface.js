@@ -2,7 +2,10 @@ import { EventEmitter } from '../../../eventsManager/EventEmitter.js';
 import { clientApi, pluginInstance as plugin, kernelApi } from '../../../asyncModules.js';
 import { aiMessageButton } from './AiChatInterface/buttons/aiMessageButton.js';
 import { 创建输入菜单按钮 } from './AiChatInterface/buttons/userInputButtonLeft.js';
-import {创建聊天容器} from './AiChatInterface/chatContainers/index.js'
+import { 创建聊天容器 } from './AiChatInterface/chatContainers/index.js'
+import { 创建用户输入框 } from './AiChatInterface/userInputArea/index.js';
+import { 创建提交按钮 } from './AiChatInterface/buttons/userInputButtonRight.js';
+import { 创建用户输入区 } from './AiChatInterface/userInputArea/index.js';
 import { show as showGhostSelector } from './menus/ghostSelector.js';
 import logger from '../../../logger/index.js'
 import { 防抖 } from '../../../utils/functionTools.js';
@@ -15,7 +18,7 @@ export class AIChatInterface extends EventEmitter {
         this.doll = doll
         this.element = element
         this.初始化()
-        this.on('refresh',()=>{this.初始化.bind(this)()})
+        this.on('refresh', () => { this.初始化.bind(this)() })
     }
     初始化() {
         this.off(
@@ -42,18 +45,17 @@ export class AIChatInterface extends EventEmitter {
     dispose() {
         this.container ? this.container.innerHTML = '' : null
     }
-    消息显示回调=(event)=> {
+    消息显示回调 = (event) => {
         let 消息对象 = event.detail
         if (!消息对象.id) {
             throw new Error('消息没有ID,请检查')
         }
-
         this.显示消息(消息对象)
     }
     初始化事件监听器() {
         this.on(
             'textWithRole',
-             this.消息显示回调
+            this.消息显示回调
         )
         this.提交按钮.addEventListener("click", this.提交按钮点击回调);
         this.用户输入框.addEventListener("keydown", this.用户输入回调);
@@ -71,7 +73,6 @@ export class AIChatInterface extends EventEmitter {
                 参考内容.push(`[${el.textContent.substring(0, 512)}](siyuan://blocks/${el.getAttribute('data-node-id')})`)
             })
             参考内容[0] ? this.用户输入框.value += `\n> ---references---\n${参考内容.join('\n')}` : null
-
         });
     }
     用户输入回调 = async (event) => {
@@ -79,7 +80,6 @@ export class AIChatInterface extends EventEmitter {
             this.提交按钮.click(); // 触发提交按钮的 click 事件
             event.preventDefault(); // 阻止默认的换行行为
             event.stopPropagation(); // 阻止事件冒泡
-
         } else if (event.key === "Tab") {
             event.preventDefault(); // 阻止默认的 Tab 行为
             event.stopPropagation(); // 阻止事件冒泡
@@ -110,45 +110,42 @@ export class AIChatInterface extends EventEmitter {
         this.shell.emit(`textChat_userMessage`, 消息文字)
     }
     初始化UI(element) {
-        let that=this
+        let that = this
         this.off("waitForReply", that.等待AI回复)
-        const 聊天容器 = 创建聊天容器()
-        const 输入菜单按钮 = 创建输入菜单按钮()
-        const 用户输入框 = document.createElement('textarea');
-        用户输入框.id = 'user-input';
-        用户输入框.placeholder = '请输入内容';
-        const 提交按钮 = document.createElement('button');
-        提交按钮.id = 'submit-btn';
-        提交按钮.classList.add('ai-submit-btn')
-        提交按钮.textContent = plugin.i18n.提交;
-        const 用户输入区 = document.createElement('div');
-        用户输入区.classList.add('user-input-container');
-        用户输入区.appendChild(输入菜单按钮);  // 将按钮添加到 userInputContainer 中
-        用户输入区.appendChild(用户输入框);
-        用户输入区.appendChild(提交按钮);
+        this.创建聊天容器()
+        this.创建用户输入区()
         const 对话框容器 = document.createElement('div');
         对话框容器.classList.add('dialog-container');
-        对话框容器.appendChild(用户输入区);
+        对话框容器.appendChild(this.用户输入区);
         const 对话框内容元素 = document.createElement('div');
         对话框内容元素.classList.add('b3-dialog__content', 'fn__flex-column', 'ai-dialog');
-        对话框内容元素.appendChild(聊天容器);
+        对话框内容元素.appendChild(this.聊天容器);
         对话框内容元素.appendChild(对话框容器);
-        用户输入区.appendChild(提交按钮);
-        this.提交按钮 = 提交按钮;
-        this.用户输入框 = 用户输入框;
-        this.聊天容器 = 聊天容器;
-        this.引用按钮 = 输入菜单按钮
         logger.aiChatlog(this.doll)
         element.appendChild(对话框内容元素);
-        用户输入框.focus()
+        this.用户输入框.focus()
         this.on("waitForReply", that.等待AI回复)
         this.messageCache = []
     }
-    创建聊天容器(){
-        const 聊天容器 = document.createElement('div');
-        聊天容器.id = 'chat-container';
-        聊天容器.setAttribute('class', 'fn__flex-1')
-        return 聊天容器
+    创建聊天容器() {
+        const 聊天容器 = 创建聊天容器()
+        this.聊天容器 = 聊天容器;
+    }
+    创建用户输入区() {
+        const 输入菜单按钮 = 创建输入菜单按钮()
+        this.引用按钮 = 输入菜单按钮
+
+        const 用户输入框 = 创建用户输入框()
+        this.用户输入框 = 用户输入框;
+
+        const 提交按钮 = 创建提交按钮()
+        this.提交按钮 = 提交按钮;
+
+        const 用户输入区 = 创建用户输入区()
+        用户输入区.appendChild(输入菜单按钮);  // 将按钮添加到 userInputContainer 中
+        用户输入区.appendChild(用户输入框);
+        用户输入区.appendChild(提交按钮);
+        this.用户输入区 = 用户输入区
     }
     显示消息(message) {
         this.messageCache.push(message);
@@ -180,7 +177,7 @@ export class AIChatInterface extends EventEmitter {
         let refreshButton = createElementWithTagname('span', [], `<svg class="b3-menu__icon " style=""><use xlink:href="#iconRefresh"></use></svg>`)
         userMessage.appendChild(refreshButton)
         refreshButton.addEventListener('click', () => {
-            this.doll.emit('human-forced-forget-to', { id:  id})
+            this.doll.emit('human-forced-forget-to', { id: id })
             this.doll.components['textChat'].current = this
             this.提交用户消息(message.content)
         }
@@ -195,13 +192,13 @@ export class AIChatInterface extends EventEmitter {
         this.临时聊天容器.appendChild(aiMessage);
         aiMessage.setAttribute('draggable', "true")
         if (images) {
-            let imageTags=""
+            let imageTags = ""
             let imageRows = [];
             for (let i = 0; i < images.length; i += 3) {
                 let imageCols = images.slice(i, i + 3).map(image => `\n{{{row\n![${image.id}](${image})\n}}}`).join('');
                 imageRows.push(`{{{col${imageCols}\n}}}`);
             }
-             imageTags = imageRows.join('\n');        
+            imageTags = imageRows.join('\n');
             aiMessage.innerHTML += `<div class='protyle-wysiwyg protyle-wysiwyg--attr images'> ${this.lute ? this.lute.Md2BlockDOM(imageTags) : ""}</div>`
             aiMessage.querySelector('.protyle-wysiwyg.protyle-wysiwyg--attr.image')
         }
@@ -290,7 +287,7 @@ export class AIChatInterface extends EventEmitter {
         let button = new aiMessageButton({ doll: this.doll, aiMessage, currentAiReply: message, userInput });
         aiMessage.appendChild(button.button);
     }
-    等待AI回复=()=> {
+    等待AI回复 = () => {
         this.用户输入框.setAttribute('disabled', true)
     }
 }
