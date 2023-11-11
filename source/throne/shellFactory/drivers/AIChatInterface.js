@@ -1,6 +1,7 @@
 import { EventEmitter } from '../../../eventsManager/EventEmitter.js';
 import { clientApi, pluginInstance as plugin, kernelApi } from '../../../asyncModules.js';
-import { aiMessageButton } from './AiChatInterface/buttons/InsertButton.js';
+import { aiMessageButton } from './AiChatInterface/buttons/aiMessageButton.js';
+import { 创建输入菜单按钮 } from './AiChatInterface/buttons/userInputButtonLeft.js';
 import { show as showGhostSelector } from './menus/ghostSelector.js';
 import logger from '../../../logger/index.js'
 import { 防抖 } from '../../../utils/functionTools.js';
@@ -111,7 +112,7 @@ export class AIChatInterface extends EventEmitter {
         let that=this
         this.off("waitForReply", that.等待AI回复)
         const 聊天容器 = this.创建聊天容器()
-        const 输入菜单按钮 = this.创建输入菜单按钮()
+        const 输入菜单按钮 = 创建输入菜单按钮()
         const 用户输入框 = document.createElement('textarea');
         用户输入框.id = 'user-input';
         用户输入框.placeholder = '请输入内容';
@@ -141,12 +142,6 @@ export class AIChatInterface extends EventEmitter {
         用户输入框.focus()
         this.on("waitForReply", that.等待AI回复)
         this.messageCache = []
-    }
-    创建输入菜单按钮(){
-        const 引用按钮 = document.createElement('button');
-        引用按钮.innerHTML = `<svg><use xlink:href="#iconList"></use><svg>`;
-        引用按钮.classList.add('ai-quote-btn')
-        return 引用按钮
     }
     创建聊天容器(){
         const 聊天容器 = document.createElement('div');
