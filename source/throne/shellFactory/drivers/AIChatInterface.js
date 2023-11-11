@@ -22,11 +22,12 @@ export class AIChatInterface extends EventEmitter {
         )
         this.dispose()
         this.初始化UI(this.element)
+        this.container = this.element
+        this.初始化事件监听器()
+
         this.describe = {
             showHistory: '显示所有之前的聊天记录',
         }
-        this.container = this.element
-        this.初始化事件监听器()
         this.当前参考内容组 = []
         this.当前用户输入 = ''
         this.当前AI回复 = ''
