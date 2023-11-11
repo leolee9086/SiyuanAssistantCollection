@@ -1,4 +1,4 @@
-import { createElementWithTagname,string2DOM } from "../../../../../UI/builders/index.js";
+import { string2DOM } from "../../../../../UI/builders/index.js";
 
 export const 创建用户消息卡片 = (message) => {
     let { content, id } = message;
