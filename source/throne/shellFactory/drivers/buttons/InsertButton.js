@@ -32,7 +32,6 @@ export class aiMessageButton extends EventEmitter {
         this.emit('aiMessageButtonClicked',detail );
         event.stopPropagation()
     }
-
     async handleDragStart(event) {
         const messageContent = this.aiMessage.querySelector('.protyle-wysiwyg.protyle-wysiwyg--attr');
         event.dataTransfer.setData('text/plain', messageContent.innerText);

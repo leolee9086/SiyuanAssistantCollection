@@ -153,6 +153,7 @@ export class AIChatInterface extends EventEmitter {
         聊天容器.setAttribute('class', 'fn__flex-1')
         return 聊天容器
     }
+    
     显示消息(message) {
         this.messageCache.push(message);
         this.处理消息缓存();
