@@ -1,11 +1,12 @@
 import { EventEmitter } from '../../../eventsManager/EventEmitter.js';
-import { clientApi, pluginInstance as plugin, kernelApi } from '../../../asyncModules.js';
+import {  pluginInstance as plugin, kernelApi } from '../../../asyncModules.js';
 import { aiMessageButton } from './AiChatInterface/buttons/aiMessageButton.js';
 import { 创建输入菜单按钮 } from './AiChatInterface/buttons/userInputButtonLeft.js';
 import { 创建聊天容器 } from './AiChatInterface/chatContainers/index.js'
 import { 创建用户输入框 } from './AiChatInterface/userInputArea/index.js';
 import { 创建提交按钮 } from './AiChatInterface/buttons/userInputButtonRight.js';
 import { 创建用户输入区 } from './AiChatInterface/userInputArea/index.js';
+import { 创建用户消息卡片 } from './AiChatInterface/messageCard/userMessage.js';
 import { show as showGhostSelector } from './menus/ghostSelector.js';
 import logger from '../../../logger/index.js'
 import { 防抖 } from '../../../utils/functionTools.js';
@@ -169,22 +170,19 @@ export class AIChatInterface extends EventEmitter {
         this.临时聊天容器 = document.createDocumentFragment()
     }, 100)
     显示用户消息(message) {
-        let { content, id } = message
-        const userMessage = createElementWithTagname("div", ["user-message", "fn__flex"], `<div class="fn__flex"><strong>User:</strong> ${content}</div>`);
-        userMessage.appendChild(createElementWithTagname('div', ["fn__space", "fn__flex-1"], ``))
+        let { id } = message
+        const userMessage =创建用户消息卡片(message)
         let trashButton = createElementWithTagname('span', [], `<svg class="b3-menu__icon " style=""><use xlink:href="#iconTrashcan"></use></svg>`)
-        userMessage.appendChild(trashButton)
         trashButton.addEventListener('click', () => { this.doll.emit('human-forced-forget-to', id) })
+        userMessage.appendChild(trashButton)
         let refreshButton = createElementWithTagname('span', [], `<svg class="b3-menu__icon " style=""><use xlink:href="#iconRefresh"></use></svg>`)
-        userMessage.appendChild(refreshButton)
-        userMessage.setAttribute('data-message-id', id)
-
         refreshButton.addEventListener('click', () => {
             this.doll.emit('human-forced-forget-to', { id: id })
             this.doll.components['textChat'].current = this
             this.提交用户消息(message.content)
         }
         )
+        userMessage.appendChild(refreshButton)
         this.临时聊天容器.appendChild(userMessage);
         this.doll.components['textChat'].curren = this
     }
