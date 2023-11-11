@@ -7,6 +7,7 @@ import { 创建用户输入框 } from './AiChatInterface/userInputArea/index.js'
 import { 创建提交按钮 } from './AiChatInterface/buttons/userInputButtonRight.js';
 import { 创建用户输入区 } from './AiChatInterface/userInputArea/index.js';
 import { 创建用户消息卡片 } from './AiChatInterface/messageCard/userMessage.js';
+import { 创建AI消息卡片 } from './AiChatInterface/messageCard/AIMessage.js';
 import { show as showGhostSelector } from './menus/ghostSelector.js';
 import logger from '../../../logger/index.js'
 import { 防抖 } from '../../../utils/functionTools.js';
@@ -187,29 +188,15 @@ export class AIChatInterface extends EventEmitter {
         this.doll.components['textChat'].curren = this
     }
     添加AI消息(message, linkMap, images) {
-        const aiMessage = createElementWithTagname("div", ["ai-message"], "");
-        aiMessage.setAttribute('data-message-id', message.id)
-        this.临时聊天容器.appendChild(aiMessage);
-        aiMessage.setAttribute('draggable', "true")
-        if (images) {
-            let imageTags = ""
-            let imageRows = [];
-            for (let i = 0; i < images.length; i += 3) {
-                let imageCols = images.slice(i, i + 3).map(image => `\n{{{row\n![${image.id}](${image})\n}}}`).join('');
-                imageRows.push(`{{{col${imageCols}\n}}}`);
-            }
-            imageTags = imageRows.join('\n');
-            aiMessage.innerHTML += `<div class='protyle-wysiwyg protyle-wysiwyg--attr images'> ${this.lute ? this.lute.Md2BlockDOM(imageTags) : ""}</div>`
-            aiMessage.querySelector('.protyle-wysiwyg.protyle-wysiwyg--attr.image')
-        }
+        let _linkMap = this.doll.ghost.linkMap;
+        let combinedLinkMap = { ..._linkMap, ...linkMap };
+        const aiMessage = 创建AI消息卡片(message, combinedLinkMap, images)
         aiMessage.innerHTML += `<div class='protyle-wysiwyg protyle-wysiwyg--attr'><strong>${this.doll.ghost.persona.name}:</strong> ${this.lute ? this.lute.Md2BlockDOM(message.content) : message.content}</div>`;
         aiMessage.querySelectorAll('[contenteditable="true"]').forEach(elem => elem.contentEditable = false);
         aiMessage.addEventListener('dragstart', function (event) {
             event.dataTransfer.setData('text/html', aiMessage.innerHTML);
         });
-        let _linkMap = this.doll.ghost.linkMap;
-        let combinedLinkMap = { ..._linkMap, ...linkMap };
-        renderLinkMap(aiMessage,combinedLinkMap)
+        this.临时聊天容器.appendChild(aiMessage);
         this.用户输入框.removeAttribute('disabled')
         this.添加插入按钮(aiMessage, this.当前用户输入, message);
         this.embedBlocksContent = ''
