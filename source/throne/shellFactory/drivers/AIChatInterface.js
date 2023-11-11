@@ -12,6 +12,7 @@ import { 防抖 } from '../../../utils/functionTools.js';
 import { 获取嵌入块内容 } from './renders/index.js';
 import BlockHandler from '../../../utils/BlockHandler.js';
 import { createElementWithTagname } from '../../../UI/builders/index.js';
+import { renderLinkMap } from './renders/linkMapRender.js';
 export class AIChatInterface extends EventEmitter {
     constructor(element, doll) {
         super(`textChat_${doll.ghost.persona.name}`)
@@ -207,59 +208,9 @@ export class AIChatInterface extends EventEmitter {
         aiMessage.addEventListener('dragstart', function (event) {
             event.dataTransfer.setData('text/html', aiMessage.innerHTML);
         });
-        let linkSpans = aiMessage.querySelectorAll('[data-type="a"]')
         let _linkMap = this.doll.ghost.linkMap;
-        (async () => {
-            let combinedLinkMap = { ..._linkMap, ...linkMap };
-            combinedLinkMap && linkSpans.forEach(link => {
-                const idShortCode = link.getAttribute('data-href').replace('ref:', '').split('-').pop().trim();
-                const foundLink = Object.keys(combinedLinkMap).find(key => key.endsWith(idShortCode));
-                if (foundLink) {
-                    link.setAttribute('data-href', combinedLinkMap[foundLink]);
-                    link.addEventListener('click', (event) => {
-                        const target = event.target;
-                        const href = target.getAttribute('data-href');
-                        window.open(href, '_blank');
-
-                    });
-                } else {
-                    if (!link.getAttribute('data-href').startsWith('ref:')) {
-                        link.setAttribute('data-real-href', link.getAttribute('data-href'));
-                        link.addEventListener('click', (e) => {
-                            clientApi.confirm(
-                                "这货又自己编参考来源了",
-                                '这个链接好像是它自己找的,你要尝试访问的话就点吧',
-                                (confirmed) => {
-                                    if (confirmed) {
-                                        window.open(link.getAttribute('data-real-href', '_blank'))
-                                    }
-                                }
-                            )
-                            e.stopPropagation()
-                            e.preventDefault()
-                        })
-                    } else {
-                        link.setAttribute('data-real-href', link.getAttribute('data-href'));
-                        link.setAttribute('data-href', link.getAttribute('data-href') + "这个肯定是它瞎编的不用想了");
-                        link.addEventListener('click', (e) => {
-                            clientApi.confirm(
-                                "这货又自己编参考来源了",
-                                '这个链接好像是它编的,你要尝试访问的话就点吧',
-                                (confirmed) => {
-                                    if (confirmed) {
-                                        window.open(link.getAttribute('data-real-href', '_blank'))
-                                    }
-                                }
-                            )
-                            e.stopPropagation()
-                            e.preventDefault()
-                        })
-                    }
-
-                }
-            });
-
-        })()
+        let combinedLinkMap = { ..._linkMap, ...linkMap };
+        renderLinkMap(aiMessage,combinedLinkMap)
         this.用户输入框.removeAttribute('disabled')
         this.添加插入按钮(aiMessage, this.当前用户输入, message);
         this.embedBlocksContent = ''
