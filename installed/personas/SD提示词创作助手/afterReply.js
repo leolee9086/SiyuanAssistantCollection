@@ -4,7 +4,11 @@ export default async (result) => {
     let obj
     let images = []
     try {
-        obj = JSON.parse(result.content)
+        try{
+            obj = JSON.parse(result.content)
+        }catch(e){
+            obj = JSON.parse(`[${result.content}]`)
+        }
         if (obj.Prompts) {
             obj=obj.Prompts
         }
@@ -35,8 +39,8 @@ async function text2Image(obj) {
 
     // 将obj转换为需要的格式
     const data = {
-        prompt: obj.Prompt,
-        negativePrompt: obj["Negative prompt"],
+        prompt: getPropIgnoreCase(obj, 'prompt'),
+        negativePrompt: getPropIgnoreCase(obj, 'negative prompt'),
         'seed': obj.Seed || 1234,
         'steps': 20,
         'width': 512,
@@ -69,4 +73,13 @@ async function text2Image(obj) {
         URLs.push("/public/SacImages/" + ID + '.png')
     }
     return URLs
+}
+function getPropIgnoreCase(obj, prop) {
+    const lowerProp = prop.toLowerCase();
+    for (let key in obj) {
+        if (key.toLowerCase() === lowerProp) {
+            return obj[key];
+        }
+    }
+    return null;
 }
