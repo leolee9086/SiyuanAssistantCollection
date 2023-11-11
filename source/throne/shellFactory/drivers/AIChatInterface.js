@@ -6,6 +6,7 @@ import logger from '../../../logger/index.js'
 import { 防抖 } from '../../../utils/functionTools.js';
 import { 获取嵌入块内容 } from './render/index.js';
 import BlockHandler from '../../../utils/BlockHandler.js';
+import { createElementWithTagname } from '../../../UI/builders/index.js';
 export class AIChatInterface extends EventEmitter {
     constructor(element, doll) {
         super(`textChat_${doll.ghost.persona.name}`)
@@ -297,10 +298,4 @@ export class AIChatInterface extends EventEmitter {
     等待AI回复=()=> {
         this.用户输入框.setAttribute('disabled', true)
     }
-}
-function createElementWithTagname(tagName, classNames, innerHTML) {
-    const element = document.createElement(tagName);
-    element.classList.add(...classNames);
-    element.innerHTML = innerHTML;
-    return element;
 }

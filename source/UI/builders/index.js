@@ -21,3 +21,9 @@ export function emitEvent(element, eventName, detail) {
     // 使用 dispatchEvent 方法触发事件
     element.dispatchEvent(event);
 }
+export function  createElementWithTagname(tagName, classNames, innerHTML) {
+    const element = document.createElement(tagName);
+    element.classList.add(...classNames);
+    element.innerHTML = innerHTML;
+    return element;
+}
