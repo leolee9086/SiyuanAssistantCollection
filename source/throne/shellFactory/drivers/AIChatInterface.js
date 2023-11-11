@@ -2,6 +2,7 @@ import { EventEmitter } from '../../../eventsManager/EventEmitter.js';
 import { clientApi, pluginInstance as plugin, kernelApi } from '../../../asyncModules.js';
 import { aiMessageButton } from './AiChatInterface/buttons/aiMessageButton.js';
 import { 创建输入菜单按钮 } from './AiChatInterface/buttons/userInputButtonLeft.js';
+import {创建聊天容器} from './AiChatInterface/chatContainers/index.js'
 import { show as showGhostSelector } from './menus/ghostSelector.js';
 import logger from '../../../logger/index.js'
 import { 防抖 } from '../../../utils/functionTools.js';
@@ -111,7 +112,7 @@ export class AIChatInterface extends EventEmitter {
     初始化UI(element) {
         let that=this
         this.off("waitForReply", that.等待AI回复)
-        const 聊天容器 = this.创建聊天容器()
+        const 聊天容器 = 创建聊天容器()
         const 输入菜单按钮 = 创建输入菜单按钮()
         const 用户输入框 = document.createElement('textarea');
         用户输入框.id = 'user-input';
