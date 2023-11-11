@@ -2,14 +2,14 @@
   "name": "SiyuanAssistantCollection",
   "author": "椽承设计",
   "url": "https://github.com/leolee9086/SiyuanAssistantCollection",
-  "version": "0.0.31",
+  "version": "0.0.32",
   "displayName": {
     "default": "SiyuanAssistantCollection",
     "zh_CN": "思源小助手"
   },
   "description": {
-    "default": "This is a plugin to add backendSerivce support to siyuan's electron App",
-    "zh_CN": "给思源的各类块菜单增加一点常用操作,可能还有一点点ai模型的对接"
+    "default": "Add some common operations to various blockicon menus of Siyuan, and also integrate with AI tools such as ChatGPT, Xunfei Spark, rwkv, stable diffusion, etc.",
+    "zh_CN": "给思源的各类块菜单增加一点常用操作,还有与chatGpt、讯飞星火、rwkv、stable diffusion等等AI工具的对接"
   },
   "readme": {
     "default": "README.md",

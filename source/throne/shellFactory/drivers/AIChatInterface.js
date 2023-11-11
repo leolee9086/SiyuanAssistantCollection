@@ -177,6 +177,8 @@ export class AIChatInterface extends EventEmitter {
         trashButton.addEventListener('click', () => { this.doll.emit('human-forced-forget-to', id) })
         let refreshButton = createElementWithTagname('span', [], `<svg class="b3-menu__icon " style=""><use xlink:href="#iconRefresh"></use></svg>`)
         userMessage.appendChild(refreshButton)
+        userMessage.setAttribute('data-message-id', id)
+
         refreshButton.addEventListener('click', () => {
             this.doll.emit('human-forced-forget-to', { id: id })
             this.doll.components['textChat'].current = this
@@ -184,7 +186,6 @@ export class AIChatInterface extends EventEmitter {
         }
         )
         this.临时聊天容器.appendChild(userMessage);
-        userMessage.setAttribute('data-message-id', id)
         this.doll.components['textChat'].curren = this
     }
     添加AI消息(message, linkMap, images) {
@@ -224,7 +225,6 @@ export class AIChatInterface extends EventEmitter {
                         block => {
                             blockIDs.push(block.getAttribute('data-node-id'))
                             this.embedBlocksContent += `\n${(new BlockHandler(block.getAttribute('data-node-id'))).markdown}[from block:${block.getAttribute('data-node-id')}}](siyuan://blocks/${block.getAttribute('data-node-id')})`
-
                         }
                     )
                 }
