@@ -1,10 +1,10 @@
 import { EventEmitter } from '../../../eventsManager/EventEmitter.js';
 import { clientApi, pluginInstance as plugin, kernelApi } from '../../../asyncModules.js';
-import { aiMessageButton } from './buttons/InsertButton.js';
+import { aiMessageButton } from './AiChatInterface/buttons/InsertButton.js';
 import { show as showGhostSelector } from './menus/ghostSelector.js';
 import logger from '../../../logger/index.js'
 import { 防抖 } from '../../../utils/functionTools.js';
-import { 获取嵌入块内容 } from './render/index.js';
+import { 获取嵌入块内容 } from './renders/index.js';
 import BlockHandler from '../../../utils/BlockHandler.js';
 import { createElementWithTagname } from '../../../UI/builders/index.js';
 export class AIChatInterface extends EventEmitter {
@@ -24,7 +24,6 @@ export class AIChatInterface extends EventEmitter {
         this.初始化UI(this.element)
         this.container = this.element
         this.初始化事件监听器()
-
         this.describe = {
             showHistory: '显示所有之前的聊天记录',
         }
@@ -155,7 +154,6 @@ export class AIChatInterface extends EventEmitter {
         聊天容器.setAttribute('class', 'fn__flex-1')
         return 聊天容器
     }
-    
     显示消息(message) {
         this.messageCache.push(message);
         this.处理消息缓存();

@@ -1,5 +1,5 @@
-import { pluginInstance as plugin, clientApi, pluginInstance } from '../../../../asyncModules.js';
-import { EventEmitter } from '../../../../eventsManager/EventEmitter.js';
+import { pluginInstance as plugin, clientApi, pluginInstance } from '../../../../../asyncModules.js';
+import { EventEmitter } from '../../../../../eventsManager/EventEmitter.js';
 export class aiMessageButton extends EventEmitter {
     constructor({ doll, aiMessage, currentAiReply, userInput }) {
         super()
