@@ -134,16 +134,12 @@ export class AIChatInterface extends EventEmitter {
     }
     创建用户输入区() {
         this.用户输入框左侧按钮 = 创建输入菜单按钮()
-
         this.用户输入框 = 创建用户输入框()
-
         this.提交按钮 = 创建提交按钮()
-
-        const 用户输入区 = 创建用户输入区()
-        用户输入区.appendChild(this.用户输入框左侧按钮);  // 将按钮添加到 userInputContainer 中
-        用户输入区.appendChild(this.用户输入框);
-        用户输入区.appendChild(this.提交按钮);
-        this.用户输入区 = 用户输入区
+        this.用户输入区 = 创建用户输入区()
+        this.用户输入区.appendChild(this.用户输入框左侧按钮);  // 将按钮添加到 userInputContainer 中
+        this.用户输入区.appendChild(this.用户输入框);
+        this.用户输入区.appendChild(this.提交按钮);
     }
     显示消息(message) {
         this.messageCache.push(message);
