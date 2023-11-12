@@ -1,5 +1,5 @@
 import { EventEmitter } from '../../../eventsManager/EventEmitter.js';
-import {  pluginInstance as plugin, kernelApi } from '../../../asyncModules.js';
+import { pluginInstance as plugin, kernelApi } from '../../../asyncModules.js';
 import { aiMessageButton } from './AiChatInterface/buttons/aiMessageButton.js';
 import { 创建输入菜单按钮 } from './AiChatInterface/buttons/userInputButtonLeft.js';
 import { 创建聊天容器 } from './AiChatInterface/chatContainers/index.js'
@@ -163,7 +163,7 @@ export class AIChatInterface extends EventEmitter {
     }, 100)
     显示用户消息(message) {
         let { id } = message
-        const userMessage =创建用户消息卡片(message,this.doll)
+        const userMessage = 创建用户消息卡片(message, this.doll)
         let refreshButton = createElementWithTagname('span', [], `<svg class="b3-menu__icon " style=""><use xlink:href="#iconRefresh"></use></svg>`)
         refreshButton.addEventListener('click', () => {
             this.doll.emit('human-forced-forget-to', { id: id })
@@ -178,8 +178,8 @@ export class AIChatInterface extends EventEmitter {
     添加AI消息(message, linkMap, images) {
         let _linkMap = this.doll.ghost.linkMap;
         let combinedLinkMap = { ..._linkMap, ...linkMap };
-        let doll=this.doll
-        const aiMessage = 创建AI消息卡片(message, combinedLinkMap, images,doll)
+        let doll = this.doll
+        const aiMessage = 创建AI消息卡片(message, combinedLinkMap, images, doll)
         this.临时聊天容器.appendChild(aiMessage);
         this.用户输入框.removeAttribute('disabled')
         this.添加插入按钮(aiMessage, this.当前用户输入, message);
