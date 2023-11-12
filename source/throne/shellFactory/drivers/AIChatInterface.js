@@ -189,12 +189,8 @@ export class AIChatInterface extends EventEmitter {
     添加AI消息(message, linkMap, images) {
         let _linkMap = this.doll.ghost.linkMap;
         let combinedLinkMap = { ..._linkMap, ...linkMap };
-        const aiMessage = 创建AI消息卡片(message, combinedLinkMap, images)
-        aiMessage.innerHTML += `<div class='protyle-wysiwyg protyle-wysiwyg--attr'><strong>${this.doll.ghost.persona.name}:</strong> ${this.lute ? this.lute.Md2BlockDOM(message.content) : message.content}</div>`;
-        aiMessage.querySelectorAll('[contenteditable="true"]').forEach(elem => elem.contentEditable = false);
-        aiMessage.addEventListener('dragstart', function (event) {
-            event.dataTransfer.setData('text/html', aiMessage.innerHTML);
-        });
+        let doll=this.doll
+        const aiMessage = 创建AI消息卡片(message, combinedLinkMap, images,doll)
         this.临时聊天容器.appendChild(aiMessage);
         this.用户输入框.removeAttribute('disabled')
         this.添加插入按钮(aiMessage, this.当前用户输入, message);

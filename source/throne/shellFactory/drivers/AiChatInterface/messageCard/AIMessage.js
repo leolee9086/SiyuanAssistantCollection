@@ -1,10 +1,12 @@
 import { string2DOM } from "../../../../../UI/builders/index.js"
 import { plugin } from "../../../../../asyncModules.js";
 import { renderLinkMap } from "../../renders/linkMapRender.js";
-export const 创建AI消息卡片=(message, linkMap, images)=>{
+export const 创建AI消息卡片=(message,linkMap,images,doll)=>{
     const aiMessage = string2DOM(`
         <div class="ai-message" data-message-id="${message.id}" draggable="true"></div>
     `);
+    let lute =getLuteInstance()
+
     if (images) {
         let imageTags = ""
         let imageRows = [];
@@ -13,10 +15,16 @@ export const 创建AI消息卡片=(message, linkMap, images)=>{
             imageRows.push(`{{{col${imageCols}\n}}}`);
         }
         imageTags = imageRows.join('\n');
-        let lute =getLuteInstance()
         aiMessage.innerHTML += `<div class='protyle-wysiwyg protyle-wysiwyg--attr images'> ${lute.Md2BlockDOM(imageTags)}</div>`
         aiMessage.querySelector('.protyle-wysiwyg.protyle-wysiwyg--attr.image')
     }
+    aiMessage.innerHTML += `<div class='protyle-wysiwyg protyle-wysiwyg--attr'><strong>${doll.ghost.persona.name}:</strong> ${lute.Md2BlockDOM(message.content)}</div>`;
+    aiMessage.querySelectorAll('[contenteditable="true"]').forEach(elem => elem.contentEditable = false);
+    aiMessage.addEventListener('dragstart', function (event) {
+        event.dataTransfer.setData('text/html', aiMessage.innerHTML);
+    });
+
+
     renderLinkMap(aiMessage,linkMap)
     return aiMessage;
 }
