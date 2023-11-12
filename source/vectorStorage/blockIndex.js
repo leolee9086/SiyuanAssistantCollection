@@ -18,7 +18,6 @@ export const 向量存储 = {
 export let blockDataSet = plugin.块数据集
 export let seachWithVector = async (...args) => { return await plugin.块数据集.以向量搜索数据(...args) }
 const embeddingWorkerURL = import.meta.resolve(`./embeddingWorker.js`)
-const 向量工具设置 = configurer.get('向量工具设置').$value
 export const 开始索引 = async () => {
     await 初始化数据集()
     if (!statusMonitor.get('索引器', '已加载').$value) {
