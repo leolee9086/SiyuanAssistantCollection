@@ -170,10 +170,7 @@ export class AIChatInterface extends EventEmitter {
     }, 100)
     显示用户消息(message) {
         let { id } = message
-        const userMessage =创建用户消息卡片(message)
-        let trashButton = createElementWithTagname('span', [], `<svg class="b3-menu__icon " style=""><use xlink:href="#iconTrashcan"></use></svg>`)
-        trashButton.addEventListener('click', () => { this.doll.emit('human-forced-forget-to', id) })
-        userMessage.appendChild(trashButton)
+        const userMessage =创建用户消息卡片(message,this.doll)
         let refreshButton = createElementWithTagname('span', [], `<svg class="b3-menu__icon " style=""><use xlink:href="#iconRefresh"></use></svg>`)
         refreshButton.addEventListener('click', () => {
             this.doll.emit('human-forced-forget-to', { id: id })
