@@ -71,7 +71,6 @@ export class AIChatInterface extends EventEmitter {
                 参考内容 = []
             }
             document.querySelectorAll(".protyle-wysiwyg--select").forEach(el => {
-                logger.aiChatlog(plugin.lute)
                 参考内容.push(`[${el.textContent.substring(0, 512)}](siyuan://blocks/${el.getAttribute('data-node-id')})`)
             })
             参考内容[0] ? this.用户输入框.value += `\n> ---references---\n${参考内容.join('\n')}` : null
