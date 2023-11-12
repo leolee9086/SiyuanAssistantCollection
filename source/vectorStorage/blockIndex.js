@@ -50,7 +50,6 @@ export const 初始化数据集 = async () => {
     logger.blockIndexlog('开始加载数据')
     await 块数据集.加载数据()
     logger.blockIndexlog(块数据集)
-
     plugin.块数据集 = 块数据集
     plugin.块数据集已加载 = true
 }
