@@ -61,12 +61,12 @@ export class AIChatInterface extends EventEmitter {
         )
         this.提交按钮.addEventListener("click", this.提交按钮点击回调);
         this.用户输入框.addEventListener("keydown", this.用户输入回调);
-        this.引用按钮.addEventListener('click', () => {
+        this.用户输入框左侧按钮.addEventListener('click', () => {
             // 在这里添加点击按钮时的操作
             // 例如，你可以插入一个引用到 userInputInput 中：
-            showGhostSelector(this.引用按钮, this)
+            showGhostSelector(this.用户输入框左侧按钮, this)
             let 参考内容 = this.当前参考内容组
-            this.emit('quoteButtonClicked', { refs: 参考内容, userInput: this.当前用户输入, doll: this.doll, button: this.引用按钮 })
+            this.emit('quoteButtonClicked', { refs: 参考内容, userInput: this.当前用户输入, doll: this.doll, button: this.用户输入框左侧按钮 })
             if (!参考内容 instanceof Array) {
                 参考内容 = []
             }
@@ -134,7 +134,7 @@ export class AIChatInterface extends EventEmitter {
     }
     创建用户输入区() {
         const 输入菜单按钮 = 创建输入菜单按钮()
-        this.引用按钮 = 输入菜单按钮
+        this.用户输入框左侧按钮 = 输入菜单按钮
 
         const 用户输入框 = 创建用户输入框()
         this.用户输入框 = 用户输入框;
