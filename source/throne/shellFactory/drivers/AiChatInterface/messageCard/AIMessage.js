@@ -6,7 +6,6 @@ export const 创建AI消息卡片=(message,linkMap,images,doll)=>{
         <div class="ai-message" data-message-id="${message.id}" draggable="true"></div>
     `);
     let lute =getLuteInstance()
-
     if (images) {
         let imageTags = ""
         let imageRows = [];
@@ -23,8 +22,6 @@ export const 创建AI消息卡片=(message,linkMap,images,doll)=>{
     aiMessage.addEventListener('dragstart', function (event) {
         event.dataTransfer.setData('text/html', aiMessage.innerHTML);
     });
-
-
     renderLinkMap(aiMessage,linkMap)
     return aiMessage;
 }

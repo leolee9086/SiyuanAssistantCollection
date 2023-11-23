@@ -2,7 +2,6 @@ import { plugin } from '../../../asyncModules.js'
 let options = JSON.parse(JSON.stringify(plugin.configurer.get('模型设置', 'OPENAI').$value))
 options.apiModel = options.apiModel && (options.apiModel.$value || options.apiModel)
 options.temperature = options.temperature && (options.temperature.$value)
-
 export const generateImageWithRawPrompt = async (prompt, size) => {
     let options = JSON.parse(JSON.stringify(plugin.configurer.get('模型设置', 'OPENAI').$value))
     options.apiModel = options.apiModel && (options.apiModel.$value || options.apiModel)

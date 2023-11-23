@@ -3,7 +3,6 @@ import { string2DOM } from '../builders/index.js';
 import { 计算zindex } from './util/zIndex.js';
 plugin.statusMonitor.set('菜单', '关键词菜单', '初次显示', true)
 export const buildMenu = (title) => {
-    console.log(plugin.configurer.get('菜单设置', '启动时显示关键词动作菜单').$value)
     if (!plugin.configurer.get('菜单设置', '启动时显示关键词动作菜单').$value
         && plugin.statusMonitor.get('菜单', '关键词菜单', '初次显示').$value
     ) {
