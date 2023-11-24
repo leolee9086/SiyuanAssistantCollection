@@ -1,6 +1,5 @@
 import { clientApi } from "../asyncModules.js";
 import { DownloadTask } from "./DownloadTask.js";
-import { plugin } from "../asyncModules.js";
 export class DownloadDialog extends clientApi.Dialog {
     constructor(url, fileName,pauseAble) {
         super({

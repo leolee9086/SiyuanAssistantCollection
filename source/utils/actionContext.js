@@ -1,3 +1,4 @@
+import BlockHandler from './BlockHandler.js'
 class Context {
   constructor(blocks, token, protyle, menu, plugin, kernelApi, clientApi, eventType) {
     this.blocks = blocks;
@@ -22,7 +23,7 @@ class Context {
       return null;
     }
     // 返回块的BlockHandler实例
-    return new this.plugin.utils.BlockHandler(blockElement.dataset.nodeId);
+    return new BlockHandler(blockElement.dataset.nodeId);
   }
 }
 

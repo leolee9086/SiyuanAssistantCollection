@@ -26,23 +26,19 @@ class PluginConfigurer {
       await this.plugin.saveData(`${key}.json`, this.plugin[this.prop][key])
     }
   }
-
   async set(...args) {
     if (args.length < 2) {
       throw new Error('You must provide at least two arguments');
     }
     let value = args.pop();
     let path = args;
-
     let target = this.target;
     for (let i = 0; i < path.length - 1; i++) {
       target[path[i]] = target[path[i]] || {};
       target = target[path[i]];
     }
-
     // 校验新值
     let oldValue = target[path[path.length - 1]];
-
     try {
       this.validateNewValue(oldValue, value);
     } catch (e) {
@@ -55,7 +51,6 @@ class PluginConfigurer {
     } else {
       target[path[path.length - 1]] = value;
     }
-
     this.plugin.eventBus.emit(`${this.prop}Change`, { name: path.join('.'), value });
     if (this.save) {
       await this.plugin.saveData(`${path[0]}.json`, this.target[path[0]] || {});
@@ -84,7 +79,6 @@ class PluginConfigurer {
     // 检查旧值是否存在且旧值是否有$type属性
     if (oldValue && oldValue.$type) {
       // 检查新值是否没有$type属性或新值的$type与旧值的$type是否不同
-    
       if (
         (!value.$type || oldValue.$type !== value.$type) && !(typeof value === 'string' || Array.isArray(value) || typeof value === oldValue.$type || typeof oldValue === value.$type||typeof value==='number'&&oldValue.$type==='range')) {
         throw new Error(`New value must have the same $type as the old value. Old value: ${oldValue}, new value: ${value}`);
@@ -195,11 +189,9 @@ class ccPlugin extends Plugin {
     this.statusMonitor = new PluginConfigurer(this, 'status')
   }
   async 初始化设置() {
-    this.configurer = new PluginConfigurer(this, 'setting', 'setting', true)
+    this.configurer = new PluginConfigurer(this, '_setting', 'setting', true)
     await this.configurer.reload()
   }
-
-
   初始化环境变量() {
     this.selfURL = `${window.location.protocol}//${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}/plugins/${this.name}/`;
     this.dataPath = `/data/storage/petal/${this.name}`
@@ -353,7 +345,7 @@ class SiyuanAssistantCollection extends ccPlugin {
     //之所以要求给出单独的渲染函数是为了在关键词唤起时能够任意地组合设置界面
     //这里同步地读取基础设置,因为设置文件本身不大,所以问题应该不大
     this.读取基础设置()
-    this.setting = this.设置
+    this._setting = this.设置
     this.defaultSettings =this.默认设置
     this.状态 = {}
     this.status = this.状态
@@ -389,7 +381,6 @@ class SiyuanAssistantCollection extends ccPlugin {
     this.eventBus.on("click-editorcontent", (e) => {
       this.protyles.push(e.detail.protyle);
       this.protyles = Array.from(new Set(this.protyles));
-
     })
     this.创建顶栏按钮()
     this.创建AI侧栏容器()
@@ -457,13 +448,7 @@ class SiyuanAssistantCollection extends ccPlugin {
       }
     });
   }
-  log(...args) {
-    if (this.日志记录器) {
-      this.日志记录器.default.pluginMainlog(...args)
-    } else {
-      console.log(...args)
-    }
-  }
+ 
   创建AI侧栏容器() {
     const DOCK_TYPE = 'SAC_CHAT'
     let plugin = this
@@ -549,6 +534,13 @@ class SiyuanAssistantCollection extends ccPlugin {
       this.从esm模块('./source/logger/index.js').合并子模块('日志记录器'),
     ]);
   }
+  log(...args) {
+    if (this.日志记录器) {
+      this.日志记录器.default.pluginMainlog(...args)
+    } else {
+      console.log(...args)
+    }
+  }
   async 初始化依赖项() {
     this.jieba = this.utils.jieba;
   }
@@ -606,7 +598,6 @@ function 递归合并(目标对象, 源对象) {
         递归合并(目标对象[键], 源对象[键]);
       } else {
         // 否则，直接复制属性值，如果有$value属性，就使用$value的值
-
         if (目标对象[键] === undefined) {
           目标对象[键] = 源对象[键]
         }

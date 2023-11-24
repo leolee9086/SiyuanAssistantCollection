@@ -21,7 +21,6 @@ export const seachBlockWithVector = async (vector) => {
                     let block = JSON.parse(JSON.stringify(item.meta))
                     block.similarityScore = item.similarityScore
                     return block
-
                 }
             } catch (e) {
                 logger.searcherror(e)
@@ -90,7 +89,6 @@ export const seachBlockWithText = async (text) => {
                 block.content = content
                 return block
             }
-
         })
         // 根据共同词素数量对块进行排序
         data.blocks.sort((a, b) => b.commonTokensCount - a.commonTokensCount)

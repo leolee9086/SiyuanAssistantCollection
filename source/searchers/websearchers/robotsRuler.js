@@ -13,7 +13,6 @@ async function fetchRobotsTxt(url) {
 
         // 读取响应的文本内容
         const text = await response.text();
-        console.log(text)
         // 解析文本内容为JSON
         const json = text.split('\n').reduce((result, line) => {
             const [key, value] = line.split(':').map(s => s.trim());

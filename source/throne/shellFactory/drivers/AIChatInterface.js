@@ -43,7 +43,6 @@ export class AIChatInterface extends EventEmitter {
     get lute() {
         return plugin.lute || window.Lute.New()
     }
-
     dispose() {
         this.container ? this.container.innerHTML = '' : null
     }
