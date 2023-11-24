@@ -2,7 +2,9 @@ import { 动作总表 } from "./index.js";
 import { 智能防抖 } from "../utils/functionTools.js"
 import { 处理单个动作表 } from "./index.js";
 import { 设置器 } from "./index.js";
+import { plugin } from "../asyncModules.js";
 import logger from '../logger/index.js'
+const {statusMonitor} =plugin
 export async function 根据上下文获取动作表(context, signal) {
     let 备选动作表 = []
     if (signal && signal.aborted) {
@@ -41,7 +43,7 @@ async function 处理动作表(动作表, 备选动作表, 执行上下文, 取�
         获取过滤器函数(动作表, 取消信号),
         (当次执行间隔, 平均执行时间) => {
             logger.actionListwarn(`动作表${动作表._动作表路径}生成时间过长,已经阻断,当前执行间隔为${当次执行间隔},平均执行时间为${平均执行时间},优化生成函数可能改善`)
-            plugin.statusMonitor.set('动作表状态',动作表._provider,'slow')
+            statusMonitor.set('动作表状态',动作表._provider,'slow')
         }
     )
     if (取消信号 && 取消信号.aborted) {

@@ -606,7 +606,21 @@ function 递归合并(目标对象, 源对象) {
         } else if (目标对象.$value === undefined && 源对象.$value !== undefined) {
           目标对象[键] = 源对象[键]
         } else {
-          目标对象[键] = 源对象[键]
+          if(!目标对象[键].options){目标对象[键]= 源对象[键]}
+          else{
+            let options
+            if(源对象[键].options){
+              options=目标对象[键].options.concat(源对象[键].options)
+            }else{
+              options=目标对象[键].options
+            }
+            目标对象[键]=源对象[键]
+            if(options){
+              目标对象[键].options=Array.from(new Set(options))
+
+            }
+          }
+          
         }
       }
     }

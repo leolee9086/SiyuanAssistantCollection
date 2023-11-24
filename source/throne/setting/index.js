@@ -9,8 +9,8 @@ export const getPersonaSetting = (name,...args) => {
     }
 }
 export const initPersonaSetting = (name) => {
-    plugin.setting.聊天工具设置.AI个别设置=plugin.setting.聊天工具设置.AI个别设置||{}
-    plugin.setting.聊天工具设置.AI个别设置[name] = plugin.setting.聊天工具设置.AI个别设置[name] ? plugin.setting.聊天工具设置.AI个别设置[name] : {
+    plugin._setting.聊天工具设置.AI个别设置=plugin._setting.聊天工具设置.AI个别设置||{}
+    plugin._setting.聊天工具设置.AI个别设置[name] = plugin._setting.聊天工具设置.AI个别设置[name] ? plugin._setting.聊天工具设置.AI个别设置[name] : {
         "$value": "点击初始化",
         "$type": "button",
         "$emit": "sac-init-persona-setting" + name
@@ -21,8 +21,8 @@ export const initPersonaSetting = (name) => {
         data['AI个别设置'] = undefined
         data['默认AI'] = undefined
         //data['文档查询权限'] = 10
-       // data['模型设置'] =plugin.setting[name+"_personaSetting"]&&plugin.setting[name+"_personaSetting"]['模型设置']||data['模型设置'] 
-        plugin.setting[name+"_personaSetting"] = JSON.parse(JSON.stringify(data))
+       // data['模型设置'] =plugin._setting[name+"_personaSetting"]&&plugin._setting[name+"_personaSetting"]['模型设置']||data['模型设置'] 
+        plugin._setting[name+"_personaSetting"] = JSON.parse(JSON.stringify(data))
         plugin.eventBus.emit('sac-rebuild-dialogs-setting')
     })
 }

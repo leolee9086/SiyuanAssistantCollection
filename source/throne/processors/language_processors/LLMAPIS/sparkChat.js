@@ -105,14 +105,7 @@ export class sparkChat extends ChatSession {
 //使用这样一个函数是为了构建标准的消息对象,避免空消息造成出错
 const buildMessage = (raw) => {
     let { role, content } = raw
-   /* if (!role) {
-        role = 'system'
-    } else {
-        if (!(['user', 'assistant'].includes(role))) {
-            content = `${role}:` + content
-            role = 'user'
-        }
-    }*/
+
     return {
         content: content || '',
         role: role
