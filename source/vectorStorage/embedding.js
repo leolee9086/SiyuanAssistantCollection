@@ -79,7 +79,6 @@ export async function 提取向量(text, 最大句子长度) {
 export async function 矢量化块(block, 最大句子长度) {
     let { id, content } = block;
     let vector;
-
     try {
         vector = await 提取向量(content, 最大句子长度);
         let 矢量属性对象 = { id, vector, meta: block, box: block.box };

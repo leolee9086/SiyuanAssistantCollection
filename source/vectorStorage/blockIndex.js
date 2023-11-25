@@ -71,7 +71,6 @@ export const 处理子切片 = async (子切片, 最大句子长度) => {
                 return item.vector[0] ? item : undefined
             }
         );
-
         if (数据组[0]) {
             plugin.块数据集.添加数据(数据组);
             await plugin.块数据集.保存数据(true);

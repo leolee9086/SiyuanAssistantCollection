@@ -1,21 +1,21 @@
-export async function 使用openAI生成嵌入(textContent,options={}) {
-    options={
+export async function 使用openAI生成嵌入(textContent, options = {}) {
+    options = {
         options,
         ...globalThis.siyuan.config.ai.openAI,
     }
     let _options
-    if(globalThis.modelSetting.OPENAI){
-        let OPENAI =globalThis.modelSetting.OPENAI
-         _options={
+    if (globalThis.modelSetting.OPENAI) {
+        let OPENAI = globalThis.modelSetting.OPENAI
+        _options = {
             "apiBaseURL": OPENAI.apiBaseURL,
             "apiKey": OPENAI.apiKey,
         }
-        options={
+        options = {
             options,
             ..._options
         }
     }
-    
+
     let myHeaders = new Headers();
     myHeaders.append(
         "Authorization",
@@ -33,11 +33,15 @@ export async function 使用openAI生成嵌入(textContent,options={}) {
         body: raw,
         redirect: "follow",
     };
-  
-    let data = await fetch(
-        `${options.apiBaseURL}/embeddings`,
-        requestOptions
-    );
-    let embedding = (await data.json()).data[0].embedding;
-    return {data:embedding}
+    try {
+        let data = await fetch(
+            `${options.apiBaseURL}/embeddings`,
+            requestOptions
+        );
+        let embedding = (await data.json()).data[0].embedding;
+        return { data: embedding }
+
+    } catch (e) {
+        return
+    }
 }
