@@ -3,36 +3,6 @@ import logger from "../logger/index.js";
 let worker线程池 = {}
 worker线程池 = globalThis[Symbol.for('_worker线程池_')] || worker线程池
 globalThis[Symbol.for('_worker线程池_')] = worker线程池
-// 定义一个RPC函数，用于向Web Worker发送请求并接收响应
-function rpcCall(method, params) {
-  return new Promise((resolve, reject) => {
-    const messageId = Math.random().toString(36).substr(2, 9);
-    // 监听Web Worker的消息事件
-    const messageHandler = (event) => {
-      const { id, result, error } = event.data;
-      // 根据消息的id判断是否为当前请求的响应
-      if (id === messageId) {
-        worker.removeEventListener('message', messageHandler);
-        // 如果有错误，则返回reject
-        if (error) {
-          reject(error);
-        } else {
-          resolve(result);
-        }
-      }
-    };
-    // 监听Web Worker的错误事件
-    const errorHandler = (event) => {
-      worker.removeEventListener('error', errorHandler);
-      reject(event.error);
-    };
-    worker.addEventListener('message', messageHandler);
-    worker.addEventListener('error', errorHandler);
-    // 向Web Worker发送请求
-    worker.postMessage({ id: messageId, method, params });
-  });
-}
-
 function 创建Worker线程(worker文件地址) {
   let worker = new Worker(worker文件地址);
   worker.onerror = (error) => {
@@ -40,7 +10,6 @@ function 创建Worker线程(worker文件地址) {
   };
   return worker;
 }
-
 // 创建任务处理函数
 function 创建任务处理函数(worker, 任务列表, characters) {
   return (任务数据, 任务名) => {
@@ -75,13 +44,10 @@ function 创建任务处理函数(worker, 任务列表, characters) {
     });
   };
 }
-
-// 初始化 worker 线程池
 // 初始化 worker 线程池
 function 初始化Worker线程池(worker文件地址, characters) {
   // 使用文件名作为键
   let worker文件名 = new URL(worker文件地址).pathname.split('/').pop();
-
   if (!worker线程池[worker文件名]) {
     worker线程池[worker文件名] = [];
     let worker线程组 = worker线程池[worker文件名];
