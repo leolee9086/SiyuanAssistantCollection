@@ -237,7 +237,6 @@ class ccPlugin extends Plugin {
           throw error;
         }
       },
-
       合并成员为只读属性: async (name, options) => {
         try {
           const value = (await import(moduleURL))[name];
