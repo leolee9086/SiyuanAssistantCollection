@@ -15,7 +15,6 @@ export async function 使用openAI生成嵌入(textContent, options = {}) {
             ..._options
         }
     }
-
     let myHeaders = new Headers();
     myHeaders.append(
         "Authorization",
