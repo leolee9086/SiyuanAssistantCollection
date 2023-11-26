@@ -14,7 +14,6 @@ export const 向量存储 = {
     临时向量数据库实例: new 数据库('/temp/vectorStorage'),
     简易向量数据原型: 数据库
 }
-
 export let blockDataSet = plugin.块数据集
 export let seachWithVector = async (...args) => { return await plugin.块数据集.以向量搜索数据(...args) }
 const embeddingWorkerURL = import.meta.resolve(`./embeddingWorker.js`)
@@ -30,7 +29,6 @@ export const 开始索引 = async () => {
     打印索引完成信息(总块数量, 总处理时长);
     清理索引();
 }
-
 export const 创建索引器 = async (向量工具设置, 向量生成器地址) => {
     await logger.blockIndexlog('开始创建索引')
     await 使用worker处理数据(
@@ -163,7 +161,7 @@ export const 处理子切片数组 = async (子切片数组) => {
 }
 export const 打印索引完成信息 = (总块数量, 总处理时长) => {
     plugin.statusMonitor.set('blockIndex', 'progress', '完成')
-    logger.blockIndexlog(`笔记向量索引完成,索引了${总块数量}个块,总处理时长${总处理时长}秒,单块处理时长约${总处理时长 / 总块数量}秒,使用模型为${plugin.configurer.get('向量工具设置','默认文本向量化模型').$value}`)
+    logger.blockIndexlog(`笔记向量索引完成,索引了${总块数量}个块,总处理时长${总处理时长}秒,单块处理时长约${总处理时长 / 总块数量}秒,使用模型为${plugin.configurer.get('向量工具设置', '默认文本向量化模型').$value}`)
 }
 export const 打印处理进度 = (原始数据, 已处理数量, 处理开始时间) => {
     const 处理时长 = (performance.now() - 处理开始时间) / 1000;

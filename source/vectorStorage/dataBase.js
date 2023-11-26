@@ -3,7 +3,7 @@ import { 计算余弦相似度, 计算欧氏距离相似度, 查找最相似点 
 import  jsonSyAdapter  from '../fileSysManager/workspaceAdapters/jsonAdapter.js';
 import msgSyAdapter from '../fileSysManager/workspaceAdapters/msgAdapter.js'
 import { 校验主键 } from './dataBase/keys.js';
-import { plugin,clientApi } from '../asyncModules.js';
+import { plugin } from '../asyncModules.js';
 globalThis._blockActionDataBase = globalThis._blockActionDataBase || {}
 export class 数据库 {
     constructor(文件保存地址) {
@@ -262,7 +262,6 @@ class 数据集 {
             let 分组数据对象 = 分组数据[文件路径名];
             let 临时数据对象 = await this.创建临时数据对象(分组数据对象, 总文件数);
             let { 写入操作, 记录数组 } = await this.创建写入操作(临时数据对象, 总文件数, 文件路径名);
-
             try {
                 await Promise.all(写入操作);
             } catch (err) {
