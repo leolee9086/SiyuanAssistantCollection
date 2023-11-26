@@ -3,7 +3,7 @@ import { jieba } from '../../../utils/tokenizer.js'
 import kernelApi from '../../../polyfills/kernelApi.js'
 import { plugin } from '../../../asyncModules.js'
 import { logger } from '../../../logger/index.js'
-export const seachBlockWithVector = async (vector) => {
+/*export const seachBlockWithVector = async (vector) => {
     let blocks = await seachWithVector('vector', vector, plugin.configurer.get('聊天工具设置', '默认参考数量').$value || 30)
     //  return blocks.map(item => { return item.meta&&item.score>0.8}).filter(item=>{return item})
 
@@ -56,10 +56,10 @@ export const seachBlockWithVector = async (vector) => {
         }
         return uniqueBlocks;
     }, {});
-
     // 将对象转换为数组并返回
     return Object.values(blocks);
-}
+}*/
+export const seachBlockWithVector= plugin.searchers.get('blockSearcher', 'vector')
 export const seachBlockWithText = async (text) => {
     let tokens = jieba.tokenize(text, "search")
     let query = ""

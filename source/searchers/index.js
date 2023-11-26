@@ -2,7 +2,7 @@ import { plugin } from "../asyncModules.js"
 import { 组合函数 } from "../baseStructors/functionTools.js"
 import { 提取文本向量 } from "../utils/textProcessor.js"
 import { searchBaidu, searchWeibo } from "./websearchers/webSearcher.js"
-
+import { seachBlockWithVector } from "./blocksearchers/vectorSearcher.js"
 export async function 以文本查找最相近文档(textContent, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数) {
     let embedding = await 提取文本向量(textContent)
     let vectors = plugin.块数据集.以向量搜索数据('vector', embedding, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数)
@@ -39,7 +39,8 @@ plugin.searchers = {
         }
     }
 }
-plugin.searchers.set('baidu', {search: searchBaidu},)
-plugin.searchers.set('weibo', {search: searchWeibo},)
-export const set=(...args)=>{plugin.searchers.set(...args)}
-export const get=(...args)=>{return plugin.searchers.get(...args)}
+plugin.searchers.set('baidu', { search: searchBaidu },)
+plugin.searchers.set('weibo', { search: searchWeibo },)
+plugin.searchers.set('vector',{search:seachBlockWithVector},'blockSearcher')
+export const set = (...args) => { plugin.searchers.set(...args) }
+export const get = (...args) => { return plugin.searchers.get(...args) }

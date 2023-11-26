@@ -19,7 +19,6 @@ const handleWeiboSearchResults = (results, resolve, reject) => {
         reject(new Error('No results found'));
     }
 };
-
 // 创建一个搜索微博的函数
 export const searchWeibo = async (query) => {
     let searchUrl = `https://s.weibo.com/weibo/${encodeURIComponent(query)}`;

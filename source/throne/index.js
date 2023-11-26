@@ -38,5 +38,4 @@ export class Marduk {
         }
     }
 }
-
 export default new Marduk()
