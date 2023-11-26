@@ -1,5 +1,4 @@
 import { plugin } from '../../../asyncModules.js'
-import { logger } from '../../../logger/index.js'
 export const seachBlockWithVector= plugin.searchers.get('blockSearcher', 'vector')
 export const seachBlockWithText= plugin.searchers.get('blockSearcher', 'text')
 export const combindSearchBlock= plugin.searchers.get('blockSearcher', 'combind')
