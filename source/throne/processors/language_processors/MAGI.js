@@ -48,12 +48,12 @@ export class MAGI extends EventEmitter {
         let result;
         try {
             result = await wise.voteFor(functions, descriptions, inputs, goal);
-            return JSON.parse(result.choices[0].message.content);
+            return parseOverEscapedJson(result.choices[0].message.content);
         } catch (error) {
             console.error(`An error occurred in magi- ${wise.name}:`, error);
             try {
                 result = await wise.voteFor(functions, descriptions, inputs, goal);
-                return JSON.parse(result.choices[0].message.content);
+                return parseOverEscapedJson(result.choices[0].message.content);
             } catch (retryError) {
                 console.error(`An error occurred in magi- ${wise.name} on retry:`, retryError);
                 return null;
@@ -126,7 +126,7 @@ export class MAGI extends EventEmitter {
         
             let userMessage = JSON.stringify(userInput);
             let result = await api.postAsUser(userMessage);
-            result = JSON.parse(result.choices[0].message.content)
+            result = parseOverEscapedJson(result.choices[0].message.content)
             return result;
         },
         summarize: async (userInput) => {
@@ -252,4 +252,32 @@ function normalizeScores(functions) {
     });
     logger.MAGIlog(functions, normalizedScores)
     return normalizedScores;
+}
+function parseOverEscapedJson(str) {
+    try {
+        const unescapedStr = JSON.parse(`"${str}"`);
+        return JSON.parse(unescapedStr);
+    } catch (error) {
+        try {
+            // 如果解析过度转义的字符串失败，尝试解析原始字符串
+            return JSON.parse(str);
+        } catch (error) {
+            // 如果解析原始字符串失败，尝试解析字符串中看起来像 JSON 的部分
+            const match = str.match(/\\+".*\\+"/g);
+            if (!match) {
+                // 如果没有找到匹配的字符串，尝试从最后一个 ] 处截断解析
+                const lastIndex = str.lastIndexOf(']');
+                if (lastIndex !== -1) {
+                    const subStr = str.substring(0, lastIndex + 1);
+                    return JSON.parse(subStr);
+                } else {
+                    throw error;
+                }
+            } else {
+                // 尝试解析匹配到的过度转义的 JSON 字符串
+                const unescapedMatch = JSON.parse(`"${match[0]}"`);
+                return JSON.parse(unescapedMatch);
+            }
+        }
+    }
 }

@@ -13,8 +13,6 @@ export class fileChunkAdapter {
             this.文件保存地址 = this.文件保存地址 + `_${this.扩展名}`
         }
     }
-   
-    
     async 创建原子写入操作(待保存分片数据, 分片号, 文件路径名) {
         let content = await this.序列化(待保存分片数据);
         let 文件夹路径 = path.join(this.文件保存地址, 文件路径名 ? 文件路径名 : '');

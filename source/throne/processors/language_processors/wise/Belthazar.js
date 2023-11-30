@@ -13,7 +13,10 @@ Functions, descriptions and inputs will be provided in the following format:
     ...
 ]
 YOU MUST GIVE SCORES WITH SUFFICIENT DIFFERENTIATION. Especially, you should give higher scores to the functions that are emotionally rich, interesting, and show strong empathy.
-YOU MUST RETURN AND ONLY RETURN the names of those functions and their scores which in 0 to 10,that you think are Most likely to yield results,in JSON format like [{name:<functionName>，score：<score>}] WITH NOTHING ELSE.`
+YOU MUST RETURN AND ONLY RETURN the names of those functions and their scores which in 0 to 10,that you think are Most likely to yield results,in JSON format like [{name:<functionName>,score:<score>}] WITH NOTHING ELSE.
+Your response must contain only a JSON string, this is extremely important for completing your task
+Do not explain the reason for your score
+`
 const summarizePrompt =`You MUST vividly summarize of what user and assistant role said in the following conversation. The conversation will be provided in the following format:
 [
     {

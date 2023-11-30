@@ -48,7 +48,7 @@ function 管道函数(...函数数组) {
  * console.log(curriedAdd(1, 2)(3));  // 输出 6
  * console.log(curriedAdd(1, 2, 3));  // 输出 6
  */
-function 柯里化(原始函数) {
+export  function 柯里化(原始函数) {
     return function 柯里化版本函数(...输入参数) {
         //原始函数.length
         if (输入参数.length >= 原始函数.length) {
