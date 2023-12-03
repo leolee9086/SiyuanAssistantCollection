@@ -18,10 +18,14 @@ socket1.addEventListener('message', event => {
 });
 // 每秒发送一个时钟消息
 setInterval(() => {
-    const now = new Date();
-    const timeString = now.toLocaleTimeString();
-    sendMessage(timeString);
-  }, 1000);
+  try {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString();
+      sendMessage(timeString);
+  } catch (error) {
+      socket.close();
+  }
+}, 1000);
 
 
   function addAutoReconnect(socket, initialDelay = 100) {

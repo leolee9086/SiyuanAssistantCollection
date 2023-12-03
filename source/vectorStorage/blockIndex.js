@@ -9,7 +9,7 @@ import { hash过滤全块数组语句 } from "./utils/sql.js"
 const { statusMonitor, eventBus, configurer } = plugin
 export const 向量存储 = {
     公开向量数据库实例: new 数据库('/data/public/vectorStorage'),
-    插件向量数据库实例: new 数据库('/data/storage/petal'),
+    插件向量数据库实例: new 数据库('/data/storage/petal/SiyuanAssistantCollection/vectorStorage'),
     //临时向量数据库实例,可以用来存一些不需要的数据
     临时向量数据库实例: new 数据库('/temp/vectorStorage'),
     简易向量数据原型: 数据库
