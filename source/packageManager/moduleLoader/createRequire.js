@@ -1,44 +1,123 @@
 import { importModule } from "./esmLoader.js";
 import { fetchModule } from "./cjsLoader.js";
-// 创建一个全局的模块缓存
-// 创建一个全局的模块缓存
-const globalModuleCache = {};
-// 创建一个集合来跟踪正在加载的模块
-const loadingModules = new Set();
-// 创建一个新的模块对象，并将它添加到缓存中
-function createModule(modulePath, moduleCache) {
-  const module = { exports: {} };
-  moduleCache[modulePath] = module;
-  return module;
+import fs from "../../polyfills/fs.js";
+import path from "../../polyfills/path.js";
+import { parse } from "../../../static/esModuleLexer.js";
+const { resolve, dirname } = path;
+import { 柯里化 } from "../../baseStructors/functionTools.js";
+const severMap = {
+  '/data/plugins': '/plugins',
+  '/data/widgets': '/widgets',
+  '/data/snippets': '/snippets',
 }
-// 使用通用的模块加载函数来加载模块
-async function loadAndExecuteModule(modulePath, baseURL, module, require, loader, fallbackLoader) {
-  try {
-    await loader(modulePath, baseURL, module);
-  } catch (error) {
-    await fallbackLoader(modulePath, baseURL, module, require);
+export function path2ServerURL(path) {
+  for (let key in severMap) {
+    if (path.startsWith(key)) {
+      return path.replace(key, severMap[key]);
+    }
   }
-  return module.exports;
+  return path;
 }
-export const createRequire = (baseURL, moduleCache = globalModuleCache) => {
-  const require = async (modulePath) => {
-    // 如果模块已经在缓存中，直接返回
-    if (moduleCache[modulePath]) {
-      return moduleCache[modulePath].exports;
+export function serverURL2Path(serverURL) {
+  for (let key in severMap) {
+    if (serverURL.startsWith(severMap[key])) {
+      return serverURL.replace(severMap[key], key);
     }
-    // 如果模块正在加载中，直接返回模块对象
-    if (loadingModules.has(modulePath)) {
-      return moduleCache[modulePath];
-    }
-    // 创建一个新的模块对象，并将它添加到缓存中
-    const module = createModule(modulePath, moduleCache);
-    // 添加模块到正在加载的模块集合中
-    loadingModules.add(modulePath);
-    // 使用通用的模块加载函数来加载模块
-    const exports = await loadAndExecuteModule(modulePath, baseURL, module, require, importModule, fetchModule);
-    // 从正在加载的模块集合中移除模块
-    loadingModules.delete(modulePath);
-    return exports;
+  }
+  return serverURL;
+}
+export function getPathInfo(path) {
+  return {
+    serverPath: serverURL2Path(path),
+    serverURL: path2ServerURL(path)
   };
-  return require;
-};
+}
+export async function fetchInternalFile(path) {
+  let { serverURL } = getPathInfo(path)
+  return await fetch(serverURL)
+}
+export async function readInternalFile(path) {
+  let { serverPath } = getPathInfo(path)
+  return fs.readFile(serverPath)
+}
+export async function readInternalDir(path) {
+  let { serverPath } = getPathInfo(path)
+  return fs.readDir(serverPath)
+}
+export async function globInternalDir(dir, _modulePaths) {
+  let modulePaths = _modulePaths || []
+  let list = await fs.readDir(dir);
+  for (const entry of list) {
+    let fullPath = path.join(dir, entry.name);
+    if (entry.isDir) {
+      await glob(fullPath);
+    } else {
+      modulePaths.push(fullPath);
+    }
+  }
+  return modulePaths
+}
+const createRequire = (moduleCache,options={}) => {
+  let {resolve} =options
+  return (currentFile, key) => {
+    for (let prefix in resolve) {
+      if (key.startsWith(prefix)) {
+        key = key.replace(prefix, resolve[prefix]);
+      }
+    }
+  
+    if (key.startsWith('./') || key.startsWith('../')) {
+      key = path.resolve(path.dirname(currentFile), key) ;
+    }
+    if (moduleCache[key]) {
+      return moduleCache[key];
+    } else {
+      try {
+        return loadCjs(key,moduleCache,options)
+      } catch (e) {
+        console.warn(currentFile, key, e)
+      }
+    }
+  }
+}
+const loadCjs = async (sourceURL,moduleCache,options) => {
+  let {resolve} =options
+  for (let prefix in resolve) {
+    if (sourceURL.startsWith(prefix)) {
+      sourceURL = sourceURL.replace(prefix, resolve[prefix]);
+      break;
+    }
+  }
+
+  let _require= 柯里化(createRequire(moduleCache,options))
+  let code = await(await fetch(sourceURL)).text()
+  const exportsObj = {};
+  const moduleObj = {
+      exports: exportsObj
+  };
+  code = "(function anonymous(require, module, exports){".concat(code, "\n return module.exports})\n//# sourceURL=").concat(sourceURL, "\n")
+  try {
+      return (window.eval(code))(_require(sourceURL), moduleObj, exportsObj)
+  } catch (e) {
+      throw e; // 抛出错误，以便在 loadAll 函数中处理
+  }
+}
+export const createInternalRequire = async (internalPath, base = '/', moduleCache = {},options={}) => {
+  let list = await globInternalDir(path.join(base, internalPath))
+  for (let fileName of list) {
+    moduleCache[fileName]={}
+    try {
+      let module = await import(getPathInfo(fileName).serverURL)
+      moduleCache[fileName]['esm'] = module
+    } catch (e) {
+      moduleCache[fileName]['esmError'] = e
+    }
+    try {
+      let module = await loadCjs(getPathInfo(fileName).serverURL,moduleCache,options)
+      moduleCache[fileName]['cjs'] = module
+    } catch (e) {
+      moduleCache[fileName]['cjsError'] = e
+    }
+  }
+  return moduleCache
+}

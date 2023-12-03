@@ -27,6 +27,8 @@ const typeToLabel = {
 };
 
 module.exports = async (ctx) => {
+    console.log(ctx)
+
     const { type = 'rec', category = '所有' } = ctx.params;
     const baseUrl = 'https://afdian.net';
     const link = `${baseUrl}/api/creator/list`;

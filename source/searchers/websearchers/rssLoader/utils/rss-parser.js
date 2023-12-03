@@ -1,5 +1,6 @@
-const config = require('@/config').value;
-const Parser = require('rss-parser');
+import _config from '../config.js'
+const config = _config.value;
+import Parser from '../rss-parser.js';
 
 const parser = new Parser({
     customFields: {
@@ -10,4 +11,4 @@ const parser = new Parser({
     },
 });
 
-module.exports = parser;
+export default parser;

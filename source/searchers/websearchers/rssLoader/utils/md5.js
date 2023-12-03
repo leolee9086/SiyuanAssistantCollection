@@ -1,5 +1,14 @@
-const crypto = require('crypto');
+export default async function md5(message) {
+    // encode as UTF-8
+    const msgBuffer = new TextEncoder().encode(message);                    
 
-module.exports = function md5(date) {
-    return crypto.createHash('md5').update(date).digest('hex');
-};
+    // hash the message
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+
+    // convert ArrayBuffer to Array
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+
+    // convert bytes to hex string                  
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+}

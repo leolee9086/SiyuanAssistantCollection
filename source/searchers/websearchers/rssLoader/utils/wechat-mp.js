@@ -24,11 +24,9 @@
  *
  * For more details of these functions, please refer to the jsDoc in the source code.
  */
-
-const got = require('@/utils/got');
-const cheerio = require('cheerio');
-const { parseDate } = require('@/utils/parse-date');
-
+import { got } from './got.js';
+import * as cheerio from '../../../../../static/cheerio.js'
+import parseDate from './parse-date.js';
 const replaceTag = ($, oldTag, newTagName) => {
     oldTag = $(oldTag);
     const NewTag = $($(`<${newTagName} />`));
@@ -261,7 +259,7 @@ const finishArticleItem = async (ctx, item, setMpNameAsAuthor = false, skipLink 
     return item;
 };
 
-module.exports = {
+export default{
     fixArticleContent,
     fetchArticle,
     finishArticleItem, // a new route SHOULD use this function instead of manually calling the above functions

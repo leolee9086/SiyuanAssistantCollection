@@ -1,12 +1,12 @@
-const cheerio = require('cheerio');
-const got = require('@/utils/got');
-const iconv = require('iconv-lite');
+import * as cheerio from '../../../../../static/cheerio.js'
+import { got } from './got.js';
+import date from './date.js'
+import iconv from '../../iconvPollyfill.js'
 // eslint-disable-next-line no-unused-vars
-const date = require('@/utils/date');
+import  _parseDate  from './parse-date.js'
+const {parseDate}= _parseDate
 // eslint-disable-next-line no-unused-vars
-const { parseDate } = require('@/utils/parse-date');
-// eslint-disable-next-line no-unused-vars
-const timezone = require('@/utils/timezone');
+import timezone from './timezone.js'
 
 function transElemText($, prop) {
     const regex = new RegExp(/\$\((.*)\)/g);
@@ -77,7 +77,7 @@ async function buildData(data) {
 }
 
 
-module.exports = buildData;
-module.exports.transElemText = transElemText;
-module.exports.replaceParams = replaceParams;
-module.exports.getProp = getProp;
+buildData.transElemText = transElemText;
+buildData.replaceParams = replaceParams;
+buildData.getProp = getProp;
+export default buildData

@@ -2227,3 +2227,118 @@ class ControlNetInterface:
                 element.setAttribute(key, attributes[key]);
             }
         }
+
+
+        import { importModule } from "./esmLoader.js";
+        import { fetchModule } from "./cjsLoader.js";
+        import fs from "../../polyfills/fs.js";
+        import path from "../../polyfills/path.js";
+        import { parse } from "../../../static/esModuleLexer.js";
+        const { resolve, dirname } = path ;
+        
+        // 创建一个全局的模块缓存
+        // 创建一个全局的模块缓存
+        const globalModuleCache = {};
+        // 创建一个集合来跟踪正在加载的模块
+        const loadingModules = new Set();
+        // 创建一个新的模块对象，并将它添加到缓存中
+        function createModule(modulePath, moduleCache) {
+          const module = { exports: {} };
+          moduleCache[modulePath] = module;
+          return module;
+        }
+        // 使用通用的模块加载函数来加载模块
+        async function loadAndExecuteModule(modulePath, baseURL, module, require, loader, fallbackLoader) {
+          try {
+            await loader(modulePath, baseURL, module);
+          } catch (error) {
+            await fallbackLoader(modulePath, baseURL, module, require);
+          }
+          return module.exports;
+        }
+        
+        async function preloadModule(modulePath, base, moduleCache) {
+          if (moduleCache[modulePath]) {
+            return;
+          }
+          const module = createModule(modulePath, moduleCache);
+          loadingModules.add(modulePath);
+          const filePath = resolve(base, modulePath);
+          const code = await fs.readFile(filePath, "utf8");
+          const [imports] = await parse(code);
+          for (const imp of imports) {
+            const depPath = imp.n;
+            module.dependencies.push(depPath);
+            await preloadModule(depPath, dirname(filePath), moduleCache);
+          }
+          module.exports = await loadAndExecuteModule(modulePath, base, module, null, importModule, fetchModule);
+          loadingModules.delete(modulePath);
+        }
+        async function glob(dir) {
+          let modulePaths =[]
+          let list = await fs.readDir(dir);
+          for (const entry of list) {
+            let fullPath = path.join(dir, entry.name);
+            if (entry.isDir) {
+              await glob(fullPath);
+            } else {
+              modulePaths.push(fullPath);
+            }
+          }
+          return modulePaths
+        }
+        
+        export function parseRequireDeps(code,url){
+        
+        }
+        
+        
+        
+        export const createRequire = async (url) => {
+          const code = await (await fetch(url)).text();
+          const [imports,esmExports] = await parse(code);
+        
+          // 检查是否有 import 或 require 调用
+          const hasImport= imports[0]?true:false;
+          const hasRequire = code.indexOf('require')!==-1
+          const hasEsmExports = esmExports[0]?true:false 
+          const hasCjsExports = code.indexOf('module.exports')!==-1
+          if (!hasImport&&!hasRequire&&hasEsmExports) {
+            // 如果没有 import 或 require 调用，使用动态 import 导入模块
+            const module = await import(url);
+            return module;
+          } else if(!hasImport&&!hasRequire&&hasCjsExports){
+            console.log(url,'是一个无依赖的cjs模块')
+          } else if(!hasImport&&hasRequire&&hasCjsExports){
+            console.log(url,'是一个有require依赖的cjs模块')
+          }
+          else {
+            // 如果有 import 或 require 调用，返回代码
+            return code;
+          }
+        
+        };
+        
+        async function loadEsbuildWasm() {
+          // 尝试从两个 URL 下载 esbuild-wasm
+          const urls = ['https://registry.npmjs.org/esbuild-wasm/latest', 'http://registry.npmmirror.com/esbuild-wasm/latest'];
+          let packageJson;
+          for (const url of urls) {
+            try {
+              const response = await fetch(url);
+              packageJson = await response.json();
+              break;
+            } catch (error) {
+              console.error(`Failed to fetch from ${url}:`, error);
+            }
+          }
+          if (!packageJson) {
+            throw new Error('Failed to download esbuild-wasm from both URLs');
+          }
+          // 加载 wasm 模块
+          const wasmUrl = packageJson.dist.tarball;
+          const wasmResponse = await fetch(wasmUrl);
+          // 返回 wasm 实例
+          return wasmResponse;
+        }
+        console.log(await loadEsbuildWasm())
