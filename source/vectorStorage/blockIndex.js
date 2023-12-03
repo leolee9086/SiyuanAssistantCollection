@@ -1,4 +1,5 @@
 import { 数据库 } from "./dataBase.js"
+import { 校验索引设置 } from "./utils/checkConfig.js"
 import { pluginInstance as plugin } from "../asyncModules.js"
 import { 使用worker处理数据 } from "../utils/workerHandler.js"
 import logger from "../logger/index.js"
@@ -18,17 +19,22 @@ export let blockDataSet = plugin.块数据集
 export let seachWithVector = async (...args) => { return await plugin.块数据集.以向量搜索数据(...args) }
 const embeddingWorkerURL = import.meta.resolve(`./embeddingWorker.js`)
 export const 开始索引 = async () => {
-    await 初始化数据集()
-    if (!statusMonitor.get('索引器', '已加载').$value) {
-        statusMonitor.set('索引器', '已加载', (await 创建索引器(configurer.get('向量工具设置').$value, embeddingWorkerURL)) ? true : false)
-        eventBus.emit('blockIndexerReady')
+    let 向量工具设置 = configurer.get('向量工具设置').$value
+    let 模型可用 = await 校验索引设置(向量工具设置)
+    if(模型可用){
+        await 初始化数据集()
+        if (!statusMonitor.get('索引器', '已加载').$value) {
+            statusMonitor.set('索引器', '已加载', (await 创建索引器(configurer.get('向量工具设置').$value, embeddingWorkerURL)) ? true : false)
+            eventBus.emit('blockIndexerReady')
+        }
+        let 全块数组 = await 获取全块数组()
+        let boxMap = 创建笔记本字典(全块数组);
+        let { 总块数量, 总处理时长 } = await 处理所有笔记本数据(boxMap);
+        打印索引完成信息(总块数量, 总处理时长);
+        清理索引();
     }
-    let 全块数组 = await 获取全块数组()
-    let boxMap = 创建笔记本字典(全块数组);
-    let { 总块数量, 总处理时长 } = await 处理所有笔记本数据(boxMap);
-    打印索引完成信息(总块数量, 总处理时长);
-    清理索引();
 }
+
 export const 创建索引器 = async (向量工具设置, 向量生成器地址) => {
     await logger.blockIndexlog('开始创建索引')
     await 使用worker处理数据(

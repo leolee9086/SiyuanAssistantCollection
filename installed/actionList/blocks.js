@@ -1,7 +1,7 @@
 import { kernelApi } from "../runtime.js";
 //初始化字典
-let dict = async (context) => {
-    let data = await context.kernelApi.sql(
+let dict = async () => {
+    let data = await kernelApi.sql(
         {
             stmt: `select * from blocks where not type='l' and not type = 'u'   limit 102400`,
         },
@@ -9,13 +9,13 @@ let dict = async (context) => {
     );
     let _dict = ''
     data.forEach((block) => {
-        block.name ? dict += block.name + ',' : null
-        block.alias ? dict += block.alias + ',' : null
-        block.memo ? dict += block.memo + ',' : null
-        block.type == 'd' ? dict += block.content + ',' : null
-        block.type == 'h' ? dict += block.content + ',' : null
+        block.name ? _dict += block.name + ',' : null
+        block.alias ? _dict += block.alias + ',' : null
+        block.memo ? _dict += block.memo + ',' : null
+        block.type == 'd' ? _dict += block.content + ',' : null
+        block.type == 'h' ? _dict += block.content + ',' : null
     })
-    return _dict
+    return _dict.split(',')
 }
 function genActions(context) {
     //这一条语句选择的块结果将会渲染出各种项目

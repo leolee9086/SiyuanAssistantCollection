@@ -3,8 +3,10 @@ import kernelApi from '../polyfills/kernelApi.js';
 import fs from '../polyfills/fs.js';
 import path from '../polyfills/path.js'
 import { checkConnectivity } from '../utils/network/check.js';
+import {模型存放地址} from '../vectorStorage/utils/checkConfig.js'
+import { modelInfos } from './Models/info.js';
 export let baseModels = ['leolee9086/text2vec-base-chinese']
-let 模型存放地址 = '/data/public/onnxModels/'
+
 import { DownloadDialog } from './downloader.js';
 export let 下载基础模型 = async() => {
     baseModels.forEach(
@@ -17,10 +19,11 @@ export let 下载基础模型 = async() => {
     )
 }
 export async function 校验模型是否存在(模型名称) {
-    return await fs.exists(path.join(模型存放地址, 模型名称))
+    //return await fs.exists(path.join(模型存放地址, 模型名称))
+    return false
 }
 export async function 下载模型(模型名称) {
-    let huggingfaceOnline = await checkConnectivity('https://huggingface.co/')
+    let huggingfaceOnline = await checkConnectivity('https://hf-mirror.com')
     if (huggingfaceOnline) {
         //如果能连通hugginface的话就不用管了
         return

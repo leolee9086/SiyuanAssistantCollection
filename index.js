@@ -362,8 +362,6 @@ class SiyuanAssistantCollection extends ccPlugin {
   }
   async 初始化插件异步状态() {
     await this.configurer.reload()
-    console.log(this.configurer)
-    console.log(this.configurer.get('模型设置', 'OPENAI').$value)
     this.设置器 = this.configurer
     await this.暴露插件环境()
     await this.加载管理器()
@@ -373,7 +371,7 @@ class SiyuanAssistantCollection extends ccPlugin {
     path = this.utils.path
     fs = this.workspace
     await this.初始化关键词表();
-    await this.blockIndex.开始索引()
+    await import(`${this.selfURL}/source/index.js`)
   }
   async 暴露插件环境() {
     window[Symbol.for(`plugin_${this.name}`)] = this

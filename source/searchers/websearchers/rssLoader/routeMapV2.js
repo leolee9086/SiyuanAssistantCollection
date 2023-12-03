@@ -30,7 +30,6 @@ for (let name of moduleList) {
             routeMap[name][scheme].redirect = _path
         }
         let code = await fs.readFile(routerPath)
-
         const exportsObj = {};
         const moduleObj = {
             exports: exportsObj

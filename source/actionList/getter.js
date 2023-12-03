@@ -104,7 +104,9 @@ function 创建过滤器函数(动作表) {
             return
         }
         if (_动作表 instanceof Function) {
-            _动作表 = 处理单个动作表(await (_动作表)(context, signal));
+            let result = await (_动作表)(context, signal)
+            result.provider=动作表.provider
+            _动作表 = 处理单个动作表(result);
         }
         if (!_动作表 || !_动作表[0]) {
             return;

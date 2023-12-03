@@ -92,7 +92,6 @@ export const 处理单个动作表 = (动作表) => {
                 动作.hints = plugin.defaultHint || '@@'
             }
             let hintArray = 动作.hints.split(',')
-
             动作.hints.split(',').forEach(
                 hint => {
                     let hintPinyin = plugin.utils.pinyin.getFullChars(hint)
