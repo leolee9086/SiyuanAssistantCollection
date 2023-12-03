@@ -21,9 +21,10 @@ const handleBaiduSearchResults = (results, resolve, reject) => {
 };
 
 // 创建一个搜索百度的函数
-export const searchBaidu = async (query) => {
+export const searchBaidu = async (query,options={rss:false}) => {
     let searchUrl = `https://www.baidu.com/s?word=${encodeURIComponent(query)}`;
     let results = await searchURL(searchUrl, waitScript, baiduSearchScript, handleBaiduSearchResults);
+    console.log(results)
     let markdown = ''
     results.forEach(result => {
         try {
@@ -31,6 +32,7 @@ export const searchBaidu = async (query) => {
             new URL(result.link);
             // 对result.link进行编码以防止注入攻击
             let safeLink = encodeURI(result.link);
+            result.link=safeLink
             // 添加到markdown
             markdown += plugin._lute ? `\n[${result.title}](${safeLink})` : '';
         } catch (e) {
@@ -40,5 +42,9 @@ export const searchBaidu = async (query) => {
     });
     // 将列表元素添加到 div 中
     // 解析 Promise，返回 div 和 markdown
+    // 如果要求以rss形式返回,就直接返回了
+    if(options.rss){
+        return {results:results,markdown}
+    }
     return markdown
-};
+}

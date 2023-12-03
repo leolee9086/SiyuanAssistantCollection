@@ -300,9 +300,9 @@ class SiyuanAssistantCollection extends ccPlugin {
             TIPS
         </div>
     </div>
-    <div class="fn__flex-1" style="min-height: auto;transition: var(--b3-transition)">
-    <div id="SAC-TIPS_pinned"  style="overflow:auto;max-height:30%"></div>
-    <div id="SAC-TIPS" class='fn__flex-1' style="overflow:auto;max-height:100%"></div>
+    <div class="fn__flex-1 fn__flex-column" style="min-height: auto;transition: var(--b3-transition)">
+      <div id="SAC-TIPS_pinned"  style="overflow:auto;max-height:30%"></div>
+      <div id="SAC-TIPS" class='fn__flex-1' style="overflow:auto;max-height:100%"></div>
     </div>
     </div>
     <div class="fn__flex">

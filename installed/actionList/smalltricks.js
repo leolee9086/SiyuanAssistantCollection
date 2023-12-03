@@ -1,4 +1,4 @@
-import { plugin,kernelApi,clientApi } from "../runtime.js";
+import { plugin, kernelApi, clientApi } from "../runtime.js";
 export default (_context) => {
     return [
         {
@@ -55,7 +55,7 @@ export default (_context) => {
                 context.token.delete()
                 console.log(await 获取块嵌入向量(blockElement.dataset.nodeId, true))
             },
-            
+
         },
         {
             icon: "",
@@ -69,7 +69,7 @@ export default (_context) => {
                 embeddingDataBase[doc.id].block = root._block
 
             },
-            
+
         },
         {
             icon: "",
@@ -112,7 +112,7 @@ export default (_context) => {
             label: `笔记里的相近块`,
             hints: '搜索',
             matchMod: 'any',
-            tipRender:async(context)=>{
+            tipRender: async (context) => {
                 async function 以文本查找最相近文档(textContent, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数) {
                     let embedding = await context.plugin.文本处理器.提取文本向量(textContent)
 
@@ -120,25 +120,34 @@ export default (_context) => {
                     return vectors
                 }
                 let results = await 以文本查找最相近文档(context.blocks[0].content, 30, '', false, null)
-                results= results.filter(
-                    item=>{
+                results = results.filter(
+                    item => {
                         return !document.querySelector(`[href="siyuan://blocks/${item.meta.id}"]`)
                     }
                 )
                 let div = document.createElement('div')
                 let markdown = ''
-                if(results[0]){
+                if (results[0]) {
+                    let item=[]
                     for (let result of results) {
                         div.insertAdjacentHTML(
                             'beforeEnd',
-                            `<div><a href="siyuan://blocks/${result.meta.id}">${result.meta.content.substring(0,36)}@score:${result.similarityScore}</a></div>`
-    
+                            `<div><a href="siyuan://blocks/${result.meta.id}">${result.meta.content.substring(0, 36)}@score:${result.similarityScore}</a></div>`
                         )
-                        markdown+=`[${result.meta.content}](siyuan://blocks/${result.meta.id})`
-                        
+                        markdown += `[${result.meta.content}](siyuan://blocks/${result.meta.id})`
+                        item.push(
+                            {
+                                title: '笔记里的相近块', 
+                                link: `siyuan://blocks/${result.meta.id}`, 
+                                description: `${result.meta.content.substring(0,36)}@score:${result.similarityScore}`,
+                            }
+                        )
                     }
-                    return {element:div,markdown:markdown}
-    
+                    return { 
+                        title:"笔记里的相近块",
+                        link:`siyuan://blocks/${context.blocks[0].id}`,
+                        item
+                    }
                 }
             }
         },

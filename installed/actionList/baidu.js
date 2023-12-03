@@ -9,24 +9,13 @@ export default [
         tipRender:async (context) => {
             let text = context.blocks[0].content
             let id = context.blocks[0].id
-            let links = await  (plugin.搜索管理器.get('webseacher','baidu'))(text)
-            links=links.join('\n')
-            let lines =links.split('\n')
-            linkMap[id]=linkMap[id]||{}
-
-            lines= lines.map(line=> {
-                let obj = linkMap[id]
-                if (!obj[line.split(']')[0]]){ 
-                    obj[line.split(']')[0]]=true
-                    return line
-                }
-            });
-            links=lines.join('\n')
-            let div = document.createElement('div');
-            let aTags= plugin.lute.Md2HTML(links)
-            div.innerHTML=aTags
-            if(div.innerText){
-                return {element:div,markdown:links}
+            let links = await  (plugin.搜索管理器.get('webseacher','baidu'))(text,{rss:true})
+            let results=links.results
+            return {
+                title:"百度搜索",
+                link:"",
+                description:"",
+                items:results
             }
         }
     }

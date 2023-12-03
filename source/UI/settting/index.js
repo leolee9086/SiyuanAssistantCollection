@@ -23,6 +23,9 @@ function handleFirstTab(i, tab, firstTab) {
         while (tab.querySelector('.config__item') && firstTab !== tab) {
             firstTab.appendChild(tab.querySelector('.config__item'));
         }
+        if(firstTab !== tab){
+            tab.remove()
+        }
         return firstTab;
     }
 }

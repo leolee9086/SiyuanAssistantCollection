@@ -11,8 +11,8 @@ async function 批量渲染(动作表, 执行上下文, container) {
     for (let 动作 of 动作表) {
         try {
             if (动作.tipRender instanceof Function) {
-                let divHTML = `
-                <div class="fn__flex-1 fn__flex-column">
+                /*let divHTML = `
+                <div class="fn__flex-1 fn__flex-column" >
                     <div class="b3-card__info b3-card__info--left fn__flex-1">
                         ${动作.label} <span class="ft__on-surface ft__smaller">${动作.describe || ""}</span>
                         <div class="b3-card__body">
@@ -21,22 +21,34 @@ async function 批量渲染(动作表, 执行上下文, container) {
                     </div>
                     <div>Tips for block: <a href="siyuan://blocks/${执行上下文.blocks[0].id}">${执行上下文.blocks[0].id}</div>
                 </div>
-            `;
-                if (!childrenHTML.includes(divHTML)) {
-                    const div = document.createElement('div');
-                    div.setAttribute('class', 'tips-card');
-                    div.innerHTML = divHTML;
-                    let { element, markdown } = await 动作.tipRender(执行上下文);
-                    if (!markdown) {
-                        console.warn('至少需要提供markdown,没有markdown内容的tips不会给AI参考')
-                    } else (
-                        div.setAttribute('markdown-content', markdown)
-                    )
-                    if (element instanceof HTMLElement && !(element.tagName === 'SCRIPT')) {
-                        div.querySelector(".b3-card__body").appendChild(element);
+            `;*/
+                let divHTML = ""
+                const div = document.createElement('div');
+                div.setAttribute('class', 'tips-card');
+                div.innerHTML = divHTML;
+                let { title, link, description, item } = await 动作.tipRender(执行上下文);
+                console.log(title, link, description)
+                item.forEach(
+                    item => {
+                        const div = document.createElement('div');
+                        div.innerHTML = `<div class="fn__flex-1 b3-card__info" 
+                        style="font-size:smaller;background-color:var(--b3-theme-background);padding:4px !important;border-bottom:1px dashed var(--b3-theme-primary-light)">
+                        <div class="b3-card__body">
+                            <div>
+                                 <input class=" fn__flex-center"  type="checkbox"></input>
+                                <strong><a href="${item.link}">${item.title}</a></strong>${item.description}
+                            </div>
+                            <div class="tips-image-container">
+                            </div>
+                            </div>
+                            </div>`
+                        if (item.image) {
+                            div.querySelector('.tips-image-container').innerHTML = `<image src='${item.image}'></image>`
+                        }
+                        frag.prepend(div);
                     }
-                    frag.prepend(div);
-                }
+                )
+                //div.setAttribute('markdown-content', markdown)
             }
         } catch (e) {
             logger.tipswarn(e)
@@ -83,7 +95,6 @@ plugin.eventBus.on('hint_tips', async (e) => {
                 } else {
                     target.classList.add('pinned');
                     target.classList.add('selected');
-
                     pinnedContainer.appendChild(target);
                 }
             }
