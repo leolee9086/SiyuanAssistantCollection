@@ -68,7 +68,7 @@ function createMultiLevel(keys, base, tabWrapper, sideBarFragment) {
 export function buildSettingUI(settingList, base = '') {
     let keys = plugin.configurer.query(settingList, base);
     let frag = document.createDocumentFragment();
-    let tabWrapper = string2DOM(`<div class="config__tab-wrap"></div>`);
+    let tabWrapper = string2DOM(`<div class="config__tab-wrap" style="padding-top: 20px;"></div>`);
     let isSingleLevel = keys.every((item, i, arr) => {
         if (i === 0) return true;
         let prevPathParts = arr[i - 1].path.split('.');

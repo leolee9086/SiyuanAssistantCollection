@@ -1,5 +1,4 @@
 import { plugin } from "../runtime.js";
-let linkMap={}
 export default [
     {
         label: "百度搜索",
@@ -7,10 +6,10 @@ export default [
         matchMod: 'any',
         icon: "",
         tipRender:async (context) => {
-            let text = context.blocks[0].content
+            let text = context.token.word
             let id = context.blocks[0].id
             let links = await  (plugin.搜索管理器.get('webseacher','baidu'))(text,{rss:true})
-            let results=links.results
+            let results=JSON.parse(JSON.stringify(links.results))
             return {
                 title:"百度搜索",
                 link:"",

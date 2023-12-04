@@ -22,6 +22,7 @@ async function 批量渲染(动作表, 执行上下文, container) {
                     <div>Tips for block: <a href="siyuan://blocks/${执行上下文.blocks[0].id}">${执行上下文.blocks[0].id}</div>
                 </div>
             `;*/
+                console.log(动作表)
                 let divHTML = ""
                 const div = document.createElement('div');
                 div.setAttribute('class', 'tips-card');

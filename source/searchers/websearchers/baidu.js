@@ -1,50 +1,57 @@
-import { pluginInstance as plugin } from '../../asyncModules.js';
-import { searchURL } from "./searcherWindow/electron.js";
-
-const baiduSearchScript = `
-Array.from(document.querySelectorAll('.result.c-container')).map(el => {
-    const title = el.querySelector('.c-title a').innerText;
-    const link = el.querySelector('.c-title a').href;
-    return { title, link };
-});
-`;
-const waitScript = `
-document.querySelectorAll('.result.c-container').length;
-`
-// 创建一个回调函数，这个函数处理搜索结果
-const handleBaiduSearchResults = (results, resolve, reject) => {
-    if (results && results.length > 0) {
-        resolve(results);
-    } else {
-        reject(new Error('No results found'));
+import * as cheerio from '../../../static/cheerio.js'
+import {got} from '../../utils/network/got.js'
+let searchHistory = {};
+let lastSearchTime = {};
+let delay = 3000;
+export const searchBaidu = async (query, options = {rss: false}) => {
+    // 检查是否在3秒内已经搜索过这个关键词
+    if (lastSearchTime[query] && Date.now() - lastSearchTime[query] < delay) {
+        // 如果在3秒内已经搜索过，直接返回历史结果
+        return searchHistory[query] ? {results: searchHistory[query], markdown: ''} : '';
     }
-};
+    let searchUrl = `https://www.baidu.com/s?wd=${query}`;
+    let pn = 0;
+    if (searchHistory[query]) {
+        pn = searchHistory[query].length ;
+        searchUrl += `&pn=${pn}`;
+    }
+    let response = await got(searchUrl);
+    let $ = cheerio.load(response.data);
+    console.log(response.data)
 
-// 创建一个搜索百度的函数
-export const searchBaidu = async (query,options={rss:false}) => {
-    let searchUrl = `https://www.baidu.com/s?word=${encodeURIComponent(query)}`;
-    let results = await searchURL(searchUrl, waitScript, baiduSearchScript, handleBaiduSearchResults);
-    console.log(results)
-    let markdown = ''
-    results.forEach(result => {
+    if ($('title').text().includes('百度安全验证')) {
+        // 如果出现了，指数级增加搜索间隔
+        delay *= 2;
+        return '';
+    }
+    let results = [];
+    $('.result.c-container').each((index, element) => {
+        const title = $(element).find('.c-title a').text();
+        const link = $(element).find('.c-title a').attr('href');
+        results.push({ title, link });
+    });
+    if (searchHistory[query]) {
+        searchHistory[query] = [...searchHistory[query], ...results];
+    } else {
+        searchHistory[query] = results;
+    }
+    let markdown = '';
+    searchHistory[query].forEach(result => {
         try {
-            // 检查result.link是否是有效的URL
             new URL(result.link);
-            // 对result.link进行编码以防止注入攻击
             let safeLink = encodeURI(result.link);
-            result.link=safeLink
-            // 添加到markdown
-            markdown += plugin._lute ? `\n[${result.title}](${safeLink})` : '';
+            result.link = safeLink;
+            markdown +=  `\n[${result.title}](${safeLink})` 
         } catch (e) {
-            // 如果result.link不是有效的URL，URL构造函数会抛出一个错误
-            console.error(`Invalid URL: ${result.link}`);
+            console.error(`Invalid URL: ${result.link}`,e);
         }
     });
-    // 将列表元素添加到 div 中
-    // 解析 Promise，返回 div 和 markdown
-    // 如果要求以rss形式返回,就直接返回了
+    // 记录这次搜索的时间
+    lastSearchTime[query] = Date.now();
     if(options.rss){
-        return {results:results,markdown}
+        return {results: searchHistory[query], markdown};
     }
-    return markdown
-}
+    return markdown;
+};
+
+window.searchBaidu=searchBaidu
