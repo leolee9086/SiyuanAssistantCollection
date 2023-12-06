@@ -5,8 +5,8 @@ import {
   logger,
   智能防抖,
   根据上下文获取动作表,
+  kernelApi,
 } from "./runtime.js";
-import kernelApi from "../polyfills/kernelApi.js";
 import { Context } from "./Context.js";
 import buildMenu from './dialogs/fakeMenu.js'
 import { 设置对话框 } from "./dialogs/settingsDialog.js";
