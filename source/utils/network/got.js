@@ -73,17 +73,14 @@ got.extend = (options = {}) => {
     const newGot = async (urlOptions, newOptions = {}) => {
         // Merge options
         const finalOptions = { ...options, ...newOptions };
-
         // Call the original got function with the merged options
         return got(urlOptions, finalOptions);
     };
-
     // Copy the properties from the original got function to the new one
     for (let prop in got) {
         if (got.hasOwnProperty(prop)) {
             newGot[prop] = got[prop];
         }
     }
-
     return newGot;
 };
