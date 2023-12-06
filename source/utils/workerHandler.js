@@ -1,4 +1,3 @@
-import { plugin } from "../asyncModules.js";
 import logger from "../logger/index.js";
 import { 计算cpu核心数量 } from "./os/cpu.js";
 import { 正规化URL } from "./url.js";
@@ -66,8 +65,6 @@ function 初始化Worker线程池(worker文件地址, characters) {
     }
   }
 }
-
-
 // 找到可用的 worker
 function 找到可用Worker(worker文件地址) {
   // 使用文件名作为键

@@ -9,7 +9,6 @@ function base64UrlEncode(str) {
 export class zhipuaiChat extends ChatSession {
     constructor(options) {
         super()
-
         this.options = {
             ...模型设置,
             ...options

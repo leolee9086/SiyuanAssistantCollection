@@ -22,6 +22,5 @@ let 模型字典 = {
 }
 export const getLanguageProcessor=(name)=>{
     let 当前基础后端接口 =  getPersonaSetting(name,'聊天工具设置','基础模型接口').$value
-
     return 模型字典[当前基础后端接口]||OPENAI
 }

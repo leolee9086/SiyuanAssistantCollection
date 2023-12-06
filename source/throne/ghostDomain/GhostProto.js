@@ -1,4 +1,3 @@
-import kernelApi from '../../polyfills/kernelApi.js';
 import { plugin } from '../../asyncModules.js'
 import fs from '../../polyfills/fs.js'
 import { logger } from '../../logger/index.js';
