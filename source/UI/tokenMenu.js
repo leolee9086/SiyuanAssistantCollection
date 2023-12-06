@@ -1,7 +1,8 @@
 import { clientApi, pluginInstance as plugin } from "../asyncModules.js";
 import { 
   获取光标所在位置, 
-  使用结巴拆分元素 
+  使用结巴拆分元素,
+  logger 
 } from ".runtime.js";
 import { 智能防抖 } from "../utils/functionTools.js"
 import { 根据上下文获取动作表 } from '../actionList/getter.js'
