@@ -130,10 +130,6 @@ function 获取光标底部位置() {
   const rect = range.getClientRects()[0];
   return rect ? rect.bottom : null;
 }
-
-
-
-
 const 根据上下文生成动作菜单项 = (执行上下文, 动作, 触发事件类型) => {
   let 菜单项文字内容 = 动作.label[window.siyuan.config.lang] || 动作.label.zh_CN || 动作.label
   if (菜单项文字内容 instanceof Function) {
