@@ -1,5 +1,4 @@
-import { clientApi,  plugin } from "./runtime.js"
-import kernelApi from "../polyfills/kernelApi.js"
+import { clientApi,  plugin,kernelApi } from "./runtime.js"
 import { jieba } from "../utils/tokenizer.js"
 import fs from "../polyfills/fs.js"
 import path from "../polyfills/path.js"
