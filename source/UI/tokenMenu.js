@@ -1,4 +1,3 @@
-import { clientApi, pluginInstance as plugin } from "../asyncModules.js";
 import { 
   获取光标所在位置, 
   使用结巴拆分元素,
@@ -6,12 +5,12 @@ import {
   智能防抖,
   根据上下文获取动作表,
   kernelApi,
+  plugin
 } from "./runtime.js";
 import { Context } from "./Context.js";
 import buildMenu from './dialogs/fakeMenu.js'
 import { 设置对话框 } from "./dialogs/settingsDialog.js";
 export { 根据上下文获取动作表 as 根据上下文获取动作表 }
-
 plugin.eventBus.on(
   "settingChange", (e) => {
     let tokenMenuDialogs = plugin.statusMonitor.get('菜单', '关键词菜单', '菜单实例').$value
