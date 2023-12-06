@@ -1,5 +1,7 @@
 import { plugin } from "../asyncModules.js";
 import logger from "../logger/index.js";
+import { 计算cpu核心数量 } from "./os/cpu.js";
+import { 正规化URL } from "./url.js";
 let worker线程池 = {}
 worker线程池 = globalThis[Symbol.for('_worker线程池_')] || worker线程池
 globalThis[Symbol.for('_worker线程池_')] = worker线程池
@@ -64,19 +66,8 @@ function 初始化Worker线程池(worker文件地址, characters) {
     }
   }
 }
-function 计算cpu核心数量(){
-  let cpu核心数 = navigator.hardwareConcurrency/2 || 4;
-  cpu核心数 = plugin.configurer.get('向量工具设置','索引占用核心').$value||cpu核心数
-  plugin.configurer.set('向量工具设置','索引占用核心',cpu核心数)
-  logger.workerlog(cpu核心数)
-  return cpu核心数
-}
-function 正规化URL(原始URL) {
-  // 创建一个URL对象
-  let url = new URL(原始URL,location.href);
-  // 返回正规化的URL，并替换连续的//
-  return url.href.replace(/([^:])\/\/+/g, '$1/');
-}
+
+
 // 找到可用的 worker
 function 找到可用Worker(worker文件地址) {
   // 使用文件名作为键
@@ -123,7 +114,7 @@ export const 使用worker处理数据 = async (数据组, worker文件地址, �
 // 处理单个任务
 async function 处理单个任务(worker, 数据组, 任务名) {
   try {
-    logger.log(worker,数据组,任务名)
+    logger.log(worker, 数据组, 任务名)
     let result = await worker.处理任务(数据组, 任务名);
     return { status: 'fulfilled', value: result };
   } catch (error) {
@@ -170,7 +161,7 @@ export function 创建一次性函数worker(func) {
         }
     };
     //# sourceURL=worker.js
-  `], {type: 'application/javascript'});
+  `], { type: 'application/javascript' });
   const workerScript = URL.createObjectURL(blob);
   // 创建一个Worker
   const worker = new Worker(workerScript);
