@@ -20,13 +20,14 @@ if(plugin.statusMonitor.get("aiTabContainer").$value){
 
 function createAiTab(tab){
     logger.AiTablog(tab)
+    console.log(tab)
     throneManager.buildDoll( plugin.configurer.get('聊天工具设置', '默认AI').$value).then(
-        doll=>{
+        async doll=>{
             doll.createInterface(
                 {
                     type: 'textChat',
                     describe: '一个HTML用户界面,用于向用户展示图文信息',
-                    container: tab.element.querySelector('#ai-chat-interface'),
+                    container:await tab.element.querySelector('#ai-chat-interface'),
                 }
             );
         }

@@ -1,21 +1,6 @@
-import ctx from './ctxPolyfills.js';
-import rssV1router from './routeMapV1.js'
-
-export const parseRss = (path, options) => {
-    const url = new URL(path);
-    const pathWithQuery = url.pathname + url.search;  // "/zhihu/zhuanlan/googledevelopers?query=example"
-    let _ctx = ctx(pathWithQuery, options)
-    return new Promise((resolve, reject) => {
-        try {
-            rssV1router.routes('/')(_ctx, () => {
-                resolve(
-                    _ctx)
-            });
-        } catch (e) {
-            reject(e)
-        }
-    })
-}
+import {parseRss} from './paseLocal.js'
+import './refresh.js'
+export {parseRss as parseRss}
 class RSSList extends HTMLElement {
     constructor() {
         super();
@@ -26,7 +11,6 @@ class RSSList extends HTMLElement {
         parseRss(src).then(
             ctx => {
                 this.render(ctx);
-
             }
         )
     }

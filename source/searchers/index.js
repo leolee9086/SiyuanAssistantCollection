@@ -52,5 +52,6 @@ try{
 }catch(e){
     console.error(e)
 }
+console.log(parseRss)
 export const set = (...args) => { plugin.searchers.set(...args) }
 export const get = (...args) => { return plugin.searchers.get(...args) }

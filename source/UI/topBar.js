@@ -1,9 +1,8 @@
-import { plugin,clientApi } from "../asyncModules.js";
+import { plugin,clientApi,roster } from "./runtime.js";
 import { 主AI对话框 } from "./dialogs/chatDialogs.js";
 import { 设置对话框 } from "./dialogs/settingsDialog.js";
 import { 向量搜索窗口 } from "./dialogs/vactorSearchBlock.js";
 import { AI对话框控制器 } from "./dialogs/chatDialogs.js";
-import roster from '../throne/ghostDomain/index.js'
 await 主AI对话框.init()
 let topBarButton = plugin.statusMonitor.get('UI', 'topBarButton').$value
 topBarButton.addEventListener(
