@@ -1,6 +1,8 @@
 import { clientApi, pluginInstance as plugin } from "../asyncModules.js";
-import { 获取光标所在位置 } from "../utils/rangeProcessor.js";
-import { 使用结巴拆分元素 } from "../utils/tokenizer.js";
+import { 
+  获取光标所在位置, 
+  使用结巴拆分元素 
+} from ".runtime.js";
 import { 智能防抖 } from "../utils/functionTools.js"
 import { 根据上下文获取动作表 } from '../actionList/getter.js'
 import kernelApi from "../polyfills/kernelApi.js";
@@ -26,10 +28,10 @@ plugin.eventBus.on(
 function 获取元素所在protyle(element) {
   let { protyles } = plugin
   logger.tokenmenulog(protyles)
-  let protyle= protyles.find(protyle => {
+  let protyle = protyles.find(protyle => {
     return protyle.contentElement ? protyle.contentElement.contains(element) : protyle.protyle.contentElement.contains(element)
   })
-  return protyle.protyle?protyle.protyle:protyle
+  return protyle.protyle ? protyle.protyle : protyle
 }
 let isComposing = false;
 //这一段是token菜单的渲染逻辑
