@@ -1,4 +1,4 @@
-import { EventEmitter } from "../../../../eventsManager/EventEmitter.js";
+import { EventEmitter } from "../runtime.js";
 export  class openAiChat extends EventEmitter{
     constructor(options = {}) {
         super()

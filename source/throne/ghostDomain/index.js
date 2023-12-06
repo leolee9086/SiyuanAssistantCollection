@@ -2,6 +2,7 @@ import { plugin } from '../../asyncModules.js'
 import path from '../../polyfills/path.js'
 import fs from '../../polyfills/fs.js'
 import Ghost from './GhostProto.js'
+import { logger } from '../../logger/index.js'
 export { plugin as plugin }
 const GhostURL = `${plugin.selfURL}/installed/personas`
 const GhostPath = `/data/plugins/${plugin.name}/installed/personas`

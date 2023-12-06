@@ -1,4 +1,5 @@
-import OpenAichatApi from './LLMAPIS/openAIChat.js'
+import { 自然语言处理 } from '../../../AIProcessors/index.js'
+const OpenAichatApi =自然语言处理.对话补全.模型.openAI
 import { MAGI } from './MAGI.js'
 import { plugin } from '../../../asyncModules.js'
 let options =JSON.parse(JSON.stringify(plugin.configurer.get('模型设置','OPENAI').$value))

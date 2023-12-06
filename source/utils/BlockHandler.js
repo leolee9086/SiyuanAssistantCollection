@@ -38,21 +38,37 @@ class BlockHandler {
     this._blockCacheTime = null;
 
   }
+  //一个同步请求
+  get _block() {
+    const now = Date.now();
+    if (this._blockCache && now - this._blockCacheTime < 20) {
+      return this._blockCache;
+    }
+    let res= this.kernelApi.SQL.sync({
+      stmt: `select * from blocks where id = '${this.id}' `,
+    })[0];
+    if(res.id){
+    this._blockCacheTime = now;
+    this._blockCache =res
+    return this._blockCache;
+    }else{
+      return {}
+    }
+  }
   async netImg2LocalAssets() {
     await this.kernelApi.netImg2LocalAssets({ id: this.id })
   }
   get exists() {
     return this.kernelApi.checkBlockExist.sync({ id: this.id })
   }
-  get markdown(){
-    return this.exists ? this._block.markdown : undefined;
-
+  get markdown() {
+    return  this._block.markdown 
   }
   get content() {
-    return this.exists ? this._block.content : undefined;
+    return this._block.content
   }
   get path() {
-    return this.exists ? this._block.path : undefined;
+    return  this._block.path 
   }
   get root() {
     return this.exists ? new BlockHandler(this.kernelApi.getBlockInfo.sync({ id: this.id }).rootID) : undefined;
@@ -142,20 +158,7 @@ class BlockHandler {
     return blockElements
   }
   baseAttrs = ["id", "type", "subtype"];
-  //一个同步请求
-  get _block() {
-    const now = Date.now();
-    if (this._blockCache && now - this._blockCacheTime < 20) {
-      return this._blockCache;
-    }
 
-    this._blockCache = this.kernelApi.SQL.sync({
-      stmt: `select * from blocks where id = '${this.id}' `,
-    })[0];
-    this._blockCacheTime = now;
-
-    return this._blockCache;
-  }
   get _parent() {
     return this.kernelApi.SQL.sync({
       stmt: `select * from blocks where id in (select parent_id from blocks where id =  '${this.id}') `,
