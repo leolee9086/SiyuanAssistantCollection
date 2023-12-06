@@ -9,9 +9,6 @@ export default [
         tipRender: async (context) => {
             let text = context.token.word
             if (text.length >= 2) {
-
-
-                let id = context.blocks[0].id
                 let links = await (搜索管理器.get('webseacher', 'baidu'))(text, { rss: true })
                 if(links.results){
                     let results = JSON.parse(JSON.stringify(links.results))
@@ -24,7 +21,6 @@ export default [
                 }else{
                     return 
                 }
-
             }
         }
     }
