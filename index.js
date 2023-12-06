@@ -198,10 +198,6 @@ class SiyuanAssistantCollection extends ccPlugin {
     return xhr.responseText
   }
   初始化插件同步状态() {
-    //这里是加载一些基础功能
-    this.require('./source/syncModule.js')
-    //这里是创建UI容器,因为dock等需要同步创建
-    //基础设置的读取是同步进行的
     this.读取基础设置()
     this._setting = this.设置
     this.defaultSettings = this.默认设置
@@ -211,11 +207,12 @@ class SiyuanAssistantCollection extends ccPlugin {
     this.依赖 = 依赖
     this.状态 = {}
     this.status = this.状态
-    this.require('./source/UIContainers.js')
 
-    this.创建AI侧栏容器()
-    this.创建TIPS侧栏容器()
-    this.创建aiTab容器()
+    //这里是加载一些基础功能
+    this.require('./source/syncModule.js')
+    //这里是创建UI容器,因为dock等需要同步创建
+    //基础设置的读取是同步进行的
+    this.require('./source/UIContainers.js')
   }
   读取基础设置() {
     let xhr = new XMLHttpRequest();
@@ -229,91 +226,9 @@ class SiyuanAssistantCollection extends ccPlugin {
     this.meta = JSON.parse(xhr1.responseText)
   }
  
-  创建TIPS侧栏容器() {
-    const DOCK_TYPE = 'SAC_TIPS'
-    let plugin = this
-    this.addDock({
-      config: {
-        position: "LeftBottom",
-        size: { width: 200, height: 0 },
-        icon: "iconFace",
-        title: "Custom Dock",
-      },
-      data: {
-        text: "This is my custom dock"
-      },
-      type: DOCK_TYPE,
-      init() {
-        this.element.innerHTML = `
-        <div class="fn__flex-1 fn__flex-column" style="max-height:100%">
-        <div class="block__icons">
-        <div class="block__logo">
-            <svg>
-                <use xlink:href="#iconFiles"></use>
-            </svg>
-            TIPS
-        </div>
-    </div>
-    <div class="fn__flex-1 fn__flex-column" style="min-height: auto;transition: var(--b3-transition)">
-      <div id="SAC-TIPS_pinned"  style="overflow:auto;max-height:30%"></div>
-      <div id="SAC-TIPS" class='fn__flex-1' style="overflow:auto;max-height:100%"></div>
-    </div>
-    </div>
-    <div class="fn__flex">
-        `;
-        plugin.statusMonitor.set('tipsConainer', 'main', this.element)
-        plugin.eventBus.emit('tipsConainerInited')
-      },
-      destroy() {
-        plugin.log("destroy dock:", DOCK_TYPE);
-      }
-    });
-  }
 
-  创建AI侧栏容器() {
-    const DOCK_TYPE = 'SAC_CHAT'
-    let plugin = this
-    this.addDock({
-      config: {
-        position: "LeftBottom",
-        size: { width: 200, height: 0 },
-        icon: "iconSaving",
-        title: "Custom Dock",
-      },
-      data: {
-        text: "This is my custom dock"
-      },
-      type: DOCK_TYPE,
-      init() {
-        this.element.innerHTML = `<div id="ai-chat-interface" class='fn__flex-column' style="pointer-events: auto;overflow:hidden;max-height:100%"></div>`;
-        plugin.statusMonitor.set('dockContainers', 'main', this.element)
-        plugin.eventBus.emit('dockConainerInited', this.element)
-      },
-      destroy() {
-        plugin.log("destroy dock:", DOCK_TYPE);
-      }
-    });
-  }
-  创建aiTab容器() {
-    const DOCK_TYPE = 'SAC_CHAT'
-    let plugin = this
-    this.aiTabContainer = this.addTab({
-      type: DOCK_TYPE,
-      init() {
-        plugin.log(this)
-        this.element.innerHTML = `<div id="ai-chat-interface" class='fn__flex-column' style="pointer-events: auto;overflow:hidden;max-height:100%"></div>`;
-        let tabs = plugin.statusMonitor.get('aiTabContainer', this.data.persona).value || []
-        tabs.push(this)
-        plugin.statusMonitor.set('aiTabContainer', this.data.persona, tabs)
-        plugin.eventBus.emit('TabContainerInited', this)
-        plugin.log(this)
 
-      },
-      destroy() {
-        plugin.log("destroy tab:", DOCK_TYPE);
-      }
-    });
-  }
+ 
   async 初始化插件异步状态() {
     await this.configurer.reload()
     this.设置器 = this.configurer
