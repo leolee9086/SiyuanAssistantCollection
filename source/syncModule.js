@@ -1,6 +1,7 @@
+//这里的require由插件系统的继承而来
+//更进一步地,注入了插件的实例
 const plugin = require("plugin")
 const clientApi = require('clientApi')
-
 function 递归合并(目标对象, 源对象) {
     if (!源对象) {
         return;
@@ -93,7 +94,6 @@ class PluginConfigurer {
         }
         return this;
     }
-
     validateNewValue(oldValue, value) {
         // 检查旧值是否存在
         if (oldValue !== undefined) {
@@ -222,3 +222,39 @@ class PluginConfigurer {
 }
 plugin.statusMonitor = new PluginConfigurer(plugin, 'status')
 plugin.configurer = new PluginConfigurer(plugin, '_setting', 'setting', true)
+//这里开始加载需要同步进行的事件
+//没什么别的作用,就是用来收集protyle而已
+const {eventBus} =plugin
+eventBus.on("loaded-protyle", (e) => {
+    plugin.protyles.push(e.detail);
+    plugin.protyles = Array.from(new Set(this.protyles));
+    plugin.setLute ? plugin._lute = plugin.setLute({
+      emojiSite: e.detail.options.hint.emojiPath,
+      emojis: e.detail.options.hint.emoji,
+      headingAnchor: false,
+      listStyle: e.detail.options.preview.markdown.listStyle,
+      paragraphBeginningSpace: e.detail.options.preview.markdown.paragraphBeginningSpace,
+      sanitize: e.detail.options.preview.markdown.sanitize,
+    }) : null;
+  });
+  //适配新版本
+eventBus.on("loaded-protyle-static", (e) => {
+    plugin.protyles.push(e.detail);
+    plugin.protyles = Array.from(new Set(plugin.protyles));
+    try {
+        plugin.setLute ? plugin._lute = plugin.setLute({
+        emojiSite: e.detail.options.hint.emojiPath,
+        emojis: e.detail.options.hint.emoji,
+        headingAnchor: false,
+        listStyle: e.detail.options.preview.markdown.listStyle,
+        paragraphBeginningSpace: e.detail.options.preview.markdown.paragraphBeginningSpace,
+        sanitize: e.detail.options.preview.markdown.sanitize,
+      }) : null;
+    } catch (e) {
+      console.warn(e, e.detail)
+    }
+  });
+eventBus.on("click-editorcontent", (e) => {
+    plugin.protyles.push(e.detail.protyle);
+    plugin.protyles = Array.from(new Set(plugin.protyles));
+  })

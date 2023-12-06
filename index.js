@@ -159,6 +159,7 @@ class ccPlugin extends Plugin {
     }
   }
 }
+//插件本身作为状态管理和存储管理
 class SiyuanAssistantCollection extends ccPlugin {
   onload() {
     plugin = this;
@@ -197,55 +198,21 @@ class SiyuanAssistantCollection extends ccPlugin {
     return xhr.responseText
   }
   初始化插件同步状态() {
+    //这里是加载一些基础功能
     this.require('./source/syncModule.js')
+    //这里是创建UI容器,因为dock等需要同步创建
+    //基础设置的读取是同步进行的
     this.读取基础设置()
     this._setting = this.设置
     this.defaultSettings = this.默认设置
-
     this.唤起词数组 = []
     this.protyles = [];
     this.命令历史 = []
     this.依赖 = 依赖
-    //设置可以由任意子模块以plugin.configurer.set的形式初始化,这里的只是默认设置.
-    //@TODO:所有设置条目初始化时给出设置项UI渲染函数
-    //之所以要求给出单独的渲染函数是为了在关键词唤起时能够任意地组合设置界面
-    //这里同步地读取基础设置,因为设置文件本身不大,所以问题应该不大
     this.状态 = {}
     this.status = this.状态
-    this.eventBus.on("loaded-protyle", (e) => {
-      this.protyles.push(e.detail);
-      this.protyles = Array.from(new Set(this.protyles));
-      this.setLute ? this._lute = this.setLute({
-        emojiSite: e.detail.options.hint.emojiPath,
-        emojis: e.detail.options.hint.emoji,
-        headingAnchor: false,
-        listStyle: e.detail.options.preview.markdown.listStyle,
-        paragraphBeginningSpace: e.detail.options.preview.markdown.paragraphBeginningSpace,
-        sanitize: e.detail.options.preview.markdown.sanitize,
-      }) : null;
-    });
-    //适配新版本
-    this.eventBus.on("loaded-protyle-static", (e) => {
-      this.protyles.push(e.detail);
-      this.protyles = Array.from(new Set(this.protyles));
-      try {
-        this.setLute ? this._lute = this.setLute({
-          emojiSite: e.detail.options.hint.emojiPath,
-          emojis: e.detail.options.hint.emoji,
-          headingAnchor: false,
-          listStyle: e.detail.options.preview.markdown.listStyle,
-          paragraphBeginningSpace: e.detail.options.preview.markdown.paragraphBeginningSpace,
-          sanitize: e.detail.options.preview.markdown.sanitize,
-        }) : null;
-      } catch (e) {
-        console.warn(e, e.detail)
-      }
-    });
-    this.eventBus.on("click-editorcontent", (e) => {
-      this.protyles.push(e.detail.protyle);
-      this.protyles = Array.from(new Set(this.protyles));
-    })
-    this.创建顶栏按钮()
+    this.require('./source/UIContainers.js')
+
     this.创建AI侧栏容器()
     this.创建TIPS侧栏容器()
     this.创建aiTab容器()
@@ -261,16 +228,7 @@ class SiyuanAssistantCollection extends ccPlugin {
     xhr1.send(null);
     this.meta = JSON.parse(xhr1.responseText)
   }
-  创建顶栏按钮() {
-    let topBarButton = this.addTopBar(
-      {
-        icon: 'iconSparkles',
-        title: '打开对话框,右键打开设置',
-        position: 'right',
-      }
-    )
-    this.statusMonitor.set('UI', 'topBarButton', topBarButton)
-  }
+ 
   创建TIPS侧栏容器() {
     const DOCK_TYPE = 'SAC_TIPS'
     let plugin = this

@@ -5,6 +5,7 @@ import path from '../../../polyfills/path.js'
 import { 柯里化 } from '../../../baseStructors/functionTools.js'
 import moduleCache from "./moduleCache.js";
 import routeMapV2 from "./routeMapV2.js"
+import { logger } from "../../../logger/index.js";
 const getObject = (currentFile, key) => {
     const api = moduleCache
     // 如果 key 是一个相对路径，解析它
@@ -14,8 +15,6 @@ const getObject = (currentFile, key) => {
             key=key+'.js'
         }
     }
- 
-    // @ts-ignore
     if (api[key]) {
         if (api[key]['esm']) {
             return api[key]['esm']
@@ -25,14 +24,10 @@ const getObject = (currentFile, key) => {
         return api[key]
     } else if (key.startsWith('/data')) {
          loadRSS(key)
-
-        
         return api[key]
     }
 };
 const _require = 柯里化(getObject)
-
-
 const loadRSS = async (sourceURL) => {
     try {
         const __dirname=path.dirname(sourceURL)
@@ -71,7 +66,6 @@ const loadRSS = async (sourceURL) => {
 
 const loadAll = async () => {
     let router = {}
-
     let successList = [];
     let failureList = [];
     try {
@@ -86,7 +80,7 @@ const loadAll = async () => {
                             router[element.name][file.name.split('.')[0]] = await loadRSS(plugin.selfPath + '/installed/rss/' + element.name + '/' + file.name)
                             successList.push(element.name + '/' + file.name);
                         } catch (e) {
-                            console.error(`Error loading RSS from ${element.name + '/' + file.name}:`, e)
+                            logger.rsserror(`Error loading RSS from ${element.name + '/' + file.name}:`, e)
                             failureList.push(element.name + '/' + file.name);
                         }
                     }
@@ -94,10 +88,10 @@ const loadAll = async () => {
             }
         }
     } catch (e) {
-        console.error('Error reading directory:', e)
+        logger.rsserror('Error reading directory:', e)
     }
-    console.log(`Successfully loaded ${successList.length} RSS:`, successList);
-    console.log(`Failed to load ${failureList.length} RSS:`, failureList);
+    logger.rsslog(`Successfully loaded ${successList.length} RSS:`, successList);
+    logger.rsslog(`Failed to load ${failureList.length} RSS:`, failureList);
     return router
 }
 const router = new Router();
@@ -136,7 +130,7 @@ Object.getOwnPropertyNames(routeMapV2).forEach(
             }
             router.use(`/${name}`, subRouter.routes())
         } catch (e) {
-            console.warn(e)
+            logger.rsswarn(e)
         }
     }
 )
