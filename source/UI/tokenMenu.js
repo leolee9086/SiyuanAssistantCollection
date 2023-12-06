@@ -26,9 +26,10 @@ plugin.eventBus.on(
 function 获取元素所在protyle(element) {
   let { protyles } = plugin
   logger.tokenmenulog(protyles)
-  return protyles.find(protyle => {
+  let protyle= protyles.find(protyle => {
     return protyle.contentElement ? protyle.contentElement.contains(element) : protyle.protyle.contentElement.contains(element)
   })
+  return protyle.protyle?protyle.protyle:protyle
 }
 let isComposing = false;
 //这一段是token菜单的渲染逻辑
@@ -79,10 +80,12 @@ let 显示token菜单 = (e, signal) => {
   const range = getSelection().getRangeAt(0);
   const 选区位置 = plugin.选区处理器.获取选区屏幕坐标(最近块元素, range);
   plugin.lastTokenArray = 分词结果数组
+  let protyle = 获取元素所在protyle(最近块元素)
   //创建一个临时文档片段元素以加快渲染速度
   分词结果数组.forEach(
     async (分词结果) => {
-      let 执行上下文 = new Context([block], 分词结果, 获取元素所在protyle(最近块元素).getInstance(), tokenMenuDialog, plugin, kernelApi, clientApi, 'blockAction_token', 分词结果数组)
+      console.log(protyle)
+      let 执行上下文 = new Context([block], 分词结果, protyle.getInstance(), tokenMenuDialog, plugin, kernelApi, clientApi, 'blockAction_token', 分词结果数组)
       let 备选动作表 = await 根据上下文获取动作表(执行上下文, signal)
       //这一步排序对性能的影响微乎其微
       let 菜单动作表 = 备选动作表.filter(item => { return item.hintAction })

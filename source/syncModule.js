@@ -48,7 +48,7 @@ class PluginConfigurer {
         this.prop = prop
         this.save = save
     }
-    get target (){
+    get target() {
         return this.plugin[this.prop]
     }
     async reload() {
@@ -62,7 +62,7 @@ class PluginConfigurer {
             await this.plugin.saveData(`${key}.json`, this.plugin[this.prop][key])
         }
     }
-   
+
     async set(...args) {
         if (args.length < 2) {
             throw new Error('You must provide at least two arguments');
@@ -224,37 +224,37 @@ plugin.statusMonitor = new PluginConfigurer(plugin, 'status')
 plugin.configurer = new PluginConfigurer(plugin, '_setting', 'setting', true)
 //这里开始加载需要同步进行的事件
 //没什么别的作用,就是用来收集protyle而已
-const {eventBus} =plugin
+const { eventBus } = plugin
 eventBus.on("loaded-protyle", (e) => {
     plugin.protyles.push(e.detail);
     plugin.protyles = Array.from(new Set(this.protyles));
     plugin.setLute ? plugin._lute = plugin.setLute({
-      emojiSite: e.detail.options.hint.emojiPath,
-      emojis: e.detail.options.hint.emoji,
-      headingAnchor: false,
-      listStyle: e.detail.options.preview.markdown.listStyle,
-      paragraphBeginningSpace: e.detail.options.preview.markdown.paragraphBeginningSpace,
-      sanitize: e.detail.options.preview.markdown.sanitize,
-    }) : null;
-  });
-  //适配新版本
-eventBus.on("loaded-protyle-static", (e) => {
-    plugin.protyles.push(e.detail);
-    plugin.protyles = Array.from(new Set(plugin.protyles));
-    try {
-        plugin.setLute ? plugin._lute = plugin.setLute({
         emojiSite: e.detail.options.hint.emojiPath,
         emojis: e.detail.options.hint.emoji,
         headingAnchor: false,
         listStyle: e.detail.options.preview.markdown.listStyle,
         paragraphBeginningSpace: e.detail.options.preview.markdown.paragraphBeginningSpace,
         sanitize: e.detail.options.preview.markdown.sanitize,
-      }) : null;
+    }) : null;
+});
+//适配新版本
+eventBus.on("loaded-protyle-static", (e) => {
+    plugin.protyles.push(e.detail);
+    plugin.protyles = Array.from(new Set(plugin.protyles));
+    try {
+        plugin.setLute ? plugin._lute = plugin.setLute({
+            emojiSite: e.detail.options.hint.emojiPath,
+            emojis: e.detail.options.hint.emoji,
+            headingAnchor: false,
+            listStyle: e.detail.options.preview.markdown.listStyle,
+            paragraphBeginningSpace: e.detail.options.preview.markdown.paragraphBeginningSpace,
+            sanitize: e.detail.options.preview.markdown.sanitize,
+        }) : null;
     } catch (e) {
-      console.warn(e, e.detail)
+        console.warn(e, e.detail)
     }
-  });
+});
 eventBus.on("click-editorcontent", (e) => {
     plugin.protyles.push(e.detail.protyle);
     plugin.protyles = Array.from(new Set(plugin.protyles));
-  })
+})
