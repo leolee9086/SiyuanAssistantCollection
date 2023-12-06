@@ -3,13 +3,12 @@ import {
   获取光标所在位置, 
   使用结巴拆分元素,
   logger 
-} from ".runtime.js";
+} from "./runtime.js";
 import { 智能防抖 } from "../utils/functionTools.js"
 import { 根据上下文获取动作表 } from '../actionList/getter.js'
 import kernelApi from "../polyfills/kernelApi.js";
 import { Context } from "./Context.js";
 import buildMenu from './dialogs/fakeMenu.js'
-import { logger } from "../logger/index.js";
 import { 设置对话框 } from "./dialogs/settingsDialog.js";
 export { 根据上下文获取动作表 as 根据上下文获取动作表 }
 
