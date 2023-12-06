@@ -165,7 +165,6 @@ class SiyuanAssistantCollection extends ccPlugin {
     plugin = this;
     //因为环境变量都是可以同步获取的
     this.初始化环境变量()
-
     this.初始化插件同步状态()
     //后面的部分还在整理
     this.初始化插件异步状态()
@@ -225,10 +224,6 @@ class SiyuanAssistantCollection extends ccPlugin {
     xhr1.send(null);
     this.meta = JSON.parse(xhr1.responseText)
   }
- 
-
-
- 
   async 初始化插件异步状态() {
     await this.configurer.reload()
     this.设置器 = this.configurer

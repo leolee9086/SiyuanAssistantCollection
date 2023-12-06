@@ -1,4 +1,5 @@
 import { plugin } from "../runtime.js";
+let {搜索管理器} = plugin
 export default [
     {
         label: "百度搜索",
@@ -11,7 +12,7 @@ export default [
 
 
                 let id = context.blocks[0].id
-                let links = await (plugin.搜索管理器.get('webseacher', 'baidu'))(text, { rss: true })
+                let links = await (搜索管理器.get('webseacher', 'baidu'))(text, { rss: true })
                 if(links.results){
                     let results = JSON.parse(JSON.stringify(links.results))
                     return {
