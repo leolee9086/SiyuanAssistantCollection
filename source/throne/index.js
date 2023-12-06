@@ -1,8 +1,6 @@
 import { buildShell } from "./shellFactory/index.js";
 import fs from "../polyfills/fs.js";
 export { fs as fs }
-import database from '../vectorStorage/dataBase.js'
-export { database as database }
 import { pluginInstance as plugin } from "../asyncModules.js";
 import roster from "./ghostDomain/index.js";
 //@ts-expect-error
