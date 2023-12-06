@@ -5,7 +5,8 @@ import {
   智能防抖,
   根据上下文获取动作表,
   kernelApi,
-  plugin
+  plugin,
+  clientApi,
 } from "./runtime.js";
 import { Context } from "./Context.js";
 import buildMenu from './dialogs/fakeMenu.js'
