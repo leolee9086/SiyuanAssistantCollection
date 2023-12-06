@@ -1,4 +1,9 @@
 import { plugin, kernelApi, clientApi } from "../runtime.js";
+async function 以文本查找最相近文档(textContent, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数) {
+    let embedding = await plugin.文本处理器.提取文本向量(textContent)
+    let vectors = plugin.块数据集.以向量搜索数据('vector', embedding, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数)
+    return vectors
+}
 export default (_context) => {
     return [
         {
@@ -83,16 +88,9 @@ export default (_context) => {
             },
             hintAction: async (context) => {
                 //因为查询结果不主动删除是不会被删掉的,所以查询的时候要加一个前置过滤
-                console.log(context, context.plugin)
                 let 块数据集 = context.plugin.块数据集
                 let plugin = context.plugin
-                console.log(plugin)
-                let { kernelApi } = context
-                async function 以文本查找最相近文档(textContent, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数) {
-                    let embedding = await context.plugin.文本处理器.提取文本向量(textContent)
-                    let vectors = 块数据集.以向量搜索数据('vector', embedding, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数)
-                    return vectors
-                }
+                
                 let results = await 以文本查找最相近文档(context.blocks[0].content, 10, '', false, null, (b) => {
                     return kernelApi.checkBlockExist.sync({ id: b.meta.id })
                 })
@@ -113,28 +111,15 @@ export default (_context) => {
             hints: '搜索',
             matchMod: 'any',
             tipRender: async (context) => {
-                async function 以文本查找最相近文档(textContent, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数) {
-                    let embedding = await context.plugin.文本处理器.提取文本向量(textContent)
-
-                    let vectors = plugin.块数据集.以向量搜索数据('vector', embedding, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数)
-                    return vectors
-                }
-                let results = await 以文本查找最相近文档(context.blocks[0].content, 30, '', false, null)
+                let results = await 以文本查找最相近文档(context.blocks[0].content, 5, '', false, null)
                 results = results.filter(
                     item => {
                         return !document.querySelector(`[href="siyuan://blocks/${item.meta.id}"]`)
                     }
                 )
-                let div = document.createElement('div')
-                let markdown = ''
                 if (results[0]) {
                     let item=[]
                     for (let result of results) {
-                        div.insertAdjacentHTML(
-                            'beforeEnd',
-                            `<div><a href="siyuan://blocks/${result.meta.id}">${result.meta.content.substring(0, 36)}@score:${result.similarityScore}</a></div>`
-                        )
-                        markdown += `[${result.meta.content}](siyuan://blocks/${result.meta.id})`
                         item.push(
                             {
                                 title: '笔记里的相近块', 

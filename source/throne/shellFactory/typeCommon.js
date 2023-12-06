@@ -1,6 +1,9 @@
 import { getLanguageProcessor } from "../processors/language_processors/index.js";
 import { EventEmitter } from "../../eventsManager/EventEmitter.js";
+
 import { AIChatInterface } from "./drivers/AIChatInterface.js";
+import { noteChat as noteChatInterface } from "./drivers/noteChatInterface/index.js";
+
 import { processorFeatureDict } from "./baseLine.js";
 import { embeddingText } from "../../utils/textProcessor.js";
 import { plugin } from "../../asyncModules.js";
@@ -24,6 +27,7 @@ export default class Shell extends EventEmitter {
         this.drivers = {
             textChat: AIChatInterface,
             search: [],
+            noteChat:noteChatInterface,
             ...drivers
         };
         //components中的各个类型列举了AI可以使用的功能,之后如果token价格降下来这里会重新部分交给AI自己判断
@@ -49,10 +53,10 @@ export default class Shell extends EventEmitter {
             this.replyChat(event.detail)
         })
         this.on(
-           'human-forced-forget-to',async(e)=>{
-            await this.ghost.forgetToLatest(e.detail.id?e.detail.id:e.detail,e.detail.role)
-            this.showHistory()
-           }
+            'human-forced-forget-to', async (e) => {
+                await this.ghost.forgetToLatest(e.detail.id ? e.detail.id : e.detail, e.detail.role)
+                this.showHistory()
+            }
         )
         plugin.eventBus.on('baseProcessorChange', (event) => {
             let processor = getLanguageProcessor(this.name)
@@ -94,9 +98,9 @@ export default class Shell extends EventEmitter {
         this.showText(result[result.length - 1])
         return result[result.length - 1]
     }
-    async completeChat(chat) {
+    async completeChat(chat,simple) {
         let _chat
-        if (chat[chat.length - 1] && chat[chat.length - 1].role == 'user') {
+        if (chat[chat.length - 1] && chat[chat.length - 1].role == 'user'&&!simple) {
             const model = plugin.configurer.get('向量工具设置', '默认文本向量化模型').$value
             let recalledMessage = await this.recallWithVector(chat[chat.length - 1].vectors[model], chat[chat.length - 1])
             recalledMessage = recalledMessage.map(item => {
@@ -184,7 +188,7 @@ export default class Shell extends EventEmitter {
     }
     /** */
     showHistory() {
-        let history =getPersonaSetting(this.name, "聊天工具设置", "显示全部历史").$value?this.ghost.longTermMemory.history: this.ghost.workingMemory
+        let history = getPersonaSetting(this.name, "聊天工具设置", "显示全部历史").$value ? this.ghost.longTermMemory.history : this.ghost.workingMemory
         this.components['textChat'].forEach(
             chatInterface => {
                 if (chatInterface) {
@@ -223,24 +227,25 @@ export default class Shell extends EventEmitter {
     async OnAskedForHistory() {
         return this.ghost.longTermMemory.history
     }
-    async createInterface(options, driver) {
-        let { type, describe, container } = options
+    createInterface(options, driver) {
+        let { type, describe } = options
         let component
         if (!driver) {
             if (!this.drivers[type] || this.drivers[type].length === 0) {
-                logger.warn(`${this.ghost.name}使用的shell类型${this.type}没有类型为${type}的驱动`)
+                console.warn(`${this.ghost.name}使用的shell类型${this.type}没有类型为${type}的驱动`)
                 return
             }
             this.components[type] = this.components[type] || []
-            component = new this.drivers[type](container, this);
+            component = new this.drivers[type](options, this);
             this.components[type].push({ describe, component })
-        }
+            console.log(this.components)
+        }   
         else {
             this.components[type] = this.components[type] || []
             component = new driver(options)
             this.components[type].push(component)
         }
-        this.components[type]=Array.from(new Set(this.components[type]))
+        this.components[type] = Array.from(new Set(this.components[type]))
         component.shell = this
         this.初始化界面(type, component)
         return component
@@ -274,6 +279,9 @@ export default class Shell extends EventEmitter {
                         component.emit(`textWithRole`, input)
                     }
                 )
+                break
+            case 'noteChat':
+                component.init()
         }
     }
     async searchRef(message) {
@@ -286,8 +294,8 @@ If you need detailed content from a reference, please explain to the user.
         let prompt = ''
         //选中的块最先加上
         let AiRequestRefs = { local: true, web: true }
-        if(getPersonaSetting(this.name, "聊天工具设置", "允许AI自行阅读它编写的嵌入块").$value){
-            let embedBlocks= this.components['textChat'].current.embedBlocksContent
+        if (getPersonaSetting(this.name, "聊天工具设置", "允许AI自行阅读它编写的嵌入块").$value) {
+            let embedBlocks = this.components['textChat'].current.embedBlocksContent
             if (embedBlocks) {
                 prompt += '\n' + '>these refs from AI embedBlock query:\n' + embedBlocks
             }
@@ -323,7 +331,7 @@ If you need detailed content from a reference, please explain to the user.
 
             }
         }
-        if (getPersonaSetting(this.name, "聊天工具设置", '自动发送上一次选择的块').$value ) {
+        if (getPersonaSetting(this.name, "聊天工具设置", '自动发送上一次选择的块').$value) {
             try {
 
                 let refs = 创建选中块参考(message)
@@ -484,13 +492,13 @@ If you need detailed content from a reference, please explain to the user.
         return await this.processors.languageProcessor.summarizeText(content)
     }
     async embeddingMessage(message) {
-        try{
-        const model = plugin.configurer.get('向量工具设置', '默认文本向量化模型').$value
-        message.vectors = message.vectors = message.vectors || {}
-        if (!message.vectors[model] && message.content) {
-            message.vectors[model] = await embeddingText(message.content)
-        }
-        }catch(e){
+        try {
+            const model = plugin.configurer.get('向量工具设置', '默认文本向量化模型').$value
+            message.vectors = message.vectors = message.vectors || {}
+            if (!message.vectors[model] && message.content) {
+                message.vectors[model] = await embeddingText(message.content)
+            }
+        } catch (e) {
             logger.aiShellerror(e)
         }
         if (!message.id) {

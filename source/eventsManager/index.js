@@ -2,7 +2,7 @@ import { pluginInstance as plugin, Constants, kernelApi,clientApi } from "../asy
 import { 智能防抖 } from "./debouncer.js";
 import logger from "../logger/index.js";
 import "./documentEvents.js"
-import { 渲染块标菜单 } from "../UI/menus/menuWrapper.js";
+import { 渲染块标菜单 as 渲染动作块标菜单 } from "../UI/menus/menuWrapper.js";
 import { 事件注册表 } from "./eventTypeList.js";
 import './wsChanel.js'
 import { setSync } from "../fileSysManager/index.js";
@@ -10,6 +10,8 @@ import path from '../polyfills/path.js';
 import fs from "../polyfills/fs.js";
 import buildMenu from "../UI/dialogs/fakeMenu.js";
 import { string2DOM } from "../UI/builders/index.js";
+import roster from '../throne/ghostDomain/index.js'
+import marduk from '../throne/index.js'
 
 const eventBusProxy = new Proxy(plugin.eventBus, {
     get: (target, propKey, receiver) => {
@@ -65,10 +67,58 @@ const 开始自动索引 = () => {
 }
 eventBus.on('blockIndexerReady', 开始自动索引)
 eventBus.on("click-editortitleicon", async (event) => {
-    渲染块标菜单(event, 'click-editortitleicon');
+    渲染动作块标菜单(event, 'click-editortitleicon');
 });
-eventBus.on("click-blockicon", async (event) => {
-    渲染块标菜单(event, 'click-blockicon');
+const ghosts =await roster.listGhostNames()
+
+eventBus.on("click-blockicon",async (event) => {
+    渲染动作块标菜单(event, 'click-blockicon');
+    const {menu} =event.detail
+    menu.addItem({
+        label:'设定角色为AI',
+        click:()=>{
+            event.detail.blockElements.forEach(
+                async item=>{
+                    let id = item.getAttribute('data-node-id')
+                    await kernelApi.setBlockAttrs({id,attrs:{'custom-chat-role':'assistant'}})
+                }
+            )
+        }
+    })
+    menu.addItem({
+        label:'设定角色为系统',
+        click:()=>{
+            event.detail.blockElements.forEach(
+                async item=>{
+                    let id = item.getAttribute('data-node-id')
+                    await kernelApi.setBlockAttrs({id,attrs:{'custom-chat-role':'system'}})
+                }
+            )
+        }
+    })
+    menu.addItem({
+        label:'文档对话',
+        submenu:ghosts.map(
+            ghost=>{
+                return {
+                    label:`与${ghost}对话`,
+                    click:async()=>{
+                         marduk.buildDoll(ghost).then(
+                            doll=>{
+                                doll.createInterface(
+                                    {
+                                        type:"noteChat",
+                                        describe:"一个笔记交流界面,AI不会记住这些对话",
+                                        blockElements:event.detail.blockElements
+                                    }
+                                )
+                            }
+                         )
+                    }
+                }
+            }
+        )
+    })
 });
 document.addEventListener("keyup", (event) => {
     eventBus.emit('doc_keyup', event)

@@ -4,10 +4,9 @@ let searchHistory = {};
 let lastSearchTime = {};
 let delay = 3000;
 export const searchBaidu = async (query, options = {rss: false}) => {
-    // 检查是否在3秒内已经搜索过这个关键词
-    if (lastSearchTime[query] && Date.now() - lastSearchTime[query] < delay) {
-        // 如果在3秒内已经搜索过，直接返回历史结果
-        return searchHistory[query] ? {results: searchHistory[query], markdown: ''} : '';
+    console.log(options)
+    if (Date.now() - lastSearchTime < delay) {
+        return options.rss ? {results: searchHistory[query] || [], markdown: ''} : '';
     }
     let searchUrl = `https://www.baidu.com/s?wd=${query}`;
     let pn = 0;
@@ -17,10 +16,7 @@ export const searchBaidu = async (query, options = {rss: false}) => {
     }
     let response = await got(searchUrl);
     let $ = cheerio.load(response.data);
-    console.log(response.data)
-
     if ($('title').text().includes('百度安全验证')) {
-        // 如果出现了，指数级增加搜索间隔
         delay *= 2;
         return '';
     }
@@ -31,9 +27,10 @@ export const searchBaidu = async (query, options = {rss: false}) => {
         results.push({ title, link });
     });
     if (searchHistory[query]) {
-        searchHistory[query] = [...searchHistory[query], ...results];
+        let uniqueResults = [...new Set([...searchHistory[query], ...results])];
+        searchHistory[query] = uniqueResults;
     } else {
-        searchHistory[query] = results;
+        searchHistory[query] = results||[];
     }
     let markdown = '';
     searchHistory[query].forEach(result => {
@@ -46,12 +43,8 @@ export const searchBaidu = async (query, options = {rss: false}) => {
             console.error(`Invalid URL: ${result.link}`,e);
         }
     });
-    // 记录这次搜索的时间
-    lastSearchTime[query] = Date.now();
-    if(options.rss){
-        return {results: searchHistory[query], markdown};
-    }
-    return markdown;
+    lastSearchTime = Date.now();
+    return options.rss ? {results: searchHistory[query], markdown} : markdown;
 };
 
 window.searchBaidu=searchBaidu

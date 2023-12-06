@@ -132,3 +132,29 @@
     height: 100%;
     overflow-y: scroll;
 }
+div[custom-chat-role] [contenteditable="true"]::before {
+    content: "•";
+    color: red;
+    margin-right: 5px;
+    display: inline;
+}
+div[custom-chat-role="user"] [contenteditable="true"]::before {
+    content: "•";
+    color: blue;
+    margin-right: 5px;
+    display: inline;
+}
+
+div[custom-chat-role="system"] [contenteditable="true"]::before {
+    content: "•";
+    color: green;
+    margin-right: 5px;
+    display: inline;
+}
+
+div[custom-chat-role="assistant"] [contenteditable="true"]::before {
+    content: "•";
+    color: red;
+    margin-right: 5px;
+    display: inline;
+}

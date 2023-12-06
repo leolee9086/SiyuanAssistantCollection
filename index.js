@@ -26,10 +26,7 @@ function 获取文件名(moduleURL) {
   }
   return fileName;
 }
-
 class ccPlugin extends Plugin {
-
-
   初始化环境变量() {
     this.selfURL = `${window.location.protocol}//${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}/plugins/${this.name}/`;
     this.dataPath = `/data/storage/petal/${this.name}`
@@ -162,7 +159,6 @@ class ccPlugin extends Plugin {
     }
   }
 }
-
 class SiyuanAssistantCollection extends ccPlugin {
   onload() {
     plugin = this;

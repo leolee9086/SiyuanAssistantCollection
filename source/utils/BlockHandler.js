@@ -332,7 +332,7 @@ class BlockHandler {
         })
     }
   }
-  async append() {
+  async append(content, type) {
     if (!this.exists) {
       return
     }

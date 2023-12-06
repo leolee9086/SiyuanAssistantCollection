@@ -15,10 +15,10 @@ import { 获取嵌入块内容 } from './renders/index.js';
 import BlockHandler from '../../../utils/BlockHandler.js';
 import { createElementWithTagname } from '../../../UI/builders/index.js';
 export class AIChatInterface extends EventEmitter {
-    constructor(element, doll) {
+    constructor(options, doll) {
         super(`textChat_${doll.ghost.persona.name}`)
         this.doll = doll
-        this.element = element
+        this.element =options.container
         this.初始化()
         this.on('refresh', () => { this.初始化.bind(this)() })
     }

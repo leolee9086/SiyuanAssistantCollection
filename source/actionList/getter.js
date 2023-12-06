@@ -5,22 +5,30 @@ import { 设置器 } from "./index.js";
 import { plugin } from "../asyncModules.js";
 import logger from '../logger/index.js'
 const {statusMonitor} =plugin
+let 动作表耗时 = {}; // 用于存储每个动作表的耗时
+
 export async function 根据上下文获取动作表(context, signal) {
     let 备选动作表 = []
     if (signal && signal.aborted) {
         return 备选动作表
     }
+    // 根据上次生成耗时对动作表进行排序
+    动作总表.sort((a, b) => (动作表耗时[a] || 0) - (动作表耗时[b] || 0));
     for (let i = 0; i < 动作总表.length; i++) {
         if (signal && signal.aborted) {
             return []
         }
         try {
-           let 动作表 = 动作总表[i];
+            let 动作表 = 动作总表[i];
+            let startTime = Date.now(); // 记录开始时间
             await 处理动作表(动作表, 备选动作表, context, signal)
+            let endTime = Date.now(); // 记录结束时间
+            动作表耗时[动作表] = endTime - startTime; // 计算并存储耗时
         } catch (e) {
             logger.actionListwarn(e, 动作总表[i]);
         }
     }
+    console.log(备选动作表)
     return 备选动作表
 }
 async function 处理动作表(动作表, 备选动作表, 执行上下文, 取消信号) {
@@ -38,14 +46,15 @@ async function 处理动作表(动作表, 备选动作表, 执行上下文, 取�
     if (取消信号 && 取消信号.aborted) {
         return;
     }
+    let f = 获取过滤器函数(动作表, 取消信号)
     // 筛选出合适的动作
-    let f = await 智能防抖(
+  /*  let f = await 智能防抖(
         获取过滤器函数(动作表, 取消信号),
         (当次执行间隔, 平均执行时间) => {
             logger.actionListwarn(`动作表${动作表._动作表路径}生成时间过长,已经阻断,当前执行间隔为${当次执行间隔},平均执行时间为${平均执行时间},优化生成函数可能改善`)
             statusMonitor.set('动作表状态',动作表._provider,'slow')
         }
-    )
+    )*/
     if (取消信号 && 取消信号.aborted) {
         return;
     }

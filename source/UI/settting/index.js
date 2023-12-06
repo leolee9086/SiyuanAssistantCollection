@@ -7,15 +7,12 @@ import { typeToInputter, handleInputter } from "./inputter.js";
 import { plugin } from "../../asyncModules.js";
 import { string2DOM } from "../builders/index.js";
 import './describe.js'
-
 function createPathArray(item, base) {
     return base ? item.path.replace(base, '').split('.').filter(item => { return item !== '' }) : item.path.split('.');
 }
-
 function createFullPath(pathArray, base) {
     return base ? `${base}.${pathArray.join('.')}` : pathArray.join('.');
 }
-
 function handleFirstTab(i, tab, firstTab) {
     if (i === 0) {
         return tab;
@@ -29,7 +26,6 @@ function handleFirstTab(i, tab, firstTab) {
         return firstTab;
     }
 }
-
 function processKey(item, base, tabWrapper) {
     let pathArray = createPathArray(item, base);
     let fullPath = createFullPath(pathArray, base);
@@ -40,7 +36,6 @@ function processKey(item, base, tabWrapper) {
     handleInputter(inputter, pathArray, tab, tabWrapper,fullPath);
     return tab
 }
-
 function createSingleLevel(keys, base, tabWrapper, firstTab) {
     for (let i = 0; i < keys.length; i++) {
         let item = keys[i];
@@ -51,7 +46,6 @@ function createSingleLevel(keys, base, tabWrapper, firstTab) {
         firstTab = handleFirstTab(i, tab, firstTab);
     }
 }
-
 function createMultiLevel(keys, base, tabWrapper, sideBarFragment) {
     for (let i = 0; i < keys.length; i++) {
         let item = keys[i];
@@ -64,7 +58,6 @@ function createMultiLevel(keys, base, tabWrapper, sideBarFragment) {
         sideBarFragment.appendChild(li);
     }
 }
-
 export function buildSettingUI(settingList, base = '') {
     let keys = plugin.configurer.query(settingList, base);
     let frag = document.createDocumentFragment();
