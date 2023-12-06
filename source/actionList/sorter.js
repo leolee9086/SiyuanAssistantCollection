@@ -1,5 +1,4 @@
-import { pluginInstance as plugin } from "../asyncModules.js";
-
+import plugin from './runtime.js'
 export function 排序动作表(动作表, 当前关键词, 命令历史, 当前上下文) {
     // 字符串相似度算法（Levenshtein距离）权重
     const 文本相似性得分权重 = 0.4;
