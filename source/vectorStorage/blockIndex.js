@@ -1,4 +1,4 @@
-import { 数据库 } from "./dataBase.js"
+import { 数据库 } from "./dataBase/index.js"
 import { 校验索引设置 } from "./utils/checkConfig.js"
 import { pluginInstance as plugin } from "../asyncModules.js"
 import { 使用worker处理数据 } from "../utils/workerHandler.js"

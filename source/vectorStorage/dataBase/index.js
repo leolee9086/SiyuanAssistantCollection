@@ -1,9 +1,9 @@
-import logger from '../logger/index.js'
+import logger from '../../logger/index.js'
 import { 计算余弦相似度, 计算欧氏距离相似度, 查找最相似点 } from './vector.js';
-import  jsonSyAdapter  from '../fileSysManager/workspaceAdapters/jsonAdapter.js';
-import msgSyAdapter from '../fileSysManager/workspaceAdapters/msgAdapter.js'
-import { 校验主键 } from './dataBase/keys.js';
-import { plugin } from '../asyncModules.js';
+import  jsonSyAdapter  from '../../fileSysManager/workspaceAdapters/jsonAdapter.js';
+import msgSyAdapter from '../../fileSysManager/workspaceAdapters/msgAdapter.js'
+import { 校验主键 } from './keys.js';
+import { plugin } from '../../asyncModules.js';
 globalThis._blockActionDataBase = globalThis._blockActionDataBase || {}
 export class 数据库 {
     constructor(文件保存地址) {
