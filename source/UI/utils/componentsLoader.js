@@ -7,6 +7,10 @@ const moduleCache = {
     eventBus: runtime.plugin.eventBus,
 }
 let watched = {}
+let {ref,reactive}=Vue
+export {
+    ref,reactive
+}
 export const initVueApp = (appURL, name, mixinOptions = {}, directory, data) => {
     const asyncModules = {}
     const styleElements = []

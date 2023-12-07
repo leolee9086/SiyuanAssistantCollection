@@ -135,6 +135,7 @@ eventBus.on('click-editorcontent', () => {
     }
 })
 eventBus.on('settingChange', async (e) => {
+    console.log(e)
     let { detail } = e
     if (detail.name === "向量工具设置.同步时忽略向量存储文件夹") {
         await setSync('public/onnxModels/**', detail.value)

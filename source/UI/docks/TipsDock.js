@@ -1,6 +1,5 @@
 import { plugin } from "../../asyncModules.js";
 import { 智能防抖 } from "../../utils/functionTools.js";
-//import { initVueApp } from "../componentsLoader.js";
 import logger from '../../logger/index.js'
 let container
 let pinnedContainer
@@ -21,8 +20,7 @@ async function 批量渲染(动作表, 执行上下文, container, signal) {
         }
     }
     let 渲染计数 = 0;
-    console.log(待渲染数组)
-
+    logger.tipslog(待渲染数组)
     for (let 渲染数据对 of 待渲染数组) {
         //也就是第一个结果必然会被加入
         if (signal && signal.aborted) {
@@ -65,7 +63,6 @@ async function 批量渲染(动作表, 执行上下文, container, signal) {
         渲染计数++;
     }
     待渲染数组.splice(0, 渲染计数);
-    console.log(待渲染数组)
     // 一次性移除已经被渲染的项目
     setTimeout(() => {
         if (container.children[0] && container.children[0].children[0]) {
@@ -107,12 +104,9 @@ const 渲染tips = async (动作表, 执行上下文) => {
     智能防抖(批量移除)(container, signal);
 }
 //不行,性能防抖不好做进去,性能跟不上,卡得惨绝人寰,这里就不用vue了
-//let tipsApp = initVueApp(import.meta.resolve('./tipsDock.vue'), 'tipsDock', {}, plugin.localPath)
 plugin.eventBus.on('hint_tips', async (e) => {
     let _element = await plugin.statusMonitor.get('tipsConainer', 'main').$value;
     if (_element && _element !== element) {
-        element = _element
-        // tipsApp.mount(_element)
         element = _element
         container = element.querySelector('#SAC-TIPS')
         pinnedContainer = element.querySelector('#SAC-TIPS_pinned')
@@ -133,7 +127,7 @@ plugin.eventBus.on('hint_tips', async (e) => {
         });
     }
     if (container && pinnedContainer) {
-        渲染tips(e.detail.备选动作表, e.detail.context)
+      渲染tips(e.detail.备选动作表, e.detail.context)
     } else {
         logger.tipswarn('渲染tips出错,容器可能不存在:', container, pinnedContainer)
     }

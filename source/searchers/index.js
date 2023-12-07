@@ -5,6 +5,7 @@ import { searchBaidu, searchWeibo } from "./websearchers/webSearcher.js"
 import { seachBlockWithVector } from "./blocksearchers/vectorSearcher.js"
 import { seachBlockWithText } from "./blocksearchers/simpleTextSearcher.js"
 import { searchBlock } from "./blocksearchers/combindSearcher.js"
+import { logger } from "../logger/index.js"
 export async function 以文本查找最相近文档(textContent, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数) {
     let embedding = await 提取文本向量(textContent)
     let vectors = plugin.块数据集.以向量搜索数据('vector', embedding, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数)
@@ -12,7 +13,7 @@ export async function 以文本查找最相近文档(textContent, count, 查询�
 }
 plugin.searchers = {
     set: (name, values, type = 'webseacher') => {
-        console.log({ name, values, type })
+        logger.searcherlog({ name, values, type })
         plugin.configurer.set('自动搜索设置', type, name, {
             排序权重: 0.5,
             启用: false
@@ -52,6 +53,6 @@ try{
 }catch(e){
     console.error(e)
 }
-console.log(parseRss)
+logger.searcherlog(parseRss)
 export const set = (...args) => { plugin.searchers.set(...args) }
 export const get = (...args) => { return plugin.searchers.get(...args) }

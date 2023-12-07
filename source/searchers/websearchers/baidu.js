@@ -4,7 +4,6 @@ let searchHistory = {};
 let lastSearchTime = {};
 let delay = 3000;
 export const searchBaidu = async (query, options = {rss: false}) => {
-    console.log(options)
     if (Date.now() - lastSearchTime < delay) {
         return options.rss ? {results: searchHistory[query] || [], markdown: ''} : '';
     }

@@ -210,7 +210,7 @@
         "添加rss":{
             "$value": "添加新的RSS订阅",
             "$type": "button",
-            "$emit": "sac-open-menu-hintmenu"
+            "$emit": "sac-open-dialog-addRss"
         }
     }
 }

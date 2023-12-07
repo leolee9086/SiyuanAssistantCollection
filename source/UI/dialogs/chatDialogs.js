@@ -70,7 +70,6 @@ export class AI对话框控制器{
         await this.show()
     }
 }
-
 let 主AI名 = await plugin.configurer.get('聊天工具设置','默认AI').$value
 export class 主AI对话框控制器 extends AI对话框控制器{
     constructor(){

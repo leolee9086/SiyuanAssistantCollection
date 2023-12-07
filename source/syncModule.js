@@ -41,10 +41,10 @@ function 递归合并(目标对象, 源对象) {
     }
 }
 class PluginConfigurer {
-    constructor(plugin, prop, fileName, save) {
+    constructor(plugin, prop, $emit, save) {
         this.plugin = plugin
         this.plugin[prop] = this.plugin[prop] || {}
-        this.fileName = fileName || `${prop.json}`
+        this.emit = $emit || prop
         this.prop = prop
         this.save = save
     }
@@ -76,10 +76,11 @@ class PluginConfigurer {
         }
         // 校验新值
         let oldValue = target[path[path.length - 1]];
+        console.log(value,oldValue)
         try {
             this.validateNewValue(oldValue, value);
         } catch (e) {
-            this.plugin.eventBus.emit(`${this.prop}Change`, { name: path.join('.'), value: oldValue });
+            this.plugin.eventBus.emit(`${this.emit}Change`, { name: path.join('.'), value: oldValue });
             throw (e)
         }
         // 如果传入的设置值为字符串或数组，且原始值有$value属性且其类型与传入值相同，将传入设置值传递给原始值的$value属性
@@ -88,7 +89,7 @@ class PluginConfigurer {
         } else {
             target[path[path.length - 1]] = value;
         }
-        this.plugin.eventBus.emit(`${this.prop}Change`, { name: path.join('.'), value });
+        this.plugin.eventBus.emit(`${this.emit}Change`, { name: path.join('.'), value });
         if (this.save) {
             await this.plugin.saveData(`${path[0]}.json`, this.target[path[0]] || {});
         }

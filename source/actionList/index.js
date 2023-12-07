@@ -3,6 +3,7 @@ import { jieba } from "../utils/tokenizer.js"
 import fs from "../polyfills/fs.js"
 import path from "../polyfills/path.js"
 import logger from "../logger/index.js"
+import * as utils from "../utils/index.js"
 export let 动作总表 = []
 export { 动作总表 as actionList }
 export let storagePath = path.join(plugin.dataPath, 'actionLists')
@@ -92,7 +93,7 @@ export const 处理单个动作表 = (动作表) => {
             let hintArray = 动作.hints.split(',')
             动作.hints.split(',').forEach(
                 hint => {
-                    let hintPinyin = plugin.utils.pinyin.getFullChars(hint)
+                    let hintPinyin = utils.pinyin.getFullChars(hint)
                     hintArray.push(hintPinyin)
                     hintArray.push(hintPinyin.toLowerCase())
                 }
@@ -101,12 +102,12 @@ export const 处理单个动作表 = (动作表) => {
                 if (设置器.get('动作设置', '通过文件名过滤动作').$value) {
                     let name =动作表.provider.replace(/_js$/, '')
                     hintArray.push(name)
-                    hintArray.push(plugin.utils.pinyin.getFullChars(name))
+                    hintArray.push(utils.pinyin.getFullChars(name))
                 }
                 if (设置器.get('动作设置', '通过标签文字过滤动作').$value) {
                     if (typeof 动作.label === 'string') {
                         hintArray.push(动作.label);
-                        hintArray.push(plugin.utils.pinyin.getFullChars(动作.label));
+                        hintArray.push(utils.pinyin.getFullChars(动作.label));
                     }
                 }
             } catch (e) {

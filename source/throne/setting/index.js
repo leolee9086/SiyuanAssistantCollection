@@ -15,7 +15,9 @@ export const initPersonaSetting = (name) => {
         "$type": "button",
         "$emit": "sac-init-persona-setting" + name
     }
+    console.log("sac-init-persona-setting" + name)
     plugin.eventBus.on('sac-init-persona-setting' + name, (e) => {
+        console.log(e)
         let data = plugin.configurer.get("聊天工具设置").$value
         data =JSON.parse(JSON.stringify(data))
         data['AI个别设置'] = undefined
@@ -23,6 +25,6 @@ export const initPersonaSetting = (name) => {
         //data['文档查询权限'] = 10
        // data['模型设置'] =plugin._setting[name+"_personaSetting"]&&plugin._setting[name+"_personaSetting"]['模型设置']||data['模型设置'] 
         plugin._setting[name+"_personaSetting"] = JSON.parse(JSON.stringify(data))
-        plugin.eventBus.emit('sac-rebuild-dialogs-setting')
+        plugin.eventBus.emit('sac-rebuild-dialogs-setting',{})
     })
 }

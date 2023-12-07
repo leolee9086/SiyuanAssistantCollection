@@ -17,7 +17,7 @@ export function safeStringify(obj, depth = 5, arrayLimit = 50) {
       if (Array.isArray(value)) {
         // 处理大型数组
         if (value.length > arrayLimit) {
-          return `[Array (${value.length})] ${JSON.stringify(value.slice(0, arrayLimit))}...`;
+          return `[Array (${value.length})] ${safeStringify(value.slice(0, arrayLimit))}...`;
         }
       } else if (Object.keys(value).length > arrayLimit) {
         // 处理大型对象
@@ -25,7 +25,7 @@ export function safeStringify(obj, depth = 5, arrayLimit = 50) {
         Object.keys(value).slice(0, arrayLimit).forEach(key => {
           limitedObj[key] = value[key];
         });
-        return `[Object (${Object.keys(value).length})] ${JSON.stringify(limitedObj)}...`;
+        return `[Object (${Object.keys(value).length})] ${safeStringify(limitedObj)}...`;
       } else if (value instanceof Error) {
         // 处理 Error 对象
         return value.toString();

@@ -44,6 +44,7 @@ function createButton(args, item) {
     element.addEventListener('click', () => {
         plugin.eventBus.emit('settingButtonClicked', args);
         if(item.$emit){
+            console.log(item.$emit)
             plugin.eventBus.emit(item.$emit, args);
         }
     });

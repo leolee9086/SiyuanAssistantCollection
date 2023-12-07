@@ -33,7 +33,6 @@ class Parser {
       if (parseError.length) {
         return reject(new Error('Unable to parse XML.'));
       }
-     
       this.xmlParser.parseString(xml, (err, result) => {
         if (err) return reject(err);
         if (!result) {
