@@ -5,7 +5,6 @@ class EventBusDummy {
     constructor() {
         this.listeners = {};
     }
-
     on(event, callback) {
         if (!this.listeners[event]) {
             this.listeners[event] = [];
@@ -51,9 +50,6 @@ if(plugin){
 }else{
     eventBus=new EventBusDummy()
 }
-
-
-
 
 export class EventEmitter extends EventBusDummy{
     constructor(chanel) {

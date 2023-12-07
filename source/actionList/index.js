@@ -10,8 +10,8 @@ import logger from "../logger/index.js"
 import * as utils from "../utils/index.js"
 export let 动作总表 = []
 export { 动作总表 as actionList }
-//export let storagePath = path.join(plugin.dataPath, 'actionLists')
-//export let 动作表存储路径 = storagePath
+export let storagePath = path.join(plugin.dataPath, 'actionLists')
+export let 动作表存储路径 = storagePath
 export let installPath = path.join(plugin.selfPath, "installed", 'actionList')
 export let 动作表安装路径 = installPath
 export let installURL = path.join('/plugins', plugin.name, "installed", 'actionList')
@@ -19,7 +19,6 @@ export let 动作表安装地址 = installURL
 export let 示例动作表路径 = path.join(plugin.selfPath, 'templateActions')
 let 设置器 = plugin.configurer
 export { 设置器 as 设置器 }
-
 export const LoadAll = async () => {
     // await 移动示例动作表到存储()
     // await 移动所有动作表到安装位置()
