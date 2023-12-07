@@ -3,10 +3,10 @@ import {
     plugin,
     Constants,
     kernelApi,
-    clientApi
+    clientApi,
+    logger
 } from './runtime.js'
 import { 智能防抖 } from "./debouncer.js";
-import logger from "../logger/index.js";
 import "./documentEvents.js"
 import { 渲染块标菜单 as 渲染动作块标菜单 } from "../UI/menus/menuWrapper.js";
 import { 事件注册表 } from "./eventTypeList.js";
