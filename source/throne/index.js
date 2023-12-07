@@ -1,7 +1,6 @@
 import { buildShell } from "./shellFactory/index.js";
-import fs from "../polyfills/fs.js";
+import {fs,plugin} from "./runtime.js";
 export { fs as fs }
-import { pluginInstance as plugin } from "../asyncModules.js";
 import roster from "./ghostDomain/index.js";
 //@ts-expect-error
 import './processors/visual_processors/openAiText2Image.js'
