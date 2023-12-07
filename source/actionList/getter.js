@@ -1,9 +1,8 @@
-import {logger} from './runtime.js'
+import {logger,plugin} from './runtime.js'
 import { 动作总表 } from "./index.js";
 import { 智能防抖 } from "../utils/functionTools.js"
 import { 处理单个动作表 } from "./index.js";
 import { 设置器 } from "./index.js";
-import { plugin } from "../asyncModules.js";
 const {statusMonitor} =plugin
 let 动作表耗时 = {}; // 用于存储每个动作表的耗时
 export async function 根据上下文获取动作表(context, signal) {
