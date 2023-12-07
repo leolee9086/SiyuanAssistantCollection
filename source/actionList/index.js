@@ -2,11 +2,11 @@ import {
     clientApi,  
     plugin,
     kernelApi,
-    jieba 
+    jieba,
+    fs,
+    path,
+    logger 
 } from "./runtime.js"
-import fs from "../polyfills/fs.js"
-import path from "../polyfills/path.js"
-import logger from "../logger/index.js"
 import * as utils from "../utils/index.js"
 export let 动作总表 = []
 export { 动作总表 as actionList }
