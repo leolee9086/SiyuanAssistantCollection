@@ -1,4 +1,4 @@
-import { plugin } from "../../asyncModules.js";
+import { plugin } from "../runtime.js";
 export async function completeText(prompt,_options) {
     let options = {
         apiKey: "",

@@ -1,6 +1,6 @@
-import { plugin } from "../../asyncModules.js";
-import fs from "../../polyfills/fs.js";
-import path from "../../polyfills/path.js"
+import { plugin } from "../runtime.js";
+import {fs} from "../runtime.js";
+import {path} from "../runtime.js"
 import { searchRef } from "./drivers/searcher.js";
 let meta= import.meta
 let factoryURL =path.dirname(new URL(meta.url).pathname)

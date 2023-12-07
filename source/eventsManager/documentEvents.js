@@ -1,4 +1,4 @@
-import { pluginInstance as plugin } from "../asyncModules.js";
+import {plugin} from './runtime.js'
 document.addEventListener(
     "keydown",
     async (e) => {

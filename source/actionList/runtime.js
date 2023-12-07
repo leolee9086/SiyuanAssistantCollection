@@ -4,6 +4,8 @@ import fs from "../polyfills/fs.js";
 import path from "../polyfills/path.js"
 import { jieba } from '../utils/tokenizer.js'
 import { logger } from "../logger/index.js";
+import * as utils from "../utils/index.js"
+
 export {
     clientApi,
     plugin,
@@ -11,5 +13,6 @@ export {
     jieba,
     fs,
     path,
-    logger
+    logger,
+    utils
 }

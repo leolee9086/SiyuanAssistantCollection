@@ -1,4 +1,10 @@
-import { pluginInstance as plugin, Constants, kernelApi,clientApi } from "../asyncModules.js"
+//import { pluginInstance as plugin, Constants, kernelApi,clientApi } from "../asyncModules.js"
+import {
+    plugin,
+    Constants,
+    kernelApi,
+    clientApi
+} from './runtime.js'
 import { 智能防抖 } from "./debouncer.js";
 import logger from "../logger/index.js";
 import "./documentEvents.js"

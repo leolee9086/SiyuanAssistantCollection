@@ -1,6 +1,7 @@
 import fs from "../polyfills/fs.js";
-import { plugin } from "../asyncModules.js";
+import path from "../polyfills/path.js";
+import { plugin,clientApi } from "../asyncModules.js";
 import { EventEmitter } from "../eventsManager/EventEmitter.js";
 export {
-    fs, plugin, EventEmitter
+    fs, plugin, EventEmitter,clientApi,path
 }

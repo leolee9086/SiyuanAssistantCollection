@@ -5,9 +5,9 @@ import {
     jieba,
     fs,
     path,
-    logger 
+    logger,
+    utils
 } from "./runtime.js"
-import * as utils from "../utils/index.js"
 export let 动作总表 = []
 export { 动作总表 as actionList }
 export let storagePath = path.join(plugin.dataPath, 'actionLists')

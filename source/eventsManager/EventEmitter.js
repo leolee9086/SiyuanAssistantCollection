@@ -1,5 +1,5 @@
-import { pluginInstance as plugin } from "../asyncModules.js";
-import logger from "../logger/index.js";
+import { plugin } from "./runtime.js";
+import {logger} from "./runtime.js";
 
 class EventBusDummy {
     constructor() {
