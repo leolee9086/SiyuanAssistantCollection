@@ -11,6 +11,7 @@ import {
 import { Context } from "./Context.js";
 import buildMenu from './dialogs/fakeMenu.js'
 import { 设置对话框 } from "./dialogs/settingsDialog.js";
+import BlockHandler from "../utils/BlockHandler.js";
 export { 根据上下文获取动作表 as 根据上下文获取动作表 }
 plugin.eventBus.on(
   "settingChange", (e) => {
@@ -60,7 +61,7 @@ let 显示token菜单 = (e, signal) => {
   if (!最近块元素) {
     return
   }
-  let block = new plugin.utils.BlockHandler(最近块元素.dataset.nodeId)
+  let block = new BlockHandler(最近块元素.dataset.nodeId)
   //这个是用来获取光标处token的
   let { pos, editableElement, blockElement, parentElement } = 获取光标所在位置();
   let 分词结果数组 = 使用结巴拆分元素(editableElement).filter((token) => {
