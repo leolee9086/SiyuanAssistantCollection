@@ -10,8 +10,8 @@ import logger from "../logger/index.js"
 import * as utils from "../utils/index.js"
 export let 动作总表 = []
 export { 动作总表 as actionList }
-export let storagePath = path.join(plugin.dataPath, 'actionLists')
-export let 动作表存储路径 = storagePath
+//export let storagePath = path.join(plugin.dataPath, 'actionLists')
+//export let 动作表存储路径 = storagePath
 export let installPath = path.join(plugin.selfPath, "installed", 'actionList')
 export let 动作表安装路径 = installPath
 export let installURL = path.join('/plugins', plugin.name, "installed", 'actionList')
