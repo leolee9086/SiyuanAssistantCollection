@@ -1,4 +1,5 @@
 import {plugin,kernelApi,clientApi} from '../asyncModules.js'
+import BlockHandler from '../utils/BlockHandler.js';
 import { 获取光标所在位置 } from '../utils/rangeProcessor.js';
 export class Context {
   constructor(blocks, token, protyle, menu, plugin, kernelApi, clientApi, eventType,allTokens) {
@@ -27,7 +28,7 @@ export class Context {
     }
     // 返回块的BlockHandler实例
     return {
-      block: new this.plugin.utils.BlockHandler(blockElement.dataset.nodeId),
+      block: new BlockHandler(blockElement.dataset.nodeId),
       pos: cursorPosition
     };
   }

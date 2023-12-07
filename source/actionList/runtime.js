@@ -1,8 +1,9 @@
-import {clientApi,pluginInstance as plugin } from "../asyncModules.js";
+import { clientApi, pluginInstance as plugin } from "../asyncModules.js";
 import kernelApi from "../polyfills/kernelApi.js"
-
+import { jieba } from '../utils/tokenizer.js'
 export {
-    clientApi as clientApi,
-    plugin as plugin,
-    kernelApi as kernelApi
+    clientApi,
+    plugin,
+    kernelApi,
+    jieba
 }
