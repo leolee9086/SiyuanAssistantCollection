@@ -1,6 +1,7 @@
 import {plugin,kernelApi,clientApi} from '../asyncModules.js'
 import BlockHandler from '../utils/BlockHandler.js';
 import { 获取光标所在位置 } from '../utils/rangeProcessor.js';
+import * as utils from '../utils/index.js'
 export class Context {
   constructor(blocks, token, protyle, menu, plugin, kernelApi, clientApi, eventType,allTokens) {
     this.blocks = blocks;

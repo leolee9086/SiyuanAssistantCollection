@@ -4,7 +4,7 @@ export default function genActions(context) {
     context.plugin.app.plugins.forEach(
         命令源插件 => {
             if (命令源插件.commands) {
-                命令源插件.displayName?context.plugin.utils.jieba.add_word(context.plugin.displayName):null
+                命令源插件.displayName?context.utils.jieba.add_word(context.plugin.displayName):null
                 命令源插件.commands.forEach(
                     command => {
                         actions.push(
