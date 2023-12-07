@@ -14,6 +14,7 @@ export class Context {
     this.eventType = eventType;
     this.allTokens = allTokens;
     this.token? this.token.protyle = this.protyle:null
+    this.utils=utils
     plugin.statusMonitor.set('runtime','currentContext',this)
   }
   get cursor() {
