@@ -1,4 +1,4 @@
-import {plugin,clientApi,EventEmitter} from '../../../../runtime.js'
+import { plugin, clientApi, EventEmitter } from '../../../../runtime.js'
 export class aiMessageButton extends EventEmitter {
     constructor({ doll, aiMessage, currentAiReply, userInput }) {
         super()
@@ -20,15 +20,15 @@ export class aiMessageButton extends EventEmitter {
         this.button.addEventListener("dragstart", this.handleDragStart.bind(this));
     }
     handleClick(event) {
-        let detail = { 
-            event, 
-            message: this.currentAiReply, 
-            userInput: this.userInput, 
-            doll: this.doll, 
-            button: this.button 
+        let detail = {
+            event,
+            message: this.currentAiReply,
+            userInput: this.userInput,
+            doll: this.doll,
+            button: this.button
         }
         showAImenu(detail)
-        this.emit('aiMessageButtonClicked',detail );
+        this.emit('aiMessageButtonClicked', detail);
         event.stopPropagation()
     }
     async handleDragStart(event) {
@@ -55,7 +55,7 @@ const showAImenu = async (detail) => {
     //使用事件通知
     for (const pluginItem of plugin.app.plugins) {
         try {
-            await pluginItem.eventBus.emit('sac-open-menu-aichatmessage', { ...detail,...{menu} });
+            await pluginItem.eventBus.emit('sac-open-menu-aichatmessage', { ...detail, ...{ menu } });
         } catch (e) {
             console.warn(e, plugin);
         }
@@ -63,9 +63,9 @@ const showAImenu = async (detail) => {
     let rect = detail.button.getClientRects()[0]
     menu.addItem({
         icon: "iconFace",
-        label:"在tab打开",
-        click:()=>{
-            plugin.eventBus.emit("openAiTab",detail.doll.ghost.persona.name)
+        label: "在tab打开",
+        click: () => {
+            plugin.eventBus.emit("openAiTab", detail.doll.ghost.persona.name)
         }
     })
     menu.open({
