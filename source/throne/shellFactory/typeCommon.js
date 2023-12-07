@@ -1,17 +1,13 @@
 import { getLanguageProcessor } from "../processors/language_processors/index.js";
 import { EventEmitter } from "../../eventsManager/EventEmitter.js";
-
 import { AIChatInterface } from "./drivers/AIChatInterface.js";
 import { noteChat as noteChatInterface } from "./drivers/noteChatInterface/index.js";
-
 import { processorFeatureDict } from "./baseLine.js";
 import { embeddingText } from "../../utils/textProcessor.js";
 import { plugin } from "../../asyncModules.js";
 import { findSimilarity } from "../../vectorStorage/vector.js";
 import logger from "../../logger/index.js";
-import BlockHandler from "../../utils/BlockHandler.js";
 import { getPersonaSetting, initPersonaSetting } from "../setting/index.js";
-import { combinedSimilarityWithPenalty } from "../../searchers/sorters/index.js";
 import { 创建选中块参考 } from './buildRef.js'
 let roles = {
     USER: 'user',
@@ -27,7 +23,7 @@ export default class Shell extends EventEmitter {
         this.drivers = {
             textChat: AIChatInterface,
             search: [],
-            noteChat:noteChatInterface,
+            noteChat: noteChatInterface,
             ...drivers
         };
         //components中的各个类型列举了AI可以使用的功能,之后如果token价格降下来这里会重新部分交给AI自己判断
@@ -98,9 +94,9 @@ export default class Shell extends EventEmitter {
         this.showText(result[result.length - 1])
         return result[result.length - 1]
     }
-    async completeChat(chat,simple) {
+    async completeChat(chat, simple) {
         let _chat
-        if (chat[chat.length - 1] && chat[chat.length - 1].role == 'user'&&!simple) {
+        if (chat[chat.length - 1] && chat[chat.length - 1].role == 'user' && !simple) {
             const model = plugin.configurer.get('向量工具设置', '默认文本向量化模型').$value
             let recalledMessage = await this.recallWithVector(chat[chat.length - 1].vectors[model], chat[chat.length - 1])
             recalledMessage = recalledMessage.map(item => {
@@ -239,7 +235,7 @@ export default class Shell extends EventEmitter {
             component = new this.drivers[type](options, this);
             this.components[type].push({ describe, component })
             console.log(this.components)
-        }   
+        }
         else {
             this.components[type] = this.components[type] || []
             component = new driver(options)
