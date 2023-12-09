@@ -1,9 +1,9 @@
-import { plugin,Constants,kernelApi,clientApi } from "../asyncModules.js";
-import logger from "../logger/index.js";
+import { plugin,Constants,kernelApi,clientApi } from "../../asyncModules.js";
+import logger from "../../logger/index.js";
 //import { 渲染块标菜单 as 渲染动作块标菜单 } from "../UI/menus/menuWrapper.js";
 //import { setSync } from "../fileSysManager/index.js";
-import path from '../polyfills/path.js';
-import fs from "../polyfills/fs.js";
+import path from '../../polyfills/path.js';
+import fs from "../../polyfills/fs.js";
 //import buildMenu from "../UI/dialogs/fakeMenu.js";
 //import { string2DOM } from "../UI/builders/index.js";
 //import roster from '../throne/ghostDomain/index.js'
