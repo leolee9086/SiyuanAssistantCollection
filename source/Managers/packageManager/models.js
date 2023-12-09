@@ -1,13 +1,13 @@
 import { 获取文件下载链接, 获取最新发布版本信息 } from '../packageManager/adapters/gitee.js';
-import kernelApi from '../polyfills/kernelApi.js';
-import fs from '../polyfills/fs.js';
-import path from '../polyfills/path.js'
-import { checkConnectivity } from '../utils/network/check.js';
-import {模型存放地址} from '../vectorStorage/utils/checkConfig.js'
-import { modelInfos } from './Models/info.js';
+import {kernelApi} from './runtime.js';
+import {fs} from './runtime.js';
+import {path} from './runtime.js'
+import { checkConnectivity } from './runtime.js';
+import {模型存放地址} from './runtime.js'
+//import { modelInfos } from './Models/info.js';
 export let baseModels = ['leolee9086/text2vec-base-chinese']
 
-import { DownloadDialog } from './downloader.js';
+import { download } from './downloader/downloader.js';
 export let 下载基础模型 = async() => {
     baseModels.forEach(
         async (model) => {
@@ -35,7 +35,7 @@ export async function 下载模型(模型名称) {
         if (!下载已经完成) {
             let 发布信息 = await 获取最新发布版本信息(所有者, 仓库名)
             let 文件下载链接 = await 获取文件下载链接(发布信息, 'model.zip')
-            let 下载任务 = new DownloadDialog(文件下载链接, `/temp/models/${模型名称}/model.zip`,false)
+            download(文件下载链接, `/temp/models/${模型名称}/model.zip`,false)
         } else {
             await kernelApi.unzip({ zipPath: path.join( `/temp/models/leolee9086/text2vec-base-chinese/model.zip`), path: path.join( 模型存放地址, 模型名称) })
         }

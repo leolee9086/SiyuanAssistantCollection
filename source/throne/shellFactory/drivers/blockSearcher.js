@@ -1,8 +1,7 @@
-import { plugin } from '../../../asyncModules.js'
-export const seachBlockWithVector= plugin.searchers.get('blockSearcher', 'vector')
-export const seachBlockWithText= plugin.searchers.get('blockSearcher', 'text')
-export const combindSearchBlock= plugin.searchers.get('blockSearcher', 'combind')
-
+import { searchers } from '../../runtime.js'
+export const seachBlockWithVector= searchers.get('blockSearcher', 'vector')
+export const seachBlockWithText= searchers.get('blockSearcher', 'text')
+export const combindSearchBlock= searchers.get('blockSearcher', 'combind')
 export const searchBlock = async (message, vector) => {
     let blocks = await combindSearchBlock(message,vector)
     return buildRefs(blocks.slice(0, plugin.configurer.get('聊天工具设置', '默认参考数量').$value || 10))

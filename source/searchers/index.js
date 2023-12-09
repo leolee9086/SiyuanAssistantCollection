@@ -1,17 +1,14 @@
-import { plugin } from "../asyncModules.js"
-import { 组合函数 } from "../baseStructors/functionTools.js"
-import { 提取文本向量 } from "../utils/textProcessor.js"
-import { searchBaidu, searchWeibo } from "./websearchers/webSearcher.js"
+import { plugin,组合函数,logger,提取文本向量 } from "./runtime.js"
+import { searchBaidu, searchWeibo } from "./websearchers/index.js"
 import { seachBlockWithVector } from "./blocksearchers/vectorSearcher.js"
 import { seachBlockWithText } from "./blocksearchers/simpleTextSearcher.js"
 import { searchBlock } from "./blocksearchers/combindSearcher.js"
-import { logger } from "../logger/index.js"
 export async function 以文本查找最相近文档(textContent, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数) {
     let embedding = await 提取文本向量(textContent)
     let vectors = plugin.块数据集.以向量搜索数据('vector', embedding, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数)
     return vectors
 }
-plugin.searchers = {
+const searchers = {
     set: (name, values, type = 'webseacher') => {
         logger.searcherlog({ name, values, type })
         plugin.configurer.set('自动搜索设置', type, name, {
@@ -42,11 +39,11 @@ plugin.searchers = {
         }
     }
 }
-plugin.searchers.set('baidu', { search: searchBaidu },)
-plugin.searchers.set('weibo', { search: searchWeibo },)
-plugin.searchers.set('vector', { search: seachBlockWithVector }, 'blockSearcher')
-plugin.searchers.set('text', { search: seachBlockWithText }, 'blockSearcher')
-plugin.searchers.set('combind', { search: searchBlock }, 'blockSearcher')
+searchers.set('baidu', { search: searchBaidu },)
+searchers.set('weibo', { search: searchWeibo },)
+searchers.set('vector', { search: seachBlockWithVector }, 'blockSearcher')
+searchers.set('text', { search: seachBlockWithText }, 'blockSearcher')
+searchers.set('combind', { search: searchBlock }, 'blockSearcher')
 let parseRss
 try{
     parseRss=  (await import('./websearchers/rssLoader/index.js')).parseRss
@@ -56,3 +53,5 @@ try{
 logger.searcherlog(parseRss)
 export const set = (...args) => { plugin.searchers.set(...args) }
 export const get = (...args) => { return plugin.searchers.get(...args) }
+export {searchers}
+plugin.searchers=searchers

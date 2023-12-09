@@ -1,5 +1,16 @@
-import { EventEmitter } from "../eventsManager/EventEmitter.js";
-import fs from '../polyfills/fs.js';
+import { EventEmitter } from "../runtime.js";
+import { fs } from '../runtime.js';
+const tasks = {}
+function generateId(url, fileName) {
+    const str = `${url}_${fileName}`;
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return Math.abs(hash).toString(16); // Convert to a positive integer and then to a hexadecimal string
+}
 export class DownloadTask extends EventEmitter {
     // 构造函数
     constructor(url, fileName, 开始字节 = 0) {
@@ -18,6 +29,8 @@ export class DownloadTask extends EventEmitter {
         this.start = this.开始;
         this.pause = this.暂停;
         this.resume = this.恢复;
+        this.id = generateId(this.url, this.fileName)
+
     }
     // 是否应该暂停
     get shouldPause() {
@@ -29,7 +42,7 @@ export class DownloadTask extends EventEmitter {
     }
     // 保存数据
     async 保存数据() {
-        const chunkFileName = `${this.fileName}.chunk`; // 分块文件名
+        const chunkFileName = `/temp/cctemp/${this.id}.chunk`; // 分块文件名
         const blob = new Blob(this.已接收数据); // 创建Blob对象
         const arrayBuffer = await blob.arrayBuffer(); // 转换为ArrayBuffer
         const buffer = new Uint8Array(arrayBuffer); // 转换为Buffer
@@ -37,15 +50,24 @@ export class DownloadTask extends EventEmitter {
     }
     // 检查缓存
     async 检查缓存() {
-        const chunkFileName = `${this.fileName}.chunk`; // 分块文件名
-        if (await fs.exists(chunkFileName)) { // 如果文件存在
-            const buffer = await fs.readFile(chunkFileName); // 读取文件
-            this.已接收数据 = [new Uint8Array(buffer)]; // 更新已接收的数据
-            this.总接收字节 = buffer.byteLength; // 更新总接收字节
+        const chunkFileName = `/temp/cctemp/${this.id}.chunk`; // 分块文件名
+        try {
+            if (await fs.exists(chunkFileName)) { // 如果文件存在
+                console.log(chunkFileName)
+                const buffer = await fs.readFile(chunkFileName, true); // 读取文件
+                this.已接收数据 = [new Uint8Array(buffer)]; // 更新已接收的数据
+                this.总接收字节 = buffer.byteLength; // 更新总接收字节
+                console.log(this.总接收字节)
+            }
+        } catch (error) {
+            console.error('Error reading file:', error);
+            this.已接收数据 = []; // 重置已接收的数据
+            this.总接收字节 = 0; // 重置总接收字节
         }
     }
     // 开始下载
     async 开始() {
+
         if (this.已开始) { // 如果已经开始，则返回
             return;
         }
@@ -53,6 +75,7 @@ export class DownloadTask extends EventEmitter {
         this.已开始 = true; // 设置已开始为true
         this.emit('start'); // 发出开始事件
         try {
+            console.log(this.总接收字节)
             const response = await fetch(this.url, { // 请求URL
                 signal: this.controller.signal, // 控制信号
                 headers: {
@@ -61,6 +84,7 @@ export class DownloadTask extends EventEmitter {
             });
             const reader = response.body.getReader(); // 获取读取器
             this.总字节 = this.总字节 ? this.总字节 : (this.总接收字节 + parseInt(response.headers.get('Content-Length'))); // 更新总字节
+            console.log(this.总字节)
             this.本次已保存字节 = 0; // 本次已保存字节
             this.本次已接收字节 = 0; // 本次已接收字节
             while (true) {
@@ -73,15 +97,13 @@ export class DownloadTask extends EventEmitter {
                 this.本次已保存字节 += value.length; // 更新本次已保存字节
                 let 进度 = this.总字节 ? ((this.本次已接收字节 + this.总接收字节) / this.总字节) * 100 : 0; // 计算进度
                 this.emit('progress', 进度); // 发出进度事件
-                if (this.本次已保存字节 >= 1024 * 1024) { // 如果本次已保存字节大于1MB
-                    this.本次已保存字节 = 0; // 重置本次已保存字节
-                    this.保存数据(); // 保存数据
-                }
+
             }
             let blob = new Blob(this.已接收数据); // 创建Blob对象
             let file = new File([blob], this.fileName); // 创建File对象
             this.emit('complete'); // 发出完成事件
             await fs.writeFile(this.fileName, file); // 写入文件
+            await fs.removeFile(`/temp/cctemp/${this.id}.chunk`)
             return file; // 返回文件
         } catch (error) {
             if (error.name === 'AbortError') { // 如果是AbortError

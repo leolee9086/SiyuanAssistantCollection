@@ -1,9 +1,5 @@
-import { importModule } from "./esmLoader.js";
-import { fetchModule } from "./cjsLoader.js";
 import fs from "../../polyfills/fs.js";
 import path from "../../polyfills/path.js";
-import { parse } from "../../../static/esModuleLexer.js";
-const { resolve, dirname } = path;
 import { 柯里化 } from "../../baseStructors/functionTools.js";
 const severMap = {
   '/data/plugins': '/plugins',

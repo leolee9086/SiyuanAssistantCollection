@@ -1,5 +1,5 @@
 import {parseRss} from './paseLocal.js'
-import './refresh.js'
+//import './refresh.js'
 export {parseRss as parseRss}
 class RSSList extends HTMLElement {
     constructor() {
@@ -61,5 +61,6 @@ class RSSList extends HTMLElement {
         )
     }
 }
-
-customElements.define('rss-list', RSSList)
+if (!customElements.get('rss-list')) {
+    customElements.define('rss-list', RSSList);
+}

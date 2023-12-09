@@ -1,4 +1,4 @@
-import { clientApi, pluginInstance as plugin } from "../asyncModules";
+import { clientApi, pluginInstance as plugin } from "../asyncModules.js";
 import { logger } from "../logger/index.js";
 export const 启用收集protyle事件 = () => {
   //这个是为了收集所有的protyle

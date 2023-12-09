@@ -1,4 +1,4 @@
-import { plugin } from '../../asyncModules.js';
+import { plugin } from '../runtime.js';
 // 获取包的最新版本信息
 async function 获取最新版本信息(包名) {
     let url = `https://registry.npmjs.org/${包名}/latest`;

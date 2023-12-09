@@ -4,21 +4,22 @@ import {
     Constants,
     kernelApi,
     clientApi,
-    logger
+    logger,
+    渲染动作块标菜单,
+    setSync,
+    path,
+    fs,
+    buildMenu,
+    string2DOM,
+    roster,
+    marduk,
 } from './runtime.js'
+//需要清理的外部导入
 import { 智能防抖 } from "./debouncer.js";
 import "./documentEvents.js"
-import { 渲染块标菜单 as 渲染动作块标菜单 } from "../UI/menus/menuWrapper.js";
 import { 事件注册表 } from "./eventTypeList.js";
 import './wsChanel.js'
-import { setSync } from "../fileSysManager/index.js";
-import path from '../polyfills/path.js';
-import fs from "../polyfills/fs.js";
-import buildMenu from "../UI/dialogs/fakeMenu.js";
-import { string2DOM } from "../UI/builders/index.js";
-import roster from '../throne/ghostDomain/index.js'
-import marduk from '../throne/index.js'
-
+console.log('事件管理器加载完毕')
 const eventBusProxy = new Proxy(plugin.eventBus, {
     get: (target, propKey, receiver) => {
         const origMethod = target[propKey];
@@ -167,7 +168,6 @@ eventBus.on('settingChange', async (e) => {
 eventBus.on('sac-open-menu-hintmenu',()=>{
     plugin.statusMonitor.set('菜单', '关键词菜单', '初次显示',false)
         buildMenu('SAC')
-    
 })
 eventBus.on('sac-open-menu-aichatmessage', async (e) => {
     let { detail } = e
@@ -261,3 +261,4 @@ eventBus.on(`openHelp-plugin-${plugin.name}`, async () => {
         }
     },3000)
 })
+console.log('事件处理器加载完毕')

@@ -205,3 +205,4 @@ export const 添加字典 = async (dict) => {
         )
     }
 }
+console.log('动作表加载完毕')

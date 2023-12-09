@@ -1,5 +1,5 @@
 import { parseRss } from './paseLocal.js'
-import { plugin } from '../../../asyncModules.js'
+import { plugin } from '../../runtime.js'
 let rss设置 = plugin.configurer.get('RSS').$value
 for (let rssKey in rss设置) {
     let rss = rss设置[rssKey];

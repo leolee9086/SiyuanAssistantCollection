@@ -1,29 +1,33 @@
 import { plugin } from "./runtime.js";
 import {logger} from "./runtime.js";
-
-class EventBusDummy {
+import * as 事件类型表 from './eventTypeList.js'
+export class EventEmitter {
     constructor() {
-        this.listeners = {};
+        this.事件类型表=事件类型表
     }
     on(event, callback) {
-        if (!this.listeners[event]) {
-            this.listeners[event] = [];
-        } else if (this.listeners[event].includes(callback)) {
-            logger.eventWarn(`Warning: The callback has already been added to the event "${event}".`,callback,this);
+        if(!this.事件类型表[event]){
+            console.error('未定义的事件类型')
+            return 
+        }
+        if(typeof callback !== 'function'){
+            console.error('callback 必须是一个函数');
             return;
         }
-        this.listeners[event].push(callback);
+        plugin.eventBus.on(event,callback)
     }
     off(event, callback) {
-        if (!this.listeners[event]) {
-            return;
-        }
-        const index = this.listeners[event].indexOf(callback);
-        if (index > -1) {
-            this.listeners[event].splice(index, 1);
-        }
+        plugin.eventBus.on(event,callback)
     }
     once(event, callback) {
+        if(!this.事件类型表[event]){
+            console.error('未定义的事件类型')
+            return 
+        }
+        if(typeof callback !== 'function'){
+            console.error('callback 必须是一个函数');
+            return;
+        }
         const wrapper = (...args) => {
             callback(...args);
             this.off(event, wrapper);
@@ -44,44 +48,4 @@ class EventBusDummy {
         ));
     }
 }
-let eventBus
-if(plugin){
-    eventBus=plugin.eventBus
-}else{
-    eventBus=new EventBusDummy()
-}
 
-export class EventEmitter extends EventBusDummy{
-    constructor(chanel) {
-        super()
-        this.eventRegistry = new Map();  // 事件注册表
-        this.chanel = chanel
-    }
-    subscribe(event, listener) {
-        if (!this.chanel) {
-            logger.warn('声明事件监听的类必须有chanel属性')
-        }
-        const eventName = this.chanel + '_' + event;
-        eventBus.on(eventName, listener)
-        // 添加事件到注册表
-        if (!this.eventRegistry.has(eventName)) {
-            this.eventRegistry.set(eventName, []);
-        }
-        this.eventRegistry.get(eventName).push(listener);
-    }
-    subscribeOnce(event, listener) {
-        if (!this.chanel) {
-            logger.warn('声明事件监听的类必须有chanel属性')
-        }
-        const eventName = this.chanel + '_' + event;
-        eventBus.once(eventName, listener)
-        // 添加事件到注册表
-        if (!this.eventRegistry.has(eventName)) {
-            this.eventRegistry.set(eventName, []);
-        }
-        this.eventRegistry.get(eventName).push(listener);
-    }
-    broadCast(event, detail) {
-        eventBus.emit(event, detail)
-    }
-}

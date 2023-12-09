@@ -49,6 +49,7 @@ class ccPlugin extends Plugin {
   //这个是白魔法不是黑魔法
   从esm模块(moduleURL) {
     moduleURL = this.resolve(moduleURL)
+    console.log(moduleURL)
     const 定义属性 = async (obj, name, value, options = {}) => {
       if (obj.hasOwnProperty(name)) {
         throw new Error(`属性${name}已经存在，不要覆盖它`);
@@ -62,8 +63,11 @@ class ccPlugin extends Plugin {
     };
     return {
       合并子模块: async (name) => {
+        console.log(name)
+
         try {
           const module = await import(moduleURL);
+          console.log(module)
           let fileName = 获取文件名(moduleURL);
           await 定义属性(this, fileName, module);
           name ? await 定义属性(this, name, module) : null
@@ -229,13 +233,13 @@ class SiyuanAssistantCollection extends ccPlugin {
     this.设置器 = this.configurer
     await this.暴露插件环境()
     await this.加载管理器()
-    await this.加载子模块();
-    await this.初始化依赖项();
-    await this.设置Lute();
-    path = this.utils.path
-    fs = this.workspace
-    await this.初始化关键词表();
-    await import(`${this.selfURL}/source/index.js`)
+  //   await this.加载子模块();
+  //  await this.初始化依赖项();
+   // await this.设置Lute();
+  //  path = this.utils.path
+  //  fs = this.workspace
+   // await this.初始化关键词表();
+   // await import(`${this.selfURL}/source/index.js`)
   }
   async 暴露插件环境() {
     window[Symbol.for(`plugin_${this.name}`)] = this
@@ -243,27 +247,31 @@ class SiyuanAssistantCollection extends ccPlugin {
     await this.从esm模块('./source/asyncModules.js').合并全部成员为只读属性()
   }
   async 加载管理器() {
-    await this.从esm模块('./source/packageManager/index.js').合并子模块('包管理器')
-    await this.包管理器.下载基础模型()
-    await this.包管理器.解压依赖()
-    await this.从esm模块('./source/searchers/index.js').设置模块为只读属性("搜索管理器"),
-      await this.从esm模块('./source/eventsManager/index.js').合并子模块('事件管理器')
+    await this.从esm模块('./source/Managers/packageManager/index.js').合并子模块('包管理器')
+    //await this.包管理器.下载基础模型()
+   // await this.包管理器.解压依赖()
+   // console.log('开始加载搜索管理器')
+   // await this.从esm模块('./source/searchers/index.js').设置模块为只读属性("搜索管理器")
+   // console.log('搜索管理器加载完毕')
+   // console.log('开始加载事件管理器')
+   // await this.从esm模块('./source/eventsManager/index.js').合并子模块('事件管理器')
+   // console.log('事件管理器加载完毕')
   }
   async 加载子模块() {
-    await Promise.all([
-      this.从esm模块('./source/utils/index.js').合并子模块(),
-      this.从esm模块('./source/vectorStorage/blockIndex.js').合并子模块('块索引器'),
+   // await Promise.all([
+   // await  this.从esm模块('./source/utils/index.js').合并子模块(),
+   // await  this.从esm模块('./source/vectorStorage/blockIndex.js').合并子模块('块索引器')
       //用于查询DOM
-      this.从esm模块('./source/utils/DOMFinder.js').设置模块为只读属性('DOM查找器'),
+   // await  this.从esm模块('./source/utils/DOMFinder.js').设置模块为只读属性('DOM查找器')
       //用于处理选区相关
-      this.从esm模块('./source/utils/rangeProcessor.js').设置模块为只读属性('选区处理器'),
-      this.从esm模块('./source/utils/textProcessor.js').合并子模块('文本处理器'),
-      this.从esm模块('./source/polyfills/kernelApi.js').合并成员为只读属性('default', { '别名': 'kernelApi' }),
-      this.从esm模块('./source/polyfills/fs.js').合并成员为只读属性('default', { '别名': 'workspace' }),
-      this.从esm模块('./source/utils/copyLute.js').合并成员为只读属性('setLute'),
-      this.从esm模块('./source/actionList/index.js').合并子模块(),
-      this.从esm模块('./source/logger/index.js').合并子模块('日志记录器'),
-    ]);
+   // await  this.从esm模块('./source/utils/rangeProcessor.js').设置模块为只读属性('选区处理器')
+   // await  this.从esm模块('./source/utils/textProcessor.js').合并子模块('文本处理器')
+   // await  this.从esm模块('./source/polyfills/kernelApi.js').合并成员为只读属性('default', { '别名': 'kernelApi' })
+   // await  this.从esm模块('./source/polyfills/fs.js').合并成员为只读属性('default', { '别名': 'workspace' })
+  //  await  this.从esm模块('./source/utils/copyLute.js').合并成员为只读属性('setLute')
+  //  await  this.从esm模块('./source/actionList/index.js').合并子模块()
+   // await  this.从esm模块('./source/logger/index.js').合并子模块('日志记录器')
+   // ]);
   }
   log(...args) {
     if (this.日志记录器) {

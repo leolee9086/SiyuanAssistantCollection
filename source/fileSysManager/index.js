@@ -14,3 +14,4 @@ export async function setSync(path, value) {
     // Write the modified content back to the file
     await fs.writeFile('/data/.siyuan/syncignore', lines.join('\n'));
 }
+console.log('存储适配器加载完毕')

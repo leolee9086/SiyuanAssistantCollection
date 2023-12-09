@@ -9,8 +9,6 @@ export {clientApiInstance as clientApi}
 export {pluginInstance as pluginInstance}
 export {pluginInstance as plugin}
 export {kernelApi as kernelApi}
-
-
 export const Constants = {
     helpID:'20231028183434-6oflpzo',
     HELP_PATH : {
@@ -26,5 +24,6 @@ export const Constants = {
         zh_CN: "SAC-请从这里开始",
     },
     CB_MOUNT_REMOVE:"cb-mount-remove",
+    模型存放地址:'/data/public/onnxModels/',
     ...clientApiInstance.Constants
 }

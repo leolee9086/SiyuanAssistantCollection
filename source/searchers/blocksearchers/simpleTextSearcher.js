@@ -1,8 +1,6 @@
-import { jieba } from '../../utils/tokenizer.js'
-import kernelApi from '../../polyfills/kernelApi.js'
-import { plugin } from '../../asyncModules.js'
-import { logger } from '../../logger/index.js'
-
+import { jieba } from '../runtime.js'
+import {kernelApi} from '../runtime.js'
+import { plugin } from '../runtime.js'
 export const seachBlockWithText = async (text) => {
     let tokens = jieba.tokenize(text, "search")
     let query = ""

@@ -19,3 +19,4 @@ export const 自然语言处理 ={
         }
     }
 }
+console.log('ai处理器加载完毕')

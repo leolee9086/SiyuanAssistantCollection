@@ -1,7 +1,7 @@
 import { plugin } from "../../asyncModules.js"
 import fs from "../../polyfills/fs.js"
-export let 模型存放地址 = '/data/public/onnxModels/'
-
+import { Constants } from "../../asyncModules.js"
+const {模型存放地址}=Constants
 let 在线模型列表 = Object.getOwnPropertyNames(plugin.默认设置.模型设置)
 let 本地模型列表 = plugin.默认设置.向量工具设置.默认文本向量化模型.options.filter(
     item=>{
