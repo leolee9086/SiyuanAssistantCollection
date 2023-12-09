@@ -1,4 +1,4 @@
-import { 获取文件下载链接, 获取最新发布版本信息 } from '../packageManager/adapters/gitee.js';
+import { 获取文件下载链接, 获取最新发布版本信息 } from './adapters/gitee.js';
 import {kernelApi} from './runtime.js';
 import {fs} from './runtime.js';
 import {path} from './runtime.js'
@@ -19,8 +19,7 @@ export let 下载基础模型 = async() => {
     )
 }
 export async function 校验模型是否存在(模型名称) {
-    //return await fs.exists(path.join(模型存放地址, 模型名称))
-    return false
+    return await fs.exists(path.join(模型存放地址, 模型名称))
 }
 export async function 下载模型(模型名称) {
     let huggingfaceOnline = await checkConnectivity('https://hf-mirror.com')

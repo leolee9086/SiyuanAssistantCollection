@@ -1,9 +1,9 @@
 import { plugin } from "./runtime.js";
 import {logger} from "./runtime.js";
-import * as 事件类型表 from './eventTypeList.js'
+import * as 插件基础事件列表 from './eventTypeList.js'
 export class EventEmitter {
     constructor() {
-        this.事件类型表=事件类型表
+        this.插件基础事件列表=插件基础事件列表
     }
     on(event, callback) {
         if(!this.事件类型表[event]){

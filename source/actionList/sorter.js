@@ -10,7 +10,6 @@ export function 排序动作表(动作表, 当前关键词, 命令历史, 当前
     const 历史匹配得分权重 = 0.1;
     // 上下文相关算法权重
     const 上下文相关得分权重 = 0.1;
-
     const sortAlgorithms = [
         { calculateScore: 计算文本相似性得分, weight: 文本相似性得分权重 },
         { calculateScore: 计算位置得分, weight: 位置得分权重 },
@@ -23,7 +22,6 @@ export function 排序动作表(动作表, 当前关键词, 命令历史, 当前
         return 命令序列.sort((a, b) => {
             let scoreA = 0;
             let scoreB = 0;
-
             算法权重表.forEach(算法对象 => {
                 const { calculateScore: 计算函数, weight: 权重 } = 算法对象;
 
