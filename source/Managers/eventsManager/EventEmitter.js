@@ -1,6 +1,6 @@
 import { plugin } from "./runtime.js";
 import {logger} from "./runtime.js";
-import * as 插件基础事件列表 from './eventTypeList.js'
+import * as 插件基础事件列表 from './SiyuanBaseEventTypeList.js'
 export class EventEmitter {
     constructor(meta) {
         this.meta=meta

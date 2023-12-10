@@ -76,17 +76,14 @@ export const buildMenu = (title) => {
             menu.pined = !menu.pined
         }
     )
-
     menu.switchCurrent = (code) => {
         let items = Array.from(menu.element.querySelectorAll('.b3-menu__item'));
         let currentIndex = items.findIndex(item => item.classList.contains('b3-menu__item--current'));
-
         // 如果没有选中的菜单项，选择第一个菜单项
         if (currentIndex === -1) {
             items[0].classList.add('b3-menu__item--current');
             return;
         }
-
         if (code === 'ArrowUp') {
             // 如果当前选中的是第一个菜单项，那么选择最后一个菜单项
             let previousIndex = (currentIndex > 0) ? currentIndex - 1 : items.length - 1;
@@ -99,7 +96,6 @@ export const buildMenu = (title) => {
             items[nextIndex].classList.add('b3-menu__item--current');
         }
     }
-
     let observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
@@ -154,7 +150,6 @@ export const buildMenu = (title) => {
     menu.switchPin = () => {
         menu.pined = !menu.pined
     }
-
     return menu
 }
 export default buildMenu

@@ -1,5 +1,5 @@
-import {plugin} from './runtime.js'
-document.addEventListener(
+import {plugin, sac} from './runtime.js'
+/*document.addEventListener(
     "keydown",
     async (e) => {
         if (e.code && (e.code === "ArrowUp" || e.code === "ArrowDown")) {
@@ -23,4 +23,15 @@ document.addEventListener(
         }
     },
     { capture: true }
-);
+);*/
+export const DOM键盘事件表={
+    键盘按下:'keydown-document'
+}
+export const 开始监听DOM键盘事件=()=>{
+    document&&document.addEventListener(
+        "keydown",
+        async (e)=>{
+            sac.eventBus.emit(DOM键盘事件表.键盘按下,e)
+        }
+    )
+}
