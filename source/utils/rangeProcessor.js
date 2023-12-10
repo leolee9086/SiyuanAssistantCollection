@@ -1,5 +1,22 @@
-import { pluginInstance as plugin } from "../asyncModules.js";
-import { findTokenElement } from "../UI/tokenMenu.js";
+import { hasClosestBlock } from "./DOMFinder.js";
+export function findTokenElement(current, range) {
+  if (current.nodeType === 1 && current.classList.contains("token")) {
+    return current;
+  }
+  if (current.childNodes.length > 0) {
+    for (let i = 0; i < current.childNodes.length; i++) {
+      const child = current.childNodes[i];
+      const tokenElement = findTokenElement(child, range);
+      if (tokenElement) {
+        return tokenElement;
+      }
+    }
+  }
+  if (range.startContainer === current || range.endContainer === current) {
+    return current.parentElement;
+  }
+  return null;
+}
 
 export function 获取光标所在位置() {
     let 空位置 = { pos: null, element: null };
@@ -23,12 +40,12 @@ export function 获取光标所在位置() {
         current = current.parentNode;
     }
     // 限制范围在可编辑祖先内
-    const limitedRange = plugin.选区处理器.获取元素内文字选区偏移(current);
+    const limitedRange = 获取元素内文字选区偏移(current);
     const tokenElement = findTokenElement(current, range);
     return {
         pos: limitedRange,
         editableElement: current,
-        blockElement: plugin.DOM查找器.hasClosestBlock(current),
+        blockElement: hasClosestBlock(current),
         parentElement: tokenElement,
         range: range
     };
