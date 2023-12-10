@@ -1,4 +1,4 @@
-import { EventEmitter } from "../runtime.js";
+import { sac } from "../runtime.js";
 import { fs } from '../runtime.js';
 const tasks = {}
 function generateId(url, fileName) {
@@ -11,7 +11,7 @@ function generateId(url, fileName) {
     }
     return Math.abs(hash).toString(16); // Convert to a positive integer and then to a hexadecimal string
 }
-export class DownloadTask extends EventEmitter {
+export class DownloadTask extends sac.EventEmitter {
     // 构造函数
     constructor(url, fileName, 开始字节 = 0) {
         super();

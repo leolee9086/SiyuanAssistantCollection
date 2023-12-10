@@ -8,6 +8,8 @@ let clientApiInstance=globalThis[Symbol.for(`clientApi`)]
 export {clientApiInstance as clientApi}
 export {pluginInstance as pluginInstance}
 export {pluginInstance as plugin}
+export {pluginInstance as sac}
+
 export {kernelApi as kernelApi}
 export const Constants = {
     helpID:'20231028183434-6oflpzo',

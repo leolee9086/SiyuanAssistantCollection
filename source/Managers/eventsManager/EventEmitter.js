@@ -2,7 +2,11 @@ import { plugin } from "./runtime.js";
 import {logger} from "./runtime.js";
 import * as 插件基础事件列表 from './eventTypeList.js'
 export class EventEmitter {
-    constructor() {
+    constructor(meta) {
+        this.meta=meta
+        if(!this.meta){
+            throw '事件监听器必须提供meta'
+        }
         this.插件基础事件列表=插件基础事件列表
     }
     on(event, callback) {
@@ -48,4 +52,4 @@ export class EventEmitter {
         ));
     }
 }
-
+plugin.EventEmitter=EventEmitter

@@ -4,7 +4,6 @@ export class ChunkFileWriter {
         this.fileName = fileName;
         this.chunkSize = 100 * 1024 * 1024; // 分块大小，这里设置为10MB
     }
-
     // 写入数据
     async write(data) {
         let chunkIndex = 0; // 分块索引
@@ -18,7 +17,6 @@ export class ChunkFileWriter {
             chunkIndex++; // 更新分块索引
         }
     }
-
     // 读取数据
     async read() {
         let chunkIndex = 0; // 分块索引
