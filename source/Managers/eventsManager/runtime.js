@@ -15,12 +15,7 @@ export {
     kernelApi,
     clientApi,
     logger,
-    //渲染动作块标菜单,
-    //setSync,
     path,
     fs,
-    //buildMenu,
-    //string2DOM,
-    //roster,
-    //marduk
+    plugin as sac
 }

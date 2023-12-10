@@ -10,11 +10,9 @@ export  class ProgressBar {
         this.progressBar.style.height = '50px';
 
         this.percentageLabel = document.createElement('span');
-
         // 将进度条和百分比标签添加到容器中
         this.container.appendChild(this.progressBar);
         this.container.appendChild(this.percentageLabel);
-
         // 监听task的progress事件
         this.task.on('progress', ProgressEvent => {
             let downloadedMB = (this.task.总接收字节 + this.task.本次已接收字节) / (1024 * 1024);

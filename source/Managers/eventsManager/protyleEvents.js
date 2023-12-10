@@ -1,11 +1,12 @@
-import { clientApi, pluginInstance as plugin } from "../asyncModules.js";
-import { logger } from "../logger/index.js";
+import { sac } from "./runtime.js";
+import { logger } from "../../logger/index.js";
+import * as 基础事件列表 from './eventTypeList.js'
 export const 启用收集protyle事件 = () => {
   //这个是为了收集所有的protyle
-  plugin.eventBus.on("loaded-protyle", (e) => {
-    plugin.protyles.push(e.detail);
-    plugin.protyles = Array.from(new Set(plugin.protyles));
-    plugin.setLute ? plugin._lute = plugin.setLute({
+  sac.eventBus.on(基础事件列表.编辑器加载事件, (e) => {
+    sac.protyles.push(e.detail);
+    sac.protyles = Array.from(new Set(plugin.protyles));
+    sac.setLute ? sac._lute = sac.setLute({
       emojiSite: e.detail.options.hint.emojiPath,
       emojis: e.detail.options.hint.emoji,
       headingAnchor: false,
@@ -14,11 +15,11 @@ export const 启用收集protyle事件 = () => {
       sanitize: e.detail.options.preview.markdown.sanitize,
     }) : null;
   });
-  plugin.eventBus.on("click-editorcontent", (e) => {
+  sac.eventBus.on(基础事件列表.编辑器内容点击, (e) => {
     logger.eventlog(e)
-    plugin.protyles.push(e.detail);
-    plugin.protyles = Array.from(new Set(plugin.protyles));
-    plugin.setLute ? plugin._lute = plugin.setLute({
+    sac.protyles.push(e.detail);
+    sac.protyles = Array.from(new Set(sac.protyles));
+    sac.setLute ? sac._lute = sac.setLute({
       emojiSite: e.detail.options.hint.emojiPath,
       emojis: e.detail.options.hint.emoji,
       headingAnchor: false,

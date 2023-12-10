@@ -54,15 +54,11 @@ const 开始自动索引 = () => {
     )
 }
 eventBus.on('blockIndexerReady', 开始自动索引)
-
-
 //这个事件应该由actionsList触发
 eventBus.on("click-editortitleicon", async (event) => {
     渲染动作块标菜单(event, 'click-editortitleicon');
 });
 const ghosts =await roster.listGhostNames()
-
-
 //这个事件应该由peotyleEvents触发
 eventBus.on("click-blockicon",async (event) => {
     渲染动作块标菜单(event, 'click-blockicon');
@@ -117,7 +113,6 @@ document.addEventListener("keyup", (event) => {
     eventBus.emit('doc_keyup', event)
 }, { capture: true, passive: true }
 )
-
 eventBus.on('click-editorcontent', () => {
     let selectedText = window.getSelection().toString();
     if (selectedText) {
