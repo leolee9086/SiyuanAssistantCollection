@@ -16,7 +16,7 @@ import config from './config.js';
 import { setLute } from '../../../utils/copyLute.js';
 import * as Url from './url.js';
 import dayjs from '../../../../static/dayjs.js'
-import { asyncPool } from '../../../baseStructors/functionTools.js';
+import { asyncPool } from '../../../utils/functionTools.js';
 import render from './utils/render.js';
 import path from '../../../polyfills/path.js'
 let moduleCache = {

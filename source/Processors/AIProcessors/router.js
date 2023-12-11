@@ -11,3 +11,4 @@ ai路由.post('/embedding', async (ctx) => {
     // 将结果返回给客户端
     ctx.body = result;
 });
+sac.路由管理器.use(ai路由.routes())

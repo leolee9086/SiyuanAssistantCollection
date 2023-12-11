@@ -5,7 +5,6 @@ import blockSearchRouter from "./blocks/blockSearchRouter.js";
 const { Router } = sac.路由管理器
 let searchersRouter = new Router()
 searchersRouter.use('/blocks', blockSearchRouter.routes())
-export { searchersRouter }
 searchersRouter.post('/rss/list', async (ctx, next) => {
     let rssList = await sac.包管理器.type({
         name: 'rss',
@@ -63,3 +62,4 @@ searchersRouter.post('/rss/router', async (ctx, next) => {
 searchersRouter.use(
     '/rss/feed',RSSRoute.routes('/')
 )
+export { searchersRouter }

@@ -1,5 +1,5 @@
 import { plugin } from "../asyncModules.js";
-import { 组合函数 } from "../baseStructors/functionTools.js";
+import { 组合函数 } from "../utils/functionTools.js";
 import { 提取文本向量 } from "../utils/textProcessor.js"
 import { logger } from "../logger/index.js"
 import { jieba } from "../utils/tokenizer.js";
