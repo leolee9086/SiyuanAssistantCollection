@@ -12,8 +12,6 @@ import { 获取光标所在位置 } from "../../utils/rangeProcessor.js";
 //监听原生事件触发自定义事件
 启用收集protyle事件()
 开始监听DOM键盘事件()
-
-
 //模块之间不允许使用事件机制进行互相调用,而是使用函数路由
 //只有事件管理器允许触发模块的事件
 let 显示tips =智能防抖(async (e) => {
@@ -41,6 +39,10 @@ let 显示tips =智能防抖(async (e) => {
 sac.eventBus.on(DOM键盘事件表.文本输入,(e)=>{
     显示tips(e)
 })
-sac.eventBus.on(DOM键盘事件表.组合结束,(e)=>{
+sac.eventBus.on(DOM键盘事件表.组合结束,async(e)=>{
+    console.log(sac.路由管理器.internalFetch('/search/rss/list',{body:{},method:'POST'}))
+    console.log(sac.路由管理器.internalFetch('/search/rss/router',{body:{name:"199it"},method:'POST'}))
+    console.log(await sac.路由管理器.internalFetch('/search/rss/feed/zhihu/daily'))
+
     显示tips(e)
 })

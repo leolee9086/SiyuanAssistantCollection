@@ -28,7 +28,7 @@ const getObject = (currentFile, key) => {
     }
 };
 const _require = 柯里化(getObject)
-const loadRSS = async (sourceURL) => {
+export const loadRSS = async (sourceURL) => {
     try {
         const __dirname=path.dirname(sourceURL)
         console.log(__dirname)
@@ -101,7 +101,7 @@ const lazyloadRouteHandler = (routeHandlerPath) => {
     if (!realPath.endsWith('.js')) {
         realPath = realPath + '.js'
     }
-    return async (ctx, next) => {
+    let func= async (ctx, next) => {
         if (!(moduleCache[realPath] instanceof Function)) {
             await loadRSS(realPath);
         }
@@ -110,6 +110,8 @@ const lazyloadRouteHandler = (routeHandlerPath) => {
         }
         next();
     }
+    func.$routeHandlerPath=routeHandlerPath
+    return func
 }
 Object.getOwnPropertyNames(routeMapV2).forEach(
     name => {

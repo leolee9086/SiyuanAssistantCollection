@@ -1,10 +1,8 @@
 const got = require('@/utils/got');
 const utils = require('./utils');
 const { parseDate } = require('@/utils/parse-date');
-
 // 参考：https://github.com/izzyleung/ZhihuDailyPurify/wiki/%E7%9F%A5%E4%B9%8E%E6%97%A5%E6%8A%A5-API-%E5%88%86%E6%9E%90
 // 文章给出了v4版 api的信息，包含全文api
-
 async function dohResolve(name) {
     console.log(got)
     const response = await got('https://223.5.5.5/resolve', {

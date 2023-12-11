@@ -18,16 +18,7 @@ export let readFile = async (file, bin) => {
   let mime = await res.headers.get("Content-Type");
   if (isText(mime) && !bin) {
     // 使用流处理文本文件
-    const reader = res.body.getReader();
-    let chunks = [];
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) {
-        break;
-      }
-      chunks.push(value);
-    }
-    return new TextDecoder("utf-8").decode(new Uint8Array(chunks));
+    return await res.text();
   } else {
     // 使用流处理二进制文件
     const reader = res.body.getReader();

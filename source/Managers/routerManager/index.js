@@ -51,13 +51,10 @@ export const internalFetch = async (path, options = {}) => {
             params: {}
         },
         response: {
-
         },
         state: {
-
         }
     };
-
     // 创建一个 Promise，当 signal 的 abort 事件被触发时，这个 Promise 会被拒绝
     const abortPromise = new Promise((resolve, reject) => {
         if (options.signal) {
@@ -66,14 +63,12 @@ export const internalFetch = async (path, options = {}) => {
             });
         }
     });
-
     // 查找本地函数
     const fetchPromise = sac.路由管理器.根路由.routes('/')(ctx, (ctx, next) => {
         console.log(ctx)
     });
     // 等待 fetchPromise 完成或 abortPromise 被拒绝
     const result = await Promise.race([fetchPromise, abortPromise]);
-
     // 如果没有找到匹配的路由，设置状态为404
     if (!result) {
         ctx.status = 404;
@@ -86,3 +81,11 @@ export const internalFetch = async (path, options = {}) => {
     // 返回上下文的状态
     return ctx;
 };
+if(window.require){
+    const App =(await import ("./webKoa/index.js")).default
+    let app=new App()
+    app.use(根路由.routes('/'))
+    app.listen(80,(server)=>{
+        console.log(server)
+    })
+}
