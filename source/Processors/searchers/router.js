@@ -1,14 +1,11 @@
 import { sac } from "./runtime.js";
-import { seachBlockWithText } from "./blocks/simpleTextSearcher.js";
 import { loadRSS } from "../../searchers/websearchers/rssLoader/routeMapV1.js";
 import RSSRoute from "../../searchers/websearchers/rssLoader/routeMapV1.js";
+import blockSearchRouter from "./blocks/blockSearchRouter.js";
 console.log(RSSRoute)
 const { Router } = sac.路由管理器
-let searchersRouter = new Router
-searchersRouter.post('/blocks/text', async (ctx, next) => {
-    let data = await seachBlockWithText(ctx.req.body.query)
-    ctx.body = data
-})
+let searchersRouter = new Router()
+searchersRouter.use('/blocks', blockSearchRouter.routes())
 export { searchersRouter }
 searchersRouter.post('/rss/list', async (ctx, next) => {
     let rssList = await sac.包管理器.type({

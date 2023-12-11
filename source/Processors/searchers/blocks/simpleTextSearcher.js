@@ -45,7 +45,6 @@ export const seachBlockWithText = async (text, raw) => {
         blocks.sort((a, b) => b.commonTokensCount - a.commonTokensCount)
         // 返回共同词素数量最多的十个块
         // 使用类似rss的方式渲染以保持调用形式统一
-
         let res = blocks.slice(0, plugin.configurer.get('聊天工具设置', '默认参考数量').$value || 10)
         if (raw) {
             return res
