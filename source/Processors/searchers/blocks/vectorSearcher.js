@@ -1,8 +1,3 @@
-import { seachWithVector } from "../../vectorStorage/blockIndex.js"
-import { kernelApi } from "../../asyncModules.js"
-import { plugin } from "../../asyncModules.js"
-import { logger } from "../../logger/index.js"
-
 export const seachBlockWithVector = async (vector) => {
     let blocks = await seachWithVector('vector', vector, plugin.configurer.get('聊天工具设置', '默认参考数量').$value || 30)
     //  return blocks.map(item => { return item.meta&&item.score>0.8}).filter(item=>{return item})

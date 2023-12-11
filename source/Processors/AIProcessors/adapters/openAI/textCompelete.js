@@ -11,7 +11,6 @@ export async function completeText(prompt,_options) {
     };
     options={...options,...plugin.configurer.get('模型设置','OPENAI').$value}
     options={...options,..._options}
-    console.log(options)
     const myHeaders = new Headers();
     myHeaders.append("Authorization", `Bearer ${options.apiKey}`);
     myHeaders.append("User-Agent", "SiYuan/2.10.2 https://b3log.org/siyuan Electron Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) SiYuan/2.10.2 Chrome/114.0.5735.289 Electron/25.7.0 Safari/537.36");
