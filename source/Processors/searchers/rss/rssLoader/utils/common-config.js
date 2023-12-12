@@ -1,5 +1,4 @@
-import * as cheerio from '../../../../../../static/cheerio.js'
-import { got } from './got.js';
+import { cheerio,got } from '../../../runtime.js';
 import date from './date.js'
 import iconv from '../../iconvPollyfill.js'
 // eslint-disable-next-line no-unused-vars

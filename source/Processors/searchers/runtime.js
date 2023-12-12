@@ -1,2 +1,8 @@
 import { sac } from "../../asyncModules.js";
-export {sac}
+import * as cheerio from '../../../static/cheerio.js'
+import { got } from "../../utils/network/got.js";
+export {
+    sac,
+    cheerio,
+    got
+}
