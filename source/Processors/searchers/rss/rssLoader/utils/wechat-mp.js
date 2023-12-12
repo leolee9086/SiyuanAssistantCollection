@@ -24,8 +24,7 @@
  *
  * For more details of these functions, please refer to the jsDoc in the source code.
  */
-import { got } from './got.js';
-import * as cheerio from '../../../../../../static/cheerio.js'
+import { got,cheerio } from '../../../runtime.js';
 import parseDate from './parse-date.js';
 const replaceTag = ($, oldTag, newTagName) => {
     oldTag = $(oldTag);

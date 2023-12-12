@@ -1,7 +1,7 @@
 import * as cheerio from '../../../../../static/cheerio.js'
 import cfEmail from './utils/cf-email.js';
 import commonConfig from './utils/common-config.js'
-import { got } from './utils/got.js';
+import { got } from '../../runtime.js';
 import parseDate from './utils/parse-date.js';
 import commonUtils from './utils/common-utils.js';
 import validHost from './utils/valid-host.js';
