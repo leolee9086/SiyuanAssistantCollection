@@ -1,5 +1,5 @@
 import fs from '../polyfills/fs.js'
-import { pluginInstance as plugin } from '../asyncModules.js';
+import {  plugin } from '../asyncModules.js';
 import { safeStringify } from './safeStringify.js';
 let chunk = []
 const writeToFile = async () => {

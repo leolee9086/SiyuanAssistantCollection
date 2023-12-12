@@ -1,5 +1,5 @@
 let _Buffer = class{}
-if(window.require){
+if(globalThis.require){
   _Buffer=Buffer
 }
 export function safeStringify(obj, depth = 5, arrayLimit = 50) {
