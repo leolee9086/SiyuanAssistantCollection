@@ -1,7 +1,7 @@
 //const art = require('art-template');
 
-import { plugin } from "../../../../asyncModules.js";
-import path from "../../../../polyfills/path.js";
+import { plugin } from "../../../../../asyncModules.js";
+import path from "../../../../../polyfills/path.js";
 //const json = require('@/views/json');
 let scriptEl = document.createElement("script");
 scriptEl.textContent = await (

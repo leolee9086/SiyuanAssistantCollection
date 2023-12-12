@@ -1,6 +1,6 @@
-import { plugin } from "../../../asyncModules.js";
-import fs from "../../../polyfills/fs.js";
-import path from '../../../polyfills/path.js'
+import { plugin } from "../../../../asyncModules.js";
+import fs from "../../../../polyfills/fs.js";
+import path from '../../../../polyfills/path.js'
 
 let rssV2Path = path.join(plugin.selfPath, 'installed', 'rssV2')
 let moduleList = await fs.readDir(rssV2Path)

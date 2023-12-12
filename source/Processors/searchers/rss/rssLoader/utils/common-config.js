@@ -1,4 +1,4 @@
-import * as cheerio from '../../../../../static/cheerio.js'
+import * as cheerio from '../../../../../../static/cheerio.js'
 import { got } from './got.js';
 import date from './date.js'
 import iconv from '../../iconvPollyfill.js'

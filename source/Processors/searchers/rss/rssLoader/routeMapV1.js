@@ -1,11 +1,11 @@
 import Router from "./routerPolyfill.js";
-import { plugin } from '../../../asyncModules.js';
-import fs from '../../../polyfills/fs.js';
-import path from '../../../polyfills/path.js'
-import { 柯里化 } from '../../../utils/functionTools.js'
+import { plugin } from '../../../../asyncModules.js';
+import fs from '../../../../polyfills/fs.js';
+import path from '../../../../polyfills/path.js'
+import { 柯里化 } from '../../../../utils/functionTools.js'
 import moduleCache from "./moduleCache.js";
 import routeMapV2 from "./routeMapV2.js"
-import { logger } from "../../../logger/index.js";
+import { logger } from "../../../../logger/index.js";
 const getObject = (currentFile, key) => {
     const api = moduleCache
     // 如果 key 是一个相对路径，解析它

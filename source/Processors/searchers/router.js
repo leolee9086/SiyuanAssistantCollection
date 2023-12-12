@@ -1,6 +1,6 @@
 import { sac } from "./runtime.js";
-import { loadRSS } from "../../searchers/websearchers/rssLoader/routeMapV1.js";
-import RSSRoute from "../../searchers/websearchers/rssLoader/routeMapV1.js";
+//这里要移动过来
+import RSSRoute from "./rss/rssLoader/routeMapV1.js";
 import blockSearchRouter from "./blocks/blockSearchRouter.js";
 const { Router } = sac.路由管理器
 let searchersRouter = new Router()

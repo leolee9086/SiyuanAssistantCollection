@@ -1,8 +1,8 @@
-import dayjs from '../../../../../static/dayjs.js'
-import customParseFormat from '../../../../../static/dayjsPlugins/customParseFormat.js'
-import duration from '../../../../../static/dayjsPlugins/duration.js'
-import isSameOrBefore from '../../../../../static/dayjsPlugins/isSameOrBefore.js'
-import weekday from '../../../../../static/dayjsPlugins/weekday.js'
+import dayjs from '../../../../../../static/dayjs.js'
+import customParseFormat from '../../../../../../static/dayjsPlugins/customParseFormat.js'
+import duration from '../../../../../../static/dayjsPlugins/duration.js'
+import isSameOrBefore from '../../../../../../static/dayjsPlugins/isSameOrBefore.js'
+import weekday from '../../../../../../static/dayjsPlugins/weekday.js'
 
 dayjs.extend(customParseFormat);
 dayjs.extend(duration);

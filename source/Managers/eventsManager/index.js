@@ -42,7 +42,5 @@ sac.eventBus.on(DOM键盘事件表.文本输入,(e)=>{
 sac.eventBus.on(DOM键盘事件表.组合结束,async(e)=>{
     console.log(sac.路由管理器.internalFetch('/search/rss/list',{body:{},method:'POST'}))
     console.log(sac.路由管理器.internalFetch('/search/rss/router',{body:{name:"199it"},method:'POST'}))
-    console.log(await sac.路由管理器.internalFetch('/search/rss/feed/zhihu/daily'))
-
     显示tips(e)
 })

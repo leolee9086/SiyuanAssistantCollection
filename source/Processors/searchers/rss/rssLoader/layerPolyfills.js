@@ -1,5 +1,5 @@
 import * as url from './url.js'
-import { pathToRegexp, compile, parse } from '../../../../static/path-to-regexp.js'
+import { pathToRegexp, compile, parse } from '../../../../../static/path-to-regexp.js'
 const {Url,parseUrl,formatUrl} =url
 export default Layer;
 

@@ -1,4 +1,4 @@
-import * as cheerio from '../../../../static/cheerio.js'
+import * as cheerio from '../../../../../static/cheerio.js'
 import cfEmail from './utils/cf-email.js';
 import commonConfig from './utils/common-config.js'
 import { got } from './utils/got.js';
@@ -13,12 +13,12 @@ import date from './utils/date.js';
 import timezone from './utils/timezone.js';
 import iconvPollyfill from '../iconvPollyfill.js';
 import config from './config.js';
-import { setLute } from '../../../utils/copyLute.js';
+import { setLute } from '../../../../utils/copyLute.js';
 import * as Url from './url.js';
-import dayjs from '../../../../static/dayjs.js'
-import { asyncPool } from '../../../utils/functionTools.js';
+import dayjs from '../../../../../static/dayjs.js'
+import { asyncPool } from '../../../../utils/functionTools.js';
 import render from './utils/render.js';
-import path from '../../../polyfills/path.js'
+import path from '../../../../polyfills/path.js'
 let moduleCache = {
     "/data/plugins/SiyuanAssistantCollection/installed/utils/got.js": got,
     "@/utils/cf-email": cfEmail,

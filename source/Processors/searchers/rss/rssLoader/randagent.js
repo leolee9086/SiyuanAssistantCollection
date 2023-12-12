@@ -1,5 +1,5 @@
-import path from '../../../polyfills/path.js'
-import fs from '../../../polyfills/fs.js';
+import path from '../../../../polyfills/path.js'
+import fs from '../../../../polyfills/fs.js';
 // src/helpers.ts
 var randomElement = function(array) {
     let index = Math.floor(
