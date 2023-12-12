@@ -1,8 +1,7 @@
 import { jieba } from '../../../searchers/runtime.js'
 import { kernelApi } from '../../../searchers/runtime.js'
 import { plugin } from '../../../searchers/runtime.js'
-export const seachBlockWithText = async (text, raw) => {
-    let tokens = jieba.tokenize(text, "search")
+export const 创建搜索语句=(tokens)=>{
     let query = ""
     for (let token of tokens) {
         if (token.word.length >= 2) {
@@ -10,6 +9,36 @@ export const seachBlockWithText = async (text, raw) => {
         }
     }
     query = query.replace("OR", "").trim()
+    return query
+}
+export const 根据共同词素数量对块进行排序=(blocks,tokens)=>{
+    let tokenWords = new Set(tokens.map(token => token.word));
+    blocks.forEach(block => {
+        let blockTokens = jieba.tokenize(block.content, "search")
+        block.commonTokensCount = blockTokens.reduce((count, token) => {
+            if (tokenWords.has(token.word)) {
+                let additionalCount = [...token.word].reduce((acc, char) => {
+                    return acc + (char.match(/[\u4e00-\u9fa5]/) ? 2 : 1);
+                }, 0);
+                return count + additionalCount;
+            }
+            return count;
+        }, 0);
+        if (plugin.configurer.get('聊天工具设置', '发送参考时文档和标题块发送全部内容').$value && (block.type === 'd' || block.type === 'h')) {
+            let content = plugin.lute.BlockDOM2Text(kernelApi.getDoc.sync({ id: block.id, size: 102400 }).content)
+            block.content = content
+            return block
+        }
+    })
+     blocks = blocks.filter(block => { return block.commonTokensCount })
+    // 根据共同词素数量对块进行排序
+    blocks.sort((a, b) => b.commonTokensCount - a.commonTokensCount)
+    return blocks
+}
+export const seachBlockWithText = async (text, raw) => {
+    let tokens = jieba.tokenize(text, "search")
+
+    let query = 创建搜索语句(tokens)
     let data = await kernelApi.fullTextSearchBlock({
         "query": query,
         "method": 1,
@@ -21,30 +50,9 @@ export const seachBlockWithText = async (text, raw) => {
     })
     if (data && data.blocks[0]) {
         // 计算每个块与查询文本的共同词素数量
-        let tokenWords = new Set(tokens.map(token => token.word));
-        data.blocks.forEach(block => {
-            let blockTokens = jieba.tokenize(block.content, "search")
-            console.log(blockTokens,tokens)
-            block.commonTokensCount = blockTokens.reduce((count, token) => {
-                if (tokenWords.has(token.word)) {
-                    let additionalCount = [...token.word].reduce((acc, char) => {
-                        return acc + (char.match(/[\u4e00-\u9fa5]/) ? 2 : 1);
-                    }, 0);
-                    return count + additionalCount;
-                }
-                return count;
-            }, 0);
-            if (plugin.configurer.get('聊天工具设置', '发送参考时文档和标题块发送全部内容').$value && (block.type === 'd' || block.type === 'h')) {
-                let content = plugin.lute.BlockDOM2Text(kernelApi.getDoc.sync({ id: block.id, size: 102400 }).content)
-                block.content = content
-                return block
-            }
-        })
-        let blocks = data.blocks.filter(block => { return block.commonTokensCount })
-        // 根据共同词素数量对块进行排序
-        blocks.sort((a, b) => b.commonTokensCount - a.commonTokensCount)
         // 返回共同词素数量最多的十个块
         // 使用类似rss的方式渲染以保持调用形式统一
+        let blocks=根据共同词素数量对块进行排序(data.blocks,tokens)
         let res = blocks.slice(0, plugin.configurer.get('聊天工具设置', '默认参考数量').$value || 10)
         if (raw) {
             return res
