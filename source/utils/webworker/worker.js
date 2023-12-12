@@ -7,8 +7,11 @@ onmessage = async (event) => {
         }
     } 
     if(event.data && event.data.任务名){
-        console.log(event.data.任务名)
         let {任务数据, 任务名, 任务id, moduleName} = event.data
+        if(任务名==='$prepare'){
+            Object.assign(globalThis, 任务数据);
+            postMessage({处理结果: 'success', 任务id});
+        }
         let 处理结果
         try{
             处理结果 = await 任务名.reduce((module, name) => module[name], moduleCache[moduleName])(...任务数据);        }catch(e){

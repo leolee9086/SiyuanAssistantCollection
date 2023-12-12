@@ -25,5 +25,5 @@ worker.onerror = (error) => {
     requests.clear();
 };*/
 import { importWorker } from "../../../utils/webworker/workerHandler.js";
-let workerModule=importWorker(import.meta.resolve('../index.js'))
-console.log(await workerModule.测试.测试('测试'))
+let workerModule=importWorker(import.meta.resolve('./test.js'))
+console.log(await workerModule.测试.测试.$batch('测试'))
