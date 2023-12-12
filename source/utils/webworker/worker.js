@@ -9,7 +9,7 @@ onmessage = async (event) => {
     if(event.data && event.data.任务名){
         let {任务数据, 任务名, 任务id, moduleName} = event.data
         if(任务名==='$prepare'){
-            Object.assign(globalThis, 任务数据);
+            Object.assign(globalThis, 任务数据[0]);
             postMessage({处理结果: 'success', 任务id});
         }
         let 处理结果

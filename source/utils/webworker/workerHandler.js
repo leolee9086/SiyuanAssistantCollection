@@ -145,6 +145,9 @@ export function importWorker(处理器文件地址, 任务名 = []) {
       if (prop === '$batch') {
         return (...args) => 使用worker处理数据(args, 处理器文件地址, 任务名, true);
       }
+      if (prop === '$prepare') {
+        return (...args) => 使用worker处理数据(args, 处理器文件地址, prop, true);
+      }
       return importWorker(处理器文件地址, [...任务名, prop]);
     },
     apply: function(target, thisArg, args) {
