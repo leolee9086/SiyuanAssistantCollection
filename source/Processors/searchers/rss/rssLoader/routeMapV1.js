@@ -136,5 +136,5 @@ Object.getOwnPropertyNames(routeMapV2).forEach(
         }
     }
 )
-await (await import('../../../../installed/rss/router.js')).default(router,lazyloadRouteHandler)
+await (await import('../../../../../installed/rss/router.js')).default(router,lazyloadRouteHandler)
 export default router;
