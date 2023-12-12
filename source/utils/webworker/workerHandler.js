@@ -83,12 +83,11 @@ function 找到可用Worker(worker文件地址) {
   return 可用worker;
 }
 // 使用 worker 处理数据
-export const 使用worker处理数据 = async (数据组, 处理器文件地址, 任务名, 广播) => {
+export const 使用worker处理数据 = async (数据组, 处理器文件地址, 任务名) => {
   console.log(任务名)
   处理器文件地址 = 正规化URL(处理器文件地址)
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   初始化Worker线程池(处理器文件地址, characters);
-  if (!广播) {
     try {
       let 可用worker = 找到可用Worker(处理器文件地址);
       let result = await 可用worker.处理任务(数据组, 任务名);
@@ -98,14 +97,6 @@ export const 使用worker处理数据 = async (数据组, 处理器文件地址,
       // 在这里你可以处理错误，例如返回一个默认值或者重新抛出错误
       return null; // 返回一个默认值
     }
-  } else {
-    //这里不能用promise.allSettled 或者promise.all,会造成无法返回,具体原因还不清楚
-    try {
-      return await 处理广播任务(worker线程池, 数据组, 任务名, worker文件名);
-    } catch (error) {
-      logger.error(`任务处理出错${处理器文件地址}: ${error},\n${数据组}`);
-    }
-  }
 };
 
 // 处理单个任务
@@ -120,7 +111,7 @@ async function 处理单个任务(worker, 数据组, 任务名) {
   }
 }
 
-// 处理广播任务
+// 处理广播任务,为了简化流程这里暂时用不着
 async function 处理广播任务(worker线程池, 数据组, 任务名, worker文件名) {
   let results = [];
   for (let worker of worker线程池[worker文件名]) {
@@ -145,7 +136,7 @@ export function importWorker(处理器文件地址, 任务名 = []) {
       return importWorker(处理器文件地址, [...任务名, prop]);
     },
     apply: function(target, thisArg, args) {
-      return 使用worker处理数据(args, 处理器文件地址, 任务名, false);
+      return 使用worker处理数据(args, 处理器文件地址, 任务名);
     }
   });
 }
