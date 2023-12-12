@@ -1,11 +1,11 @@
-import logger from "../logger/index.js";
-import { 计算cpu核心数量 } from "./os/cpu.js";
-import { 正规化URL } from "./url.js";
+import logger from "../../logger/index.js";
+import { 计算cpu核心数量 } from "../os/cpu.js";
+import { 正规化URL } from "../url.js";
 let worker线程池 = {}
 worker线程池 = globalThis[Symbol.for('_worker线程池_')] || worker线程池
 globalThis[Symbol.for('_worker线程池_')] = worker线程池
-function 创建Worker线程(worker文件地址) {
-  let worker = new Worker(worker文件地址);
+function 创建Worker线程() {
+  let worker = new Worker(import.meta.resolve('./worker.js'));
   worker.onerror = (error) => {
     logger.log(error);
   };
@@ -37,7 +37,8 @@ function 创建任务处理函数(worker, 任务列表, characters) {
         worker.postMessage({
           任务数据: 任务数据,
           任务id: 任务id,
-          任务名: 任务名
+          任务名: 任务名,
+          moduleName:worker.moduleName
         });
       } catch (e) {
         reject(e);
@@ -46,21 +47,22 @@ function 创建任务处理函数(worker, 任务列表, characters) {
   };
 }
 // 初始化 worker 线程池
-function 初始化Worker线程池(worker文件地址, characters) {
+function 初始化Worker线程池(处理器文件地址, characters) {
   // 使用文件名作为键
-  let worker文件名 = new URL(worker文件地址).pathname.split('/').pop();
-  if (!worker线程池[worker文件名]) {
-    worker线程池[worker文件名] = [];
-    let worker线程组 = worker线程池[worker文件名];
+  if (!worker线程池[处理器文件地址]) {
+    worker线程池[处理器文件地址] = [];
+    let worker线程组 = worker线程池[处理器文件地址];
     let cpu核心数 = 计算cpu核心数量();
     for (let i = 0; i < cpu核心数; i++) {
-      let worker = 创建Worker线程(worker文件地址);
+      let worker = 创建Worker线程(处理器文件地址);
+      worker.moduleName=处理器文件地址
       let 任务列表 = [];
       let 处理任务 = 创建任务处理函数(worker, 任务列表, characters);
       worker线程组.push({
         worker: worker,
         处理任务: 处理任务,
-        任务列表: 任务列表
+        任务列表: 任务列表,
+        worker文件地址:处理器文件地址
       });
     }
   }
@@ -68,33 +70,31 @@ function 初始化Worker线程池(worker文件地址, characters) {
 // 找到可用的 worker
 function 找到可用Worker(worker文件地址) {
   // 使用文件名作为键
-  let worker文件名 = new URL(worker文件地址).pathname.split('/').pop();
-
-  let 可用worker = worker线程池[worker文件名].reduce((最短任务列表的worker, 当前worker) => {
+  console.log(worker线程池,worker文件地址)
+  let 可用worker = worker线程池[worker文件地址].reduce((最短任务列表的worker, 当前worker) => {
     if ((!最短任务列表的worker || 当前worker.任务列表.length < 最短任务列表的worker.任务列表.length)) {
       return 当前worker;
     }
     return 最短任务列表的worker;
   }, null);
   if (!可用worker) {
-    可用worker = worker线程池[worker文件名][0];
+    可用worker = worker线程池[worker文件地址][0];
   }
   return 可用worker;
 }
 // 使用 worker 处理数据
-export const 使用worker处理数据 = async (数据组, worker文件地址, 任务名, 广播) => {
-  worker文件地址 = 正规化URL(worker文件地址)
+export const 使用worker处理数据 = async (数据组, 处理器文件地址, 任务名, 广播) => {
+  console.log(任务名)
+  处理器文件地址 = 正规化URL(处理器文件地址)
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  初始化Worker线程池(worker文件地址, characters);
-  // 使用文件名作为键
-  let worker文件名 = new URL(worker文件地址).pathname.split('/').pop();
+  初始化Worker线程池(处理器文件地址, characters);
   if (!广播) {
     try {
-      let 可用worker = 找到可用Worker(worker文件地址);
+      let 可用worker = 找到可用Worker(处理器文件地址);
       let result = await 可用worker.处理任务(数据组, 任务名);
       return result;
     } catch (error) {
-      logger.error(`处理任务时出错${worker文件地址}: ${error},\n${数据组}`);
+      console.error(`处理任务时出错${处理器文件地址}: ${error},\n${数据组}`);
       // 在这里你可以处理错误，例如返回一个默认值或者重新抛出错误
       return null; // 返回一个默认值
     }
@@ -103,7 +103,7 @@ export const 使用worker处理数据 = async (数据组, worker文件地址, �
     try {
       return await 处理广播任务(worker线程池, 数据组, 任务名, worker文件名);
     } catch (error) {
-      logger.error(`任务处理出错${worker文件地址}: ${error},\n${数据组}`);
+      logger.error(`任务处理出错${处理器文件地址}: ${error},\n${数据组}`);
     }
   }
 };
@@ -136,34 +136,16 @@ async function 处理广播任务(worker线程池, 数据组, 任务名, worker�
     }
   });
 }
-export function 创建一次性函数worker(func) {
-  // 检查参数
-  if (typeof func !== 'function') {
-    throw new Error('参数必须是一个函数');
-  }
-  // 将函数转换为字符串
-  let functionString = func.toString();
-  // 创建一个Blob对象，然后使用URL.createObjectURL创建一个URL
-  const blob = new Blob([`
-    let myFunction = ${functionString};
-    onmessage = function(e) {
-        let result;
-        try {
-            result = myFunction(e.data);
-            postMessage(result);
-        } catch (error) {
-            postMessage({ error: error.message });
-        } finally {
-            close();
-        }
-    };
-    //# sourceURL=worker.js
-  `], { type: 'application/javascript' });
-  const workerScript = URL.createObjectURL(blob);
-  // 创建一个Worker
-  const worker = new Worker(workerScript);
-  // 在主线程中清理Blob URL
-  worker.addEventListener('message', () => URL.revokeObjectURL(workerScript), { once: true });
-  worker.addEventListener('error', () => URL.revokeObjectURL(workerScript), { once: true });
-  return worker;
+export function importWorker(处理器文件地址, 任务名 = []) {
+  return new Proxy(() => {}, {
+    get: function(target, prop) {
+      if (typeof prop === 'symbol' || prop === 'inspect') {
+        return () => {};
+      }
+      return importWorker(处理器文件地址, [...任务名, prop]);
+    },
+    apply: function(target, thisArg, args) {
+      return 使用worker处理数据(args, 处理器文件地址, 任务名, false);
+    }
+  });
 }

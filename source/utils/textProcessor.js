@@ -1,4 +1,4 @@
-import { 使用worker处理数据 } from "./workerHandler.js";
+import { 使用worker处理数据 } from "./webworker/workerHandler.js";
 import { plugin } from "../asyncModules.js";
 const 向量生成器地址 =`/plugins/SiyuanAssistantCollection/source/vectorStorage/embeddingWorker.js`
 const 向量工具设置 = plugin.configurer.get('向量工具设置').$value

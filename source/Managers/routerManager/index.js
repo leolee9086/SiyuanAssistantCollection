@@ -2,6 +2,7 @@ import _Router from "./router.js"
 import { sac } from "../../asyncModules.js"
 export const 根路由 = new _Router()
 export const Router = _Router
+import './webworker/routerBridge.js'
 export const 注册基本路由 = (路由名称, 基本路由, ctx构建器) => {
     // 检查基本路由和ctx构建器是否提供
     if (!基本路由 || !ctx构建器) {

@@ -2,7 +2,7 @@ import * as 插件基础事件列表 from "./SiyuanBaseEventTypeList.js";
 import { EventEmitter } from "./EventEmitter.js";
 export { 插件基础事件列表 as 基础事件 }
 export { EventEmitter }
-export { EventEmitter as 事件处理器 }
+export { EventEmitter as 事件触发器及 }
 import { 启用收集protyle事件 } from "./protyleEvents.js";
 import { 开始监听DOM键盘事件, DOM键盘事件表 } from "./DOMKeyBoardEvent.js";
 import { sac } from "./runtime.js";
@@ -31,6 +31,7 @@ let 显示tips =智能防抖(async (e) => {
         method: 'POST',
         
     })
+    console.log(res)
     res.body ? sac.路由管理器.internalFetch('/tips/UI/show', {
         body: res.body,
         method: "POST"

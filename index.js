@@ -263,10 +263,14 @@ class SiyuanAssistantCollection extends ccPlugin {
     //await this.从esm模块('./source/searchers/index.js').设置模块为只读属性("搜索管理器")
     //console.log('搜索管理器加载完毕')
   }
-   加载子模块() {
-    //这些加载的顺序就无所谓了,反正互相之间没有强依赖关系
-       this.从esm模块('./source/Interfacies/tips/index.js').合并子模块('tips处理器')
-       this.从esm模块('./source/Processors/searchers/index.js').合并子模块('搜索处理器')
+  async 加载子模块() {
+       //这些加载的顺序就无所谓了,反正互相之间没有强依赖关系
+       //加载事件路由
+       await this.从esm模块('./source/Interfacies/tips/index.js').合并子模块('tips处理器')
+       this.路由管理器.根路由.use('/tips',this.tips处理器.router.routes('/'))
+       await this.从esm模块('./source/Processors/searchers/index.js').合并子模块('搜索处理器')
+       this.路由管理器.根路由.use('/search',this.搜索处理器.router.routes('/'))
+       //加载后台处理器
     //await Promise.all([
    // await this.从esm模块('./source/utils/index.js').合并子模块(),
    // await this.从esm模块('./source/vectorStorage/blockIndex.js').合并子模块('块索引器')

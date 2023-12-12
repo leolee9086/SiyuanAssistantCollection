@@ -3,15 +3,15 @@ onmessage = async (event) => {
     if (event.data !== 'close') {
         let moduleName = event.data.moduleName;
         if (!moduleCache[moduleName]){
-            moduleCache[moduleName] = await import(`/plugins/SiyuanAssistantCollection/source/vectorStorage/${moduleName}.js`)
+            moduleCache[moduleName] = await import(moduleName)
         }
     } 
     if(event.data && event.data.任务名){
+        console.log(event.data.任务名)
         let {任务数据, 任务名, 任务id, moduleName} = event.data
         let 处理结果
         try{
-            处理结果 = await moduleCache[moduleName][任务名](任务数据)
-        }catch(e){
+            处理结果 = await 任务名.reduce((module, name) => module[name], moduleCache[moduleName])(...任务数据);        }catch(e){
             postMessage({错误:e.message || '未知错误',任务id})
             return
         }
@@ -26,9 +26,7 @@ onmessage = async (event) => {
         postMessage({错误: '无效的请求'})
     }
 }
-
 onerror=async (error)=>{
     console.error({错误: error})
     postMessage({错误: error})
-
 }
