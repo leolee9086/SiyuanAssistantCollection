@@ -1,13 +1,14 @@
 import logger from "../../logger/index.js";
 import { 计算cpu核心数量 } from "../os/cpu.js";
 import { 正规化URL } from "../url.js";
+import { stringifyWithFunctions } from "./serilizer.js";
 let worker线程池 = {}
 worker线程池 = globalThis[Symbol.for('_worker线程池_')] || worker线程池
 globalThis[Symbol.for('_worker线程池_')] = worker线程池
 function 创建Worker线程() {
   let worker = new Worker(import.meta.resolve('./worker.js'));
   worker.onerror = (error) => {
-    logger.log(error);
+    console.error(error);
   };
   return worker;
 }
@@ -84,13 +85,14 @@ function 找到可用Worker(worker文件地址) {
 }
 // 使用 worker 处理数据
 export const 使用worker处理数据 = async (数据组, 处理器文件地址, 任务名, 广播) => {
-  console.log(任务名)
   处理器文件地址 = 正规化URL(处理器文件地址)
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  初始化Worker线程池(处理器文件地址, characters);
+  await 初始化Worker线程池(处理器文件地址, characters);
   if (!广播) {
     try {
       let 可用worker = 找到可用Worker(处理器文件地址);
+      console.log(可用worker)
+
       let result = await 可用worker.处理任务(数据组, 任务名);
       return result;
     } catch (error) {
@@ -128,13 +130,16 @@ async function 处理广播任务(worker线程池, 数据组, 任务名, worker�
     results.push(result);
   }
   logger.log(results);
-  return results.map(result => {
+  results= results.map(result => {
     if (result.status === 'rejected') {
-      return null; // 或者你可以返回一个默认值
+      return {$reason:result.reason}; // 或者你可以返回一个默认值
     } else {
       return result.value;
     }
   });
+  console.log(results)
+  if(results.find(item=>item.$reason))throw new Error(JSON.stringify(results))
+  return results
 }
 export function importWorker(处理器文件地址, 任务名 = []) {
   return new Proxy(() => {}, {
@@ -143,15 +148,24 @@ export function importWorker(处理器文件地址, 任务名 = []) {
         return () => {};
       }
       if (prop === '$batch') {
-        return (...args) => 使用worker处理数据(args, 处理器文件地址, 任务名, true);
+        return (...args) => Promise.resolve(使用worker处理数据(args, 处理器文件地址, 任务名, true));
       }
       if (prop === '$prepare') {
-        return (...args) => 使用worker处理数据(args, 处理器文件地址, prop, true);
+        return (...args) => Promise.resolve(使用worker处理数据(stringifyWithFunctions(args), 处理器文件地址, prop, true));
       }
+      if (prop === '$eval') {
+        return (...args) => Promise.resolve(使用worker处理数据(args, 处理器文件地址, prop, true));
+      }
+      if (prop === 'then') {
+        return (resolve, reject) => reject(new Error('暂时只能同步调用'));
+      }
+      console.log([...任务名, prop])
+
       return importWorker(处理器文件地址, [...任务名, prop]);
     },
     apply: function(target, thisArg, args) {
-      return 使用worker处理数据(args, 处理器文件地址, 任务名, false);
+      console.log(args,处理器文件地址, 任务名)
+      return Promise.resolve(使用worker处理数据(args, 处理器文件地址, 任务名, false));
     }
-  });
+  })
 }

@@ -1,7 +1,8 @@
-import { jieba } from '../../../searchers/runtime.js'
-import { kernelApi } from '../../../searchers/runtime.js'
-import { plugin } from '../../../searchers/runtime.js'
+import { jieba } from '../runtime.js'
+import { kernelApi } from '../runtime.js'
+
 export const 创建搜索语句=(tokens)=>{
+
     let query = ""
     for (let token of tokens) {
         if (token.word.length >= 2) {
@@ -11,7 +12,7 @@ export const 创建搜索语句=(tokens)=>{
     query = query.replace("OR", "").trim()
     return query
 }
-export const 根据共同词素数量对块进行排序=(blocks,tokens)=>{
+export const 根据共同词素数量对块进行排序=(blocks,tokens,标题和文档包含全部内容=false)=>{
     let tokenWords = new Set(tokens.map(token => token.word));
     blocks.forEach(block => {
         let blockTokens = jieba.tokenize(block.content, "search")
@@ -24,8 +25,12 @@ export const 根据共同词素数量对块进行排序=(blocks,tokens)=>{
             }
             return count;
         }, 0);
-        if (plugin.configurer.get('聊天工具设置', '发送参考时文档和标题块发送全部内容').$value && (block.type === 'd' || block.type === 'h')) {
-            let content = plugin.lute.BlockDOM2Text(kernelApi.getDoc.sync({ id: block.id, size: 102400 }).content)
+        if (标题和文档包含全部内容 
+            && true
+            //(block.type === 'd' || block.type === 'h')
+            ) {
+          //  let content = Lute.New().BlockDOM2Text(kernelApi.getDoc.sync({ id: block.id, size: 102400 }).content)
+          let content=kernelApi.getDoc.sync({ id: block.id, size: 102400 }).content
             block.content = content
             return block
         }
@@ -35,10 +40,11 @@ export const 根据共同词素数量对块进行排序=(blocks,tokens)=>{
     blocks.sort((a, b) => b.commonTokensCount - a.commonTokensCount)
     return blocks
 }
-export const seachBlockWithText = async (text, raw) => {
-    let tokens = jieba.tokenize(text, "search")
-
-    let query = 创建搜索语句(tokens)
+export const seachBlockWithText = async (text, options={使用原始结果:false,结果数量:10,标题和文档包含全部内容:false}) => {
+    console.log(text,options)
+    let 分词结果 = jieba.tokenize(text, "search")
+    let {结果数量,标题和文档包含全部内容,使用原始结果}=options
+    let query = 创建搜索语句(分词结果)
     let data = await kernelApi.fullTextSearchBlock({
         "query": query,
         "method": 1,
@@ -52,9 +58,9 @@ export const seachBlockWithText = async (text, raw) => {
         // 计算每个块与查询文本的共同词素数量
         // 返回共同词素数量最多的十个块
         // 使用类似rss的方式渲染以保持调用形式统一
-        let blocks=根据共同词素数量对块进行排序(data.blocks,tokens)
-        let res = blocks.slice(0, plugin.configurer.get('聊天工具设置', '默认参考数量').$value || 10)
-        if (raw) {
+        let blocks=根据共同词素数量对块进行排序(data.blocks,分词结果,标题和文档包含全部内容)
+        let res = blocks.slice(0, 结果数量)
+        if (使用原始结果) {
             return res
         } else return {
             title: "块搜索结果",

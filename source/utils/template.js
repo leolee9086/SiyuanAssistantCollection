@@ -1,4 +1,3 @@
-
 export async function 加载模板引擎(artLocation) {
     let scriptEl = document.createElement("script");
     scriptEl.textContent = await (
@@ -16,6 +15,4 @@ const artLocation = '/plugins/blockAction/static/art-template-web.js'
 export const genCompiler = (str)=>{
     return template.compile(str)
 }
-
-
 export const template = await 加载模板引擎(artLocation);

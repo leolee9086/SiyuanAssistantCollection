@@ -192,3 +192,27 @@ export async function* asyncPool(concurrency, iterable, iteratorFn) {
     yield await consume();
   }
 }
+/**
+ * 创建一个特殊的柯里化函数，该函数按照指定的参数顺序进行柯里化。
+ *
+ * @param {Function} func - 需要被柯里化的原始函数。
+ * @param {Array} paramsOrder - 参数的顺序。
+ * @returns {Function} 返回一个新的函数，这个函数会按照指定的参数顺序收集所有传递给它的参数，直到这些参数的数量达到了原始函数的参数数量，然后它会调用原始函数并传递所有收集到的参数。
+ */
+function specialCurry(func, paramsOrder) {
+  const params = {};
+
+  const curried = (...args) => {
+    args.forEach((arg, index) => {
+      params[paramsOrder[index]] = arg;
+    });
+
+    if (Object.keys(params).length >= func.length) {
+      return func(...Object.values(params));
+    } else {
+      return curried;
+    }
+  };
+
+  return curried;
+}
