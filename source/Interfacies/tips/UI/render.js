@@ -16,13 +16,13 @@ export const buildTips = async (item) => {
                 // 如果不存在，则添加新的元素
                 let imageHTML = item.image ? `<image src='${escapeHTML(item.image)}'></image>` : '';
                 let divHTML = `<div class="fn__flex-1 b3-card__info" 
-            style="font-size:smaller;background-color:var(--b3-theme-background);padding:4px !important;border-bottom:1px dashed var(--b3-theme-primary-light)">
-            <div class="b3-card__body">
+            style="font-size:small !important;background-color:var(--b3-theme-background);padding:4px !important;border-bottom:1px dashed var(--b3-theme-primary-light)">
+            <div class="b3-card__body protyle-wysiwyg protyle-wysiwyg--attr" style="font-size:small !important;padding:0">
                 <div>
                      <input class=" fn__flex-center"  type="checkbox"></input>
                     <strong><a href="${escapeHTML(item.link)}">${item.title}</a></strong>${item.description}
                 </div>
-                <div class="tips-image-container">
+                <div class="tips-image-container ">
                     ${imageHTML}
                 </div>
                 </div>
@@ -36,7 +36,7 @@ export const buildTips = async (item) => {
     )
     智能防抖(批量渲染(tipsConainer))
 }
-function 批量渲染(container) {
+async function 批量渲染(container) {
     // 使用 Set 来去重，性能更好
     let uniqueItems = new Set(待添加数组);
     待添加数组 = Array.from(uniqueItems);
@@ -67,7 +67,6 @@ function 批量渲染(container) {
     });
     container.querySelectorAll(".b3-card__info").forEach(div => {
         let checkbox = div.querySelector('input[type="checkbox"]');
-
         if (checkbox && checkbox.checked) {
             frag.prepend(div); // 将元素移动到"SAC-TIPS_pinned"中
         }
