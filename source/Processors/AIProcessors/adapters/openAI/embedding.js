@@ -1,4 +1,6 @@
-export async function 使用openAI生成嵌入(textContent, options = {}) {
+import { getOpenAISetting } from "./config.js";
+import { myHeaders } from "./myHeader.js";
+export async function 使用openAI生成嵌入(textContent, _options = {}) {
     let options = await getOpenAISetting(_options)
     let headers = myHeaders(options)
     let raw = JSON.stringify({

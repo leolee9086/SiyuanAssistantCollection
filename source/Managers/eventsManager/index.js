@@ -24,24 +24,31 @@ let 显示tips =智能防抖(async (e) => {
     if (!分词结果数组[0]) {
         return
     }
+    //这一段是文字搜索
     let res = await sac.路由管理器.internalFetch('/search/blocks/text', {
         body: {
             query:editableElement.innerText
         },
         method: 'POST',
-        
     })
-    console.log(res)
     res.body ? sac.路由管理器.internalFetch('/tips/UI/show', {
         body: res.body,
         method: "POST"
     }) : null
+    //这一段是向量搜索
+    let res1 = await sac.路由管理器.internalFetch('/search/blocks/vector', {
+        body: {
+            query:editableElement.innerText
+        },
+        method: 'POST',
+    })
+    console.log(res1)
 })
 sac.eventBus.on(DOM键盘事件表.文本输入,(e)=>{
     显示tips(e)
 })
 sac.eventBus.on(DOM键盘事件表.组合结束,async(e)=>{
-    console.log(sac.路由管理器.internalFetch('/search/rss/list',{body:{},method:'POST'}))
-    console.log(sac.路由管理器.internalFetch('/search/rss/router',{body:{name:"199it"},method:'POST'}))
+   // console.log(sac.路由管理器.internalFetch('/search/rss/list',{body:{},method:'POST'}))
+   // console.log(sac.路由管理器.internalFetch('/search/rss/router',{body:{name:"199it"},method:'POST'}))
     显示tips(e)
 })
