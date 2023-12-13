@@ -64,13 +64,12 @@ class ccPlugin extends Plugin {
     return {
       合并子模块: async (name) => {
         console.log(name)
-
         try {
           const module = await import(moduleURL);
-          console.log(module)
           let fileName = 获取文件名(moduleURL);
           await 定义属性(this, fileName, module);
           name ? await 定义属性(this, name, module) : null
+          return module
         } catch (error) {
           console.error(`导入模块${moduleURL}失败:`, error);
           throw error;
@@ -264,31 +263,40 @@ class SiyuanAssistantCollection extends ccPlugin {
     //console.log('搜索管理器加载完毕')
   }
   async 加载子模块() {
-       //这些加载的顺序就无所谓了,反正互相之间没有强依赖关系
-       //加载事件路由
-       await this.从esm模块('./source/Interfacies/tips/index.js').合并子模块('tips处理器')
-       this.路由管理器.根路由.use('/tips',this.tips处理器.router.routes('/'))
-       await this.从esm模块('./source/Processors/searchers/index.js').合并子模块('搜索处理器')
-       this.路由管理器.根路由.use('/search',this.搜索处理器.router.routes('/'))
-       await this.从esm模块('./source/Processors/AIProcessors/index.js').合并子模块('ai处理器')
-       this.路由管理器.根路由.use('/ai',this.ai处理器.router.routes('/'))
-       await this.从esm模块('./source/Processors/database/index.js').合并子模块('向量数据库')
-       this.路由管理器.根路由.use('/database',this.向量数据库.router.routes('/'))
-       console.log(this.路由管理器.根路由)
-       //加载后台处理器
+    //这些加载的顺序就无所谓了,反正互相之间没有强依赖关系
+    //加载事件路由
+
+    this.从esm模块('./source/Interfacies/tips/index.js').合并子模块('tips处理器').then(
+      () => { this.路由管理器.根路由.use('/tips', this.tips处理器.router.routes('/')) }
+    )
+    this.从esm模块('./source/Processors/searchers/index.js').合并子模块('搜索处理器').then(
+      () => { this.路由管理器.根路由.use('/search', this.搜索处理器.router.routes('/')) }
+
+    )
+    this.从esm模块('./source/Processors/AIProcessors/index.js').合并子模块('ai处理器').then(
+      () => {
+        this.路由管理器.根路由.use('/ai', this.ai处理器.router.routes('/'))
+      }
+    )
+    this.从esm模块('./source/Processors/database/index.js').合并子模块('向量数据库').then(
+      () => {
+        this.路由管理器.根路由.use('/database', this.向量数据库.router.routes('/'))
+      }
+    )
+    //加载后台处理器
     //await Promise.all([
-   // await this.从esm模块('./source/utils/index.js').合并子模块(),
-   // await this.从esm模块('./source/vectorStorage/blockIndex.js').合并子模块('块索引器')
+    // await this.从esm模块('./source/utils/index.js').合并子模块(),
+    // await this.从esm模块('./source/vectorStorage/blockIndex.js').合并子模块('块索引器')
     //用于查询DOM
-  //  await this.从esm模块('./source/utils/DOMFinder.js').设置模块为只读属性('DOM查找器')
+    //  await this.从esm模块('./source/utils/DOMFinder.js').设置模块为只读属性('DOM查找器')
     //用于处理选区相关
-   // await this.从esm模块('./source/utils/rangeProcessor.js').设置模块为只读属性('选区处理器')
-  //  await this.从esm模块('./source/utils/textProcessor.js').合并子模块('文本处理器')
-  //  await this.从esm模块('./source/polyfills/kernelApi.js').合并成员为只读属性('default', { '别名': 'kernelApi' })
-   // await this.从esm模块('./source/polyfills/fs.js').合并成员为只读属性('default', { '别名': 'workspace' })
-   // await this.从esm模块('./source/utils/copyLute.js').合并成员为只读属性('setLute')
-  //  await this.从esm模块('./source/actionList/index.js').合并子模块()
-   // await this.从esm模块('./source/logger/index.js').合并子模块('日志记录器')
+    // await this.从esm模块('./source/utils/rangeProcessor.js').设置模块为只读属性('选区处理器')
+    //  await this.从esm模块('./source/utils/textProcessor.js').合并子模块('文本处理器')
+    //  await this.从esm模块('./source/polyfills/kernelApi.js').合并成员为只读属性('default', { '别名': 'kernelApi' })
+    // await this.从esm模块('./source/polyfills/fs.js').合并成员为只读属性('default', { '别名': 'workspace' })
+    // await this.从esm模块('./source/utils/copyLute.js').合并成员为只读属性('setLute')
+    //  await this.从esm模块('./source/actionList/index.js').合并子模块()
+    // await this.从esm模块('./source/logger/index.js').合并子模块('日志记录器')
     // ]);
   }
   log(...args) {
