@@ -30,7 +30,7 @@ export const 根据共同词素数量对块进行排序=(blocks,tokens)=>{
             return block
         }
     })
-     blocks = blocks.filter(block => { return block.commonTokensCount })
+    blocks = blocks.filter(block => { return block.commonTokensCount })
     // 根据共同词素数量对块进行排序
     blocks.sort((a, b) => b.commonTokensCount - a.commonTokensCount)
     return blocks
