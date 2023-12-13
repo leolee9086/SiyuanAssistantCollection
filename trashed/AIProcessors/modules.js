@@ -1,4 +1,4 @@
-import { sac } from "../asyncModules.js"
+import { sac } from "../../source/asyncModules.js"
 export const modelModule ={
     安装位置:工作空间地址('/public/onnxModels'),
     下载函数:(模型名称)=>{
