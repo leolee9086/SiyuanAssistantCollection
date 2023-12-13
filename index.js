@@ -272,7 +272,9 @@ class SiyuanAssistantCollection extends ccPlugin {
        this.路由管理器.根路由.use('/search',this.搜索处理器.router.routes('/'))
        await this.从esm模块('./source/Processors/AIProcessors/index.js').合并子模块('ai处理器')
        this.路由管理器.根路由.use('/ai',this.ai处理器.router.routes('/'))
-
+       await this.从esm模块('./source/Processors/database/index.js').合并子模块('向量数据库')
+       this.路由管理器.根路由.use('/database',this.向量数据库.router.routes('/'))
+       console.log(this.路由管理器.根路由)
        //加载后台处理器
     //await Promise.all([
    // await this.从esm模块('./source/utils/index.js').合并子模块(),

@@ -70,7 +70,8 @@ export const seachBlockWithText = async (text, options = { 使用原始结果: f
                         description: block.content,
                         link: `siyuan://blocks/${block.id}`,
                         block:block,
-                        source:'localBlock',
+                        source:'localBlockText',
+                        textScore:block.commonTokensCount
                     }
                 }
             )

@@ -1,13 +1,11 @@
-
-export const seachBlockWithVector = async (vector) => {
-    let blocks = await seachWithVector('vector', vector, plugin.configurer.get('聊天工具设置', '默认参考数量').$value || 30)
-    //  return blocks.map(item => { return item.meta&&item.score>0.8}).filter(item=>{return item})
-    blocks = blocks.filter(item => { return item.meta && item.similarityScore > 0.5 }).map(
+import { kernelApi } from "../runtime.js"
+export const seachBlockWithVector = async (blocks,标题和文档包含全部内容,使用原始结果,得分阈值,参考分数较高时给出文档全文) => {
+    blocks = blocks.filter(item => { return item.meta && item.similarityScore > 得分阈值 }).map(
         item => {
             try {
-                if (plugin.configurer.get('聊天工具设置', '发送参考时文档和标题块发送全部内容').$value && item.meta.type === 'd' || item.meta.type === 'h') {
+                if (标题和文档包含全部内容 && item.meta.type === 'd' || item.meta.type === 'h') {
                     let block = JSON.parse(JSON.stringify(item.meta))
-                    let content = plugin.lute.BlockDOM2Text(kernelApi.getDoc.sync({ id: item.id, size: 102400 }).content)
+                    let content = kernelApi.getDoc.sync({ id: item.id, size: 3 }).content
                     block.content = content
                     block.similarityScore = item.similarityScore
                     return block
@@ -18,7 +16,7 @@ export const seachBlockWithVector = async (vector) => {
                     return block
                 }
             } catch (e) {
-                logger.searcherror(e)
+                console.error(e)
                 return undefined
             }
         }
@@ -27,9 +25,9 @@ export const seachBlockWithVector = async (vector) => {
     blocks.forEach(
         block => {
             if (block.similarityScore > 0.8) {
-                if (plugin.configurer.get('聊天工具设置', '参考分数较高时给出文档全文').$value) {
+                if (参考分数较高时给出文档全文) {
                     let root = block.root
-                    let rootContent = plugin.lute.BlockDOM2Text(kernelApi.getDoc.sync({ id: block.id, size: 102400 }).content)
+                    let rootContent = kernelApi.getDoc.sync({ id: block.id, size: 3 }).content
                     let rootInfo = kernelApi.sql.sync({ stmt: `select * from blocks where id ="${root}"` })
                     rootInfo.similarityScore = block.similarityScore
                     rootInfo.content = rootContent
@@ -52,5 +50,24 @@ export const seachBlockWithVector = async (vector) => {
         return uniqueBlocks;
     }, {});
     // 将对象转换为数组并返回
-    return Object.values(blocks);
+    let res= Object.values(blocks);
+    console.log(res,blocks)
+    if (使用原始结果) {
+        return res
+    } else return {
+        title: "块搜索结果",
+        description: "使用分词结果搜索的块结果",
+        item: res.map(
+            block => {
+                return {
+                    title: "向量搜索块",
+                    description: block.content,
+                    link: `siyuan://blocks/${block.id}`,
+                    block:block,
+                    source:'localBlockVector',
+                    vectorScore:block.similarityScore
+                }
+            }
+        )
+    }
 }

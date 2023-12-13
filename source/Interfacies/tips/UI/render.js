@@ -29,7 +29,7 @@ export const buildTips = async (item) => {
                 </div>
               
                 `;
-                待添加数组.push({ content: divHTML, time: Date.now() })
+                待添加数组.push({ content: divHTML, time: Date.now(), textScore: item.textScore, vectorScore: item.vectorScore })
                 // tipsConainer.querySelector("#SAC-TIPS").innerHTML += (divHTML)
             }
         }
@@ -43,14 +43,22 @@ async function 批量渲染(container) {
     let frag = document.createDocumentFragment();
     // 如果元素数量超过限制，移除多余的元素
     待添加数组.sort((a, b) => {
-        if (a.time = b.time) {
-            let Amatch = a.content.match(/<mark>(.*?)<\/mark>|<span>(.*?)<\/span>/g)
-            let Bmatch = b.content.match(/<mark>(.*?)<\/mark>|<span>(.*?)<\/span>/g)
+        if (a.vectorScore !== b.vectorScore) {
+            // vectorScore 不相等时，根据 vectorScore 排序
+            return b.vectorScore - a.vectorScore;
+        } else if (a.textScore !== b.textScore) {
+            // vectorScore 相等时，根据 textScore 排序
+            return b.textScore - a.textScore;
+        } else if (a.time !== b.time) {
+            // vectorScore 和 textScore 都相等时，根据时间排序
+            return b.time - a.time;
+        } else {
+            // 所有属性都相等时，根据内容长度排序
+            let Amatch = a.content.match(/<mark>(.*?)<\/mark>|<span>(.*?)<\/span>/g);
+            let Bmatch = b.content.match(/<mark>(.*?)<\/mark>|<span>(.*?)<\/span>/g);
             let aText = Amatch ? Amatch.join('') : '';
             let bText = Bmatch ? Bmatch.join('') : "";
             return bText.length - aText.length;
-        } else {
-            return b.time - a.time
         }
     });
 

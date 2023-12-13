@@ -38,11 +38,14 @@ let 显示tips =智能防抖(async (e) => {
     //这一段是向量搜索
     let res1 = await sac.路由管理器.internalFetch('/search/blocks/vector', {
         body: {
-            query:editableElement.innerText
+            query:editableElement.innerText,
         },
         method: 'POST',
     })
-    console.log(res1)
+    res1.body ? sac.路由管理器.internalFetch('/tips/UI/show', {
+        body: res1.body,
+        method: "POST"
+    }) : null
 })
 sac.eventBus.on(DOM键盘事件表.文本输入,(e)=>{
     显示tips(e)

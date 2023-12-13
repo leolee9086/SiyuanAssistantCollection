@@ -1,9 +1,9 @@
-import logger from '../../logger/index.js'
-import { 计算余弦相似度, 计算欧氏距离相似度, 查找最相似点 } from '../vector.js';
-import  jsonSyAdapter  from '../../fileSysManager/workspaceAdapters/jsonAdapter.js';
-import msgSyAdapter from '../../fileSysManager/workspaceAdapters/msgAdapter.js'
+import logger from '../../../logger/index.js'
+import { 计算余弦相似度, 计算欧氏距离相似度, 查找最相似点 } from './vector.js';
+import  jsonSyAdapter  from '../../../fileSysManager/workspaceAdapters/jsonAdapter.js';
+import msgSyAdapter from '../../../fileSysManager/workspaceAdapters/msgAdapter.js'
 import { 校验主键 } from './keys.js';
-import { plugin } from '../../asyncModules.js';
+import { plugin } from '../../../asyncModules.js';
 globalThis._blockActionDataBase = globalThis._blockActionDataBase || {}
 export class 数据库 {
     constructor(文件保存地址) {
@@ -283,6 +283,7 @@ class 数据集 {
     }
     async 加载数据() {
         this.数据集对象 = await this.文件适配器.加载全部数据(this.数据集对象)
+        this.数据加载完成=true
     }
 }
 export default 数据库

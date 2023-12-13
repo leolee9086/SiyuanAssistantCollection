@@ -51,6 +51,7 @@ export const internalFetch = async (path, options = {}) => {
             params: {}
         },
         response: {
+            body:{}
         },
         state: {
         }
