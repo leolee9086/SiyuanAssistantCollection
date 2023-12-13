@@ -39,7 +39,7 @@ function 创建任务处理函数(worker, 任务列表, characters) {
           任务数据: 任务数据,
           任务id: 任务id,
           任务名: 任务名,
-          moduleName:worker.moduleName
+          moduleName: worker.moduleName
         });
       } catch (e) {
         reject(e);
@@ -56,14 +56,14 @@ function 初始化Worker线程池(处理器文件地址, characters) {
     let cpu核心数 = 计算cpu核心数量();
     for (let i = 0; i < cpu核心数; i++) {
       let worker = 创建Worker线程(处理器文件地址);
-      worker.moduleName=处理器文件地址
+      worker.moduleName = 处理器文件地址
       let 任务列表 = [];
       let 处理任务 = 创建任务处理函数(worker, 任务列表, characters);
       worker线程组.push({
         worker: worker,
         处理任务: 处理任务,
         任务列表: 任务列表,
-        worker文件地址:处理器文件地址
+        worker文件地址: 处理器文件地址
       });
     }
   }
@@ -71,7 +71,7 @@ function 初始化Worker线程池(处理器文件地址, characters) {
 // 找到可用的 worker
 function 找到可用Worker(worker文件地址) {
   // 使用文件名作为键
-  console.log(worker线程池,worker文件地址)
+  console.log(worker线程池, worker文件地址)
   let 可用worker = worker线程池[worker文件地址].reduce((最短任务列表的worker, 当前worker) => {
     if ((!最短任务列表的worker || 当前worker.任务列表.length < 最短任务列表的worker.任务列表.length)) {
       return 当前worker;
@@ -125,27 +125,29 @@ async function 处理单个任务(worker, 数据组, 任务名) {
 // 处理广播任务
 async function 处理广播任务(worker线程池, 数据组, 任务名, worker文件名) {
   let results = [];
-  for (let worker of worker线程池[worker文件名]) {
+  /*for (let worker of worker线程池[worker文件名]) {
     let result = await 处理单个任务(worker, 数据组, 任务名);
     results.push(result);
-  }
+  }*/
+  let workerTasks = worker线程池[worker文件名].map(worker => 处理单个任务(worker, 数据组, 任务名));
+  results = await Promise.all(workerTasks);
   logger.log(results);
-  results= results.map(result => {
+  results = results.map(result => {
     if (result.status === 'rejected') {
-      return {$reason:result.reason}; // 或者你可以返回一个默认值
+      return { $reason: result.reason }; // 或者你可以返回一个默认值
     } else {
       return result.value;
     }
   });
   console.log(results)
-  if(results.find(item=>item.$reason))throw new Error(JSON.stringify(results))
+  if (results.find(item => item.$reason)) throw new Error(JSON.stringify(results))
   return results
 }
 export function importWorker(处理器文件地址, 任务名 = []) {
-  return new Proxy(() => {}, {
-    get: function(target, prop) {
+  return new Proxy(() => { }, {
+    get: function (target, prop) {
       if (typeof prop === 'symbol' || prop === 'inspect') {
-        return () => {};
+        return () => { };
       }
       if (prop === '$batch') {
         return (...args) => Promise.resolve(使用worker处理数据(args, 处理器文件地址, 任务名, true));
@@ -163,8 +165,8 @@ export function importWorker(处理器文件地址, 任务名 = []) {
 
       return importWorker(处理器文件地址, [...任务名, prop]);
     },
-    apply: function(target, thisArg, args) {
-      console.log(args,处理器文件地址, 任务名)
+    apply: function (target, thisArg, args) {
+      console.log(args, 处理器文件地址, 任务名)
       return Promise.resolve(使用worker处理数据(args, 处理器文件地址, 任务名, false));
     }
   })
