@@ -1,5 +1,5 @@
 import  fs  from "../polyfills/fs.js";
-export async function setSync(path, value) {
+export async function setSyncIgnore(path, value) {
     let syncIgnoreContent = await fs.readFile('/data/.siyuan/syncignore', 'utf-8');
     let lines = syncIgnoreContent.split('\n');
     if (value) {
@@ -14,4 +14,3 @@ export async function setSync(path, value) {
     // Write the modified content back to the file
     await fs.writeFile('/data/.siyuan/syncignore', lines.join('\n'));
 }
-console.log('存储适配器加载完毕')

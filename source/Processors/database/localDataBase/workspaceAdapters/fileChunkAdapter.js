@@ -1,6 +1,6 @@
-import fs from "../../polyfills/fs.js";
-import path from "../../polyfills/path.js";
-import logger from '../../logger/index.js'
+import fs from "../../../../polyfills/fs.js";
+import path from "../../../../polyfills/path.js";
+import logger from '../../../../logger/index.js'
 import { 读取工作空间文件列表 } from "../utils/glob.js";
 export class fileChunkAdapter {
     constructor(文件保存地址, 序列化, 反序列化, 扩展名) {

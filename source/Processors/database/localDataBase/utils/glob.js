@@ -1,4 +1,4 @@
-import fs from "../../polyfills/fs.js"
+import fs from "../../../../polyfills/fs.js"
 export const 读取工作空间文件列表=async (工作空间文件路径)=>{
     let 文件列表 = await fs.readDir(工作空间文件路径)
     let 文件路径列表 = [工作空间文件路径]
