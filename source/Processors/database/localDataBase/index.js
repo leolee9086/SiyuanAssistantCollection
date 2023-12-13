@@ -28,7 +28,6 @@ export class 数据库 {
                 文件保存地址: this.文件保存地址
             }
         )
-
         return this._数据库[数据集名称]
     }
 }
@@ -104,7 +103,6 @@ class 数据集 {
             this.已经修改 = true;
         }
     }
-   
     根据路径获取值(path) {
         const keys = path.split('.');
         const resultKey = keys[keys.length - 1]

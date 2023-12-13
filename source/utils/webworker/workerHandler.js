@@ -91,8 +91,6 @@ export const 使用worker处理数据 = async (数据组, 处理器文件地址,
   if (!广播) {
     try {
       let 可用worker = 找到可用Worker(处理器文件地址);
-      console.log(可用worker)
-
       let result = await 可用worker.处理任务(数据组, 任务名);
       return result;
     } catch (error) {
