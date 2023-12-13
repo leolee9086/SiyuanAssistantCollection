@@ -65,7 +65,9 @@ export const seachBlockWithVector = async (blocks,标题和文档包含全部内
                     link: `siyuan://blocks/${block.id}`,
                     block:block,
                     source:'localBlockVector',
-                    vectorScore:block.similarityScore
+                    vectorScore:block.similarityScore,
+                    id:block.id
+
                 }
             }
         )

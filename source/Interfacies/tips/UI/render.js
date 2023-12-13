@@ -27,9 +27,8 @@ export const buildTips = async (item) => {
                 </div>
                 </div>
                 </div>
-              
                 `;
-                待添加数组.push({ content: divHTML, time: Date.now(), textScore: item.textScore, vectorScore: item.vectorScore })
+                待添加数组.push({ content: divHTML, time: Date.now(), textScore: item.textScore, vectorScore: item.vectorScore, id: item.id })
                 // tipsConainer.querySelector("#SAC-TIPS").innerHTML += (divHTML)
             }
         }
@@ -38,9 +37,9 @@ export const buildTips = async (item) => {
 }
 async function 批量渲染(container) {
     // 使用 Set 来去重，性能更好
-    let uniqueItems = new Set(待添加数组);
-    待添加数组 = Array.from(uniqueItems);
-    let frag = document.createDocumentFragment();
+    待添加数组 = 待添加数组.reduce((unique, item) => {
+        return unique.some(u => u.id === item.id) ? unique : [...unique, item];
+    }, []); let frag = document.createDocumentFragment();
     // 如果元素数量超过限制，移除多余的元素
     待添加数组.sort((a, b) => {
         if (a.vectorScore !== b.vectorScore) {
