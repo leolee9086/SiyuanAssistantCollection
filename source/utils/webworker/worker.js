@@ -1,6 +1,7 @@
 let moduleCache = {}
 let parseWithFunctions
 globalThis.window = globalThis
+
 onmessage = async (event) => {
     parseWithFunctions = parseWithFunctions || (await import('./serilizer.js')).parseWithFunctions
 

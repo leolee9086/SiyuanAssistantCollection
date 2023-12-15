@@ -49,7 +49,11 @@ export const internalFetch = async (path, options = {},router) => {
     if (ctx.path !== path) {
         return await internalFetch(ctx.path, options);
     }
-
     // 返回上下文的状态
     return ctx;
 };
+export const buildInternalFetch=(router)=>{
+    return async (path,options)=>{
+        return internalFetch(path,options,router)
+    }
+}

@@ -306,9 +306,6 @@ class SiyuanAssistantCollection extends ccPlugin {
       console.log(...args)
     }
   }
-  async 初始化依赖项() {
-    this.jieba = this.utils.jieba;
-  }
   async 设置Lute() {
     this._lute = this.setLute({
       headingAnchor: false,
