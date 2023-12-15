@@ -51,13 +51,13 @@ class ccPlugin extends Plugin {
     moduleURL = this.resolve(moduleURL)
     console.log(moduleURL)
     const 定义属性 = async (obj, name, value, options = {}) => {
-      if (obj.hasOwnProperty(name)) {
+    /*  if (obj.hasOwnProperty(name)) {
         throw new Error(`属性${name}已经存在，不要覆盖它`);
-      }
+      }*/
       const { 只读 = true, 别名 = name } = options;
       Object.defineProperty(obj, 别名, {
         value: value,
-        writable: !只读,
+        writable: true,
         configurable: true
       });
     };
@@ -65,16 +65,36 @@ class ccPlugin extends Plugin {
       合并子模块: async (name) => {
         console.log(name)
         try {
-          const module = await import(moduleURL);
+          const module = await import(`${moduleURL}?date=${Date.now()}`);
           let fileName = 获取文件名(moduleURL);
           await 定义属性(this, fileName, module);
           name ? await 定义属性(this, name, module) : null
+          this.监听模块修改(moduleURL,name)
           return module
         } catch (error) {
+          this.监听模块修改(moduleURL,name)
           console.error(`导入模块${moduleURL}失败:`, error);
           throw error;
         }
       },
+    }
+  }
+  监听模块修改(moduleURL, 子模块名称) {
+    if (window.require) {
+      let fs = window.require('fs');
+      let path = window.require('path');
+      let modulePath = path.join(window.siyuan.config.system.workspaceDir + this.selfPath, moduleURL.split('SiyuanAssistantCollection').pop());
+      let folderPath = path.dirname(modulePath);
+      console.log('开始监听:',folderPath)
+      fs.watch(folderPath, { recursive: true },async (eventType, filename) => {
+        if (filename&&eventType === 'change') {
+          console.log(`${filename} file Changed`);
+          this[子模块名称] = undefined;
+          let updatedModule = await import(`${moduleURL}?date=${Date.now()}`);;
+          // 更新子模块引用
+          this[子模块名称] = updatedModule;
+        }
+      });
     }
   }
   设置别名(别名字典) {
@@ -178,7 +198,7 @@ class SiyuanAssistantCollection extends ccPlugin {
   async 暴露插件环境() {
     window[Symbol.for(`plugin_${this.name}`)] = this
     window[Symbol.for(`clientApi`)] = clientApi
-    await this.从esm模块('./source/asyncModules.js').合并全部成员为只读属性()
+    await this.从esm模块('./source/asyncModules.js').合并子模块()
   }
   async 加载管理器() {
     //用于管理事件,所有的事件全部由此处触发和处理

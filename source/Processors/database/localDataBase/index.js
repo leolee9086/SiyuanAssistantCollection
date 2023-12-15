@@ -45,9 +45,7 @@ class 数据集 {
         this.logLevel = logLevel
         this.数据库 = 数据库
         //数据集对象临时存储了所有数据
-        this.数据集对象 = {
-
-        }
+        this.数据集对象 = {}
         this.文件总数 = 8
         this.待保存数据分片 = []
         this.待保存路径值 = []
