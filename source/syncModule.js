@@ -76,7 +76,6 @@ class PluginConfigurer {
         }
         // 校验新值
         let oldValue = target[path[path.length - 1]];
-        console.log(value,oldValue)
         try {
             this.validateNewValue(oldValue, value);
         } catch (e) {

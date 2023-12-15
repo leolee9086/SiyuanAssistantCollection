@@ -6,7 +6,6 @@ const simpleTextSearcherModule= importWorker(import.meta.resolve('./simpleTextSe
 await simpleTextSearcherModule.$eval(document.getElementById('protyleLuteScript').textContent)
 const vectorTextSearcherModule= importWorker(import.meta.resolve('./vectorSearcher.js'))
 await vectorTextSearcherModule.$eval(document.getElementById('protyleLuteScript').textContent)
-
 const blockSearchRouter=new sac.路由管理器.Router()
 //使用body进行搜索
 blockSearchRouter.post('/text', async (ctx, next) => {
@@ -34,7 +33,6 @@ blockSearchRouter.post('/vector',async(ctx,next)=>{
     let res = await text2vec(ctx.req.body.query)
     let vector = res.body.data[0].embedding
     console.log(res,vector)
-
     let res1 = await sac.路由管理器.internalFetch('/database/query',{
         body: {
             vector:vector,
