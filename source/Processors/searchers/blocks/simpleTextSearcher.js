@@ -1,6 +1,5 @@
 import { jieba } from '../runtime.js'
 import { kernelApi } from '../runtime.js'
-
 export const 创建搜索语句 = (tokens) => {
     let query = ""
     for (let token of tokens) {

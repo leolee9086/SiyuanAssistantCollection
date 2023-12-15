@@ -12,7 +12,14 @@ let openAI块数据集 = 向量存储.公开向量数据库实例.创建数据�
     'id',
     'box'
 )
+let 本地块数据集= 向量存储.公开向量数据库实例.创建数据集(
+    'blockVectors' + '/' + 'leolee9086/text2vec-base-chinese',
+    'id',
+    'box'
+)
 await openAI块数据集.加载数据()
+await 本地块数据集.加载数据()
+
 let Router = sac.路由管理器.Router
 let databaseRouter=new Router()
 databaseRouter.post(
@@ -25,8 +32,8 @@ databaseRouter.post(
             output_fields:'',
             ...ctx.req.body
         }
-        if(openAI块数据集.数据加载完成){
-            ctx.body.data=await openAI块数据集.以向量搜索数据('vector',data.vector)
+        if(本地块数据集.数据加载完成){
+            ctx.body.data=await 本地块数据集.以向量搜索数据('vector',data.vector)
         }else{
             ctx.body.data=[]
         }

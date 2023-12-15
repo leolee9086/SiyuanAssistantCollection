@@ -7,7 +7,7 @@ export const text2vec=async(text)=>{
         method:"POST",
         body:{
             //这里其实直接可以不写表示默认
-            model:'text-embedding-ada-002',
+            model:'leolee9086/text2vec-base-chinese',
             input:text,
         },
         //内部调用时需要鉴权的接口也还是要鉴权的
