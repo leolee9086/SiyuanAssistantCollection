@@ -246,7 +246,7 @@ class SiyuanAssistantCollection extends ccPlugin {
     await this.从esm模块('./source/asyncModules.js').合并全部成员为只读属性()
   }
   async 加载管理器() {
-    //用于管理事件
+    //用于管理事件,所有的事件全部由此处触发和处理
     this.log('开始加载事件管理器')
     await this.从esm模块('./source/Managers/eventsManager/index.js').合并子模块('事件管理器')
     this.log('事件管理器加载完毕')

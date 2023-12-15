@@ -16,7 +16,8 @@ export class 数据库 {
         if (this._数据库[数据集名称]) {
             if (this.logLevel === 'debug') {
                 logger.databaselog(`数据集:${数据集名称}已经存在,将返回`)
-            } return this._数据库[数据集名称]
+            } 
+            return this._数据库[数据集名称]
         }
         this._数据库[数据集名称] = new 数据集(
             数据集名称,
@@ -28,6 +29,9 @@ export class 数据库 {
                 文件保存地址: this.文件保存地址
             }
         )
+        return this._数据库[数据集名称]
+    }
+    根据名称获取数据集(数据集名称){
         return this._数据库[数据集名称]
     }
 }

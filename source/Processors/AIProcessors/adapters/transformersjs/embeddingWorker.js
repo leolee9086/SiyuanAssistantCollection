@@ -23,7 +23,7 @@ export async function 准备管线(模型名称){
 }
 export async function 提取向量(text, 最大句子长度) {
     if(!extractor){
-        return { msg: '错误', detail: 'extractor没有初始化:'+e };
+        return { msg: '错误', detail: 'extractor没有初始化'};
     }
     let 句子组 = 将文本拆分为句子(text, 最大句子长度);
     let 句子长度比例组 = 句子组.map(句子 => 句子.length / text.length);

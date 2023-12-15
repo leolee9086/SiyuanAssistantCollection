@@ -13,7 +13,6 @@ if(window.require){
         console.log(server)
     })
 }
-
 console.log(await internalFetch('/config/query',{
     method:'POST',
     body:{
