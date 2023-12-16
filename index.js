@@ -238,6 +238,11 @@ class SiyuanAssistantCollection extends ccPlugin {
         this.路由管理器.根路由.use('/database', this.向量数据库.router.routes('/'))
       }
     )
+    this.从esm模块('./source/Processors/indexBuilders/index.js').合并子模块('索引处理器').then(
+      () => {
+        this.路由管理器.根路由.use('/indexBuilder', this.索引处理器.router.routes('/'))
+      }
+    )
     //加载后台处理器
     //await Promise.all([
     // await this.从esm模块('./source/utils/index.js').合并子模块(),

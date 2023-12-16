@@ -54,4 +54,8 @@ sac.eventBus.on(DOM键盘事件表.组合结束,async(e)=>{
    // console.log(sac.路由管理器.internalFetch('/search/rss/list',{body:{},method:'POST'}))
    // console.log(sac.路由管理器.internalFetch('/search/rss/router',{body:{name:"199it"},method:'POST'}))
     显示tips(e)
+    sac.路由管理器.internalFetch('/indexBuilder/index/blocks', {
+        body:{},
+        method: "POST"
+    }) 
 })
