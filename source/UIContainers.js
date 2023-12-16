@@ -121,13 +121,13 @@ function 创建RSS侧栏容器() {
       </div>
   </div>
   <div class="fn__flex-1 fn__flex-column" style="min-height: auto;transition: var(--b3-transition)">
-    <div id="SAC-RSS-List" class='fn__flex-1' style="overflow:auto;max-height:100%"></div>
+    <div id="SAC-RSS-List" class='fn__flex-1 b3-cards' style="overflow:auto;max-height:100%"></div>
   </div>
   </div>
   <div class="fn__flex">
       `;
       plugin.statusMonitor.set('RssDockConainer', 'main', this)
-      plugin.eventBus.emit('RssDockConainerInited',this)
+      plugin.eventBus.emit('rss-dock-conainer-inited',this)
     },
     destroy() {
       plugin.log("destroy dock:", DOCK_TYPE);

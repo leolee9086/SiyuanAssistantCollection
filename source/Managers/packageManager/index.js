@@ -1,6 +1,6 @@
 import { 下载基础模型 } from "./models.js";
 import { 解压依赖 } from './dependencies.js'
-import { fs } from "./runtime.js";
+import { fs,path } from "./runtime.js";
 import { sac } from "./runtime.js";
 export { 下载基础模型 as 下载基础模型 }
 export { 解压依赖 as 解压依赖 }
@@ -24,6 +24,18 @@ export const type=(packageDefine={})=>{
         },
         async file(packageName){
             return await fs.readDir(packageDefine.location.replace('@sac',sac.selfPath)+`/${packageName}`)
+        },
+        async getConfig(packageName){
+            let dataPath= packageDefine.location.replace('@sac',sac.selfPath)+`/${packageName}/${packageDefine.config}`
+            console.log(dataPath)
+            return JSON.parse(await fs.readFile(packageDefine.location.replace('@sac',sac.selfPath)+`/${packageName}/${packageDefine.config}`))
+        },
+        resolve(packageName,_path){
+            let dir = packageDefine.location.replace('@sac',sac.selfPath)+`/${packageName}`
+            return path.resolve(dir,_path)
+        },
+        async load(packageName,fileName){
+            return await packageDefine.load(packageName,fileName)
         }
     }
 }

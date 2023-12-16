@@ -96,7 +96,7 @@ const loadAll = async () => {
 }
 const router = new Router();
 // 懒加载 Route Handler，Route 首次被请求时才会 解析 相关文件
-const lazyloadRouteHandler = (routeHandlerPath) => {
+export const lazyloadRouteHandler = (routeHandlerPath) => {
     let realPath = routeHandlerPath.replace('./routes', plugin.selfPath + '/installed/rss')
     if (!realPath.endsWith('.js')) {
         realPath = realPath + '.js'
@@ -113,7 +113,7 @@ const lazyloadRouteHandler = (routeHandlerPath) => {
     func.$routeHandlerPath=routeHandlerPath
     return func
 }
-Object.getOwnPropertyNames(routeMapV2).forEach(
+/*Object.getOwnPropertyNames(routeMapV2).forEach(
     name => {
         try {
             let subRouter = new Router()
@@ -135,6 +135,6 @@ Object.getOwnPropertyNames(routeMapV2).forEach(
             logger.rsswarn(e)
         }
     }
-)
-await (await import('../../../../../installed/rss/router.js')).default(router,lazyloadRouteHandler)
+)*/
+//await (await import('../../../../../installed/rss/router.js')).default(router,lazyloadRouteHandler)
 export default router;

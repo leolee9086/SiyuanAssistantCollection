@@ -220,10 +220,6 @@ class SiyuanAssistantCollection extends ccPlugin {
   async 加载子模块() {
     //这些加载的顺序就无所谓了,反正互相之间没有强依赖关系
     //加载事件路由
-
-    this.从esm模块('./source/Interfacies/tips/index.js').合并子模块('tips处理器').then(
-      () => { this.路由管理器.根路由.use('/tips', this.tips处理器.router.routes('/')) }
-    )
     this.从esm模块('./source/Processors/searchers/index.js').合并子模块('搜索处理器').then(
       () => { this.路由管理器.根路由.use('/search', this.搜索处理器.router.routes('/')) }
 
@@ -241,6 +237,16 @@ class SiyuanAssistantCollection extends ccPlugin {
     this.从esm模块('./source/Processors/indexBuilders/index.js').合并子模块('索引处理器').then(
       () => {
         this.路由管理器.根路由.use('/indexBuilder', this.索引处理器.router.routes('/'))
+      }
+    )
+
+    //界面部分之后应该改成事件模式
+    this.从esm模块('./source/Interfacies/tips/index.js').合并子模块('tips处理器').then(
+      () => { this.路由管理器.根路由.use('/tips', this.tips处理器.router.routes('/')) }
+    ) 
+    this.从esm模块('./source/Interfacies/rss/index.js').合并子模块('rss订阅器').then(
+      () => {
+         this.事件管理器.use(this.rss订阅器.Emitter )
       }
     )
     //加载后台处理器
