@@ -10,7 +10,9 @@
     "feeds": [
         {
             "path": "/005tv/zx/latest",
-            "timer": "0 * * * * * "
+            "timer": "0 * * * * * ",
+            "title":"来自005TV的最新消息",
+            "description":"来自005TV的最新消息"
         }
     ]
 }

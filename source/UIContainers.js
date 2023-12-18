@@ -1,75 +1,93 @@
 //这里的require注入了plugin对象
-const plugin = require('plugin')
+const plugin = require('plugin');
+const clientApi = require('clientApi');
 let topBarButton = plugin.addTopBar(
-    {
-        icon: 'iconSparkles',
-        title: '打开对话框,右键打开设置',
-        position: 'right',
-    }
+  {
+    icon: 'iconSparkles',
+    title: '打开对话框,右键打开设置',
+    position: 'right',
+  }
 )
 plugin.statusMonitor.set('UI', 'topBarButton', topBarButton)
-function 创建aiTab容器(){
-    const DOCK_TYPE = 'SAC_CHAT'
-    plugin.aiTabContainer = plugin.addTab({
-      type: DOCK_TYPE,
-      init() {
-        plugin.log(plugin)
-        this.element.innerHTML = `<div id="ai-chat-interface" class='fn__flex-column' style="pointer-events: auto;overflow:hidden;max-height:100%"></div>`;
-        let tabs = plugin.statusMonitor.get('aiTabContainer', plugin.data.persona).value || []
-        tabs.push(this)
-        plugin.statusMonitor.set('aiTabContainer', plugin.data.persona, tabs)
-        plugin.eventBus.emit('TabContainerInited', this)
-        plugin.log(this)
-
-      },
-      destroy() {
-        plugin.log("destroy tab:", DOCK_TYPE);
+function 创建aiTab容器() {
+  const DOCK_TYPE = 'SAC_Tab'
+  plugin.TabContainer = plugin.addTab({
+    type: DOCK_TYPE,
+    init() {
+      plugin.log(plugin)
+      console.log(this)
+      this.element.innerHTML = `<div id="sac-interface" class='fn__flex-column' style="pointer-events: auto;overflow:hidden;max-height:100%"></div>`;
+      plugin.eventBus.emit(this.data.channel+'-'+'tab-inited', this)
+    },
+    destroy() {
+      plugin.log("destroy tab:", DOCK_TYPE);
+    }
+  });
+  plugin.eventBus.on('open-tab', (e) => {
+    clientApi.openTab({
+      app: plugin.app,
+      custom: {
+        icon: e.detail.data.icon,
+        title: e.detail.data.title,
+        data: {
+          channel:e.detail.emitter.channel,
+          ...e.detail.data.data
+        },
+        id: plugin.name + DOCK_TYPE
       }
-    });
+    }).then(
+      _tab=>{
+        _tab.emitter=e.detail.emitter
+        plugin.eventBus.emit(e.detail.emitter.channel+'-'+'tab-opened',_tab.model)
+  
+      }
+  
+    )
+  })
 }
 创建aiTab容器()
 
 function 创建AI侧栏容器() {
-    const DOCK_TYPE = 'SAC_CHAT'
-    plugin.addDock({
-      config: {
-        position: "LeftBottom",
-        size: { width: 200, height: 0 },
-        icon: "iconSaving",
-        title: "Custom Dock",
-      },
-      data: {
-        text: "This is my custom dock"
-      },
-      type: DOCK_TYPE,
-      init() {
-        this.element.innerHTML = `<div id="ai-chat-interface" class='fn__flex-column' style="pointer-events: auto;overflow:hidden;max-height:100%"></div>`;
-        plugin.statusMonitor.set('dockContainers', 'main', this.element)
-        plugin.eventBus.emit('dockConainerInited', this.element)
-      },
-      destroy() {
-        plugin.log("destroy dock:", DOCK_TYPE);
-      }
-    });
-  }
-  创建AI侧栏容器()
+  const DOCK_TYPE = 'SAC_CHAT'
+  plugin.addDock({
+    config: {
+      position: "LeftBottom",
+      size: { width: 200, height: 0 },
+      icon: "iconSaving",
+      title: "Custom Dock",
+    },
+    data: {
+      text: "This is my custom dock"
+    },
+    type: DOCK_TYPE,
+    init() {
+      this.element.innerHTML = `<div id="ai-chat-interface" class='fn__flex-column' style="pointer-events: auto;overflow:hidden;max-height:100%"></div>`;
+      plugin.statusMonitor.set('dockContainers', 'main', this.element)
+      plugin.eventBus.emit('dockConainerInited', this.element)
+    },
+    destroy() {
+      plugin.log("destroy dock:", DOCK_TYPE);
+    }
+  });
+}
+创建AI侧栏容器()
 
-  //这个被用来创建tips侧栏容器
-  function 创建TIPS侧栏容器() {
-    const DOCK_TYPE = 'SAC_TIPS'
-    plugin.addDock({
-      config: {
-        position: "LeftBottom",
-        size: { width: 200, height: 0 },
-        icon: "iconFace",
-        title: "Custom Dock",
-      },
-      data: {
-        text: "This is my custom dock"
-      },
-      type: DOCK_TYPE,
-      init() {
-        this.element.innerHTML = `
+//这个被用来创建tips侧栏容器
+function 创建TIPS侧栏容器() {
+  const DOCK_TYPE = 'SAC_TIPS'
+  plugin.addDock({
+    config: {
+      position: "LeftBottom",
+      size: { width: 200, height: 0 },
+      icon: "iconFace",
+      title: "Custom Dock",
+    },
+    data: {
+      text: "This is my custom dock"
+    },
+    type: DOCK_TYPE,
+    init() {
+      this.element.innerHTML = `
         <div class="fn__flex-1 fn__flex-column" style="max-height:100%">
         <div class="block__icons">
         <div class="block__logo">
@@ -86,14 +104,14 @@ function 创建AI侧栏容器() {
     </div>
     <div class="fn__flex">
         `;
-        plugin.statusMonitor.set('tipsConainer', 'main', this.element)
-        plugin.eventBus.emit('tipsConainerInited',this)
-      },
-      destroy() {
-        plugin.log("destroy dock:", DOCK_TYPE);
-      }
-    });
-  }
+      plugin.statusMonitor.set('tipsConainer', 'main', this.element)
+      plugin.eventBus.emit('tipsConainerInited', this)
+    },
+    destroy() {
+      plugin.log("destroy dock:", DOCK_TYPE);
+    }
+  });
+}
 创建TIPS侧栏容器()
 
 function 创建RSS侧栏容器() {
@@ -121,13 +139,13 @@ function 创建RSS侧栏容器() {
       </div>
   </div>
   <div class="fn__flex-1 fn__flex-column" style="min-height: auto;transition: var(--b3-transition)">
-    <div id="SAC-RSS-List" class='fn__flex-1 b3-cards' style="overflow:auto;max-height:100%"></div>
+    <div id="SAC-RSS-List" class='fn__flex-1 b3-cards' style="overflow:auto;max-height:100%;background-color:var(--b3-theme-background)"></div>
   </div>
   </div>
   <div class="fn__flex">
       `;
       plugin.statusMonitor.set('RssDockConainer', 'main', this)
-      plugin.eventBus.emit('rss-dock-conainer-inited',this)
+      plugin.eventBus.emit('rss-dock-conainer-inited', this)
     },
     destroy() {
       plugin.log("destroy dock:", DOCK_TYPE);

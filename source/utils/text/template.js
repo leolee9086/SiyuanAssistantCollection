@@ -9,6 +9,7 @@ export async function 加载模板引擎(artLocation) {
     document.body.appendChild(iframe);
     iframe.contentDocument.head.appendChild(scriptEl);
     let template = iframe.contentWindow.template;
+    setTimeout(iframe.remove())
     return template
 }
 const artLocation = '/plugins/blockAction/static/art-template-web.js'

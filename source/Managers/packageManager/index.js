@@ -30,6 +30,10 @@ export const type=(packageDefine={})=>{
             console.log(dataPath)
             return JSON.parse(await fs.readFile(packageDefine.location.replace('@sac',sac.selfPath)+`/${packageName}/${packageDefine.config}`))
         },
+        async getMeta(packageName){
+            let dataPath= packageDefine.location.replace('@sac',sac.selfPath)+`/${packageName}/${packageDefine.meta}`
+            return JSON.parse(await fs.readFile(dataPath))
+        },
         resolve(packageName,_path){
             let dir = packageDefine.location.replace('@sac',sac.selfPath)+`/${packageName}`
             return path.resolve(dir,_path)

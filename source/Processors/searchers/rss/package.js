@@ -3,7 +3,7 @@ import { lazyloadRouteHandler } from "./rssLoader/routeMapV1.js";
 export const rssPackages=sac.包管理器.type(
     {
         name: 'rss',
-        meta: 'maintainer.js',
+        meta: 'rss.json',
         config:'rss.json',
         location: '@sac/installed/rss',
         load:async(packageName,fileName)=>{
@@ -14,7 +14,7 @@ export const rssPackages=sac.包管理器.type(
 export const rssPackagesV2=sac.包管理器.type(
     {
         name: 'rss',
-        meta: 'maintainer.js',
+        meta: 'rss.json',
         config:'rss.json',
         location: '@sac/installed/rssV2',
         load:async(packageName,fileName)=>{

@@ -20,7 +20,17 @@ export const emitters = {}
 
 export const use = (Emitter) => {
     let emitter =  new Emitter()
-    emitters[Emitter.channel] = emitter;
+    emitter.emit=(event,data)=>{
+        sac.eventBus.emit(event,{emitter,data})
+    }
+    emitters[emitter.channel] = emitter;
+    Object.keys(emitter).forEach(key => {
+        if (key.includes('-')) {
+            sac.eventBus.on(emitter.channel+'-'+key, (data) => {
+                emitter[key](data.detail);
+            });
+        }
+    });
     registJobs(emitter)
 }
 export const emit = (channel, event, ...args) => {
@@ -28,6 +38,8 @@ export const emit = (channel, event, ...args) => {
     if (typeof emitters[channel][event] === 'function') {
         emitters[channel][event](...args);
     }
+    sac.eventBus.emit(channel+'-'+event,args)
+    console.log(channel,event,args)
 }
 export const registJobs = (Emitter) => {
     console.log(Emitter)
@@ -136,4 +148,6 @@ sac.eventBus.on('cron-job', async (e) => {
         console.error(e)
     }
 })
-
+sac.eventBus.on('TabContainerInited',(e)=>{
+    console.log(e)
+})
