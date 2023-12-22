@@ -19,18 +19,38 @@ import { reactive, watchEffect } from '../../../static/vue.esm-browser.js'
 export const emitters = {}
 
 export const use = (Emitter) => {
-    let emitter =  new Emitter()
-    emitter.emit=(event,data)=>{
-        sac.eventBus.emit(event,{emitter,data})
+    let emitter = new Emitter()
+    emitter.emit = (event, data) => {
+        sac.eventBus.emit(event, { emitter, data })
     }
     emitters[emitter.channel] = emitter;
-    Object.keys(emitter).forEach(key => {
+    // 遍历 emitter 对象的所有键
+    for (let key in emitter) {
+        // 如果键包含 '-' 字符
         if (key.includes('-')) {
-            sac.eventBus.on(emitter.channel+'-'+key, (data) => {
-                emitter[key](data.detail);
-            });
+            try {
+                // 如果键以 '@main-' 开头
+                if (key.startsWith('@main-')) {
+                    // 从键中移除 '@main-' 前缀，得到事件名称
+                    let eventName = key.replace('@main-', '');
+                    // 在事件总线上注册事件，当事件触发时，调用对应的处理函数
+                    sac.eventBus.on(eventName, (data) => {
+                        emitter[key](data.detail);
+                    });
+                } else {
+                    // 在事件总线上注册事件，当事件触发时，调用对应的处理函数
+                    sac.eventBus.on(emitter.channel + '-' + key, (data) => {
+                        emitter[key](data.detail);
+                    });
+                }
+
+            } catch (error) {
+                // 如果在处理过程中出现错误，打印错误信息
+                console.error(`Error handling key ${key}:`, error);
+            }
         }
-    });
+    }
+    emitter.onload()
     registJobs(emitter)
 }
 export const emit = (channel, event, ...args) => {
@@ -38,8 +58,8 @@ export const emit = (channel, event, ...args) => {
     if (typeof emitters[channel][event] === 'function') {
         emitters[channel][event](...args);
     }
-    sac.eventBus.emit(channel+'-'+event,args)
-    console.log(channel,event,args)
+    sac.eventBus.emit(channel + '-' + event, args)
+    console.log(channel, event, args)
 }
 export const registJobs = (Emitter) => {
     console.log(Emitter)
@@ -52,7 +72,7 @@ export const registJobs = (Emitter) => {
         jobs.length = 0;
 
         // 重新注册任务
-        Emitter.jobs.forEach(jobInfo => {
+        Emitter.jobs&&Emitter.jobs.forEach(jobInfo => {
             // 创建一个新的 CronJob
             const job = new CronJob(jobInfo.schedule, () => {
                 // 触发 "jobStart" 事件
@@ -148,6 +168,6 @@ sac.eventBus.on('cron-job', async (e) => {
         console.error(e)
     }
 })
-sac.eventBus.on('TabContainerInited',(e)=>{
+sac.eventBus.on('TabContainerInited', (e) => {
     console.log(e)
 })

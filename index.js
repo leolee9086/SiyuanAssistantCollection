@@ -127,6 +127,11 @@ class SiyuanAssistantCollection extends ccPlugin {
     //后面的部分还在整理
     this.初始化插件异步状态()
   }
+  onLayoutReady(){
+    this.eventBus.emit('layout-tabs-ready',this.getOpenedTab())
+    
+  }
+
   //因为同步状态管理也有点多了所以我们重新require一下吧
   require(moduleName) {
     const moduleCache = {
@@ -221,8 +226,9 @@ class SiyuanAssistantCollection extends ccPlugin {
     //这些加载的顺序就无所谓了,反正互相之间没有强依赖关系
     //加载事件路由
     this.从esm模块('./source/Processors/searchers/index.js').合并子模块('搜索处理器').then(
-      () => { this.路由管理器.根路由.use('/search', this.搜索处理器.router.routes('/')) }
-
+      () => { 
+        this.路由管理器.根路由.use('/search', this.搜索处理器.router.routes('/')) 
+      }
     )
     this.从esm模块('./source/Processors/AIProcessors/index.js').合并子模块('ai处理器').then(
       () => {

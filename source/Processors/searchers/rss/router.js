@@ -65,12 +65,16 @@ async function handleFeedRequest(ctx, next) {
         path = `/${ctx.params.path}`; // 对于GET请求，从路径参数中获取路径
     }
     let feedJson = await getFeedJson(path, remote);
-    console.log(feedJson)
     if (format === 'xml') {
         // 使用xmlbuilder创建XML
         let xml = buildFeedXML(feedJson, path);
         ctx.type = 'text/xml'
         ctx.body = xml
+    } else if (format === 'html') {
+        // 处理HTML格式
+        let html = buildFeedHTML(feedJson, path);
+        ctx.type = 'text/html'
+        ctx.body = html
     } else {
         // 返回JSON
         ctx.type = 'application/json'
@@ -115,7 +119,6 @@ function buildFeedXML(feedJson, path) {
             .up()
             .ele('description', {}, feedJson.description)
             .up();
-
     // 添加数据到feed
     feedJson.item.forEach(item => {
         rss.ele('item')
@@ -128,6 +131,16 @@ function buildFeedXML(feedJson, path) {
             .ele('pubDate', {}, item.pubDate)
             .up();
     });
-
     return rss.end({ pretty: true });
+}
+function buildFeedHTML(feedJson, path) {
+    // 这里是一个非常基础的示例，你可能需要根据你的需求来修改它
+    let html = '<html><body>';
+    html += `<h1>${feedJson.title}</h1>`;
+    feedJson.item.forEach(item => {
+        html += `<h2>${item.title}</h2>`;
+        html += `<p>${item.description}</p>`;
+    });
+    html += '</body></html>';
+    return html;
 }

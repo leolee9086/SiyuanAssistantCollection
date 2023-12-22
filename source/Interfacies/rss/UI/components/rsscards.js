@@ -3,10 +3,14 @@ import { hasClosestByAttribute } from "../../../../utils/DOMFinder.js"
 let handleClick = (event) => {
     event.preventDefault()
     event.stopPropagation()
-
-    let closest = hasClosestByAttribute(event.target, 'data-rss-name')
-    if (closest) {
-        sac.事件管理器.emit('rss-ui', 'show-tab', closest.getAttribute('data-rss-name'))
+    let closestRssAdapterName = hasClosestByAttribute(event.target, 'data-rss-adapter-source')
+    if (closestRssAdapterName) {
+        console.log(closestRssAdapterName.getAttribute('data-rss-adapter-source'))
+    } else {
+        let closestRssName = hasClosestByAttribute(event.target, 'data-rss-name')
+        if (closestRssName) {
+            sac.事件管理器.emit('rss-ui', 'show-tab', closestRssName.getAttribute('data-rss-name'))
+        }
     }
 }
 export const buildRssListUI = async (container, rssList) => {
@@ -15,17 +19,28 @@ export const buildRssListUI = async (container, rssList) => {
         container.element.querySelector('#SAC-RSS-List').addEventListener('click', handleClick)
         container.element.querySelector('#SAC-RSS-List').innerHTML = ''
         container.element.querySelector('#SAC-RSS-List').innerHTML += `
-        <div class="fn__flex-1 fn__flex b3-card b3-card--wrap" data-rss-name='$add-new-rss' >
+        <div class="fn__flex-1 fn__flex b3-card b3-card--wrap sac-rss-card" >
             <div class="b3-card__body fn__flex"  style="font-size:small !important;padding:0">
                 <div class="b3-card__actions b3-card__actions--right">
-                    <span class="block__icon block__icon--show ariaLabel" aria-label="从GitHub添加">
+                    <span class="block__icon block__icon--show ariaLabel"
+                    data-rss-adapter-source="github"
+                    aria-label="从GitHub添加">
                         <svg ><use xlink:href="#iconGithub"></use></svg>
                     </span>
-                    <span class="block__icon block__icon--show ariaLabel" aria-label="从npmjs添加">
-                    <svg ><use xlink:href="#iconNpm"></use></svg>
+                    <span 
+                    class="block__icon block__icon--show ariaLabel" 
+                    aria-label="从npmjs添加"
+                    data-rss-adapter-source="npmjs"
+                    >
+                    <svg ><use xlink:href="#iconNPM"></use></svg>
                 </span>
-                <span class="block__icon block__icon--show ariaLabel" aria-label="从远程思源添加">
-                <svg ><use xlink:href="#iconSiyuan"></use></svg>
+                <span 
+                class="block__icon block__icon--show ariaLabel"
+                 aria-label="从远程思源添加"
+                 data-rss-adapter-source="siyuan"
+
+                 >
+                <svg ><use xlink:href="#iconSIYUAN"></use></svg>
                 </div>
             </div>
         </div>
@@ -34,7 +49,7 @@ export const buildRssListUI = async (container, rssList) => {
             // 这里可以进行异步操作
             try {
                 container.element.querySelector('#SAC-RSS-List').innerHTML += `
-        <div class="fn__flex-1 fn__flex b3-card b3-card--wrap" data-rss-name='${item}' >
+        <div class="fn__flex-1 fn__flex b3-card b3-card--wrap sac-rss-card" data-rss-name='${item}' >
             <div class="b3-card__body fn__flex"  style="font-size:small !important;padding:0">
                 <div class="b3-card__img">
                         <svg style="width:74px;height:74px"><use xlink:href="#iconRSS"></use></svg>

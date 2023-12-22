@@ -15,7 +15,6 @@ const cache = {
     },
     get: function (key) {
         return this.data.get(key);
-
     }
 }
 const mocCtx = (url) => {

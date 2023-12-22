@@ -158,3 +158,6 @@ div[custom-chat-role="assistant"] [contenteditable="true"]::before {
     margin-right: 5px;
     display: inline;
 }
+.sac-rss-card{
+    margin:16px 16px 16px 16px;
+}
