@@ -1,11 +1,11 @@
 import { sac } from "../../../../asyncModules.js"
 import { hasClosestByAttribute } from "../../../../utils/DOMFinder.js"
-let handleClick=(event) => {
+let handleClick = (event) => {
     event.preventDefault()
     event.stopPropagation()
 
-    let closest = hasClosestByAttribute(event.target,'data-rss-name')
-    if(closest){
+    let closest = hasClosestByAttribute(event.target, 'data-rss-name')
+    if (closest) {
         sac.事件管理器.emit('rss-ui', 'show-tab', closest.getAttribute('data-rss-name'))
     }
 }
