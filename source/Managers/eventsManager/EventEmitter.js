@@ -13,6 +13,7 @@ export class EventEmitter {
         }
         this.插件基础事件列表 = 插件基础事件列表
         plugin.statusMonitor.set('eventEmitters',this.channel,this)
+        this.listeners={}
     }
     genEventName(事件名称) {
         return this.channel + '-' + 事件名称
@@ -35,6 +36,8 @@ export class EventEmitter {
         }
         console.log(this.getEventName(event))
         //将事件传递给eventBus
+        this.listeners[event]=this.listeners[event]||[]
+        this.listeners[event].push(callback)
         plugin.eventBus.on(this.genEventName(this.getEventName(event)), callback)
     }
     off(event, callback) {
@@ -57,7 +60,7 @@ export class EventEmitter {
         this.on(event, wrapper);
     }
     emit(event, data) {
-        logger.eventlog(this.listeners[event])
+        console.log(this.listeners,event)
         if (!this.listeners[event]) {
             return;
         }

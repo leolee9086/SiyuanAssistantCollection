@@ -14,7 +14,15 @@ function generateId(url, fileName) {
 export class DownloadTask extends sac.EventEmitter {
     // 构造函数
     constructor(url, fileName, 开始字节 = 0) {
-        super();
+        super('package-downloader',
+        {
+            start:'start',
+            progress:"progress",
+            complete:"complete",
+            pause :"pause",
+            resume:"resume"
+        }
+        );
         this.url = url; // 下载的URL
         this.startByte = this.开始字节 = 开始字节; // 开始下载的字节位置
         this.receivedSize = this.本次已接收字节 = 开始字节; // 本次已接收的字节

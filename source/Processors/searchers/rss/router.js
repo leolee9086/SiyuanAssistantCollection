@@ -22,6 +22,12 @@ rssrouter.post('/list',async(ctx,next)=>{
     let rssListData =await listRss(page,pageSize)
     ctx.body =  rssListData
 })
+rssrouter.post('/listAdapters/github',async(ctx,next)=>{
+    let { adapter } = ctx.req.body; 
+    console.log(adapter)
+    let rssAdaptersListData =await rssPackages.listFromGithub()
+    ctx.body =  rssAdaptersListData
+})
 rssrouter.get('/list',async(ctx,next)=>{
     let { page = 1, pageSize = 10 } = ctx.query; // 获取页码和每页的数量，如果没有则默认为1和10
     let rssListData =await listRss(page,pageSize)
@@ -34,7 +40,11 @@ rssrouter.post('/meta',async (ctx, next) => {
     ctx.body = await rssPackages.getMeta(name)
     return ctx;
 })
-
+rssrouter.post('/install',async (ctx, next) => {
+    let { adapterSource,adapterName } = ctx.req.body; // 获取页码和每页的数量，如果没有则默认为1和10
+    ctx.body = await rssPackages.install(ctx.req.body)
+    return ctx;
+})
 let enabled = {}
 let configs ={}
 rssrouter.post('/enable', async (ctx, next) => {
@@ -84,6 +94,13 @@ async function handleFeedRequest(ctx, next) {
 }
 rssrouter.post('/feed', handleFeedRequest);
 rssrouter.get('/feed/:path*', handleFeedRequest);
+rssrouter.get('/package/:name*', async(ctx,next)=>{
+    let zipData = await rssPackages.packageZip(ctx.params.name);
+    ctx.type = 'application/zip';
+    ctx.set('Content-Disposition', `attachment; filename=${ctx.params.name}.zip`);
+    ctx.body = zipData;
+});
+
 async function getFeedJson(path, remote) {
     let feedJson;
     if (remote) {

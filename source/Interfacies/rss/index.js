@@ -1,6 +1,7 @@
 import { sac } from "../../asyncModules.js"
 import { buildRssListUI } from "./UI/components/rsscards.js"
-import { 渲染rss内容 as 渲染rss内容 } from "./UI/components/rsscontents.js"
+import { 渲染rss内容 } from "./UI/components/rsscontents.js"
+import { 渲染rss添加界面 } from "./UI/components/rsssource.js"
 let rssList = []
 let currentPage = 1
 export const Emitter = class {
@@ -9,17 +10,31 @@ export const Emitter = class {
         sac.getOpenedTab().SAC_Tab.forEach(
             tab => {
                 if (tab.data.channel && tab.data.channel === this.channel) {
-                    渲染rss内容(tab.element.querySelector('#sac-interface'), tab.data.name)
+                    if (tab.data.name) {
+                        渲染rss内容(tab.element.querySelector('#sac-interface'), tab.data.name)
+                    } else if (tab.data.source) {
+                        渲染rss添加界面(tab.element.querySelector('#sac-interface'), tab.data.source)
+                    }
                 }
             }
         )
         let container = await sac.statusMonitor.get('RssDockConainer', 'main').$value
-        if(container){
+        if (container) {
             initRssUI(container)
         }
     }
     ['show-tab'] = (e) => {
-        
+        if (e.adapterSource) {
+            this.emit('open-tab', {
+                icon: 'iconRSS',
+                title: `从${e.adapterSource}添加rss`,
+                data: {
+                    type: 'rss-tab-source',
+                    source: e.adapterSource
+                }
+            })
+
+        }
         //这个方法是被注入的集
         this.emit('open-tab', {
             icon: 'iconRSS',
@@ -30,12 +45,21 @@ export const Emitter = class {
             }
         })
     }
+    ['install-adapter']=async(e)=>{
+        await sac.路由管理器.internalFetch('/search/rss/install', {
+            body: e, method: 'POST'
+        })
+    }
     ['tab-inited'] = async (e) => {
-        渲染rss内容(e.element.querySelector('#sac-interface'), e.data.name)
+        if (e.data.name) {
+            渲染rss内容(e.element.querySelector('#sac-interface'), e.data.name)
+        } else if (e.data.source) {
+            渲染rss添加界面(e.element.querySelector('#sac-interface'), e.data.source)
+        }
     }
     ['@main-rss-server-ready'] = async (e) => {
         let container = await sac.statusMonitor.get('RssDockConainer', 'main').$value
-        if(container){
+        if (container) {
             initRssUI(container)
         }
     }
@@ -51,12 +75,16 @@ export const Emitter = class {
             sac.getOpenedTab().SAC_Tab.forEach(
                 tab => {
                     if (tab.data.channel && tab.data.channel === this.channel) {
-                        渲染rss内容(tab.element.querySelector('#sac-interface'), tab.data.name)
+                        if (tab.data.name) {
+                            渲染rss内容(tab.element.querySelector('#sac-interface'), tab.data.name)
+                        } else if (tab.data.source) {
+                            渲染rss添加界面(tab.element.querySelector('#sac-interface'), tab.data.source)
+                        }
                     }
                 }
             )
         }
-    
+
     }
 }
 
@@ -73,8 +101,12 @@ async function initRssUI(container) {
             tab => {
                 console.log(tab)
                 if (tab.data.channel && tab.data.channel === Emitter.channel) {
-                    
-                    渲染rss内容(tab.element.querySelector('#sac-interface'), tab.data.name)
+
+                    if (tab.data.name) {
+                        渲染rss内容(tab.element.querySelector('#sac-interface'), tab.data.name)
+                    } else if (tab.data.source) {
+                        渲染rss添加界面(tab.element.querySelector('#sac-interface'), tab.data.source)
+                    }
                 }
             }
         )

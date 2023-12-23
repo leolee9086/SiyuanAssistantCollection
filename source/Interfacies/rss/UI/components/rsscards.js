@@ -6,6 +6,8 @@ let handleClick = (event) => {
     let closestRssAdapterName = hasClosestByAttribute(event.target, 'data-rss-adapter-source')
     if (closestRssAdapterName) {
         console.log(closestRssAdapterName.getAttribute('data-rss-adapter-source'))
+        sac.事件管理器.emit('rss-ui', 'show-tab',{adapterSource: closestRssAdapterName.getAttribute('data-rss-adapter-source')})
+
     } else {
         let closestRssName = hasClosestByAttribute(event.target, 'data-rss-name')
         if (closestRssName) {
@@ -38,10 +40,10 @@ export const buildRssListUI = async (container, rssList) => {
                 class="block__icon block__icon--show ariaLabel"
                  aria-label="从远程思源添加"
                  data-rss-adapter-source="siyuan"
-
                  >
-                <svg ><use xlink:href="#iconSIYUAN"></use></svg>
-                </div>
+                 <img src="/stage/icon.png" style="width: 24px;"> 
+                 </span>
+                 </div>
             </div>
         </div>
         `;
@@ -70,7 +72,8 @@ export const buildRssListUI = async (container, rssList) => {
                     <svg ><use xlink:href="#iconList"></use></svg>
                 </span>
                 <span class="block__icon block__icon--show ariaLabel" aria-label="允许伺服">
-                <input class="b3-switch fn__flex-center" checked="" data-type="plugin-enable" type="checkbox">                            </span>
+                <input class="b3-switch fn__flex-center" checked="" data-type="plugin-enable" type="checkbox">                            
+                </span>
                 </div>
             </div>
         </div>
