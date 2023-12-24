@@ -34,9 +34,13 @@ rssrouter.get('/list',async(ctx,next)=>{
     console.log(rssListData)
     ctx.body =  rssListData
 })
-
 rssrouter.post('/meta',async (ctx, next) => {
     let { name } = ctx.req.body; // 获取页码和每页的数量，如果没有则默认为1和10
+    ctx.body = await rssPackages.getMeta(name)
+    return ctx;
+})
+rssrouter.get('/meta',async (ctx, next) => {
+    let { name } = ctx.query; // 获取页码和每页的数量，如果没有则默认为1和10
     ctx.body = await rssPackages.getMeta(name)
     return ctx;
 })
