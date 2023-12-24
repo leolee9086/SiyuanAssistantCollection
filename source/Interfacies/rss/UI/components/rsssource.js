@@ -32,7 +32,7 @@ export function 渲染rss添加界面(元素, rss内容源名称) {
             元素.innerHTML = ''
             repos.forEach(
                 repo => 元素.innerHTML += `        
-                <div class="fn__flex-1 fn__flex b3-card b3-card--wrap sac-rss-card" data-repo-name='${repo.name}' >
+                <div class="fn__flex-1 fn__flex b3-card b3-card--wrap sac-rss-card" data-repo-name='${repo.name}' style="max-height:100px" >
                 <div class="b3-card__body fn__flex"  style="font-size:small !important;padding:0">
                     <div class="b3-card__img">
                             <img style="width:74px;height:74px" src="${repo.iconUrl}"></img>
