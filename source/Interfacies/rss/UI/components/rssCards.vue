@@ -51,7 +51,6 @@ sac.eventBus.on('statusChange', (e) => {
     console.log(e)
     if (e.detail.name === 'rss.sources.github') {
         data.value = e.detail.value
-        console.log(data)
     }
 })
 

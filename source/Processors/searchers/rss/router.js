@@ -67,11 +67,7 @@ rssrouter.post('/enable', async (ctx, next) => {
         });
         enabled[name] = true
     }
-    let links =''
-    configs[name].feeds.forEach(
-       feed=> links+=`<div><span data-sac-href='/search/rss/feed${feed.path}'>${feed.description||feed.path}</span></div>`
-    )
-    ctx.body =links
+    ctx.body =configs[name]
 })
 async function handleFeedRequest(ctx, next) {
     let format = 'json';

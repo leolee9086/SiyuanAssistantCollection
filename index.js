@@ -69,10 +69,10 @@ class ccPlugin extends Plugin {
           let fileName = 获取文件名(moduleURL);
           await 定义属性(this, fileName, module);
           name ? await 定义属性(this, name, module) : null
-          this.监听模块修改(moduleURL,name)
+          //this.监听模块修改(moduleURL,name)
           return module
         } catch (error) {
-          this.监听模块修改(moduleURL,name)
+          //this.监听模块修改(moduleURL,name)
           console.error(`导入模块${moduleURL}失败:`, error);
           throw error;
         }
@@ -169,7 +169,6 @@ class SiyuanAssistantCollection extends ccPlugin {
     this.依赖 = 依赖
     this.状态 = {}
     this.status = this.状态
-
     //这里是加载一些基础功能
     this.require('./source/syncModule.js')
     //这里是创建UI容器,因为dock等需要同步创建
@@ -223,11 +222,16 @@ class SiyuanAssistantCollection extends ccPlugin {
     //console.log('搜索管理器加载完毕')
   }
   async 加载子模块() {
-    //这些加载的顺序就无所谓了,反正互相之间没有强依赖关系
+    //后端模块加载的顺序就无所谓了,反正互相之间没有强依赖关系
     //加载事件路由
     this.从esm模块('./source/Processors/searchers/index.js').合并子模块('搜索处理器').then(
       () => { 
         this.路由管理器.根路由.use('/search', this.搜索处理器.router.routes('/')) 
+        this.从esm模块('./source/Interfacies/rss/index.js').合并子模块('rss订阅器').then(
+          () => {
+             this.事件管理器.use(this.rss订阅器.Emitter )
+          }
+        )
       }
     )
     this.从esm模块('./source/Processors/AIProcessors/index.js').合并子模块('ai处理器').then(
@@ -250,11 +254,6 @@ class SiyuanAssistantCollection extends ccPlugin {
     this.从esm模块('./source/Interfacies/tips/index.js').合并子模块('tips处理器').then(
       () => { this.路由管理器.根路由.use('/tips', this.tips处理器.router.routes('/')) }
     ) 
-    this.从esm模块('./source/Interfacies/rss/index.js').合并子模块('rss订阅器').then(
-      () => {
-         this.事件管理器.use(this.rss订阅器.Emitter )
-      }
-    )
     //加载后台处理器
     //await Promise.all([
     // await this.从esm模块('./source/utils/index.js').合并子模块(),

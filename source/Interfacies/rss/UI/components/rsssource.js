@@ -12,7 +12,6 @@ const handlerClick=(event)=>{
             packageRepo:closestRssAdapterSource.getAttribute('data-repo-name'),
             packageName:closestRssAdapterSource.getAttribute('data-rss-name'),
         })
-
     } 
 }
 export function 渲染rss添加界面(元素, rss内容源名称) {

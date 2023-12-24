@@ -65,7 +65,11 @@ export const initVueApp = (appURL, name, mixinOptions = {}, directory, data) => 
             componentsCache[name] = Vue.defineAsyncComponent(() => loadModule(appURL, obj))
             let app = Vue.createApp({
                 components: componentsCache,
-                template: `<${name}></${name}>`
+                template: `<${name}></${name}>`,
+                setup(){
+                    const dataReactive = reactive(data);
+                    app.provide('appData', dataReactive);            
+                }
             }, data)
             if (window.require && directory) {
                 watched[directory] = true
