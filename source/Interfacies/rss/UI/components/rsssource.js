@@ -49,6 +49,12 @@ export function 渲染rss添加界面(元素, rss内容源名称) {
                         <span class="block__icon block__icon--show ariaLabel" aria-label="安装" data-rss-name='${repo.name}' data-repo-name='${repo.repoUrl}' data-repo-source="github">
                             <svg ><use xlink:href="#iconDownload"></use></svg>
                         </span>
+                        <span class="block__icon block__icon--show ariaLabel" aria-label="更新" data-rss-name='${repo.name}' data-repo-name='${repo.repoUrl}' data-repo-source="github">
+                        <svg ><use xlink:href="#iconRefresh"></use></svg>
+                    </span>
+                    <span class="block__icon block__icon--show ariaLabel" aria-label="卸载" data-rss-name='${repo.name}' data-repo-name='${repo.repoUrl}' data-repo-source="github">
+                    <svg ><use xlink:href="#iconTrashcan"></use></svg>
+                </span>
                         <span class="block__icon block__icon--show ariaLabel" data-rss-name='${repo.readme}' aria-label="查看详情">
                         <svg ><use xlink:href="#iconList"></use></svg>
                     </span>
