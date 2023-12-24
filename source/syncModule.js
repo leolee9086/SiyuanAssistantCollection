@@ -220,7 +220,7 @@ class PluginConfigurer {
         return this.target
     }
 }
-plugin.statusMonitor = new PluginConfigurer(plugin, 'status')
+plugin.statusMonitor = new PluginConfigurer(plugin, 'status','status')
 plugin.configurer = new PluginConfigurer(plugin, '_setting', 'setting', true)
 //这里开始加载需要同步进行的事件
 //没什么别的作用,就是用来收集protyle而已

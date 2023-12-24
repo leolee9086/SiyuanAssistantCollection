@@ -49,6 +49,11 @@ rssrouter.post('/install',async (ctx, next) => {
     ctx.body = await rssPackages.install(ctx.req.body)
     return ctx;
 })
+rssrouter.post('/uninstall',async (ctx, next) => {
+    let { adapterName } = ctx.req.body; // 获取页码和每页的数量，如果没有则默认为1和10
+    ctx.body = await rssPackages.install(adapterName)
+    return ctx;
+})
 let enabled = {}
 let configs ={}
 rssrouter.post('/enable', async (ctx, next) => {

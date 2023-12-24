@@ -86,7 +86,10 @@ export const type=(packageDefine={})=>{
                     )
                 }
             }
-        }
-
+        },
+        async uninstall(packageName){
+            let dataPath= packageDefine.location.replace('@sac',sac.selfPath)+`/${packageName}/`
+            await fs.removeFile(dataPath)
+        } 
     }
 }
