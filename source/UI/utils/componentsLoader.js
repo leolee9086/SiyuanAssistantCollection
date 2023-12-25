@@ -9,31 +9,29 @@ const moduleCache = {
     cronJob
 }
 let watched = {}
-let {ref,reactive}=Vue
+let { ref, reactive } = Vue
 export {
-    ref,reactive
+    ref, reactive
 }
 function extractCorrectUrl(url) {
     // Create a new URL object
     const urlObj = new URL(url);
-  
+
     // Extract the pathname and split it into parts
     const parts = urlObj.pathname.split('/');
-  
+
     // Remove the first part if it matches the host
     if (parts[1] === urlObj.host) {
-      parts.splice(1, 1);
+        parts.splice(1, 1);
     }
-  
+
     // Reconstruct the pathname
     urlObj.pathname = parts.join('/');
-  
+
     // Return the corrected URL string
     return urlObj.toString();
-  }
+}
 export const initVueApp = (appURL, name, mixinOptions = {}, directory, data) => {
-    console.log(Date.now(),name)
-
     const asyncModules = {}
     const styleElements = []
     const options = {
@@ -87,9 +85,9 @@ export const initVueApp = (appURL, name, mixinOptions = {}, directory, data) => 
             let app = Vue.createApp({
                 components: componentsCache,
                 template: `<${name}></${name}>`,
-                setup(){
+                setup() {
                     const dataReactive = reactive(data);
-                    app.provide('appData', dataReactive);            
+                    app.provide('appData', dataReactive);
                 }
             }, data)
             if (window.require && directory) {
@@ -131,10 +129,7 @@ export const initVueApp = (appURL, name, mixinOptions = {}, directory, data) => 
                 }
             });
         }
-        directory&& watchDirectory(directory);
+        directory && watchDirectory(directory);
     }
-    console.log(Date.now(),name)
-
     return oldApp
-    
 }

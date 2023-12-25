@@ -1,5 +1,6 @@
 import { sac } from "../../asyncModules.js"
 export const useTabs = (tabs, emitter) => {
+    console.log(tabs)
     sac.eventBus.on(emitter.channel + '-' + 'tab-opened', (e) => {
         for (let tab in tabs) {
             let model = e.detail
