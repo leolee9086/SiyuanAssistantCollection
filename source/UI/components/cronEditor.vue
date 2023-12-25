@@ -30,8 +30,7 @@
             <input v-model="year" @input="updateValue" />
         </div>
         <div>
-            <label>Next Trigger:</label>
-            <p>{{ nextTrigger }}</p>
+            <label>下次触发:</label>
         </div>
     </div>
 </template>

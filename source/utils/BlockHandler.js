@@ -456,7 +456,6 @@ function geTimeStamp() {
   let hour = date.getHours().toString().padStart(2, '0');
   let minute = date.getMinutes().toString().padStart(2, '0');
   let second = date.getSeconds().toString().padStart(2, '0');
-
   let timestamp = `${year}${month}${day}${hour}${minute}${second}`;
   return timestamp
 }

@@ -1,6 +1,6 @@
 import { sac } from "../../asyncModules.js"
 import { buildRssListUI } from "./UI/components/rsscards.js"
-import { 渲染rss内容 } from "./UI/components/rsscontents.js"
+import { 渲染rss内容 } from "./UI/components/rssEditor.js"
 import { 渲染rss添加界面 } from "./UI/components/rsssource.js"
 let rssList = []
 let currentPage = 1
@@ -71,7 +71,7 @@ export const Emitter = class {
         })
         if (rssListRes.body && JSON.stringify(rssListRes.body.data) !== JSON.stringify(rssList)) {
             rssList = rssListRes.body.data
-            buildRssListUI(container, rssList)
+            buildRssListUI(e.element.querySelector('#sac-interface'), rssList)
             sac.getOpenedTab().SAC_Tab.forEach(
                 tab => {
                     if (tab.data.channel && tab.data.channel === this.channel) {

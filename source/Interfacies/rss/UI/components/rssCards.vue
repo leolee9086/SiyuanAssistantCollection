@@ -26,8 +26,13 @@
                             <use xlink:href="#iconRefresh"></use>
                         </svg>
                     </span>
-                    <span class="block__icon block__icon--show ariaLabel" aria-label="卸载" data-rss-name='${repo.name}'
-                        data-repo-name='${repo.repoUrl}' data-repo-source="github">
+                    <span 
+                    class="block__icon block__icon--show ariaLabel" 
+                    aria-label="卸载" 
+                    data-rss-name='${repo.name}'
+                    data-repo-name='${repo.repoUrl}' 
+                    data-repo-source="github"
+                    >
                         <svg>
                             <use xlink:href="#iconTrashcan"></use>
                         </svg>
@@ -53,5 +58,4 @@ sac.eventBus.on('statusChange', (e) => {
         data.value = e.detail.value
     }
 })
-
 </script>
