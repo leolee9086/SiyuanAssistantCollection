@@ -68,6 +68,7 @@ rssrouter.post('/enable', async (ctx, next) => {
         enabled[name] = true
     }
     ctx.body =configs[name]
+    next()
 })
 async function handleFeedRequest(ctx, next) {
     let format = 'json';

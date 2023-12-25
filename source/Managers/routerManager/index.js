@@ -15,9 +15,3 @@ if(window.require){
         console.log(server)
     })
 }
-console.log(await internalFetch('/config/query',{
-    method:'POST',
-    body:{
-        query:['向量工具设置','默认文本向量化模型']
-    }
-}))

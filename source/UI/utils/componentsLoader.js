@@ -1,11 +1,12 @@
 import * as Vue from '../../../static/vue.esm-browser.js'
 import { loadModule } from '../../../static/vue3-sfc-loader.esm.js'
-
+import * as cronJob from '../../utils/timer/index.js'
 import * as runtime from '../../asyncModules.js';
 const moduleCache = {
     vue: Vue,
     runtime: runtime,
     eventBus: runtime.plugin.eventBus,
+    cronJob
 }
 let watched = {}
 let {ref,reactive}=Vue
@@ -31,6 +32,8 @@ function extractCorrectUrl(url) {
     return urlObj.toString();
   }
 export const initVueApp = (appURL, name, mixinOptions = {}, directory, data) => {
+    console.log(Date.now(),name)
+
     const asyncModules = {}
     const styleElements = []
     const options = {
@@ -130,5 +133,8 @@ export const initVueApp = (appURL, name, mixinOptions = {}, directory, data) => 
         }
         directory&& watchDirectory(directory);
     }
+    console.log(Date.now(),name)
+
     return oldApp
+    
 }

@@ -36,7 +36,7 @@
 </template>
   
 <script>
-import {CronJob} from '../../utils/timer/index.js'
+import {CronJob} from 'cronJob'
 export default {
     props: {
         modelValue: {

@@ -24,6 +24,8 @@ function 创建aiTab容器() {
     }
   });
   plugin.eventBus.on('open-tab', (e) => {
+    let data = e.detail.data.data
+    console.log(data.name,data.type)
     clientApi.openTab({
       app: plugin.app,
       custom: {
@@ -31,7 +33,8 @@ function 创建aiTab容器() {
         title: e.detail.data.title,
         data: {
           channel:e.detail.emitter.channel,
-          ...e.detail.data.data
+          name:data.name,
+          type:data.type
         },
         id: plugin.name + DOCK_TYPE
       }
@@ -39,9 +42,7 @@ function 创建aiTab容器() {
       _tab=>{
         _tab.emitter=e.detail.emitter
         plugin.eventBus.emit(e.detail.emitter.channel+'-'+'tab-opened',_tab.model)
-  
       }
-  
     )
   })
 }

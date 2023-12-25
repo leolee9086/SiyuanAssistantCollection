@@ -20,6 +20,7 @@ export const emitters = {}
 
 export const use = (Emitter) => {
     let emitter = new Emitter()
+    console.log(Emitter)
     emitter.emit = (event, data) => {
         sac.eventBus.emit(event, { emitter, data })
     }
@@ -52,14 +53,12 @@ export const use = (Emitter) => {
     }
     emitter.onload()
     registJobs(emitter)
+    return emitter
 }
-export const emit = (channel, event, ...args) => {
-    if (!emitters[channel]) return;
-    if (typeof emitters[channel][event] === 'function') {
-        emitters[channel][event](...args);
-    }
-    sac.eventBus.emit(channel + '-' + event, args)
-    console.log(channel, event, args)
+export const emit = (channel, event, detail) => {
+   
+    sac.eventBus.emit(channel + '-' + event, detail)
+    console.log(channel, event, detail)
 }
 export const registJobs = (Emitter) => {
     console.log(Emitter)

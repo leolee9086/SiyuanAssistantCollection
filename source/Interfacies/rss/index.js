@@ -24,6 +24,7 @@ export const Emitter = class {
         }
     }
     ['show-tab'] = (e) => {
+        console.log(e)
         if (e.adapterSource) {
             this.emit('open-tab', {
                 icon: 'iconRSS',
@@ -33,7 +34,6 @@ export const Emitter = class {
                     source: e.adapterSource
                 }
             })
-
         }
         //这个方法是被注入的集
         this.emit('open-tab', {
@@ -57,12 +57,7 @@ export const Emitter = class {
             渲染rss添加界面(e.element.querySelector('#sac-interface'), e.data.source)
         }
     }
-    ['@main-rss-server-ready'] = async (e) => {
-        let container = await sac.statusMonitor.get('RssDockConainer', 'main').$value
-        if (container) {
-            initRssUI(container)
-        }
-    }
+  
     ['@main-rss-dock-conainer-inited'] = async (e) => {
         let rssListRes = await sac.路由管理器.internalFetch('/search/rss/list', {
             body: {
@@ -84,7 +79,13 @@ export const Emitter = class {
                 }
             )
         }
-
+    }
+}
+export const tabs = {
+    "rss-content":{
+        init:(element)=>{
+            console.log(element)
+        }
     }
 }
 

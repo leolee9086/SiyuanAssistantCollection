@@ -217,6 +217,8 @@ class SiyuanAssistantCollection extends ccPlugin {
     this.log('加载函数路由管理器')
     await this.从esm模块('./source/Managers/routerManager/index.js').合并子模块('路由管理器')
     this.log('函数路由管理器加载完毕')
+    await this.从esm模块('./source/Managers/uiManager/index.js').合并子模块('UI管理器')
+    this.log('ui管理器加载完毕')
     //console.log('开始加载搜索管理器')
     //await this.从esm模块('./source/searchers/index.js').设置模块为只读属性("搜索管理器")
     //console.log('搜索管理器加载完毕')
@@ -229,7 +231,7 @@ class SiyuanAssistantCollection extends ccPlugin {
         this.路由管理器.根路由.use('/search', this.搜索处理器.router.routes('/')) 
         this.从esm模块('./source/Interfacies/rss/index.js').合并子模块('rss订阅器').then(
           () => {
-             this.事件管理器.use(this.rss订阅器.Emitter )
+             this.UI管理器.useTabs(this.rss订阅器.tabs,this.事件管理器.use(this.rss订阅器.Emitter ))
           }
         )
       }
