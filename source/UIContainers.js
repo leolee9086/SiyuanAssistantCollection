@@ -17,31 +17,34 @@ function 创建aiTab容器() {
       plugin.log(plugin)
       console.log(this)
       this.element.innerHTML = `<div id="sac-interface" class='fn__flex-column' style="pointer-events: auto;overflow:hidden;max-height:100%"></div>`;
-      plugin.eventBus.emit(this.data.channel+'-'+'tab-inited', this)
+      plugin.eventBus.emit(this.data.channel + '-' + 'tab-inited', this)
     },
     destroy() {
       plugin.log("destroy tab:", DOCK_TYPE);
     }
   });
   plugin.eventBus.on('open-tab', (e) => {
-    let data = e.detail.data.data
-    console.log(data.name,data.type)
+
+    let data =JSON.parse(JSON.stringify( e.detail.data.data))
+  
     clientApi.openTab({
       app: plugin.app,
       custom: {
-        icon: e.detail.data.icon,
-        title: e.detail.data.title,
+        title:data.title + "",
+        icon: data.icon || "icon",
         data: {
-          channel:e.detail.emitter.channel,
-          name:data.name,
-          type:data.type
+          channel: e.detail.emitter.channel,
+          icon: data.icon || "icon",
+          title: data.title,
+
+          ...data
         },
         id: plugin.name + DOCK_TYPE
       }
     }).then(
-      _tab=>{
-        _tab.emitter=e.detail.emitter
-        plugin.eventBus.emit(e.detail.emitter.channel+'-'+'tab-opened',_tab.model)
+      _tab => {
+        _tab.emitter = e.detail.emitter
+        plugin.eventBus.emit(e.detail.emitter.channel + '-' + 'tab-opened', _tab.model)
       }
     )
   })

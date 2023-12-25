@@ -15,18 +15,31 @@
                     更新规则:{{ feed.timer }}
                     <cronEditor v-model="feed.timer"></cronEditor>
                 </div>
+                <div><a @click="openContent">查看最新内容</a></div>
+
             </div>
+
         </div>
     </div>
 </template>
-
 <script>
 import cronEditor from '../../../../UI/components/cronEditor.vue'
-
+import { sac } from 'runtime';
 export default {
     components: {
         cronEditor
     },
-    props: ['feed']
+    props: ['feed'],
+    methods:{
+        openContent(){
+        let that =this   
+        console.log(that.feed) 
+        sac.eventBus.emit('rss-ui-open-tab',{
+            feed:that.feed,
+            title:that.feed.title,
+            icon:that.feed.icon||"",
+            type:'rssContent'
+        })}
+    }
 }
 </script>

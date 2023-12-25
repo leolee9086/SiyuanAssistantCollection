@@ -1,4 +1,5 @@
 import { sac } from "../../asyncModules.js"
+import { initVueApp } from "../../UI/utils/componentsLoader.js"
 import { buildRssListUI } from "./UI/components/rsscards.js"
 import { 渲染rss内容 } from "./UI/components/rssEditor.js"
 import { 渲染rss添加界面 } from "./UI/components/rsssource.js"
@@ -82,9 +83,14 @@ export const Emitter = class {
     }
 }
 export const tabs = {
-    "rss-content":{
-        init:(element)=>{
+    "rssContent":{
+        init:(element,data,tab)=>{
             console.log(element)
+            initVueApp(
+                import.meta.resolve('./UI/components/rssContent.vue'),
+                'rssContent',
+                {}, 'D:/思源主库/data/plugins/SiyuanAssistantCollection/source',{feed:data.feed}
+            ).mount(element)
         }
     }
 }
