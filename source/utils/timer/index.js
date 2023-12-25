@@ -1,6 +1,6 @@
 //https://github.com/kelektiv/node-cron/blob/main/src/job.ts
 //进行了简单改造,避免在浏览器端无法调用child_process造成的错误
-import { CronTime } from '../../../../static/cron_time.js';
+import { CronTime } from '../../../static/cron_time.js';
 export class CronJob {
     constructor(cronTime, onTick, onComplete, start, timeZone, context, runOnInit, utcOffset, unrefTimeout) {
         this.running = false;

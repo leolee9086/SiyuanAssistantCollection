@@ -1,5 +1,6 @@
 import * as Vue from '../../../static/vue.esm-browser.js'
 import { loadModule } from '../../../static/vue3-sfc-loader.esm.js'
+
 import * as runtime from '../../asyncModules.js';
 const moduleCache = {
     vue: Vue,
@@ -11,16 +12,33 @@ let {ref,reactive}=Vue
 export {
     ref,reactive
 }
+function extractCorrectUrl(url) {
+    // Create a new URL object
+    const urlObj = new URL(url);
+  
+    // Extract the pathname and split it into parts
+    const parts = urlObj.pathname.split('/');
+  
+    // Remove the first part if it matches the host
+    if (parts[1] === urlObj.host) {
+      parts.splice(1, 1);
+    }
+  
+    // Reconstruct the pathname
+    urlObj.pathname = parts.join('/');
+  
+    // Return the corrected URL string
+    return urlObj.toString();
+  }
 export const initVueApp = (appURL, name, mixinOptions = {}, directory, data) => {
     const asyncModules = {}
     const styleElements = []
-
     const options = {
         moduleCache: {
             ...moduleCache
         },
         async getFile(url) {
-            const res = await fetch(url);
+            const res = await fetch(extractCorrectUrl(url));
             if (!res.ok) {
                 throw Object.assign(new Error(res.statusText + ' ' + url), { res });
             }

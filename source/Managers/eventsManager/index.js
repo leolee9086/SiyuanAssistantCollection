@@ -9,7 +9,7 @@ import { sac } from "./runtime.js";
 import { 智能防抖 } from "../../utils/functionTools.js";
 import { 使用结巴拆分元素 } from "../../utils/tokenizer.js";
 import { 获取光标所在位置 } from "../../utils/rangeProcessor.js";
-import { CronJob } from "./timer/index.js";
+import { CronJob } from "../../utils/timer/index.js";
 import { reactive, watchEffect } from '../../../static/vue.esm-browser.js'
 //监听原生事件触发自定义事件
 启用收集protyle事件()
