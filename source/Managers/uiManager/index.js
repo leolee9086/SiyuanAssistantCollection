@@ -17,4 +17,18 @@ export const useTabs = (tabs, emitter) => {
             tabs[e.detail.data.type].init(e.detail.element.querySelector("#sac-interface"),e.detail.data,e.detail)
         }
     })
+    console.log(sac.getOpenedTab())
+    let OpenedTabs = sac.getOpenedTab()
+    Object.keys(OpenedTabs).forEach(
+        tabType=>{
+            let tabArray = OpenedTabs[tabType];
+            tabArray.forEach(
+                model=>{
+                    if(model.data.channel=== emitter.channel&&tabs[model.data.type]){
+                        tabs[model.data.type].init(model.element.querySelector("#sac-interface"),model.data,model)
+                    }
+                }
+            )
+        }
+    )
 }

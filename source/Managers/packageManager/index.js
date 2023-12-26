@@ -28,8 +28,10 @@ export const type = (packageDefine = {}) => {
         async getStatus() {
             // Implement getStatus method
         },
-        async writeStatus(packageName) {
+        async writeStatus(packageName,status) {
             // Implement writeStatus method
+            //首先读取包类型安装目录下的json文件,这个json文件与包类型同名,例如包类型如果是plugin.那么配置文件就是plugins.json
+            //然后找到包名对应的项目,将status写入,并写回文件
         },
         async file(packageName) {
             const dir = replacePath(packageDefine.location, packageName);
