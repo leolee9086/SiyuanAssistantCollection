@@ -154,7 +154,7 @@ function 创建RSS侧栏容器() {
       `;
       rssDocks.push(this)
       plugin.statusMonitor.set('RssDockConainer', 'main', this)
-      plugin.eventBus.emit('rss-dock-conainer-inited', this)
+      plugin.eventBus.emit('rss-ui-dock-container-inited', this)
     },
     destroy() {
       plugin.log("destroy dock:", DOCK_TYPE);

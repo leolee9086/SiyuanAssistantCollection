@@ -59,8 +59,9 @@ export const useDocks=(docks,emitter)=>{
             docks[container.data.name].init(container.element.querySelector("#sac-interface"))
         }
     } 
-    sac.eventBus.on(emitter.channel+'dock-inited',(e)=>{
+    sac.eventBus.on(emitter.channel+'-'+'dock-container-inited',(e)=>{
         let container=e.detail
+        console.log(container)
         if(docks[container.data.name]){
             docks[container.data.name].init(container.element.querySelector("#sac-interface"))
         }
