@@ -16,6 +16,11 @@
                 <span class="block__icon block__icon--show ariaLabel" aria-label="从远程思源安装解析器" data-rss-adapter-source="siyuan">
                     <img src="/stage/icon.png" style="width: 24px;">
                 </span>
+                <span class="block__icon block__icon--show ariaLabel" aria-label="查看所有" data-rss-adapter-source="siyuan">
+                    <svg>
+                        <use xlink:href="#iconList"></use>
+                    </svg>
+                </span>
             </div>
         </div>
     </div>

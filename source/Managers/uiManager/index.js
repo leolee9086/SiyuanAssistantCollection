@@ -1,4 +1,4 @@
-import { sac } from "../../asyncModules.js"
+import { clientApi, sac } from "../../asyncModules.js"
 export const useTabs = (tabs, emitter) => {
     console.log(tabs)
     sac.eventBus.on(emitter.channel + '-' + 'open-tab', (e) => {
@@ -32,3 +32,37 @@ export const useTabs = (tabs, emitter) => {
         }
     )
 }
+export const useDialogs=(dialogs,emitter)=>{
+    sac.eventBus.on(emitter.channel+'-'+'open-dialog',(e)=>{
+        let data = e.detail
+        let {type}=data
+        if(dialogs[type]){
+            let config = dialogs[type].prepare(data)
+            config.destroyCallback=config.destroyCallback||dialogs[type].destroyCallback
+            const dialog = new clientApi.Dialog(config,()=>{
+            })
+            dialog.data =data
+            dialogs[type].init(dialog)
+            let _dialogs = sac.statusMonitor.get('dialogs',emitter.channel,type).$value||[]
+            _dialogs.push(dialog)
+            sac.statusMonitor.set('dialogs',emitter.channel,type,_dialogs)
+        }     
+    })
+}
+//dock必须首先声明,因此这里需要做一次判定
+export const useDocks=(docks,emitter)=>{
+    let containers =sac.statusMonitor.get('docks',emitter.channel).$value
+    console.log(containers)
+    for(let container of containers){
+        console.log(container.data.name,docks[container.data.name])
+        if(docks[container.data.name]){
+            docks[container.data.name].init(container.element.querySelector("#sac-interface"))
+        }
+    } 
+    sac.eventBus.on(emitter.channel+'dock-inited',(e)=>{
+        let container=e.detail
+        if(docks[container.data.name]){
+            docks[container.data.name].init(container.element.querySelector("#sac-interface"))
+        }
+    }) 
+}   

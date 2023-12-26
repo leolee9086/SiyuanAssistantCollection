@@ -45,7 +45,7 @@ onMounted(
     () => {
         sac.路由管理器.internalFetch('/search/rss/meta', {
             body: {
-                name:props.itemName
+                name: props.itemName
             }, method: 'POST'
         }).then(res => {
             item.value = res.body
@@ -54,12 +54,23 @@ onMounted(
 )
 const editRule = () => {
     // 编辑规则的逻辑
-    console.log(props)
-    sac.事件管理器.emit('rss-ui','show-tab',props.itemName)
+    sac.eventBus.emit('rss-ui-open-tab', {
+        title: props.itemName,
+        icon: "iconRss",
+        type: 'rssEditor',
+        name:props.itemName
+    })
 }
 
 const viewContent = () => {
     // 查看内容的逻辑
+    let { feeds } = item.value
+    sac.eventBus.emit('rss-ui-open-tab', {
+        feed: Array.from(feeds),
+        title: props.itemName,
+        icon: "iconRss",
+        type: 'rssGrid'
+    })
 }
 
 const toggleEnable = () => {

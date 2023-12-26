@@ -1,7 +1,7 @@
 <template>
     <div class="fn__flex-1 b3-cards">
         <AppCard :app="appData.data" />
-        <RouterCard v-for="router in appData.data.routers" :key="router.endpoint" :router="router" />
+        <RouterCard v-for="router in appData.data.routers" :key="router.endpoint" :router="router" :adapter="appData.name" />
         <FeedCard v-for="feed in appData.data.feeds" :key="feed.path" :feed="feed" />
     </div>
 </template>

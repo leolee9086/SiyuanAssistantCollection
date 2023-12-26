@@ -20,8 +20,15 @@ console.log(feed)
 onMounted(async () => {
   if (Array.isArray(feed)) {
     for (let _feed of feed) {
-      const feedItems = await fetchFeed(_feed.path);
+      let feedItems = await fetchFeed(_feed.path);
+      feedItems= feedItems.map(
+        item=>{
+          item.path = _feed.path
+          return item
+        }
+      )
       items.value=items.value.concat(feedItems);
+      console.log(items.value)
     }
   } else {
     items.value = await fetchFeed(feed.path);
@@ -32,13 +39,15 @@ const safeContent = (content) => {
   return lute.SpinBlockDOM(content);
 };
 const openContent = (item,i) => {
-  sac.eventBus.emit('rss-ui-open-tab', {
-    path:feed.path,
+  let data = {
+    path:feed.path||item.path,
     item:i,
     title: item.title,
     icon: item.icon || "",
     type: 'rssContent'
-  })
+  }
+  console.log(data)
+  sac.eventBus.emit('rss-ui-open-tab',data )
 }
 </script>
 

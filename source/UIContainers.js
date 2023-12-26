@@ -25,12 +25,12 @@ function 创建aiTab容器() {
   });
   plugin.eventBus.on('open-tab', (e) => {
 
-    let data =JSON.parse(JSON.stringify( e.detail.data.data))
-  
+    let data = JSON.parse(JSON.stringify(e.detail.data.data))
+
     clientApi.openTab({
       app: plugin.app,
       custom: {
-        title:data.title + "",
+        title: data.title + "",
         icon: data.icon || "icon",
         data: {
           channel: e.detail.emitter.channel,
@@ -119,16 +119,20 @@ function 创建TIPS侧栏容器() {
 创建TIPS侧栏容器()
 
 function 创建RSS侧栏容器() {
+  let rssDocks = []
+  plugin.statusMonitor.set('docks', 'rss-ui', rssDocks)
+
   const DOCK_TYPE = 'SAC_RSS'
   plugin.addDock({
     config: {
       position: "LeftBottom",
       size: { width: 200, height: 0 },
       icon: "iconRSS",
-      title: "Custom Dock",
+      title: "Rss Dock",
     },
     data: {
-      text: "This is my custom dock"
+      name: "rssSourceMonitor",
+      channel: "rss-ui"
     },
     type: DOCK_TYPE,
     init() {
@@ -143,11 +147,12 @@ function 创建RSS侧栏容器() {
       </div>
   </div>
   <div class="fn__flex-1 fn__flex-column" style="min-height: auto;transition: var(--b3-transition)">
-    <div id="SAC-RSS-List" class='fn__flex-1 b3-cards' style="overflow:auto;max-height:100%;background-color:var(--b3-theme-background)"></div>
+    <div id="sac-interface" class='fn__flex-1 b3-cards' style="overflow:auto;max-height:100%;background-color:var(--b3-theme-background)"></div>
   </div>
   </div>
   <div class="fn__flex">
       `;
+      rssDocks.push(this)
       plugin.statusMonitor.set('RssDockConainer', 'main', this)
       plugin.eventBus.emit('rss-dock-conainer-inited', this)
     },
