@@ -83,13 +83,23 @@ export const Emitter = class {
     }
 }
 export const tabs = {
-    "rssContent":{
+    "rssGrid":{
         init:(element,data,tab)=>{
             console.log(element)
             initVueApp(
-                import.meta.resolve('./UI/components/rssContent.vue'),
+                import.meta.resolve('./UI/components/rssGrid.vue'),
                 'rssContent',
                 {}, 'D:/思源主库/data/plugins/SiyuanAssistantCollection/source',{feed:data.feed}
+            ).mount(element)
+        }
+    },
+    "rssContent":{
+        init:(element,data,tab)=>{
+            console.log(element,data,tab)
+            initVueApp(
+                import.meta.resolve('./UI/components/rssContent.vue'),
+                'rssContent',
+                {}, 'D:/思源主库/data/plugins/SiyuanAssistantCollection/source',{...data}
             ).mount(element)
         }
     }

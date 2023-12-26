@@ -45,3 +45,16 @@ export async function getReposByTopic(topic) {
     return response.data.items;
 }
 
+export async function getReposInfoByTopic(topic){
+    const repos = await getReposByTopic(topic);
+    return repos.map(repo => {
+        const baseUrl = `https://github.com/${repo.owner.login}/${repo.name}/raw/master`;
+        return {
+            name: repo.name,
+            readmeUrl: `${baseUrl}/README.md`,
+            iconUrl: `${baseUrl}/icon.png`,
+            previewUrl: `${baseUrl}/preview.png`,
+            repoUrl: `https://github.com/${repo.owner.login}/${repo.name}`
+        };
+    });
+}

@@ -5,6 +5,9 @@ import RSSRoute from './rssLoader/routeMapV1.js'
 import xmlBuilder from '../../../../static/xmlBuilder.js'
 import { got } from "../runtime.js";
 import XMLParser from '../../../../static/fast-xml-parser.js'
+import fs from "../../../polyfills/fs.js";
+import path from "../../../polyfills/path.js"
+import crypto from "../../../../static/crypto-browserify.js"
 
 export const rssrouter = new sac.路由管理器.Router()
 const listRss=async(page,pageSize)=>{
@@ -70,6 +73,7 @@ rssrouter.post('/enable', async (ctx, next) => {
     ctx.body =configs[name]
     next()
 })
+
 async function handleFeedRequest(ctx, next) {
     let format = 'json';
     let remote;
@@ -99,6 +103,8 @@ async function handleFeedRequest(ctx, next) {
     next()
 }
 rssrouter.post('/feed', handleFeedRequest);
+rssrouter.post('/feedContent', handleFeedContentRequest);
+
 rssrouter.get('/feed/:path*', handleFeedRequest);
 rssrouter.get('/package/:name*', async(ctx,next)=>{
     let zipData = await rssPackages.packageZip(ctx.params.name);
@@ -106,8 +112,65 @@ rssrouter.get('/package/:name*', async(ctx,next)=>{
     ctx.set('Content-Disposition', `attachment; filename=${ctx.params.name}.zip`);
     ctx.body = zipData;
 });
+async function handleFeedContentRequest(ctx, next) {
+    let path = ctx.req.body.path 
+    let itemIndex = ctx.req.body.item; 
+    console.log(path,itemIndex)
+    let feedJson = await getFeedJson(path, false); // 获取RSS feed
+    console.log(feedJson)
+    let item = feedJson.item[itemIndex]; // 获取指定序号的item
+    if (item) {
+        // 如果item存在，返回它的内容
+        ctx.type = 'application/json'
+        ctx.body = item;
+    } else {
+        // 如果item不存在，返回一个错误消息
+        ctx.status = 404;
+        ctx.body = { error: 'Item not found' };
+    }
+    next()
+}
+async function getFeedJson(filePath, remote, query) {
+    let feedJson;
+    await fs.mkdir('/temp/noobTemp/rss')
+    const hash = crypto.createHash('md5').update(filePath + JSON.stringify(query)).digest('hex');
+    const cachePath = path.join('/temp/noobTemp/rss', hash);
 
-async function getFeedJson(path, remote) {
+    // 检查缓存文件是否存在
+    if (await fs.exists(cachePath)) {
+        // 从缓存文件中读取数据
+        const data = await fs.readFile(cachePath);
+        feedJson = JSON.parse(data);
+    } else {
+        if (remote) {
+            // 从远程服务器获取RSS feed
+            const response = await got(remote);
+            if (response.headers['content-type'] === 'application/json') {
+                feedJson = JSON.parse(response.body);
+            } else if (response.headers['content-type'] === 'text/xml') {
+                feedJson = XMLParser.parse(response.body);
+            }
+        } else {
+            let _ctx = mocCtx(filePath, {})
+            let data = await new Promise((resolve, reject) => {
+                try {
+                    RSSRoute.routes('/')(_ctx, () => {
+                        resolve(_ctx)
+                    });
+                } catch (e) {
+                    reject(e)
+                }
+            })
+            feedJson = data.state.data
+        }
+
+        // 将数据写入到缓存文件中
+        await fs.writeFile(cachePath, JSON.stringify(feedJson));
+    }
+
+    return feedJson;
+}
+/*async function getFeedJson(path, remote) {
     let feedJson;
     if (remote) {
         // 从远程服务器获取RSS feed
@@ -131,7 +194,7 @@ async function getFeedJson(path, remote) {
         feedJson = data.state.data
     }
     return feedJson;
-}
+}*/
 function buildFeedXML(feedJson, path) {
     let rss = xmlBuilder.create('rss', { version: '1.0', encoding: 'UTF-8' })
         .att('version', '2.0')

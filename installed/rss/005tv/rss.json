@@ -1,0 +1,18 @@
+{
+    "routers": [
+        {
+            "endpoint":"/005tv/zx/latest",
+            "file": "zx.js",
+            "description":"来自005TV的最新消息"
+        }
+    ],
+    "description": " 羁绊网络（www.005.tv）是一家国内顶尖的动漫游戏门户网站，致力于为ACG爱好者搭建一个资源，资讯，以及交流平台。",
+    "feeds": [
+        {
+            "path": "/005tv/zx/latest",
+            "timer": "0 * * * * * ",
+            "title":"来自005TV的最新消息",
+            "description":"来自005TV的最新消息"
+        }
+    ]
+}

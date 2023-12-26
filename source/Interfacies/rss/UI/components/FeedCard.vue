@@ -38,7 +38,7 @@ export default {
             feed:that.feed,
             title:that.feed.title,
             icon:that.feed.icon||"",
-            type:'rssContent'
+            type:'rssGrid'
         })}
     }
 }
