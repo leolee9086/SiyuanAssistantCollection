@@ -12,27 +12,20 @@
 <script setup>
 import { ref, onMounted, inject } from 'vue';
 import { sac } from 'runtime'
+import { fetchFeed } from '../utils/feed.js';
 const items = ref([]);
 const lute = Lute.New();
 const { feed } = inject('appData')
 console.log(feed)
 onMounted(async () => {
-  const response = await sac.路由管理器.internalFetch('/search/rss/feed/', {
-    method: "POST",
-    body: {
-      format: 'xml',
-      path: feed.path
+  if (Array.isArray(feed)) {
+    for (let _feed of feed) {
+      const feedItems = await fetchFeed(_feed.path);
+      items.value=items.value.concat(feedItems);
     }
-  });
-  const text = await response.body;
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(text, 'application/xml');
-  const nodes = doc.querySelectorAll('item');
-  items.value = Array.from(nodes).map(node => ({
-    title: node.querySelector('title').textContent,
-    content: node.querySelector('description').textContent,
-    link: node.querySelector('link').textContent
-  }));
+  } else {
+    items.value = await fetchFeed(feed.path);
+  }
 });
 
 const safeContent = (content) => {
