@@ -1,24 +1,9 @@
 import { got } from '../runtime.js';
 import { convertTgzToZip } from '../../../utils/Archive/tgz.js'
 import { fs,path, kernelApi } from '../runtime.js';
-async function getFastestRegistry() {
-    const registries = ['https://registry.npmjs.org', 'https://registry.npmmirror.com'];
-    const requests = registries.map((registry) => {
-        return new Promise(async (resolve, reject) => {
-            try {
-                const response = await got(registry);
-                if (response.statusCode >= 200 && response.statusCode < 300) {
-                    resolve(registry);
-                } else {
-                    reject(`Error while accessing registry ${registry}: Status code ${response.statusCode}`);
-                }
-            } catch (error) {
-                reject(`Error while accessing registry ${registry}: ${error}`);
-            }
-        });
-    });
-    return Promise.race(requests);
-}
+import { getFastestEndpoint } from '../../../utils/network/fastest.js';
+const registries = ['https://registry.npmjs.org', 'https://registry.npmmirror.com'];
+const getFastestRegistry=async()=>{return await getFastestEndpoint(registries)}
 // 获取包的最新版本信息
 async function 获取最新版本信息(包名) {
     const registry = await getFastestRegistry()
