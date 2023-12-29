@@ -20,9 +20,6 @@ const listRss=async(page,pageSize)=>{
     return {data,total}
 }
 rssrouter.post('/list',async(ctx,next)=>{
-   /* let { page = 1, pageSize = 10 } = ctx.req.body; // 获取页码和每页的数量，如果没有则默认为1和10
-    let rssListData =await listRss(page,pageSize)
-    ctx.body =  rssListData*/
     ctx.path='/packages/sac-rss-adapter/list'
     next()
 })
