@@ -1,3 +1,4 @@
+import { got } from "./got.js";
 export const getFastestEndpoint= async (endpoints)=>{
     const requests = endpoints.map((endpoint) => {
         return new Promise(async (resolve, reject) => {

@@ -1,0 +1,14 @@
+{
+  "name": "afdian-rss",
+  "version": "0.0.1",
+  "description": "用于思源小助手的爱发电rss适配器,基于rsshub的路由函数修改而来",
+  "main": "dynamic.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "sac-rss-adapter"
+  ],
+  "author": "leolee9086",
+  "license": "AGPL-3.0-or-later"
+}
