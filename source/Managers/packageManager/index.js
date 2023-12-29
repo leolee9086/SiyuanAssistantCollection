@@ -1,17 +1,17 @@
 import { 下载基础模型 } from "./models.js";
 import { 解压依赖 } from './dependencies.js'
-import { fs,kernelApi,path } from "./runtime.js";
+import { fs, kernelApi, path } from "./runtime.js";
 import { sac } from "./runtime.js";
 export { 下载基础模型 as 下载基础模型 }
 export { 解压依赖 as 解压依赖 }
-import {  getReposInfoByTopic, installPackageZip } from "./adapters/GitHub.js";
+import { getReposInfoByTopic, installPackageZip } from "./adapters/GitHub.js";
 import { installPackageZip as installPackageZipNpm } from "./adapters/NPM.js";
 import { getPackageInfoByKeyword } from "./adapters/NPM.js";
 import { getReposFromURL } from "./adapters/fileList.js";
 // 将路径替换操作抽取为单独的函数
 function replacePath(path, packageName) {
-    let _path= path.replace('@sac', sac.selfPath) 
-    return packageName ?_path+`/${packageName}/`:_path
+    let _path = path.replace('@sac', sac.selfPath)
+    return packageName ? _path + `/${packageName}/` : _path
 }
 // 将读取 JSON 文件的操作抽取为单独的函数
 async function readJsonFile(path) {
@@ -28,7 +28,7 @@ export const type = (packageDefine = {}) => {
         async getStatus() {
             // Implement getStatus method
         },
-        async writeStatus(packageName,status) {
+        async writeStatus(packageName, status) {
             // Implement writeStatus method
             //首先读取包类型安装目录下的json文件,这个json文件与包类型同名,例如包类型如果是plugin.那么配置文件就是plugins.json
             //然后找到包名对应的项目,将status写入,并写回文件
@@ -55,16 +55,16 @@ export const type = (packageDefine = {}) => {
         async listFromGithub() {
             return await getReposInfoByTopic(packageDefine.topic)
         },
-        async listFromNpm(){
+        async listFromNpm() {
             return await getPackageInfoByKeyword(packageDefine.topic)
         },
-        async addPackageSourceFromUrl(url,type){
-            return await getReposFromURL(url,packageDefine.topic,type)
+        async addPackageSourceFromUrl(url, type) {
+            return await getReposFromURL(url, packageDefine.topic, type)
         },
-        async listFromAllRemoteSource(){
+        async listFromAllRemoteSource() {
             const githubPackages = await this.listFromGithub();
             const npmPackages = await this.listFromNpm();
-            return [...githubPackages, ...npmPackages];        
+            return [...githubPackages, ...npmPackages];
         },
         async packageZip(packageName) {
             const dataPath = replacePath(packageDefine.location, packageName);
@@ -76,19 +76,19 @@ export const type = (packageDefine = {}) => {
             const data = await fs.readFile(`/temp/noobTemp/bazzarPackage/${packageName}.zip`);
             return Buffer.from(data);
         },
-        async checkInstall(packageName){
+        async checkInstall(packageName) {
             const dataPath = replacePath(packageDefine.location, packageName);
-            let exists= await fs.exists(dataPath)
-            return exists?true:false
+            let exists = await fs.exists(dataPath)
+            return exists ? true : false
         },
         async install(packageInfo) {
             const { packageSource, packageRepo, packageName } = packageInfo;
-            let installPath =replacePath(packageDefine.location,packageName)
+            let installPath = replacePath(packageDefine.location, packageName)
             if (packageSource === 'github') {
-                await installPackageZip(installPath,packageName,packageRepo)
+                await installPackageZip(installPath, packageName, packageRepo)
             }
             if (packageSource === 'npm') {
-                await installPackageZipNpm(installPath,packageName,packageRepo)
+                await installPackageZipNpm(installPath, packageName, packageRepo)
             }
         },
         async uninstall(packageName) {
@@ -97,8 +97,10 @@ export const type = (packageDefine = {}) => {
         }
     };
 };
-export const usePackage=(packageDefine,emitter)=>{
-    let packageHandeler=type(packageDefine)
-    packageHandeler.emitter = emitter
-    sac.statusMonitor.set('packages',packageDefine.name,packageHandeler)
-}
+export const usePackage = async (packageDefines) => {
+    console.log(packageDefines);
+    for ( const packageDefine of packageDefines) {
+        let packageHandler = type(packageDefine);
+        await sac.statusMonitor.set('packages', packageDefine.name, packageHandler);
+    }
+};

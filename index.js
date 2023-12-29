@@ -227,15 +227,16 @@ class SiyuanAssistantCollection extends ccPlugin {
     //后端模块加载的顺序就无所谓了,反正互相之间没有强依赖关系
     //加载事件路由
     this.从esm模块('./source/Processors/searchers/index.js').合并子模块('搜索处理器').then(
-      () => { 
-        this.路由管理器.根路由.use('/search', this.搜索处理器.router.routes('/')) 
-        this.从esm模块('./source/Interfacies/rss/index.js').合并子模块('rss订阅器').then(
+      async () => { 
+        await this.包管理器.usePackage(this.搜索处理器.packages)
+        console.log(await this.statusMonitor.get('packages','sac-rss-adapter').$value)
+        await this.路由管理器.根路由.use('/search', this.搜索处理器.router.routes('/')) 
+        await this.从esm模块('./source/Interfacies/rss/index.js').合并子模块('rss订阅器').then(
           () => {
              let emitter = this.事件管理器.use(this.rss订阅器.Emitter )
              this.UI管理器.useTabs(this.rss订阅器.tabs,emitter)
              this.UI管理器.useDialogs(this.rss订阅器.dialogs,emitter)
              this.UI管理器.useDocks(this.rss订阅器.docks,emitter)
-
           }
         )
       }

@@ -1,9 +1,8 @@
-import { sac } from "../runtime.js";
 import { lazyloadRouteHandler } from "./rssLoader/routeMapV1.js";
-export const rssPackages=sac.包管理器.type(
+export const rssPackages=
     {
         //包类型的名称
-        name: 'rss',
+        name: 'sac-rss-adapter',
         //包类型的元数据名称
         meta: 'rss.json',
         //包类型的设置文件名称,可以为空
@@ -21,16 +20,4 @@ export const rssPackages=sac.包管理器.type(
             return  await lazyloadRouteHandler(rssPackages.resolve(packageName,fileName))
         }
     }
-)
-export const rssPackagesV2=sac.包管理器.type(
-    {
-        name: 'rss',
-        meta: 'rss.json',
-        config:'rss.json',
-        location: '@sac/installed/rssV2',
-        topic:"sac-rss-adapter",
-        load:async(packageName,fileName)=>{
-            return  await lazyloadRouteHandler(rssPackages.resolve(packageName,fileName))
-        }
-    }
-)
+

@@ -3,29 +3,21 @@ import { convertTgzToZip } from '../../../utils/Archive/tgz.js'
 import { fs,path, kernelApi } from '../runtime.js';
 async function getFastestRegistry() {
     const registries = ['https://registry.npmjs.org', 'https://registry.npmmirror.com'];
-    const requests = registries.map(async (registry) => {
-        try {
-            const start = Date.now();
-            await got(registry);
-            const end = Date.now();
-            return {
-                registry,
-                time: end - start
-            };
-        } catch (error) {
-            console.error(`Error while accessing registry ${registry}: ${error}`);
-            return {
-                registry,
-                time: Infinity
-            };
-        }
+    const requests = registries.map((registry) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const response = await got(registry);
+                if (response.statusCode >= 200 && response.statusCode < 300) {
+                    resolve(registry);
+                } else {
+                    reject(`Error while accessing registry ${registry}: Status code ${response.statusCode}`);
+                }
+            } catch (error) {
+                reject(`Error while accessing registry ${registry}: ${error}`);
+            }
+        });
     });
-    const times = await Promise.all(requests);
-    times.sort((a, b) => a.time - b.time);
-    if (times[0].time === Infinity) {
-        throw new Error('All registries are unavailable');
-    }
-    return times[0].registry;
+    return Promise.race(requests);
 }
 // 获取包的最新版本信息
 async function 获取最新版本信息(包名) {

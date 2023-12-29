@@ -1,5 +1,4 @@
 import { sac } from "../runtime.js";
-import { rssPackages,rssPackagesV2 } from "./package.js";
 import mocCtx from "./rssLoader/ctxPolyfills.js";
 import RSSRoute from './rssLoader/routeMapV1.js'
 import xmlBuilder from '../../../../static/xmlBuilder.js'
@@ -8,16 +7,16 @@ import XMLParser from '../../../../static/fast-xml-parser.js'
 import fs from "../../../polyfills/fs.js";
 import path from "../../../polyfills/path.js"
 import crypto from "../../../../static/crypto-browserify.js"
+const rssPackagesAsync =async()=>{return await sac.statusMonitor.get('packages','sac-rss-adapter').$value}
 
 export const rssrouter = new sac.路由管理器.Router()
 const listRss=async(page,pageSize)=>{
+    const rssPackages=await rssPackagesAsync()
     page = Number(page);
     pageSize = Number(pageSize);
     let rssList = await rssPackages.list();
-    let rssList1 = await rssPackagesV2.list();
-    const allData = rssList.concat(rssList1); // 合并两个列表
-    const total = allData.length; // 获取总数量
-    const data = allData.slice((page - 1) * pageSize, page * pageSize); // 根据页码和每页的数量来获取数据
+    const total = rssList.length; // 获取总数量
+    const data = rssList.slice((page - 1) * pageSize, page * pageSize); // 根据页码和每页的数量来获取数据
     return {data,total}
 }
 rssrouter.post('/list',async(ctx,next)=>{
@@ -26,14 +25,16 @@ rssrouter.post('/list',async(ctx,next)=>{
     ctx.body =  rssListData
 })
 rssrouter.post('/listAdapters/github',async(ctx,next)=>{
+    const rssPackages=await rssPackagesAsync()
+
     let { adapter } = ctx.req.body; 
     console.log(adapter)
     let rssAdaptersListData =await rssPackages.listFromGithub()
     ctx.body =  rssAdaptersListData
 })
 rssrouter.post('/listAdapters/all',async(ctx,next)=>{
-    let { adapter } = ctx.req.body; 
-    console.log(adapter)
+    const rssPackages=await rssPackagesAsync()
+
     let rssAdaptersListData =await rssPackages.listFromAllRemoteSource()
     ctx.body =  rssAdaptersListData
 })
@@ -44,26 +45,36 @@ rssrouter.get('/list',async(ctx,next)=>{
     ctx.body =  rssListData
 })
 rssrouter.post('/meta',async (ctx, next) => {
+    const rssPackages=await rssPackagesAsync()
+
     let { name } = ctx.req.body; // 获取页码和每页的数量，如果没有则默认为1和10
     ctx.body = await rssPackages.getMeta(name)
     return ctx;
 })
 rssrouter.get('/meta',async (ctx, next) => {
+    const rssPackages=await rssPackagesAsync()
+
     let { name } = ctx.query; // 获取页码和每页的数量，如果没有则默认为1和10
     ctx.body = await rssPackages.getMeta(name)
     return ctx;
 })
 rssrouter.post('/install',async (ctx, next) => {
+    const rssPackages=await rssPackagesAsync()
+
     let { packageSource,packageName } = ctx.req.body; // 获取页码和每页的数量，如果没有则默认为1和10
     ctx.body = await rssPackages.install(ctx.req.body)
     return ctx;
 })
 rssrouter.post('/unInstall',async (ctx, next) => {
+    const rssPackages=await rssPackagesAsync()
+
     let { packageName } = ctx.req.body; // 获取页码和每页的数量，如果没有则默认为1和10
     ctx.body = await rssPackages.uninstall(packageName)
     return ctx;
 })
 rssrouter.post('/checkInstall',async (ctx, next) => {
+    const rssPackages=await rssPackagesAsync()
+
     let { packageName } = ctx.req.body; // 获取页码和每页的数量，如果没有则默认为1和10
     ctx.body = await rssPackages.checkInstall(packageName)
     return ctx;
@@ -71,6 +82,8 @@ rssrouter.post('/checkInstall',async (ctx, next) => {
 let enabled = {}
 let configs ={}
 rssrouter.post('/enable', async (ctx, next) => {
+    const rssPackages=await rssPackagesAsync()
+
     let name =ctx.req.body.name
     if (!enabled[name]) {
         let config = await rssPackages.getConfig(name)
@@ -118,6 +131,8 @@ rssrouter.post('/feedContent', handleFeedContentRequest);
 
 rssrouter.get('/feed/:path*', handleFeedRequest);
 rssrouter.get('/package/:name*', async(ctx,next)=>{
+    const rssPackages=await rssPackagesAsync()
+
     let zipData = await rssPackages.packageZip(ctx.params.name);
     ctx.type = 'application/zip';
     ctx.set('Content-Disposition', `attachment; filename=${ctx.params.name}.zip`);
