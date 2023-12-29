@@ -1,6 +1,5 @@
 import { clientApi, sac } from "../../asyncModules.js"
 export const useTabs = (tabs, emitter) => {
-    console.log(tabs)
     sac.eventBus.on(emitter.channel + '-' + 'open-tab', (e) => {
         sac.eventBus.emit('open-tab', {
             emitter: emitter,
@@ -11,7 +10,7 @@ export const useTabs = (tabs, emitter) => {
             }
         })
     })
-    sac.eventBus.on(emitter.channel + '-' + 'tab-opened', (e) => {
+    sac.eventBus.on(emitter.channel + '-' + 'tab-inited', (e) => {
         console.log(e)
         if(tabs[e.detail.data.type]){
             tabs[e.detail.data.type].init(e.detail.element.querySelector("#sac-interface"),e.detail.data,e.detail)
@@ -52,16 +51,13 @@ export const useDialogs=(dialogs,emitter)=>{
 //dock必须首先声明,因此这里需要做一次判定
 export const useDocks=(docks,emitter)=>{
     let containers =sac.statusMonitor.get('docks',emitter.channel).$value
-    console.log(containers)
     for(let container of containers){
-        console.log(container.data.name,docks[container.data.name])
         if(docks[container.data.name]){
             docks[container.data.name].init(container.element.querySelector("#sac-interface"))
         }
     } 
     sac.eventBus.on(emitter.channel+'-'+'dock-container-inited',(e)=>{
         let container=e.detail
-        console.log(container)
         if(docks[container.data.name]){
             docks[container.data.name].init(container.element.querySelector("#sac-interface"))
         }

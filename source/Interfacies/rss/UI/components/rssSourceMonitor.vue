@@ -3,18 +3,12 @@
         <div class="b3-card__body fn__flex" style="font-size:small !important;padding:0">
             <div class="b3-card__actions b3-card__actions--right">
                 <span class="block__icon block__icon--show ariaLabel" data-rss-adapter-source="github"
-                    aria-label="从GitHub安装解析器">
+                    aria-label="安装解析器"
+                    @click="openGithubSourceTab"
+                    >
                     <svg>
-                        <use xlink:href="#iconGithub"></use>
+                        <use xlink:href="#iconAdd"></use>
                     </svg>
-                </span>
-                <span class="block__icon block__icon--show ariaLabel" aria-label="从npmjs安装解析器" data-rss-adapter-source="npmjs">
-                    <svg>
-                        <use xlink:href="#iconNPM"></use>
-                    </svg>
-                </span>
-                <span class="block__icon block__icon--show ariaLabel" aria-label="从远程思源安装解析器" data-rss-adapter-source="siyuan">
-                    <img src="/stage/icon.png" style="width: 24px;">
                 </span>
                 <span class="block__icon block__icon--show ariaLabel" aria-label="查看所有" data-rss-adapter-source="siyuan">
                     <svg>
@@ -42,4 +36,14 @@ onMounted(()=>{
         list.value =res.body.data
     })
 })
+const openGithubSourceTab= ()=>{
+    sac.eventBus.emit(
+        'rss-ui-open-tab',
+        {
+            icon:"iconGithub",
+            title:"添加rss适配器",
+            type:"rssAdaptersGithub"
+        }
+    )
+}
 </script>

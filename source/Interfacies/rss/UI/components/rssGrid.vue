@@ -16,7 +16,6 @@ import { fetchFeed } from '../utils/feed.js';
 const items = ref([]);
 const lute = Lute.New();
 const { feed } = inject('appData')
-console.log(feed)
 onMounted(async () => {
   if (Array.isArray(feed)) {
     for (let _feed of feed) {
@@ -38,6 +37,7 @@ onMounted(async () => {
 const safeContent = (content) => {
   return lute.SpinBlockDOM(content);
 };
+
 const openContent = (item,i) => {
   let data = {
     path:feed.path||item.path,

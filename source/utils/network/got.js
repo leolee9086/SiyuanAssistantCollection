@@ -25,8 +25,8 @@ export const got = async (urlOptions, options = {}) => {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36 Edg/116.0.1938.76"
         }],
         payload: options.body,
-        payloadEncoding: 'text',
-        responseEncoding: 'text',
+        payloadEncoding: options.payloadEncoding||'text',
+        responseEncoding:options.responseEncoding||'text',
     }
     if (!body.headers['User-Agent']) {
         body.headers['User-Agent'] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36 Edg/116.0.1938.76";
@@ -48,6 +48,11 @@ export const got = async (urlOptions, options = {}) => {
     const data = await response.json();
     if (data.code !== 0) {
         throw new Error(`Server error! msg: ${data.msg}`);
+    }
+    if (options.responseType === 'buffer') {
+        let text = data.data.body
+        let uint8Array =await parseRequestBody(text);
+        data.data.body = uint8Array;
     }
     let res = {
         body: data.data.body,
@@ -80,3 +85,8 @@ got.extend = (options = {}) => {
     }
     return newGot;
 };
+function parseRequestBody(requestBody) {
+    console.log(requestBody)
+    let binaryData = new Uint8Array(requestBody.split('').map(char => char.charCodeAt(0))).buffer;
+    return binaryData
+}

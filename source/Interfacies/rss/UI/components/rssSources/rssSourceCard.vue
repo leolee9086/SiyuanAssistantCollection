@@ -6,14 +6,17 @@
                     <use xlink:href="#iconRSS"></use>
                 </svg>
             </div>
-            <div class="fn__flex-1 fn__flex-column">
-                <div class="b3-card__info b3-card__info--left fn__flex-1">
-                    <span class="ft__on-surface ft__smaller">{{ item.name }}</span>
-                    <div class="b3-card__desc" :title="item.title">
-                        {{ item.description }}
+            <div class="fn__flex-1 ">
+                <div class="fn__flex-1 fn__flex-column">
+                    <div class="b3-card__info b3-card__info--left fn__flex-1">
+                        <span class="ft__on-surface ft__smaller">{{ item.name }}</span>
+                        <div class="b3-card__desc" :title="item.title">
+                            {{ item.description }}
+                        </div>
                     </div>
                 </div>
             </div>
+            <div class="fn__space"></div>
             <div class="b3-card__actions b3-card__actions--right">
                 <span class="block__icon block__icon--show ariaLabel" aria-label="编辑rss规则" @click.stop="editRule">
                     <svg>
@@ -58,7 +61,7 @@ const editRule = () => {
         title: props.itemName,
         icon: "iconRss",
         type: 'rssEditor',
-        name:props.itemName
+        name: props.itemName
     })
 }
 

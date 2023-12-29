@@ -1,4 +1,6 @@
 import { got } from "../runtime.js";
+import { download } from "../downloader/downloader.js";
+import {kernelApi} from "../runtime.js";
 // 获取最新发布版本的信息
 async function 获取最新发布版本信息(所有者, 仓库) {
     let url = `https://api.github.com/repos/${所有者}/${仓库}/releases/latest`;
@@ -37,24 +39,44 @@ export async function 下载最新发布版本文件(所有者, 仓库, 文件�
     let 文件下载链接 = 获取文件下载链接(发布版本, 文件名);
     await 下载文件(文件下载链接, 文件名);
 }
-
-
 export async function getReposByTopic(topic) {
     const url = `https://api.github.com/search/repositories?q=topic:${topic}`;
     const response = await got(url);
     return response.data.items;
 }
-
+// GitHub adapter
 export async function getReposInfoByTopic(topic){
     const repos = await getReposByTopic(topic);
-    return repos.map(repo => {
+    return Promise.all(repos.map(async repo => {
         const baseUrl = `https://github.com/${repo.owner.login}/${repo.name}/raw/master`;
+        const releaseUrl = `https://api.github.com/repos/${repo.owner.login}/${repo.name}/releases/latest`;
+        const releaseResponse = await got(releaseUrl);
+        const releaseData = JSON.parse(releaseResponse.body);
         return {
             name: repo.name,
+            version: releaseData.tag_name,
+            description: repo.description,
+            homepage: repo.homepage,
+            npmUrl: null,
+            repoUrl: `https://github.com/${repo.owner.login}/${repo.name}`,
             readmeUrl: `${baseUrl}/README.md`,
             iconUrl: `${baseUrl}/icon.png`,
             previewUrl: `${baseUrl}/preview.png`,
-            repoUrl: `https://github.com/${repo.owner.login}/${repo.name}`
+            source:"github"
         };
-    });
+    }));
+}
+export async function installPackageZip(installPath,packageName,repo){
+    const response = await fetch(`https://api.github.com/repos/${repo.replace('https://github.com/', '')}/releases/latest`);
+    const data = await response.json();
+    const zipAsset = data.assets.find(asset => asset.name === 'package.zip');
+    if (zipAsset) {
+        const fileURL = zipAsset.browser_download_url;
+        const tempPath = `/temp/noobTemp/bazzarPackage/${packageName}.zip`;
+        await download(fileURL, tempPath);
+        await kernelApi.unzip({
+            zipPath: tempPath,
+            path: installPath
+        });
+    }
 }

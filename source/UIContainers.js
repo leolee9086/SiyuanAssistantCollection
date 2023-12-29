@@ -9,7 +9,7 @@ let topBarButton = plugin.addTopBar(
   }
 )
 plugin.statusMonitor.set('UI', 'topBarButton', topBarButton)
-function 创建aiTab容器() {
+function 创建Tab容器() {
   const DOCK_TYPE = 'SAC_Tab'
   plugin.TabContainer = plugin.addTab({
     type: DOCK_TYPE,
@@ -24,9 +24,7 @@ function 创建aiTab容器() {
     }
   });
   plugin.eventBus.on('open-tab', (e) => {
-
     let data = JSON.parse(JSON.stringify(e.detail.data.data))
-
     clientApi.openTab({
       app: plugin.app,
       custom: {
@@ -36,7 +34,6 @@ function 创建aiTab容器() {
           channel: e.detail.emitter.channel,
           icon: data.icon || "icon",
           title: data.title,
-
           ...data
         },
         id: plugin.name + DOCK_TYPE
@@ -49,7 +46,7 @@ function 创建aiTab容器() {
     )
   })
 }
-创建aiTab容器()
+创建Tab容器()
 
 function 创建AI侧栏容器() {
   const DOCK_TYPE = 'SAC_CHAT'

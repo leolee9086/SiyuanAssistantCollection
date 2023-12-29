@@ -31,6 +31,12 @@ rssrouter.post('/listAdapters/github',async(ctx,next)=>{
     let rssAdaptersListData =await rssPackages.listFromGithub()
     ctx.body =  rssAdaptersListData
 })
+rssrouter.post('/listAdapters/all',async(ctx,next)=>{
+    let { adapter } = ctx.req.body; 
+    console.log(adapter)
+    let rssAdaptersListData =await rssPackages.listFromAllRemoteSource()
+    ctx.body =  rssAdaptersListData
+})
 rssrouter.get('/list',async(ctx,next)=>{
     let { page = 1, pageSize = 10 } = ctx.query; // 获取页码和每页的数量，如果没有则默认为1和10
     let rssListData =await listRss(page,pageSize)
@@ -48,13 +54,18 @@ rssrouter.get('/meta',async (ctx, next) => {
     return ctx;
 })
 rssrouter.post('/install',async (ctx, next) => {
-    let { adapterSource,adapterName } = ctx.req.body; // 获取页码和每页的数量，如果没有则默认为1和10
+    let { packageSource,packageName } = ctx.req.body; // 获取页码和每页的数量，如果没有则默认为1和10
     ctx.body = await rssPackages.install(ctx.req.body)
     return ctx;
 })
-rssrouter.post('/uninstall',async (ctx, next) => {
-    let { adapterName } = ctx.req.body; // 获取页码和每页的数量，如果没有则默认为1和10
-    ctx.body = await rssPackages.install(adapterName)
+rssrouter.post('/unInstall',async (ctx, next) => {
+    let { packageName } = ctx.req.body; // 获取页码和每页的数量，如果没有则默认为1和10
+    ctx.body = await rssPackages.uninstall(packageName)
+    return ctx;
+})
+rssrouter.post('/checkInstall',async (ctx, next) => {
+    let { packageName } = ctx.req.body; // 获取页码和每页的数量，如果没有则默认为1和10
+    ctx.body = await rssPackages.checkInstall(packageName)
     return ctx;
 })
 let enabled = {}
@@ -170,31 +181,7 @@ async function getFeedJson(filePath, remote, query) {
 
     return feedJson;
 }
-/*async function getFeedJson(path, remote) {
-    let feedJson;
-    if (remote) {
-        // 从远程服务器获取RSS feed
-        const response = await got(remote);
-        if (response.headers['content-type'] === 'application/json') {
-            feedJson = JSON.parse(response.body);
-        } else if (response.headers['content-type'] === 'text/xml') {
-            feedJson = XMLParser.parse(response.body);
-        }
-    } else {
-        let _ctx = mocCtx(path, {})
-        let data = await new Promise((resolve, reject) => {
-            try {
-                RSSRoute.routes('/')(_ctx, () => {
-                    resolve(_ctx)
-                });
-            } catch (e) {
-                reject(e)
-            }
-        })
-        feedJson = data.state.data
-    }
-    return feedJson;
-}*/
+
 function buildFeedXML(feedJson, path) {
     let rss = xmlBuilder.create('rss', { version: '1.0', encoding: 'UTF-8' })
         .att('version', '2.0')

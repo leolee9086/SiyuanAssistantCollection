@@ -4,20 +4,20 @@ import { fs,kernelApi,path } from "./runtime.js";
 import { sac } from "./runtime.js";
 export { 下载基础模型 as 下载基础模型 }
 export { 解压依赖 as 解压依赖 }
-import {  getReposInfoByTopic } from "./adapters/GitHub.js";
-import { download } from "./downloader/downloader.js";
+import {  getReposInfoByTopic, installPackageZip } from "./adapters/GitHub.js";
+import { installPackageZip as installPackageZipNpm } from "./adapters/NPM.js";
+import { getPackageInfoByKeyword } from "./adapters/NPM.js";
+import { getReposFromURL } from "./adapters/fileList.js";
 // 将路径替换操作抽取为单独的函数
 function replacePath(path, packageName) {
     let _path= path.replace('@sac', sac.selfPath) 
     return packageName ?_path+`/${packageName}/`:_path
 }
-
 // 将读取 JSON 文件的操作抽取为单独的函数
 async function readJsonFile(path) {
     const data = await fs.readFile(path);
     return JSON.parse(data);
 }
-
 export const type = (packageDefine = {}) => {
     return {
         async list() {
@@ -55,6 +55,17 @@ export const type = (packageDefine = {}) => {
         async listFromGithub() {
             return await getReposInfoByTopic(packageDefine.topic)
         },
+        async listFromNpm(){
+            return await getPackageInfoByKeyword(packageDefine.topic)
+        },
+        async addPackageSourceFromUrl(url,type){
+            return await getReposFromURL(url,packageDefine.topic,type)
+        },
+        async listFromAllRemoteSource(){
+            const githubPackages = await this.listFromGithub();
+            const npmPackages = await this.listFromNpm();
+            return [...githubPackages, ...npmPackages];        
+        },
         async packageZip(packageName) {
             const dataPath = replacePath(packageDefine.location, packageName);
             await fs.mkdir(`/temp/noobTemp/bazzarPackage/`);
@@ -65,27 +76,29 @@ export const type = (packageDefine = {}) => {
             const data = await fs.readFile(`/temp/noobTemp/bazzarPackage/${packageName}.zip`);
             return Buffer.from(data);
         },
+        async checkInstall(packageName){
+            const dataPath = replacePath(packageDefine.location, packageName);
+            let exists= await fs.exists(dataPath)
+            return exists?true:false
+        },
         async install(packageInfo) {
             const { packageSource, packageRepo, packageName } = packageInfo;
+            let installPath =replacePath(packageDefine.location,packageName)
             if (packageSource === 'github') {
-                const response = await fetch(`https://api.github.com/repos/${packageRepo.replace('https://github.com/', '')}/releases/latest`);
-                const data = await response.json();
-                const zipAsset = data.assets.find(asset => asset.name === 'package.zip');
-                if (zipAsset) {
-                    const fileURL = zipAsset.browser_download_url;
-                    const dataPath = replacePath(packageDefine.location, packageName);
-                    const tempPath = `/temp/noobTemp/bazzarPackage/${packageName}.zip`;
-                    await download(fileURL, tempPath);
-                    await kernelApi.unzip({
-                        zipPath: tempPath,
-                        path: dataPath
-                    });
-                }
+                await installPackageZip(installPath,packageName,packageRepo)
+            }
+            if (packageSource === 'npm') {
+                await installPackageZipNpm(installPath,packageName,packageRepo)
             }
         },
         async uninstall(packageName) {
-            const dataPath = replacePath(packageDefine.location, packageName);
-            await fs.removeFile(dataPath);
+            const installPath = replacePath(packageDefine.location, packageName);
+            await fs.removeFile(installPath);
         }
     };
 };
+export const usePackage=(packageDefine,emitter)=>{
+    let packageHandeler=type(packageDefine)
+    packageHandeler.emitter = emitter
+    sac.statusMonitor.set('packages',packageDefine.name,packageHandeler)
+}

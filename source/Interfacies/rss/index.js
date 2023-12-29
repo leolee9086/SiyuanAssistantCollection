@@ -1,21 +1,29 @@
 import { sac } from "../../asyncModules.js"
 import { initVueApp } from "../../UI/utils/componentsLoader.js"
-import { 渲染rss内容 } from "./UI/components/rssEditor.js"
-import { 渲染rss添加界面 } from "./UI/components/rsssource.js"
 export const Emitter = class {
     channel = 'rss-ui'
     async onload() {
 
     }
-    ['install-adapter']=async(e)=>{
+    ['install-adapter'] = async (e) => {
         await sac.路由管理器.internalFetch('/search/rss/install', {
             body: e, method: 'POST'
         })
     }
 }
 export const tabs = {
-    "rssEditor":{
-        init:(element,data,tab)=>{
+    "rssAdaptersGithub": {
+        init: (element, data, tab) => {
+            const app = initVueApp(
+                import.meta.resolve('./UI/components/rssAdapterCards.vue'),
+                'rsscontent', {},
+                'D:/思源主库/data/plugins/SiyuanAssistantCollection/source')
+            app.mount(element)
+
+        }
+    },
+    "rssEditor": {
+        init: (element, data, tab) => {
             console.log(data)
             sac.路由管理器.internalFetch('/search/rss/enable', {
                 body: {
@@ -23,71 +31,103 @@ export const tabs = {
                 }, method: 'POST'
             }).then(
                 data => {
-                    const app= initVueApp(
-                        import.meta.resolve('./UI/components/rssEditor.vue'), 
-                        'rsscontent', {}, 
+                    const app = initVueApp(
+                        import.meta.resolve('./UI/components/rssEditor.vue'),
+                        'rsscontent', {},
                         'D:/思源主库/data/plugins/SiyuanAssistantCollection/source', { data: data.body })
                     app.mount(element)
                 }
-            )    
+            )
         }
     },
-    "rssGrid":{
-        init:(element,data,tab)=>{
+    "rssGrid": {
+        init: (element, data, tab) => {
             console.log(element)
             initVueApp(
                 import.meta.resolve('./UI/components/rssGrid.vue'),
                 'rssContent',
-                {}, 'D:/思源主库/data/plugins/SiyuanAssistantCollection/source',{feed:data.feed}
+                {}, 'D:/思源主库/data/plugins/SiyuanAssistantCollection/source', { feed: data.feed }
             ).mount(element)
         }
     },
-    "rssContent":{
-        init:(element,data,tab)=>{
-            console.log(element,data,tab)
+    "rssContent": {
+        init: (element, data, tab) => {
+            console.log(element, data, tab)
             initVueApp(
                 import.meta.resolve('./UI/components/rssContent.vue'),
                 'rssContent',
-                {}, 'D:/思源主库/data/plugins/SiyuanAssistantCollection/source',{...data}
+                {}, sac.localPath + '/source',
+                { ...data }
             ).mount(element)
         }
     }
 }
-export const dialogs={
-    'initFeed':{
-        init:(dialog)=>{
+export const dialogs = {
+    'initFeed': {
+        init: (dialog) => {
             console.log(dialog)
             initVueApp(
                 import.meta.resolve('./UI/components/rssFeedBuilder.vue'),
                 'rssBuilder',
                 {},
-                sac.localPath+'/source',
-                {...dialog.data}
+                sac.localPath + '/source',
+                { ...dialog.data }
             ).mount(
                 dialog.element.querySelector('.b3-dialog__body')
             )
         },
-        prepare:(data)=>{
+        prepare: (data) => {
             console.log(data)
             return {
-                title:data.router.endpoint,
-                content:"",
+                title: data.router.endpoint,
+                content: "",
                 width: '600px',
                 height: 'auto',
                 transparent: true,
                 disableClose: false,
-                disableAnimation: false        
+                disableAnimation: false
+            }
+        }
+    },
+    'addAdapter':{
+        init(dialog){
+            initVueApp(
+                import.meta.resolve('./UI/components/htmlPackageSourceDialog.vue'),
+                'rssBuilder',
+                {},
+                sac.localPath + '/source',
+                { ...dialog.data }
+            ).mount(
+                dialog.element.querySelector('.b3-dialog__body')
+            )
+
+        },
+        prepare:(data)=>{
+            return{
+                title:"添加集市源",
+                content: "",
+                width: '600px',
+                height: 'auto',
+                transparent: true,
+                disableClose: false,
+                disableAnimation: false
+
             }
         }
     }
 }
 export const docks = {
-    rssSourceMonitor:{
-        init:async(element)=>{
+    rssSourceMonitor: {
+        init: async (element) => {
             console.log(element)
-            const app= initVueApp(import.meta.resolve('./UI/components/rssSourceMonitor.vue'),'rssSourceMonitor')
+            const app = initVueApp(
+                import.meta.resolve('./UI/components/rssSourceMonitor.vue'),
+                'rssSourceMonitor', 
+                {}, 
+                sac.localPath + '/source',
+            )
             app.mount(element)
-    
+
         }
     }
 }

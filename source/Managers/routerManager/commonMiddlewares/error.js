@@ -5,9 +5,9 @@ export const useError=async(ctx,next)=>{
         ctx.status = err.status || 500;
         ctx.body = err.message;
         if(ctx.app){
-            ctx.app.emit('error', err, ctx);
+            ctx.app.emit('error', err,err.stack, ctx);
         }else{
-            console.error('error',err,ctx)
+            console.error('error',err,err.stack,ctx)
         }
       }
 }

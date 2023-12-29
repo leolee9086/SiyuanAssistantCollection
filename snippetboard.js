@@ -1,4 +1,36 @@
+// 使用示例
+const { fork } = require('child_process');
+const path = require('path');
 
+export function runPnpmCommand(command) {
+    return new Promise((resolve, reject) => {
+        const pnpmPath = path.join(plugin.localPath, 'source', 'packageManager', 'adapters', 'pnpm.js').replace(/\\/g, '/');
+        const args = command.split(' ');
+        try {
+            const child = fork(pnpmPath, args);
+            let stdout = '';
+            let stderr = '';
+            child.on('message', (message) => {
+                stdout += message.message + "\n" + message.stack;
+            });
+
+            child.on('error', (error) => {
+                reject(error);
+            });
+
+            child.on('exit', (code) => {
+                if (code !== 0) {
+                    console.log(code)
+                    reject(new Error(stderr));
+                } else {
+                    resolve(stdout);
+                }
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
 let observedMenuElements = []
 //这里的menu只能传入思源的menus对象
 function 监听选中项变化(menu) {
