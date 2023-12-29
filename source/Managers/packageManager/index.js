@@ -20,6 +20,7 @@ async function readJsonFile(path) {
 }
 export const type = (packageDefine = {}) => {
     return {
+        packageDefine,
         async list() {
             const dir = replacePath(packageDefine.location);
             const items = await fs.readDir(dir);
@@ -98,9 +99,11 @@ export const type = (packageDefine = {}) => {
     };
 };
 export const usePackage = async (packageDefines) => {
-    console.log(packageDefines);
     for ( const packageDefine of packageDefines) {
         let packageHandler = type(packageDefine);
         await sac.statusMonitor.set('packages', packageDefine.name, packageHandler);
     }
 };
+export const listPackageDefines=async()=>{
+    return await sac.statusMonitor.get('packages').$raw
+}
