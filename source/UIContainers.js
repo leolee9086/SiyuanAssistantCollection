@@ -118,7 +118,6 @@ function 创建TIPS侧栏容器() {
 function 创建RSS侧栏容器() {
   let rssDocks = []
   plugin.statusMonitor.set('docks', 'rss-ui', rssDocks)
-
   const DOCK_TYPE = 'SAC_RSS'
   plugin.addDock({
     config: {
