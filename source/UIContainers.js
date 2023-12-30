@@ -9,6 +9,9 @@ let topBarAiButton = plugin.addTopBar(
   }
 )
 plugin.statusMonitor.set('UI', 'topBarAiButton', topBarAiButton)
+topBarAiButton.addEventListener('click',(e)=>{
+  plugin.eventBus.emit('click-ai-button',e)
+})
 let topBarBerryButton = plugin.addTopBar(
   {
     icon: 'iconBerry',
@@ -16,6 +19,9 @@ let topBarBerryButton = plugin.addTopBar(
     position: 'right',
   }
 )
+topBarBerryButton.addEventListener('click',(e)=>{
+  plugin.eventBus.emit('click-berry-button',e)
+})
 plugin.statusMonitor.set('UI', 'topBarBerryButton', topBarBerryButton)
 
 function 创建Tab容器() {
