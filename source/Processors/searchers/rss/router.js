@@ -10,15 +10,7 @@ import crypto from "../../../../static/crypto-browserify.js"
 const rssPackagesAsync =async()=>{return await sac.statusMonitor.get('packages','sac-rss-adapter').$value}
 
 export const rssrouter = new sac.路由管理器.Router()
-const listRss=async(page,pageSize)=>{
-    const rssPackages=await rssPackagesAsync()
-    page = Number(page);
-    pageSize = Number(pageSize);
-    let rssList = await rssPackages.list();
-    const total = rssList.length; // 获取总数量
-    const data = rssList.slice((page - 1) * pageSize, page * pageSize); // 根据页码和每页的数量来获取数据
-    return {data,total}
-}
+
 rssrouter.post('/list',async(ctx,next)=>{
     ctx.path='/packages/sac-rss-adapter/list'
     next()
