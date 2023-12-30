@@ -48,7 +48,7 @@ onMounted(
     () => {
         sac.路由管理器.internalFetch('/search/rss/meta', {
             body: {
-                name: props.itemName
+                packageName: props.itemName
             }, method: 'POST'
         }).then(res => {
             item.value = res.body

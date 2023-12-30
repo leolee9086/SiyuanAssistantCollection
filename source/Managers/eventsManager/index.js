@@ -20,7 +20,6 @@ export const emitters = {}
 
 export const use = (Emitter) => {
     let emitter = new Emitter()
-    console.log(Emitter)
     emitter.emit = (event, data) => {
         sac.eventBus.emit(event, { emitter, data })
     }
@@ -51,7 +50,7 @@ export const use = (Emitter) => {
             }
         }
     }
-    emitter.onload()
+    emitter.onload&&emitter.onload()
     registJobs(emitter)
     return emitter
 }

@@ -100,7 +100,6 @@ export const dialogs = {
             ).mount(
                 dialog.element.querySelector('.b3-dialog__body')
             )
-
         },
         prepare:(data)=>{
             return{

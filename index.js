@@ -226,7 +226,16 @@ class SiyuanAssistantCollection extends ccPlugin {
   async 加载子模块() {
     //后端模块加载的顺序就无所谓了,反正互相之间没有强依赖关系
     this.从esm模块('./source/Processors/packages/index.js').合并子模块('包处理器').then(
-      async()=>await this.路由管理器.根路由.use('/packages',this.包处理器.router.routes('/'))
+      async()=>{
+        await this.路由管理器.根路由.use('/packages',this.包处理器.router.routes('/'))
+        await this.从esm模块('./source/Interfacies/admin/index.js').合并子模块('控制台').then(
+          ()=>{
+            let emitter = this.事件管理器.use(this.控制台.Emitter )
+            this.UI管理器.useTabs(this.控制台.tabs,emitter)
+
+          }
+        )
+      }
     )
     //加载搜索处理器,用于搜索和rss
     this.从esm模块('./source/Processors/searchers/index.js').合并子模块('搜索处理器').then(

@@ -61,7 +61,7 @@
 <script setup>
 import { sac } from 'runtime'
 import { ref, onMounted, reactive,inject } from 'vue';
-import rssAdapterAddCard from './rssAdapterAddCard.vue'
+import rssAdapterAddCard from './packageAddCard.vue'
 let data = ref([])
 let installed = reactive({})
 let updated = reactive({})

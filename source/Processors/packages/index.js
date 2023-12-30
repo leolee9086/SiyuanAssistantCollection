@@ -35,14 +35,18 @@ const 包路由 = new sac.路由管理器.Router()
 包路由.post('/:packageTypeTopic/listRemote', async (ctx, next) => {
     let topic = ctx.params.packageTypeTopic
     let packageHandeler = sac.statusMonitor.get('packages', topic).$value
-    let PackagesList=await packageHandeler.listFromAllRemoteSource()
-    ctx.body= PackagesList
+    if(packageHandeler){
+        let PackagesList=await packageHandeler.listFromAllRemoteSource()
+        ctx.body= PackagesList
+    }else{
+        ctx.body=[]
+    }
 })
 包路由.post('/:packageTypeTopic/meta',async(ctx,next)=>{
     let topic = ctx.params.packageTypeTopic
-    let {name}=ctx.req.body
+    let {packageName}=ctx.req.body
     let packageHandeler = sac.statusMonitor.get('packages', topic).$value
-    ctx.body = await packageHandeler.getMeta(name)
+    ctx.body = await packageHandeler.getMeta(packageName)
 })
 包路由.post('/:packageTypeTopic/install',async(ctx,next)=>{
     let topic = ctx.params.packageTypeTopic

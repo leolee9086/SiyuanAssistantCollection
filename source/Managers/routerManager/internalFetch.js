@@ -21,10 +21,15 @@ export const internalFetch = async (path, options = {}, router) => {
   // 查找本地函数
   const fetchPromise = router.routes('/')(ctx, (ctx, next) => {
     return new Promise((resolve, reject) => {
-      if (ctx.status !== 404) { // 如果路由存在
-        resolve();
-      } else { // 如果路由不存在
+      try {
+        if (ctx.status !== 404) { // 如果路由存在
+          resolve();
+        } else { // 如果路由不存在
+          reject();
+        }
+      } catch (e) {
         reject();
+
       }
     });
   });

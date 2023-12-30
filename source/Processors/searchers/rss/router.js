@@ -23,15 +23,14 @@ rssrouter.post('/listAdapters/all',async(ctx,next)=>{
     ctx.path='/packages/sac-rss-adapter/listRemote'
     next()
 })
-
 rssrouter.post('/meta',async (ctx, next) => {
     ctx.path='/packages/sac-rss-adapter/meta'
     next()
 })
 rssrouter.get('/meta',async (ctx, next) => {
     const rssPackages=await rssPackagesAsync()
-    let { name } = ctx.query; // 获取页码和每页的数量，如果没有则默认为1和10
-    ctx.body = await rssPackages.getMeta(name)
+    let { packageName } = ctx.query; // 获取页码和每页的数量，如果没有则默认为1和10
+    ctx.body = await rssPackages.getMeta(packageName)
     return ctx;
 })
 rssrouter.post('/install',async (ctx, next) => {
@@ -51,7 +50,7 @@ let configs ={}
 rssrouter.post('/enable', async (ctx, next) => {
     const rssPackages=await rssPackagesAsync()
 
-    let name =ctx.req.body.name
+    let name =ctx.req.body.packageName
     if (!enabled[name]) {
         let config = await rssPackages.getConfig(name)
         configs[name]=config
@@ -64,7 +63,6 @@ rssrouter.post('/enable', async (ctx, next) => {
     ctx.body =configs[name]
     next()
 })
-
 async function handleFeedRequest(ctx, next) {
     let format = 'json';
     let remote;

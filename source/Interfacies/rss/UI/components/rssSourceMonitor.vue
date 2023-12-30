@@ -33,16 +33,18 @@ onMounted(()=>{
             page: 1
         }, method: 'POST'
     }).then(res=>{
+        console.log(res.body)
         list.value =res.body.data
     })
 })
 const openGithubSourceTab= ()=>{
     sac.eventBus.emit(
-        'rss-ui-open-tab',
+        'admin-open-tab',
         {
             icon:"iconGithub",
             title:"添加rss适配器",
-            type:"rssAdaptersGithub"
+            type:"packageManage",
+            packageTypeTopic:"sac-rss-adapter"
         }
     )
 }
