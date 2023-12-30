@@ -23,22 +23,20 @@ rssrouter.post('/list',async(ctx,next)=>{
     ctx.path='/packages/sac-rss-adapter/list'
     next()
 })
-
-rssrouter.post('/listAdapters/all',async(ctx,next)=>{
-    ctx.path='/packages/sac-rss-adapter/listRemote'
-    next()
-})
 rssrouter.get('/list',async(ctx,next)=>{
     let { page = 1, pageSize = 10 } = ctx.query; // 获取页码和每页的数量，如果没有则默认为1和10
     let rssListData =await listRss(page,pageSize)
     console.log(rssListData)
     ctx.body =  rssListData
 })
+rssrouter.post('/listAdapters/all',async(ctx,next)=>{
+    ctx.path='/packages/sac-rss-adapter/listRemote'
+    next()
+})
+
 rssrouter.post('/meta',async (ctx, next) => {
-    const rssPackages=await rssPackagesAsync()
-    let { name } = ctx.req.body; // 获取页码和每页的数量，如果没有则默认为1和10
-    ctx.body = await rssPackages.getMeta(name)
-    return ctx;
+    ctx.path='/packages/sac-rss-adapter/meta'
+    next()
 })
 rssrouter.get('/meta',async (ctx, next) => {
     const rssPackages=await rssPackagesAsync()
@@ -48,11 +46,8 @@ rssrouter.get('/meta',async (ctx, next) => {
     return ctx;
 })
 rssrouter.post('/install',async (ctx, next) => {
-    const rssPackages=await rssPackagesAsync()
-
-    let { packageSource,packageName } = ctx.req.body; // 获取页码和每页的数量，如果没有则默认为1和10
-    ctx.body = await rssPackages.install(ctx.req.body)
-    return ctx;
+    ctx.path='/packages/sac-rss-adapter/install'
+    next()
 })
 rssrouter.post('/unInstall',async (ctx, next) => {
     const rssPackages=await rssPackagesAsync()
@@ -63,7 +58,6 @@ rssrouter.post('/unInstall',async (ctx, next) => {
 })
 rssrouter.post('/checkInstall',async (ctx, next) => {
     const rssPackages=await rssPackagesAsync()
-
     let { packageName } = ctx.req.body; // 获取页码和每页的数量，如果没有则默认为1和10
     ctx.body = await rssPackages.checkInstall(packageName)
     return ctx;

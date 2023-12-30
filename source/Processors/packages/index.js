@@ -32,11 +32,22 @@ const 包路由 = new sac.路由管理器.Router()
         total: rssListData.length
     }
 })
-
 包路由.post('/:packageTypeTopic/listRemote', async (ctx, next) => {
     let topic = ctx.params.packageTypeTopic
     let packageHandeler = sac.statusMonitor.get('packages', topic).$value
     let PackagesList=await packageHandeler.listFromAllRemoteSource()
     ctx.body= PackagesList
+})
+包路由.post('/:packageTypeTopic/meta',async(ctx,next)=>{
+    let topic = ctx.params.packageTypeTopic
+    let {name}=ctx.req.body
+    let packageHandeler = sac.statusMonitor.get('packages', topic).$value
+    ctx.body = await packageHandeler.getMeta(name)
+})
+包路由.post('/:packageTypeTopic/install',async(ctx,next)=>{
+    let topic = ctx.params.packageTypeTopic
+    let packageInfo=ctx.req.body
+    let packageHandeler = sac.statusMonitor.get('packages', topic).$value
+    ctx.body = await packageHandeler.install(packageInfo)
 })
 export { 包路由 as router }
