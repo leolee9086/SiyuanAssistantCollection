@@ -54,6 +54,12 @@ const 包路由 = new sac.路由管理器.Router()
     let topic = ctx.params.packageTypeTopic
     let packageInfo=ctx.req.body
     let packageHandeler = sac.statusMonitor.get('packages', topic).$value
-    ctx.body = await packageHandeler.install(packageInfo)
+    ctx.body = await packageHandeler.uninstall(packageInfo)
+})
+包路由.post('/:packageTypeTopic/checkInstall',async(ctx,next)=>{
+    let topic = ctx.params.packageTypeTopic
+    let {packageName}=ctx.req.body
+    let packageHandeler = sac.statusMonitor.get('packages', topic).$value
+    ctx.body = await packageHandeler.checkInstall(packageName)
 })
 export { 包路由 as router }

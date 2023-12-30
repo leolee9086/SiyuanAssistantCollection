@@ -77,7 +77,8 @@ export const type = (packageDefine = {}) => {
             const data = await fs.readFile(`/temp/noobTemp/bazzarPackage/${packageName}.zip`);
             return Buffer.from(data);
         },
-        async checkInstall(packageName) {
+        async checkInstall(packageInfo) {
+            const { packageSource, packageRepo, packageName } = packageInfo;
             const dataPath = replacePath(packageDefine.location, packageName);
             let exists = await fs.exists(dataPath)
             return exists ? true : false
@@ -92,7 +93,9 @@ export const type = (packageDefine = {}) => {
                 await installPackageZipNpm(installPath, packageName, packageRepo)
             }
         },
-        async uninstall(packageName) {
+        async uninstall(packageInfo) {
+            const { packageSource, packageRepo, packageName } = packageInfo;
+
             const installPath = replacePath(packageDefine.location, packageName);
             await fs.removeFile(installPath);
         }

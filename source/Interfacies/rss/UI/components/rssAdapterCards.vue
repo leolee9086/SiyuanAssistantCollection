@@ -5,7 +5,10 @@
             <div class="fn__flex-1 fn__flex b3-card b3-card--wrap sac-rss-card" data-repo-name=''>
                 <div class="b3-card__body fn__flex" style="font-size:small !important;padding:0">
                     <div class="b3-card__img">
-                        <img style="width:74px;height:74px" :src="repo.iconUrl" />
+                        <img v-if="repo.iconUrl" style="width:74px;height:74px" :src="repo.iconUrl" />
+                        <svg v-if="!repo.iconUrl" style="width:74px;height:74px">
+                    <use xlink:href="#iconRSS"></use>
+                </svg>
                     </div>
                     <div class="fn__flex-1 fn__flex-column">
                         <div class="b3-card__info b3-card__info--left fn__flex-1">
@@ -90,7 +93,7 @@ const install = (repo) => {
 const uninstall = (repo) => {
     sac.路由管理器.internalFetch('/search/rss/unInstall', {
         body: {
-            packageSource: 'github',
+            packageSource: repo.source,
             packageRepo: repo.repoUrl,
             packageName: repo.name
         }, method: 'POST'
@@ -101,6 +104,8 @@ const uninstall = (repo) => {
 const 判定尚未安装 = (repo) => {
     sac.路由管理器.internalFetch('/search/rss/checkInstall', {
         body: {
+            packageSource: repo.source,
+            packageRepo: repo.repoUrl,
             packageName: repo.name
         }, method: 'POST'
     }).then(res => {
@@ -112,11 +117,11 @@ const 判定尚未安装 = (repo) => {
 const 判定需要更新 = (repo) => {
     sac.路由管理器.internalFetch('/search/rss/meta', {
         body: {
-            name: repo.name
+            packageSource: repo.source,
+            packageRepo: repo.repoUrl,
+            packageName: repo.name
         }, method: 'POST'
     }).then(res => {
-        console.log(res)
-        console.log(repo)
         if (res.body.version === repo.version) {
             updated[repo.name] = res.body
         }
