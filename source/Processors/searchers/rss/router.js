@@ -50,11 +50,8 @@ rssrouter.post('/install',async (ctx, next) => {
     next()
 })
 rssrouter.post('/unInstall',async (ctx, next) => {
-    const rssPackages=await rssPackagesAsync()
-
-    let { packageName } = ctx.req.body; // 获取页码和每页的数量，如果没有则默认为1和10
-    ctx.body = await rssPackages.uninstall(packageName)
-    return ctx;
+    ctx.path='/packages/sac-rss-adapter/uninstall'
+    next()
 })
 rssrouter.post('/checkInstall',async (ctx, next) => {
     const rssPackages=await rssPackagesAsync()
