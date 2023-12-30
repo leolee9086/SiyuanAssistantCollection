@@ -1,0 +1,23 @@
+{
+    "routers": [
+        {
+            "endpoint":"/afdian/explore/:type?/:category?",
+            "file": "explore.js",
+            "description":"分类信息"
+        },
+        {
+            "endpoint":"/afdian/dynamic/:uid",
+            "file": "explore.js",
+            "description":"分类信息"
+        }
+    ],
+    "description": "爱发电",
+    "feeds": [
+        {
+            "path": "/afdian/explore",
+            "timer": "0 * * * * * ",
+            "title":"爱发电所有",
+            "description":"爱发电所有"
+        }
+    ]
+}

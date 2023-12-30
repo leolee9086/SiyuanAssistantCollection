@@ -23,19 +23,10 @@ rssrouter.post('/list',async(ctx,next)=>{
     ctx.path='/packages/sac-rss-adapter/list'
     next()
 })
-rssrouter.post('/listAdapters/github',async(ctx,next)=>{
-    const rssPackages=await rssPackagesAsync()
 
-    let { adapter } = ctx.req.body; 
-    console.log(adapter)
-    let rssAdaptersListData =await rssPackages.listFromGithub()
-    ctx.body =  rssAdaptersListData
-})
 rssrouter.post('/listAdapters/all',async(ctx,next)=>{
-    const rssPackages=await rssPackagesAsync()
-
-    let rssAdaptersListData =await rssPackages.listFromAllRemoteSource()
-    ctx.body =  rssAdaptersListData
+    ctx.path='/packages/sac-rss-adapter/listRemote'
+    next()
 })
 rssrouter.get('/list',async(ctx,next)=>{
     let { page = 1, pageSize = 10 } = ctx.query; // 获取页码和每页的数量，如果没有则默认为1和10
@@ -45,7 +36,6 @@ rssrouter.get('/list',async(ctx,next)=>{
 })
 rssrouter.post('/meta',async (ctx, next) => {
     const rssPackages=await rssPackagesAsync()
-
     let { name } = ctx.req.body; // 获取页码和每页的数量，如果没有则默认为1和10
     ctx.body = await rssPackages.getMeta(name)
     return ctx;
@@ -188,7 +178,6 @@ async function getFeedJson(filePath, remote, query) {
             })
             feedJson = data.state.data
         }
-
         // 将数据写入到缓存文件中
         await fs.writeFile(cachePath, JSON.stringify(feedJson));
     }
