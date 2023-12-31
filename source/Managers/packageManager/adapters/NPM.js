@@ -49,23 +49,49 @@ export async function getPackageInfoByKeyword(keyword) {
 
     const packages = await getPackagesByKeyword(keyword);
     return packages.map(pkg => {
-        console.log(pkg)
         let repoUrl = pkg.package.links && pkg.package.links.repository;
         let baseUrl = '';
         if (repoUrl) {
             baseUrl = repoUrl.replace('github.com', 'raw.githubusercontent.com').replace(/(\/tree|\/blob)/, '') + '/master';
         }
         return {
-            name: pkg.package.name,
-            version: pkg.package.version,
-            description: pkg.package.description,
-            homepage: pkg.package.links && pkg.package.links.homepage,
-            npmUrl: (pkg.package.links && pkg.package.links.npm) || `${registry.replace('registry', 'www')}/${pkg.package.name}`,
-            repositoryUrl: repoUrl,
-            readmeUrl: repoUrl ? `${baseUrl}/README.md` : null,
-            iconUrl: repoUrl ? `${baseUrl}/icon.png` : null,
-            previewUrl: repoUrl ? `${baseUrl}/preview.png` : null,
-            source: "npm"
+            url: pkg.package.links && pkg.package.links.npm,
+            updated: null, // This information is not available from the package data
+            stars: null, // This information is not available from the package data
+            openIssues: null, // This information is not available from the package data
+            size: null, // This information is not available from the package data
+            package: {
+                name: pkg.package.name,
+                author: null, // This information is not available from the package data
+                url: pkg.package.links && pkg.package.links.npm,
+                version: pkg.package.version,
+                minAppVersion: null, // This information is not available from the package data
+                backends: null, // This information is not available from the package data
+                frontends: null, // This information is not available from the package data
+                displayName: {
+                    default: pkg.package.name,
+                    zh_CN: null, // This information is not available from the package data
+                    en_US: null // This information is not available from the package data
+                },
+                description: {
+                    default: pkg.package.description,
+                    zh_CN: null, // This information is not available from the package data
+                    en_US: null // This information is not available from the package data
+                },
+                readme: {
+                    default: repoUrl ? `${baseUrl}/README.md` : null,
+                    zh_CN: null, // This information is not available from the package data
+                    en_US: null // This information is not available from the package data
+                },
+                funding: {
+                    openCollective: null, // This information is not available from the package data
+                    patreon: null, // This information is not available from the package data
+                    github: null, // This information is not available from the package data
+                    custom: null // This information is not available from the package data
+                },
+                keywords: pkg.package.keywords || null,
+                source:npm
+            }
         };
     });
 }

@@ -1,6 +1,6 @@
 <template>
-    <div class="fn__flex-1 fn__flex b3-card b3-card--wrap sac-rss-card">
-        <div class="b3-card__actions b3-card__actions--right">
+    <div class=" fn__flex  sac-rss-card">
+        <div class="fn__flex">
             <span @click="从网页解析集市源" class="block__icon block__icon--show ariaLabel" aria-label="从网页解析集市源">
                 <svg style="width:30px;height:30px;">
                     <use xlink:href="#iconHTML5"></use>

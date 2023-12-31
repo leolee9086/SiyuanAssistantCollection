@@ -17,12 +17,9 @@ onmessage = async (event) => {
 
         if (任务名 === '$eval') {
             globalThis.eval(任务数据[0])
-            console.log(任务数据, 任务名, 任务id, moduleName)
-
             postMessage({ 处理结果: 'success', 任务id });
         }
         if (任务名 === '$prepare') {
-            console.log(任务数据, 任务名, 任务id, moduleName)
             Object.assign(globalThis, parseWithFunctions(任务数据)[0]);
             postMessage({ 处理结果: 'success', 任务id });
         }

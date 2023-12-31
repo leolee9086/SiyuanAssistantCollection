@@ -6,7 +6,7 @@ export const tabs = {
         init:(element,data,tab)=>{
         
                     const app = initVueApp(
-                        import.meta.resolve('../rss/UI/components/rssAdapterCards.vue'),
+                        import.meta.resolve('./components/PackageCards.vue'),
                         'rsscontent', {},
                         'D:/思源主库/data/plugins/SiyuanAssistantCollection/source', { ...data })
                     app.mount(element)

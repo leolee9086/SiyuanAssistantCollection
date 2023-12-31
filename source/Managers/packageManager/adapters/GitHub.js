@@ -1,6 +1,6 @@
 import { got } from "../runtime.js";
 import { download } from "../downloader/downloader.js";
-import {kernelApi} from "../runtime.js";
+import { kernelApi } from "../runtime.js";
 // 获取最新发布版本的信息
 async function 获取最新发布版本信息(所有者, 仓库) {
     let url = `https://api.github.com/repos/${所有者}/${仓库}/releases/latest`;
@@ -44,29 +44,73 @@ export async function getReposByTopic(topic) {
     const response = await got(url);
     return response.data.items;
 }
+
 // GitHub adapter
-export async function getReposInfoByTopic(topic){
+export async function getReposInfoByTopic(topic, metaFile) {
     const repos = await getReposByTopic(topic);
     return Promise.all(repos.map(async repo => {
         const baseUrl = `https://github.com/${repo.owner.login}/${repo.name}/raw/master`;
-        const releaseUrl = `https://api.github.com/repos/${repo.owner.login}/${repo.name}/releases/latest`;
-        const releaseResponse = await got(releaseUrl);
-        const releaseData = JSON.parse(releaseResponse.body);
+        let releaseData = {}
+        try {
+            const releaseUrl = `https://api.github.com/repos/${repo.owner.login}/${repo.name}/releases/latest`;
+            const releaseResponse = await got(releaseUrl);
+            releaseData = JSON.parse(releaseResponse.body);
+        } catch (e) {
+            console.warn(e, '未能正确获取包数据',repo)
+
+            return undefined
+        }
+        let metaData = {}
+        try {
+            // Fetch the metaFile
+            const metaFileUrl = `https://raw.githubusercontent.com/${repo.owner.login}/${repo.name}/master/${metaFile}`;
+            const metaFileResponse = await got(metaFileUrl);
+            metaData = await metaFileResponse.json();
+        } catch (e) {
+            console.warn(e, '未能正确获取包数据',repo)
+        }
         return {
-            name: repo.name,
-            version: releaseData.tag_name,
-            description: repo.description,
-            homepage: repo.homepage,
-            npmUrl: null,
-            repoUrl: `https://github.com/${repo.owner.login}/${repo.name}`,
-            readmeUrl: `${baseUrl}/README.md`,
-            iconUrl: `${baseUrl}/icon.png`,
-            previewUrl: `${baseUrl}/preview.png`,
-            source:"github"
+            url: `https://github.com/${repo.owner.login}/${repo.name}@${releaseData.tag_name}`,
+            updated: releaseData.published_at,
+            stars: repo.stargazers_count,
+            openIssues: repo.open_issues_count,
+            size: repo.size,
+            package: {
+                name: repo.name,
+                author: repo.owner.login,
+                url: `https://github.com/${repo.owner.login}/${repo.name}`,
+                version: releaseData.tag_name,
+                minAppVersion: metaData.minAppVersion || null,
+                backends: metaData.backends || null,
+                frontends: metaData.frontends || null,
+                displayName: metaData.displayName || {
+                    default: repo.name,
+                    zh_CN: null,
+                    en_US: null
+                },
+                description: metaData.description || {
+                    default: repo.description,
+                    zh_CN: null,
+                    en_US: null
+                },
+                readme: metaData.readme || {
+                    default: `${baseUrl}/README.md`,
+                    zh_CN: null,
+                    en_US: null
+                },
+                funding: metaData.funding || {
+                    openCollective: null,
+                    patreon: null,
+                    github: null,
+                    custom: null
+                },
+                keywords: metaData.keywords || null,
+                source:'github'
+            }
         };
     }));
 }
-export async function installPackageZip(installPath,packageName,repo){
+export async function installPackageZip(installPath, packageName, repo) {
     const response = await fetch(`https://api.github.com/repos/${repo.replace('https://github.com/', '')}/releases/latest`);
     const data = await response.json();
     const zipAsset = data.assets.find(asset => asset.name === 'package.zip');

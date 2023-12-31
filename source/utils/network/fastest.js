@@ -1,5 +1,5 @@
 import { got } from "./got.js";
-export const getFastestEndpoint= async (endpoints)=>{
+export const getFastestEndpointWithAllSuccess= async (endpoints)=>{
     const requests = endpoints.map((endpoint) => {
         return new Promise(async (resolve, reject) => {
             try {
@@ -15,4 +15,26 @@ export const getFastestEndpoint= async (endpoints)=>{
         });
     });
     return Promise.race(requests);
+}
+export const getFastestEndpoint = async (endpoints) => {
+    const requests = endpoints.map((endpoint) => {
+        return new Promise(async (resolve) => {
+            try {
+                const response = await got(endpoint);
+                if (response.statusCode >= 200 && response.statusCode < 300) {
+                    resolve(endpoint);
+                }
+            } catch (error) {
+                console.error(`Error while accessing endpoint ${endpoint}: ${error}`);
+            }
+        });
+    });
+
+    try {
+        const successfulEndpoint = await Promise.any(requests);
+        return successfulEndpoint;
+    } catch (error) {
+        console.error('All requests failed');
+        return null;
+    }
 }

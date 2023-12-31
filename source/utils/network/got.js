@@ -46,6 +46,9 @@ export const got = async (urlOptions, options = {}) => {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
+    if(data.data&&data.data.status===404){
+        throw new Error(`Server error! 404: Not Found, msg: ${data.msg}`);
+    }
     if (data.code !== 0) {
         throw new Error(`Server error! msg: ${data.msg}`);
     }
@@ -57,7 +60,10 @@ export const got = async (urlOptions, options = {}) => {
     let res = {
         body: data.data.body,
         headers: data.data.headers,
-        statusCode: data.data.status
+        statusCode: data.data.status,
+        json:()=>{
+            return JSON.parse(data.data.body)
+        }
     };
     try {
         res.data = JSON.parse(res.body);

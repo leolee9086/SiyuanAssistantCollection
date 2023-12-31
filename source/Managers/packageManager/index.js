@@ -8,6 +8,7 @@ import { getReposInfoByTopic, installPackageZip } from "./adapters/GitHub.js";
 import { installPackageZip as installPackageZipNpm } from "./adapters/NPM.js";
 import { getPackageInfoByKeyword } from "./adapters/NPM.js";
 import { getReposFromURL } from "./adapters/fileList.js";
+import { siyuanPackageDefines } from './packageType/siyuanPackageTypes/index.js'
 // 将路径替换操作抽取为单独的函数
 function replacePath(path, packageName) {
     let _path = path.replace('@sac', sac.selfPath)
@@ -54,7 +55,8 @@ export const type = (packageDefine = {}) => {
             return await packageDefine.load(packageName, fileName);
         },
         async listFromGithub() {
-            return await getReposInfoByTopic(packageDefine.topic)
+            return await getReposInfoByTopic(packageDefine.topic,packageDefine.meta)
+
         },
         async listFromNpm() {
             return await getPackageInfoByKeyword(packageDefine.topic)
@@ -63,9 +65,31 @@ export const type = (packageDefine = {}) => {
             return await getReposFromURL(url, packageDefine.topic, type)
         },
         async listFromAllRemoteSource() {
-            const githubPackages = await this.listFromGithub();
-            const npmPackages = await this.listFromNpm();
-            return [...githubPackages, ...npmPackages];
+            const cacheFilePath = `/temp/noobCache/bazzar/${packageDefine.topic}/cache.json`;
+            try {
+                // 尝试从缓存文件中读取数据
+                const cacheData = await fs.readFile(cacheFilePath);
+                console.log(cacheData)
+                return JSON.parse(cacheData).repos;
+            } catch (error) {
+                // 如果读取缓存文件失败，那么获取远程数据
+                const githubPackages = await this.listFromGithub();
+                const npmPackages = await this.listFromNpm();
+                let repos;
+
+                if (!packageDefine.listRemote) {
+                    repos = [...githubPackages, ...npmPackages];
+                } else {
+                    let data ={repos: [...githubPackages, ...npmPackages]}
+                    console.log(data)
+                    let result= await packageDefine.listRemote(data)
+                    console.log(result)
+                    repos = result.repos;
+                }
+                // 将获取到的数据写入缓存文件
+                await fs.writeFile(cacheFilePath, JSON.stringify({ repos }));
+                return repos;
+            }
         },
         async packageZip(packageName) {
             const dataPath = replacePath(packageDefine.location, packageName);
@@ -101,12 +125,14 @@ export const type = (packageDefine = {}) => {
         }
     };
 };
+
 export const usePackage = async (packageDefines) => {
-    for ( const packageDefine of packageDefines) {
+    for (const packageDefine of packageDefines) {
         let packageHandler = type(packageDefine);
         await sac.statusMonitor.set('packages', packageDefine.name, packageHandler);
     }
 };
-export const listPackageDefines=async()=>{
+await usePackage(siyuanPackageDefines)
+export const listPackageDefines = async () => {
     return await sac.statusMonitor.get('packages').$raw
 }
