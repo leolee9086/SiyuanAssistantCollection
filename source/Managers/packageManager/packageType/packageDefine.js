@@ -4,7 +4,7 @@ import { getPackageInfoByKeyword } from "../adapters/NPM.js";
 import { getReposFromURL } from "../adapters/fileList.js";
 import { fs, kernelApi, path } from "../runtime.js";
 import { sac } from "../runtime.js";
-
+import { readFromCache } from "../cache/reader.js";
 function replacePath(path, packageName) {
     let _path = path.replace('@sac', sac.selfPath)
     return packageName ? _path + `/${packageName}/` : _path
@@ -74,21 +74,13 @@ export const DefinePackagetype = (packageDefine = {}) => {
         },
         async listFromAllRemoteSource() {
             const cacheFilePath = `/temp/noobCache/bazzar/${packageDefine.topic}/cache.json`;
-            try {
-                console.log(packageDefine.adapters)
-                // 尝试从缓存文件中读取数据
-                const cacheData = await fs.readFile(cacheFilePath);
-                return JSON.parse(cacheData).repos.filter(item => {
-                    return item
-                });
-            } catch (error) {
+            let repos = await readFromCache(cacheFilePath)
+            if(!repos){
                 //如果读取缓存文件失败，那么获取远程数据
                 //适配器用于从相关网站读取包列表以及安装和卸载等
                 console.log(packageDefine.adapters)
                 const githubPackages = await this.listFromGithub();
                 const npmPackages = await this.listFromNpm();
-                let repos;
-
                 if (!packageDefine.listRemote) {
                     repos = [...githubPackages, ...npmPackages];
                 } else {
