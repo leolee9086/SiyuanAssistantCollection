@@ -17,6 +17,9 @@ export const siyuanPackageDefines = [{
             console.error(error);
             return [];
         }
+    },
+    descriptions:{
+        default:"思源的插件"
     }
 },
 {
@@ -37,6 +40,9 @@ export const siyuanPackageDefines = [{
             console.error(error);
             return [];
         }
+    },
+    descriptions:{
+        default:"思源的主题包"
     }
 },
 {
@@ -57,6 +63,9 @@ export const siyuanPackageDefines = [{
             console.error(error);
             return [];
         }
+    },
+    descriptions:{
+        default:"思源的图标"
     }
 },
 {
@@ -77,6 +86,9 @@ export const siyuanPackageDefines = [{
             console.error(error);
             return [];
         }
+    },
+    descriptions:{
+        default:"思源的模板文件"
     }
 },
 {
@@ -97,5 +109,9 @@ export const siyuanPackageDefines = [{
             console.error(error);
             return [];
         }
+    },
+    descriptions:{
+        default:'思源的挂件'
     }
-}]
+}
+]

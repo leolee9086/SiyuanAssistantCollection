@@ -9,6 +9,7 @@ import { installPackageZip as installPackageZipNpm } from "./adapters/NPM.js";
 import { getPackageInfoByKeyword } from "./adapters/NPM.js";
 import { getReposFromURL } from "./adapters/fileList.js";
 import { siyuanPackageDefines } from './packageType/siyuanPackageTypes/index.js'
+import { thirdPartyPackageDefines } from "./packageType/thirdPartyPackages/index.js";
 // 将路径替换操作抽取为单独的函数
 function replacePath(path, packageName) {
     let _path = path.replace('@sac', sac.selfPath)
@@ -16,8 +17,14 @@ function replacePath(path, packageName) {
 }
 // 将读取 JSON 文件的操作抽取为单独的函数
 async function readJsonFile(path) {
-    const data = await fs.readFile(path);
-    return JSON.parse(data);
+    if (await fs.exists(path)) {
+        const data = await fs.readFile(path);
+        if (data) {
+            return JSON.parse(data);
+        } else {
+            return {}
+        }
+    } else return {}
 }
 export const type = (packageDefine = {}) => {
     return {
@@ -25,7 +32,11 @@ export const type = (packageDefine = {}) => {
         async list() {
             const dir = replacePath(packageDefine.location);
             const items = await fs.readDir(dir);
-            return items.filter(item => packageDefine.allowSingle || item.isDir).map(_package => _package.name);
+            if (items && items[0]) {
+                return items.filter(item => packageDefine.allowSingle || item.isDir).map(_package => _package.name);
+            } else {
+                return []
+            }
         },
         async getStatus() {
             // Implement getStatus method
@@ -55,7 +66,7 @@ export const type = (packageDefine = {}) => {
             return await packageDefine.load(packageName, fileName);
         },
         async listFromGithub() {
-            return await getReposInfoByTopic(packageDefine.topic,packageDefine.meta)
+            return await getReposInfoByTopic(packageDefine.topic, packageDefine.meta)
 
         },
         async listFromNpm() {
@@ -69,8 +80,10 @@ export const type = (packageDefine = {}) => {
             try {
                 // 尝试从缓存文件中读取数据
                 const cacheData = await fs.readFile(cacheFilePath);
-                console.log(cacheData)
-                return JSON.parse(cacheData).repos;
+
+                return JSON.parse(cacheData).repos.filter(item => {
+                    return item
+                });
             } catch (error) {
                 // 如果读取缓存文件失败，那么获取远程数据
                 const githubPackages = await this.listFromGithub();
@@ -80,9 +93,9 @@ export const type = (packageDefine = {}) => {
                 if (!packageDefine.listRemote) {
                     repos = [...githubPackages, ...npmPackages];
                 } else {
-                    let data ={repos: [...githubPackages, ...npmPackages]}
+                    let data = { repos: [...githubPackages, ...npmPackages] }
                     console.log(data)
-                    let result= await packageDefine.listRemote(data)
+                    let result = await packageDefine.listRemote(data)
                     console.log(result)
                     repos = result.repos;
                 }
@@ -108,13 +121,16 @@ export const type = (packageDefine = {}) => {
             return exists ? true : false
         },
         async install(packageInfo) {
-            const { packageSource, packageRepo, packageName } = packageInfo;
-            let installPath = replacePath(packageDefine.location, packageName)
-            if (packageSource === 'github') {
-                await installPackageZip(installPath, packageName, packageRepo)
+            const { name, url,source } = packageInfo;
+            let installPath = replacePath(packageDefine.location, name)
+            if(packageDefine.installer){
+                await packageDefine.installer.install(packageInfo)
             }
-            if (packageSource === 'npm') {
-                await installPackageZipNpm(installPath, packageName, packageRepo)
+            if (source === 'github') {
+                await installPackageZip(installPath, name, url, packageInfo)
+            }
+            if (source === 'npm') {
+                await installPackageZipNpm(installPath, name, url, packageInfo)
             }
         },
         async uninstall(packageInfo) {
@@ -129,10 +145,27 @@ export const type = (packageDefine = {}) => {
 export const usePackage = async (packageDefines) => {
     for (const packageDefine of packageDefines) {
         let packageHandler = type(packageDefine);
-        await sac.statusMonitor.set('packages', packageDefine.name, packageHandler);
+        await sac.statusMonitor.set('packages', packageDefine.topic, packageHandler);
     }
 };
 await usePackage(siyuanPackageDefines)
-export const listPackageDefines = async () => {
-    return await sac.statusMonitor.get('packages').$raw
+await usePackage(thirdPartyPackageDefines)
+export const listPackageDefines =  () => {
+    let handlers=  sac.statusMonitor.get('packages').$raw
+    let data={}
+     Object.keys(handlers).forEach(
+        topic=>{
+             data[topic]= handlers[topic].packageDefine
+        }
+    )
+    return data
 }
+
+sac.eventBus.on(
+    'registPackageType', (e) => {
+        const { packageDefines, provider } = e.detail
+        if (packageDefines && provider) {
+            usePackage(packageDefines)
+        }
+    }
+)

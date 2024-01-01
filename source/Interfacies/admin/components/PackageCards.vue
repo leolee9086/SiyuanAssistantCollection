@@ -1,54 +1,60 @@
 <template>
     <div class="fn__flex-1 fn__flex-column" style="padding-top:26px">
-        <PackageTopicButtons @data-received="handleDataReceived"></PackageTopicButtons>
+        <PackageTopicButtons v-if="appData.packageTypeTopic" :topic="appData.packageTypeTopic"
+            @data-received="handleDataReceived">
+        </PackageTopicButtons>
         <PackageAddCard></PackageAddCard>
-
         <div class=" b3-cards fn__flex-1 ">
-            <template v-for="repo in data">
+            <template v-for="repo in data" :key="repo.name">
                 <!--  <PackageCard :repo="repo"></PackageCard>-->
-                <div class="fn__flex-1 fn__flex b3-card b3-card--wrap sac-rss-card" data-repo-name=''>
-                    <div class="b3-card__body fn__flex" style="font-size:small !important;padding:0">
-                        <div class="b3-card__img">
-                            <img v-if="repo.iconUrl" style="width:74px;height:74px" :src="repo.iconUrl" />
-                            <svg v-if="!repo.iconUrl" style="width:74px;height:74px">
-                                <use xlink:href="#iconRSS"></use>
-                            </svg>
-                        </div>
-                        <div class="fn__flex-1 fn__flex-column">
-                            <div class="b3-card__info b3-card__info--left fn__flex-1">
-                                <span class="ft__on-surface ft__smaller">{{ repo.package.name }}</span>
-                                <div class="b3-card__desc" title="${repo.name}">
-                                    {{ getDescription(repo.package) }}
+                <div v-if="repo && repo.package">
+                    <div class="fn__flex-1 fn__flex b3-card b3-card--wrap sac-rss-card" data-repo-name=''>
+                        <div class="b3-card__body fn__flex" style="font-size:small !important;padding:0">
+                            <div class="b3-card__img">
+                                <img v-if="repo.iconUrl" style="width:74px;height:74px" :src="repo.iconUrl" />
+                                <svg v-if="!repo.iconUrl" style="width:74px;height:74px">
+                                    <use xlink:href="#iconRSS"></use>
+                                </svg>
+                            </div>
+                            <div class="fn__flex-1 fn__flex-column">
+                                <div class="b3-card__info b3-card__info--left fn__flex-1">
+                                    <span class="ft__on-surface ft__smaller">{{ repo.package.name }}</span>
+                                    <div class="b3-card__desc" title="${repo.name}">
+                                        {{ getDescription(repo.package) }}
+                                    </div>
+                                    <div class="b3-card__desc" title="${repo.name}">
+                                        {{ repo.package.version }}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="b3-card__actions ">
+                                <div class="b3-card__actions ">
 
-                                <span v-if="!installed[repo.package.name]" class="block__icon block__icon--show ariaLabel"
-                                    aria-label="安装" :data-rss-name='repo.name' data-repo-name='${repo.repoUrl}'
-                                    data-repo-source="github" @click="() => { install(repo) }">
-                                    <svg>
-                                        <use xlink:href="#iconDownload"></use>
-                                    </svg>
-                                </span>
-                                <span v-if="!updated[repo.package.name]" class="block__icon block__icon--show ariaLabel"
-                                    aria-label="更新" data-rss-name='${repo.name}' data-repo-name='${repo.repoUrl}'
-                                    data-repo-source="github">
-                                    <svg>
-                                        <use xlink:href="#iconRefresh"></use>
-                                    </svg>
-                                </span>
-                                <span v-if="installed[repo.package.name]" class="block__icon block__icon--show ariaLabel"
-                                    aria-label="卸载" data-rss-name='${repo.name}' data-repo-name='${repo.repoUrl}'
-                                    data-repo-source="github" @click="() => { uninstall(repo) }">
-                                    <svg>
-                                        <use xlink:href="#iconTrashcan"></use>
-                                    </svg>
-                                </span>
-                                <PackageSourceIcon :packageInfo="repo.package"></PackageSourceIcon>
-                            </div>
+                                    <PackageInstallIcon :packageInfo="repo.package" @package-installed="() => { 判定尚未安装(repo) }">
+                                    </PackageInstallIcon>
 
+                                    <span v-if="!updated[repo.package.name]" class="block__icon block__icon--show ariaLabel"
+                                        aria-label="更新" data-rss-name='${repo.name}' data-repo-name='${repo.repoUrl}'
+                                        data-repo-source="github">
+                                        <svg>
+                                            <use xlink:href="#iconRefresh"></use>
+                                        </svg>
+                                    </span>
+                                    <span v-if="installed[repo.package.name]"
+                                        class="block__icon block__icon--show ariaLabel" aria-label="卸载"
+                                        data-rss-name='${repo.name}' data-repo-name='${repo.repoUrl}'
+                                        data-repo-source="github" @click="() => { uninstall(repo) }">
+                                        <svg>
+                                            <use xlink:href="#iconTrashcan"></use>
+                                        </svg>
+                                    </span>
+                                    <PackageSourceIcon :packageInfo="repo.package"></PackageSourceIcon>
+                                </div>
+
+                            </div>
                         </div>
                     </div>
+                </div>
+                <div v-if="!repo||repo&&!repo.package">
+                    repo
                 </div>
             </template>
         </div>
@@ -60,14 +66,13 @@ import { ref, onMounted, reactive, inject } from 'vue';
 import PackageTopicButtons from './PackageTopicButtons.vue';
 import PackageAddCard from './PackageAddCard.vue';
 import PackageSourceIcon from './PackageSourceIcon.vue';
-
+import PackageInstallIcon from './PackageInstallIcon.vue';
 let data = ref([])
 let installed = reactive({})
 let updated = reactive({})
 let appData = inject('appData')
-let { packageTypeTopic } = appData
 onMounted(() => {
-    sac.路由管理器.internalFetch(`/packages/${packageTypeTopic}/listRemote`, {
+    sac.路由管理器.internalFetch(`/packages/${appData.packageTypeTopic}/listRemote`, {
         body: {
             page: 1
         }, method: 'POST'
@@ -77,8 +82,8 @@ onMounted(() => {
 })
 sac.eventBus.on('statusChange', (e) => {
     console.log(e)
-    if (e.detail && e.detail.name === `packages.${packageTypeTopic}`) {
-        sac.路由管理器.internalFetch(`/packages/${packageTypeTopic}/listRemote`, {
+    if (e.detail && e.detail.name === `packages.${appData.packageTypeTopic}`) {
+        sac.路由管理器.internalFetch(`/packages/${appData.packageTypeTopic}/listRemote`, {
             body: {
                 page: 1
             }, method: 'POST'
@@ -87,19 +92,8 @@ sac.eventBus.on('statusChange', (e) => {
         })
     }
 })
-const install = (repo) => {
-    sac.路由管理器.internalFetch(`/packages/${packageTypeTopic}/install`, {
-        body: {
-            packageSource: repo.source,
-            packageRepo: repo.repoUrl,
-            packageName: repo.name
-        }, method: 'POST'
-    }).then(res => {
-        setTimeout(() => 判定尚未安装(repo), 500)
-    })
-}
 const uninstall = (repo) => {
-    sac.路由管理器.internalFetch(`/packages/${packageTypeTopic}/unInstall`, {
+    sac.路由管理器.internalFetch(`/packages/${appData.packageTypeTopic}/unInstall`, {
         body: {
             packageSource: repo.source,
             packageRepo: repo.repoUrl,
@@ -110,7 +104,8 @@ const uninstall = (repo) => {
     })
 }
 const 判定尚未安装 = (repo) => {
-    sac.路由管理器.internalFetch(`/packages/${packageTypeTopic}/checkInstall`, {
+    console.log(repo)
+    sac.路由管理器.internalFetch(`/packages/${appData.packageTypeTopic}/checkInstall`, {
         body: {
             packageSource: repo.package.source,
             packageRepo: repo.package.url,
@@ -123,10 +118,10 @@ const 判定尚未安装 = (repo) => {
     })
 }
 const 判定需要更新 = (repo) => {
-    sac.路由管理器.internalFetch(`/packages/${packageTypeTopic}//meta`, {
+    sac.路由管理器.internalFetch(`/packages/${appData.packageTypeTopic}/meta`, {
         body: {
             packageSource: repo.source,
-            packageRepo: repo.repoUrl,
+            packageRepo: repo.url,
             packageName: repo.name
         }, method: 'POST'
     }).then(res => {

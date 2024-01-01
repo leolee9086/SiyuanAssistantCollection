@@ -60,6 +60,8 @@ export async function getPackageInfoByKeyword(keyword) {
             stars: null, // This information is not available from the package data
             openIssues: null, // This information is not available from the package data
             size: null, // This information is not available from the package data
+            topic:keyword,
+
             package: {
                 name: pkg.package.name,
                 author: null, // This information is not available from the package data
@@ -90,7 +92,9 @@ export async function getPackageInfoByKeyword(keyword) {
                     custom: null // This information is not available from the package data
                 },
                 keywords: pkg.package.keywords || null,
-                source:npm
+                source:"npm",
+                topic:keyword,
+
             }
         };
     });

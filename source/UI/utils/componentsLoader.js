@@ -81,6 +81,7 @@ export const initVueApp = (appURL, name, mixinOptions = {}, directory, data) => 
             let obj = { ...options, ...mixinOptions }
             obj.moduleCache = { ...moduleCache }
             let componentsCache = {}
+          
             componentsCache[name] = Vue.defineAsyncComponent(() => loadModule(appURL, obj))
             let app = Vue.createApp({
                 components: componentsCache,

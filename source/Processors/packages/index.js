@@ -50,9 +50,15 @@ const 包路由 = new sac.路由管理器.Router()
 })
 包路由.post('/:packageTypeTopic/install',async(ctx,next)=>{
     let topic = ctx.params.packageTypeTopic
+    
     let packageInfo=ctx.req.body
     let packageHandeler = sac.statusMonitor.get('packages', topic).$value
-    ctx.body = await packageHandeler.install(packageInfo)
+    if(packageHandeler){
+        ctx.body = await packageHandeler.install(packageInfo)
+    }else{
+        ctx.body={msg:1,error:'未能找到包定义'}
+        throw '未能找到包类型'+topic+"的定义"
+    }
 })
 包路由.post('/:packageTypeTopic/uninstall',async(ctx,next)=>{
     let topic = ctx.params.packageTypeTopic
@@ -66,4 +72,5 @@ const 包路由 = new sac.路由管理器.Router()
     let packageHandeler = sac.statusMonitor.get('packages', topic).$value
     ctx.body = await packageHandeler.checkInstall(packageName)
 })
+
 export { 包路由 as router }

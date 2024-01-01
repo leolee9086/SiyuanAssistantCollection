@@ -75,6 +75,7 @@ export async function getReposInfoByTopic(topic, metaFile) {
             stars: repo.stargazers_count,
             openIssues: repo.open_issues_count,
             size: repo.size,
+            topic:topic,
             package: {
                 name: repo.name,
                 author: repo.owner.login,
@@ -105,22 +106,35 @@ export async function getReposInfoByTopic(topic, metaFile) {
                     custom: null
                 },
                 keywords: metaData.keywords || null,
+                topic:topic,
                 source:'github'
             }
         };
     }));
 }
-export async function installPackageZip(installPath, packageName, repo) {
-    const response = await fetch(`https://api.github.com/repos/${repo.replace('https://github.com/', '')}/releases/latest`);
+export async function installPackageZip(installPath, packageName, repo,packageInfo) {
+    //@todo:支持安装特定版本
+    //let version =packageInfo.version?'tag/'+ packageInfo.version:'latest'
+    let version='latest'
+    const response = await fetch(`https://api.github.com/repos/${repo.replace('https://github.com/', '')}/releases/${version}`);
     const data = await response.json();
     const zipAsset = data.assets.find(asset => asset.name === 'package.zip');
     if (zipAsset) {
         const fileURL = zipAsset.browser_download_url;
-        const tempPath = `/temp/noobTemp/bazzarPackage/${packageName}.zip`;
+        const tempPath = `/temp/noobTemp/bazzarPackage/${packageName}@${packageInfo.version}.zip`;
         await download(fileURL, tempPath);
         await kernelApi.unzip({
             zipPath: tempPath,
             path: installPath
         });
     }
+}
+async function listRepoFiles(repo) {
+    const response = await fetch(`https://api.github.com/repos/${repo.replace('https://github.com/', '')}/contents`);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch repo contents: ${response.statusText}`);
+    }
+    const data = await response.json();
+    const fileNames = data.map(file => file.name);
+    return fileNames;
 }
