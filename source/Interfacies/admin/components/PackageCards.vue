@@ -1,11 +1,17 @@
 <template>
-    <div class="fn__flex-1 fn__flex-column" style="padding-top:26px">
+    <div class="fn__flex-1 fn__flex-column">
+
+        <PackageSearchIcons></PackageSearchIcons>
         <PackageTopicButtons v-if="appData.packageTypeTopic" :topic="appData.packageTypeTopic"
-            @data-received="handleDataReceived">
+            @data-received="handleDataReceived"
+            @topic-change="(topic) => {appData.packageTypeTopic=topic; checkPackageEnabled(appData.packageTypeTopic) }">
         </PackageTopicButtons>
-        <PackageAddCard></PackageAddCard>
+        <div class="cc__divider__vertical surface-lighter" ></div>
         <div class=" b3-cards fn__flex-1 ">
-            <template v-for="repo in data" :key="repo.name">
+            <PackageWarningCard v-if="!packageTypeEnabled.value" :topic="appData.packageTypeTopic"
+                @topic-enabled="() => { checkPackageEnabled(appData.packageTypeTopic) }">
+            </PackageWarningCard>
+            <template v-if="packageTypeEnabled.value" v-for="repo in data" :key="repo.url">
                 <!--  <PackageCard :repo="repo"></PackageCard>-->
                 <div v-if="repo && repo.package">
                     <div class="fn__flex-1 fn__flex b3-card b3-card--wrap sac-rss-card" data-repo-name=''>
@@ -28,7 +34,8 @@
                                 </div>
                                 <div class="b3-card__actions ">
 
-                                    <PackageInstallIcon :packageInfo="repo.package" @package-installed="() => { 判定尚未安装(repo) }">
+                                    <PackageInstallIcon :packageInfo="repo.package"
+                                        @package-installed="() => { 判定尚未安装(repo) }">
                                     </PackageInstallIcon>
 
                                     <span v-if="!updated[repo.package.name]" class="block__icon block__icon--show ariaLabel"
@@ -53,9 +60,7 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="!repo||repo&&!repo.package">
-                    repo
-                </div>
+
             </template>
         </div>
     </div>
@@ -67,10 +72,13 @@ import PackageTopicButtons from './PackageTopicButtons.vue';
 import PackageAddCard from './PackageAddCard.vue';
 import PackageSourceIcon from './PackageSourceIcon.vue';
 import PackageInstallIcon from './PackageInstallIcon.vue';
+import PackageSearchIcons from './PcakageSearchIcons.vue';
+import PackageWarningCard from './PackageWarningCard.vue';
 let data = ref([])
 let installed = reactive({})
 let updated = reactive({})
 let appData = inject('appData')
+let packageTypeEnabled =reactive( { value: false })
 onMounted(() => {
     sac.路由管理器.internalFetch(`/packages/${appData.packageTypeTopic}/listRemote`, {
         body: {
@@ -92,6 +100,23 @@ sac.eventBus.on('statusChange', (e) => {
         })
     }
 })
+let checkPackageEnabled =async  (topic)=> {
+    console.log(topic)
+    await sac.路由管理器.internalFetch('/packages/checkPackageEnabled', {
+        body: {
+            topic: topic
+        }, method: 'POST'
+    }).then(
+        res => {
+            if (res && res.body && res.body.data && res.body.data.enabled) {
+                packageTypeEnabled.value = true
+            } else {
+                packageTypeEnabled.value =false
+            }
+        }
+    )
+
+}
 const uninstall = (repo) => {
     sac.路由管理器.internalFetch(`/packages/${appData.packageTypeTopic}/unInstall`, {
         body: {
@@ -140,10 +165,10 @@ const getDescription = (packageInfo) => {
     }
     return description
 }
-
-const handleDataReceived = (_data) => {
+const handleDataReceived = async (_data) => {
     console.log('包数据更新', _data)
-    data.value = _data
+    await checkPackageEnabled(appData.packageTypeTopic)
+    data.value.splice(0, data.value.length, ..._data)
     data.value.forEach(
         repo => {
             判定需要更新(repo)

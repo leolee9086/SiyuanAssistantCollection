@@ -1,34 +1,44 @@
+
+
+import { got } from '../runtime.js';
+import { fs, path } from '../runtime.js';
+
 // 获取模型的信息
-async function 获取模型信息(模型名) {
-    let url = `https://huggingface.co/${模型名}`;
-    let response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`获取模型信息失败: ${response.statusText}`);
-    }
-    return await response.json();
+async function getModelInfo(modelName) {
+    const url = `https://huggingface.co/api/models/${modelName}`;
+    const response = await got(url);
+    return JSON.parse(response.body);
 }
-// 获取模型文件的下载URL
-function 获取模型文件下载链接(模型信息, 文件名) {
-    // 假设文件名对应于一个在模型信息中的文件
-    return `https://huggingface.co/${模型信息.modelId}/resolve/main/${文件名}`;
-}
-// 下载模型文件
-async function 下载模型文件(url, 文件名) {
-    let response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`下载模型文件失败: ${response.statusText}`);
-    }
-    let blob = await response.blob();
-    let link = document.createElement('a');
+
+// 下载模型
+async function downloadModel(url, modelName) {
+    const response = await got(url);
+    const blob = await response.blob();
+    const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 文件名;
+    link.download = `${modelName}.tar.gz`;
     link.click();
 }
+
 // 主函数
-async function 下载最新模型文件(模型名, 文件名) {
-    let 模型信息 = await 获取模型信息(模型名);
-    let 模型文件下载链接 = 获取模型文件下载链接(模型信息, 文件名);
-    await 下载模型文件(模型文件下载链接, 文件名);
+export async function downloadLatestModel(modelName) {
+    const modelInfo = await getModelInfo(modelName);
+    const modelDownloadUrl = modelInfo.download_url;
+    await downloadModel(modelDownloadUrl, modelName);
 }
 
+export async function installModel(installPath, modelName) {
+    const modelInfo = await getModelInfo(modelName);
+    const modelDownloadUrl = modelInfo.download_url;
+    const tempPath = `/temp/noobTemp/huggingface/${modelName}.tar.gz`;
+    await downloadModel(modelDownloadUrl, modelName);
+    await kernelApi.unzip({
+        zipPath: tempPath,
+        path: installPath
+    });
+}
 
+export async function uninstallModel(installPath, modelName) {
+    const modelPath = path.join(installPath, modelName);
+    await fs.removeFile(modelPath);
+}

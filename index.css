@@ -161,3 +161,21 @@ div[custom-chat-role="assistant"] [contenteditable="true"]::before {
 .sac-rss-card{
     margin:16px 16px 16px 16px;
 }
+.cc__divider::after{
+    content:"";
+    border-left: 1px solid var(--b3-theme-on-surface-light);
+    margin-left:8px;
+    margin: 4px 4px;
+    width:3px;
+    height: calc(100% - 6px);
+    display: block;
+}
+.cc__divider__vertical::after{
+    content:"";
+    border-bottom: 1px solid var(--b3-theme-on-surface-light);
+    margin: 6px 4px;
+    display: block;
+}
+.surface-::after{
+    color:var(--b3-theme-surface-lighter);
+}

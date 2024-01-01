@@ -13,9 +13,10 @@
             </span>
         </div>
     </div>
+
 </template>
 <script setup>
-import {sac} from "runtime"
+import { sac } from "runtime"
 const 从网页解析集市源 = () => {
     sac.eventBus.emit('rss-ui-open-dialog',
         {

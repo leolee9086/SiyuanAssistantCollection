@@ -1,17 +1,17 @@
 <template>
-    <span class="block__icon block__icon--show ariaLabel" aria-label="查看详情" @click="()=>{openRemote(packageInfo)}">
+    <span 
+    class="block__icon block__icon--show ariaLabel" 
+    aria-label="查看详情" 
+    @click="()=>{openRemote(packageInfo)}">
         <svg>
-            <use v-bind="{ 'xlink:href': genIcon(packageInfo) }"></use>
+            <use v-bind="{ 'xlink:href': iconUrl }"></use>
         </svg>
     </span>
 </template>
 <script setup>
-import { defineProps, ref, onMounted } from 'vue'
+import { defineProps, ref, onMounted, watch } from 'vue'
 const { packageInfo } = defineProps(['packageInfo'])
 const iconUrl = ref(''); // Create a reactive data property
-onMounted(() => {
-    iconUrl.value = genIcon(packageInfo); // Call genIcon after the component is mounted
-});
 const genIcon = (packageInfo) => {
     let source = packageInfo.source;
     if (!source && packageInfo.url) {
@@ -34,7 +34,12 @@ const genIcon = (packageInfo) => {
             return '#iconDefault';
     }
 }
+watch(packageInfo, (newVal) => {
+    iconUrl.value = genIcon(newVal);
+}, { immediate: true });
+
 const openRemote = (packageInfo)=>{
     console.log(packageInfo)
     window.open(packageInfo.url)
 }
+</script>

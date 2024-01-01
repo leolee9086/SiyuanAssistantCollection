@@ -32,8 +32,7 @@ async function 下载包(url, 包名) {
     link.download = `${包名}.tgz`;
     link.click();
 }
-
-
+//搜索符合条件的包
 export async function getPackagesByKeyword(keyword) {
     const registry = await getFastestRegistry()
 
@@ -41,12 +40,8 @@ export async function getPackagesByKeyword(keyword) {
     const response = await got(url);
     return JSON.parse(response.body).objects;
 }
-
-
 // NPM adapter
 export async function getPackageInfoByKeyword(keyword) {
-    const registry = await getFastestRegistry()
-
     const packages = await getPackagesByKeyword(keyword);
     return packages.map(pkg => {
         let repoUrl = pkg.package.links && pkg.package.links.repository;
@@ -108,13 +103,12 @@ export async function 下载最新版本包(包名) {
 }
 export async function installPackageZip(installPath, packageName) {
     let 版本信息 = await 获取最新版本信息(packageName);
-    let 包下载链接 = `https://cdn.npmmirror.com/packages/afdian-rss/0.0.1/afdian-rss-0.0.1.tgz`
-    //获取包下载链接(版本信息);
+    let 包下载链接 = 获取包下载链接(版本信息);
     let string2 = (await got(包下载链接, {
         responseEncoding: "base64"
     })).body
     let binaryData2 = Buffer.from(string2, 'base64');
-    const tempPath = `/temp/noobTemp/bazzarPackage/${packageName}.zip`;
+    const tempPath = `/temp/noobTemp/bazzarPackage/${packageName}@${版本信息.version}.zip`;
     await fs.writeFile(tempPath, await convertTgzToZip(binaryData2));
     await kernelApi.unzip({
         zipPath: tempPath,
@@ -133,5 +127,41 @@ export async function installPackageZip(installPath, packageName) {
         }
         // 删除空的文件夹
         await fs.removeFile(folderPath);
+    }
+    return {
+        packageVersionInfo:版本信息,
+        success:true
+    }
+}
+export async function installSingleFile(installPath, packageName) {
+    // 创建临时文件夹路径
+    const tempPath = `/temp/noobTemp/bazzarPackage/${packageName}`;
+    // 使用 installPackageZip 安装文件到临时文件夹
+    let info =await installPackageZip(tempPath, packageName);
+    // 获取版本信息
+    let 版本信息 = info.packageVersionInfo
+    // 读取临时文件夹中的所有文件
+    const files = await fs.readDir(tempPath);
+    // 遍历所有文件
+    for (const file of files) {
+        // 生成新的文件名，含有包名和版本号
+        const oldPath = path.join(tempPath, file.name);
+        const newName = `${packageName}@${版本信息.version}_${file.name}`;
+        // 拷贝到目标文件夹，使用新的文件名
+        const finalPath = path.join(installPath, newName);
+        await fs.copyFile(oldPath, finalPath);
+    }
+}
+export async function uninstallSingleFile(installPath, packageName, version) {
+    // 读取目标文件夹中的所有文件
+    const files = await fs.readDir(installPath);
+    // 遍历所有文件
+    for (const file of files) {
+        // 检查文件名是否含有包名和版本号
+        if (file.name.startsWith(`${packageName}@${version}_`)) {
+            // 删除文件
+            const filePath = path.join(installPath, file.name);
+            await fs.removeFile(filePath);
+        }
     }
 }

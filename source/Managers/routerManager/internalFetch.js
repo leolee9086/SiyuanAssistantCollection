@@ -43,7 +43,6 @@ export const internalFetch = async (path, options = {}, router) => {
   if (ctx.path !== path) {
     return await internalFetch(ctx.path, options, router);
   }
-  console.log(ctx)
   // 返回上下文的状态
   return ctx;
 };

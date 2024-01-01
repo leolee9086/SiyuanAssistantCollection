@@ -129,12 +129,39 @@ export async function installPackageZip(installPath, packageName, repo,packageIn
         });
     }
 }
-async function listRepoFiles(repo) {
-    const response = await fetch(`https://api.github.com/repos/${repo.replace('https://github.com/', '')}/contents`);
-    if (!response.ok) {
-        throw new Error(`Failed to fetch repo contents: ${response.statusText}`);
-    }
+
+
+export async function installSingleFile(installPath, packageName, repo, packageInfo) {
+    let version = 'latest';
+    const response = await fetch(`https://api.github.com/repos/${repo.replace('https://github.com/', '')}/releases/${version}`);
     const data = await response.json();
-    const fileNames = data.map(file => file.name);
-    return fileNames;
+    const files = data.assets;
+
+    // 遍历所有文件
+    for (const file of files) {
+        const fileURL = file.browser_download_url;
+        const tempPath = `/temp/noobTemp/bazzarPackage/${file.name}`;
+        await download(fileURL, tempPath);
+
+        // 生成新的文件名，含有包名和版本号
+        const newName = `${packageName}@${packageInfo.version}_${file.name}`;
+        // 拷贝到目标文件夹，使用新的文件名
+        const finalPath = path.join(installPath, newName);
+        await fs.copyFile(tempPath, finalPath);
+    }
+}
+
+export async function uninstallSingleFile(installPath, packageName, version) {
+    // 读取目标文件夹中的所有文件
+    const files = await fs.readDir(installPath);
+
+    // 遍历所有文件
+    for (const file of files) {
+        // 检查文件名是否含有包名和版本号
+        if (file.name.startsWith(`${packageName}@${version}_`)) {
+            // 删除文件
+            const filePath = path.join(installPath, file.name);
+            await fs.removeFile(filePath);
+        }
+    }
 }
