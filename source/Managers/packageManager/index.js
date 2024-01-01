@@ -1,8 +1,4 @@
-import { 下载基础模型 } from "./models.js";
-import { 解压依赖 } from './dependencies.js'
 import { sac } from "./runtime.js";
-export { 下载基础模型 as 下载基础模型 }
-export { 解压依赖 as 解压依赖 }
 import { siyuanPackageDefines } from './packageType/siyuanPackageTypes/index.js'
 import { thirdPartyPackageDefines } from "./packageType/thirdPartyPackages/index.js";
 import { startCleanJob } from "./cache/clean.js";

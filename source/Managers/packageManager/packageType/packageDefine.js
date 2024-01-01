@@ -2,7 +2,7 @@ import { getReposInfoByTopic, installPackageZip } from "../adapters/GitHub.js";
 import { installPackageZip as installPackageZipNpm, installSingleFile as installSingleFileNpm } from "../adapters/NPM.js";
 import { getPackageInfoByKeyword } from "../adapters/NPM.js";
 import { getReposFromURL } from "../adapters/fileList.js";
-import { fs, kernelApi, path } from "../runtime.js";
+import { fs,  path } from "../runtime.js";
 import { sac } from "../runtime.js";
 import { readFromCache } from "../cache/reader.js";
 
