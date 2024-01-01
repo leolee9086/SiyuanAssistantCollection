@@ -139,29 +139,24 @@ export const DefinePackagetype = (packageDefine = {}) => {
         },
         async install(packageInfo) {
             const { name, url, source } = packageInfo;
+            let adapter= (await getAdapters([source]))[0]
             let installPath = replacePath(packageDefine.location, name)
             if (packageDefine.installer) {
                 await packageDefine.installer.install(packageInfo)
             } else if (!packageDefine.singleFile) {
-                if (source === 'github') {
-                    await installPackageZip(installPath, name, url, packageInfo)
-                }
-                if (source === 'npm') {
-                    await installPackageZipNpm(installPath, name, url, packageInfo)
-                }
+                await adapter.installPackageZip(installPath, name, url, packageInfo)
             } else {
-                if (source === 'github') {
-                    await installPackageZip(installPath, name, url, packageInfo)
-                }
-                if (source === 'npm') {
-                    await installSingleFileNpm(installPath, name, url, packageInfo)
+                if(adapter.installSingleFile){
+                    await adapter.installSingleFile(installPath, name, url, packageInfo)
                 }
             }
         },
         async uninstall(packageInfo) {
-            const { packageSource, packageRepo, packageName } = packageInfo;
-            const installPath = replacePath(packageDefine.location, packageName);
-            await fs.removeFile(installPath);
+            if(!packageDefine.singleFile){
+                const { packageSource, packageRepo, packageName } = packageInfo;
+                const installPath = replacePath(packageDefine.location, packageName);
+                await fs.removeFile(installPath);    
+            }
         }
     };
 };
