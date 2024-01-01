@@ -20,7 +20,19 @@ async function readJsonFile(path) {
         }
     } else return {}
 }
-
+async function fetchFromRemote(packageDefine) {
+    const githubPackages = await getReposInfoByTopic(packageDefine.topic, packageDefine.meta)
+    const npmPackages = await getPackageInfoByKeyword(packageDefine.topic)
+    let repos;
+    if (!packageDefine.listRemote) {
+        repos = [...githubPackages, ...npmPackages];
+    } else {
+        let data = { repos: [...githubPackages, ...npmPackages] }
+        let result = await packageDefine.listRemote(data)
+        repos = result.repos;
+    }
+    return repos;
+}
 export const DefinePackagetype = (packageDefine = {}) => {
     //补全默认的meta.json文件
     packageDefine.meta = packageDefine.meta || 'package.json'
@@ -62,18 +74,18 @@ export const DefinePackagetype = (packageDefine = {}) => {
         async load(packageName, fileName) {
             return await packageDefine.load(packageName, fileName);
         },
-      
+
         async addPackageSourceFromUrl(url, type) {
             return await getReposFromURL(url, packageDefine.topic, type)
         },
         async listFromAllRemoteSource() {
             const cacheFilePath = `/temp/noobCache/bazzar/${packageDefine.topic}/cache.json`;
             let repos = await readFromCache(cacheFilePath)
-            if(!repos){
+            if (!repos) {
                 //如果读取缓存文件失败，那么获取远程数据
                 //适配器用于从相关网站读取包列表以及安装和卸载等
-                console.log(packageDefine.adapters)
-                const githubPackages = await  getReposInfoByTopic(packageDefine.topic, packageDefine.meta)
+                /*console.log(packageDefine.adapters)
+                const githubPackages = await getReposInfoByTopic(packageDefine.topic, packageDefine.meta)
                 const npmPackages = await getPackageInfoByKeyword(packageDefine.topic)
                 if (!packageDefine.listRemote) {
                     repos = [...githubPackages, ...npmPackages];
@@ -83,8 +95,9 @@ export const DefinePackagetype = (packageDefine = {}) => {
                     let result = await packageDefine.listRemote(data)
                     console.log(result)
                     repos = result.repos;
-                }
+                }*/
                 // 将获取到的数据写入缓存文件
+                repos= await fetchFromRemote(packageDefine)
                 await fs.writeFile(cacheFilePath, JSON.stringify({ repos }));
             }
             return repos;
