@@ -5,6 +5,7 @@ import { getReposFromURL } from "../adapters/fileList.js";
 import { fs, kernelApi, path } from "../runtime.js";
 import { sac } from "../runtime.js";
 import { readFromCache } from "../cache/reader.js";
+
 function replacePath(path, packageName) {
     let _path = path.replace('@sac', sac.selfPath)
     return packageName ? _path + `/${packageName}/` : _path
@@ -20,16 +21,46 @@ async function readJsonFile(path) {
         }
     } else return {}
 }
-async function fetchFromRemote(packageDefine) {
-    const githubPackages = await getReposInfoByTopic(packageDefine.topic, packageDefine.meta)
-    const npmPackages = await getPackageInfoByKeyword(packageDefine.topic)
-    let repos;
-    if (!packageDefine.listRemote) {
-        repos = [...githubPackages, ...npmPackages];
-    } else {
-        let data = { repos: [...githubPackages, ...npmPackages] }
-        let result = await packageDefine.listRemote(data)
-        repos = result.repos;
+let remotePackageRegistryAdapters={
+    npm:{
+        getReposInfoByTopic:getPackageInfoByKeyword,
+        installPackageZip:installPackageZipNpm,
+        installSingleFile:installSingleFileNpm
+    },
+    github:{
+        getReposInfoByTopic:getReposInfoByTopic,
+        installPackageZip:installPackageZip
+    }
+}
+async function getAdapters(adapterNames) {
+    let selectedAdapters = [];
+    for (let name of adapterNames) {
+        if (name in remotePackageRegistryAdapters) {
+            selectedAdapters.push(remotePackageRegistryAdapters[name])
+        } else {
+            console.warn(`Adapter ${name} not found.`);
+        }
+    }
+    return selectedAdapters;
+}
+async function fetchFromRemote(packageDefine,remotePackageRegistryAdapters) {
+    let repos = [];
+    for (let adapter in remotePackageRegistryAdapters) {
+        try {
+            const packages = await remotePackageRegistryAdapters[adapter].getReposInfoByTopic(packageDefine.topic, packageDefine.meta);
+            repos = [...repos, ...packages];
+        } catch (error) {
+            console.error(`Failed to fetch packages from ${adapter}: `, error);
+        }
+    }
+    if (packageDefine.listRemote) {
+        try {
+            let data = { repos };
+            let result = await packageDefine.listRemote(data);
+            repos = result.repos;
+        } catch (error) {
+            console.error("Failed to list remote packages: ", error);
+        }
     }
     return repos;
 }
@@ -80,24 +111,11 @@ export const DefinePackagetype = (packageDefine = {}) => {
         },
         async listFromAllRemoteSource() {
             const cacheFilePath = `/temp/noobCache/bazzar/${packageDefine.topic}/cache.json`;
-            let repos = await readFromCache(cacheFilePath)
-            if (!repos) {
-                //如果读取缓存文件失败，那么获取远程数据
-                //适配器用于从相关网站读取包列表以及安装和卸载等
-                /*console.log(packageDefine.adapters)
-                const githubPackages = await getReposInfoByTopic(packageDefine.topic, packageDefine.meta)
-                const npmPackages = await getPackageInfoByKeyword(packageDefine.topic)
-                if (!packageDefine.listRemote) {
-                    repos = [...githubPackages, ...npmPackages];
-                } else {
-                    let data = { repos: [...githubPackages, ...npmPackages] }
-                    console.log(data)
-                    let result = await packageDefine.listRemote(data)
-                    console.log(result)
-                    repos = result.repos;
-                }*/
-                // 将获取到的数据写入缓存文件
-                repos= await fetchFromRemote(packageDefine)
+            let adapterNames = packageDefine.adapters
+            let PackageRegistryRemoteAdapters = await getAdapters(adapterNames)
+            let repos=[]// = await readFromCache(cacheFilePath)
+            if (!repos[0]) {
+                repos= await fetchFromRemote(packageDefine,PackageRegistryRemoteAdapters)
                 await fs.writeFile(cacheFilePath, JSON.stringify({ repos }));
             }
             return repos;
