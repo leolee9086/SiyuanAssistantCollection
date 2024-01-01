@@ -62,13 +62,7 @@ export const DefinePackagetype = (packageDefine = {}) => {
         async load(packageName, fileName) {
             return await packageDefine.load(packageName, fileName);
         },
-        async listFromGithub() {
-            return await getReposInfoByTopic(packageDefine.topic, packageDefine.meta)
-
-        },
-        async listFromNpm() {
-            return await getPackageInfoByKeyword(packageDefine.topic)
-        },
+      
         async addPackageSourceFromUrl(url, type) {
             return await getReposFromURL(url, packageDefine.topic, type)
         },
@@ -79,8 +73,8 @@ export const DefinePackagetype = (packageDefine = {}) => {
                 //如果读取缓存文件失败，那么获取远程数据
                 //适配器用于从相关网站读取包列表以及安装和卸载等
                 console.log(packageDefine.adapters)
-                const githubPackages = await this.listFromGithub();
-                const npmPackages = await this.listFromNpm();
+                const githubPackages = await  getReposInfoByTopic(packageDefine.topic, packageDefine.meta)
+                const npmPackages = await getPackageInfoByKeyword(packageDefine.topic)
                 if (!packageDefine.listRemote) {
                     repos = [...githubPackages, ...npmPackages];
                 } else {
@@ -92,8 +86,9 @@ export const DefinePackagetype = (packageDefine = {}) => {
                 }
                 // 将获取到的数据写入缓存文件
                 await fs.writeFile(cacheFilePath, JSON.stringify({ repos }));
-                return repos;
             }
+            return repos;
+
         },
         async packageZip(packageName) {
             const dataPath = replacePath(packageDefine.location, packageName);
