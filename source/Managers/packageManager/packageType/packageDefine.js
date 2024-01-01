@@ -64,11 +64,12 @@ async function fetchFromRemote(packageDefine,remotePackageRegistryAdapters) {
     }
     return repos;
 }
-export const DefinePackagetype = (packageDefine = {}) => {
-    //补全默认的meta.json文件
-    packageDefine.meta = packageDefine.meta || 'package.json'
+function preparePackageDefine(packageDefine = {}) {
+    packageDefine.meta = packageDefine.meta || 'package.json';
+    return packageDefine;
+}
+function genLocalPackageOperations(packageDefine) {
     return {
-        packageDefine,
         async list() {
             const dir = replacePath(packageDefine.location);
             const items = await fs.readDir(dir);
@@ -83,8 +84,6 @@ export const DefinePackagetype = (packageDefine = {}) => {
         },
         async writeStatus(packageName, status) {
             // Implement writeStatus method
-            //首先读取包类型安装目录下的json文件,这个json文件与包类型同名,例如包类型如果是plugin.那么配置文件就是plugins.json
-            //然后找到包名对应的项目,将status写入,并写回文件
         },
         async file(packageName) {
             const dir = replacePath(packageDefine.location, packageName);
@@ -104,39 +103,11 @@ export const DefinePackagetype = (packageDefine = {}) => {
         },
         async load(packageName, fileName) {
             return await packageDefine.load(packageName, fileName);
-        },
-
-        async addPackageSourceFromUrl(url, type) {
-            return await getReposFromURL(url, packageDefine.topic, type)
-        },
-        async listFromAllRemoteSource() {
-            const cacheFilePath = `/temp/noobCache/bazzar/${packageDefine.topic}/cache.json`;
-            let adapterNames = packageDefine.adapters
-            let PackageRegistryRemoteAdapters = await getAdapters(adapterNames)
-            let repos=[]// = await readFromCache(cacheFilePath)
-            if (!repos[0]) {
-                repos= await fetchFromRemote(packageDefine,PackageRegistryRemoteAdapters)
-                await fs.writeFile(cacheFilePath, JSON.stringify({ repos }));
-            }
-            return repos;
-
-        },
-        async packageZip(packageName) {
-            const dataPath = replacePath(packageDefine.location, packageName);
-            await fs.mkdir(`/temp/noobTemp/bazzarPackage/`);
-            await kernelApi.zip({
-                path: dataPath,
-                zipPath: `/temp/noobTemp/bazzarPackage/${packageName}.zip`
-            });
-            const data = await fs.readFile(`/temp/noobTemp/bazzarPackage/${packageName}.zip`);
-            return Buffer.from(data);
-        },
-        async checkInstall(packageInfo) {
-            const { packageSource, packageRepo, packageName } = packageInfo;
-            const dataPath = replacePath(packageDefine.location, packageName);
-            let exists = await fs.exists(dataPath)
-            return exists ? true : false
-        },
+        }
+    };
+}
+function genInstaller(packageDefine){
+    return{
         async install(packageInfo) {
             const { name, url, source } = packageInfo;
             let adapter= (await getAdapters([source]))[0]
@@ -150,13 +121,49 @@ export const DefinePackagetype = (packageDefine = {}) => {
                     await adapter.installSingleFile(installPath, name, url, packageInfo)
                 }
             }
-        },
+        }, 
         async uninstall(packageInfo) {
             if(!packageDefine.singleFile){
                 const { packageSource, packageRepo, packageName } = packageInfo;
                 const installPath = replacePath(packageDefine.location, packageName);
                 await fs.removeFile(installPath);    
             }
-        }
+        },
+        async checkInstall(packageInfo) {
+            const { packageSource, packageRepo, packageName } = packageInfo;
+            const dataPath = replacePath(packageDefine.location, packageName);
+            let exists = await fs.exists(dataPath)
+            return exists ? true : false
+        },
+    }
+}
+function genRemote(packageDefine){
+    return {
+        async listFromAllRemoteSource() {
+            const cacheFilePath = `/temp/noobCache/bazzar/${packageDefine.topic}/cache.json`;
+            let adapterNames = packageDefine.adapters
+            let PackageRegistryRemoteAdapters = await getAdapters(adapterNames)
+            let repos
+            repos = await readFromCache(cacheFilePath)
+            if (!repos) {
+                repos= await fetchFromRemote(packageDefine,PackageRegistryRemoteAdapters)
+                await fs.writeFile(cacheFilePath, JSON.stringify({ repos }));
+            }
+            return repos;
+        },
+    }
+}
+
+export const DefinePackagetype = (packageDefine = {}) => {
+    //补全默认的meta.json文件
+    packageDefine = preparePackageDefine(packageDefine);
+    return {
+        packageDefine,
+        async addPackageSourceFromUrl(url, type) {
+            return await getReposFromURL(url, packageDefine.topic, type)
+        },
+        remote:genRemote(packageDefine),
+        installer:genInstaller(packageDefine),
+        local:genLocalPackageOperations(packageDefine)
     };
 };

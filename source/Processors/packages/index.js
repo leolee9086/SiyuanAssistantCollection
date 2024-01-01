@@ -36,7 +36,6 @@ const 包路由 = new sac.路由管理器.Router()
             error: "topic不能为空"
         }
     }
-
     return ctx
 })
 包路由.post('/checkPackageEnabled', async (ctx, next) => {
@@ -67,7 +66,7 @@ const 包路由 = new sac.路由管理器.Router()
     let topic = ctx.params.packageTypeTopic
     let packageHandeler = sac.statusMonitor.get('packages', topic).$value
     let { page = 1, pageSize = 10 } = ctx.query; // 获取页码和每页的数量，如果没有则默认为1和10
-    let rssListData = await packageHandeler.list(page, pageSize)
+    let rssListData = await packageHandeler.local.list(page, pageSize)
     ctx.body = {
         data: rssListData,
         total: rssListData.length
@@ -77,7 +76,7 @@ const 包路由 = new sac.路由管理器.Router()
     let topic = ctx.params.packageTypeTopic
     let packageHandeler = sac.statusMonitor.get('packages', topic).$value
     let { page = 1, pageSize = 10 } = ctx.req.body; // 获取页码和每页的数量，如果没有则默认为1和10
-    let rssListData = await packageHandeler.list(page, pageSize)
+    let rssListData = await packageHandeler.local.list(page, pageSize)
     ctx.body = {
         data: rssListData,
         total: rssListData.length
@@ -87,7 +86,7 @@ const 包路由 = new sac.路由管理器.Router()
     let topic = ctx.params.packageTypeTopic
     let packageHandeler = sac.statusMonitor.get('packages', topic).$value
     if (packageHandeler) {
-        let PackagesList = await packageHandeler.listFromAllRemoteSource()
+        let PackagesList = await packageHandeler.remote.listFromAllRemoteSource()
         ctx.body = PackagesList
     } else {
         ctx.body = []
@@ -97,15 +96,14 @@ const 包路由 = new sac.路由管理器.Router()
     let topic = ctx.params.packageTypeTopic
     let { packageName } = ctx.req.body
     let packageHandeler = sac.statusMonitor.get('packages', topic).$value
-    ctx.body = await packageHandeler.getMeta(packageName)
+    ctx.body = await packageHandeler.local.getMeta(packageName)
 })
 包路由.post('/:packageTypeTopic/install', async (ctx, next) => {
     let topic = ctx.params.packageTypeTopic
-
     let packageInfo = ctx.req.body
     let packageHandeler = sac.statusMonitor.get('packages', topic).$value
     if (packageHandeler) {
-        ctx.body = await packageHandeler.install(packageInfo)
+        ctx.body = await packageHandeler.installer.install(packageInfo)
     } else {
         ctx.body = { msg: 1, error: '未能找到包定义' }
         throw '未能找到包类型' + topic + "的定义"
@@ -115,13 +113,13 @@ const 包路由 = new sac.路由管理器.Router()
     let topic = ctx.params.packageTypeTopic
     let packageInfo = ctx.req.body
     let packageHandeler = sac.statusMonitor.get('packages', topic).$value
-    ctx.body = await packageHandeler.uninstall(packageInfo)
+    ctx.body = await packageHandeler.installer.uninstall(packageInfo)
 })
 包路由.post('/:packageTypeTopic/checkInstall', async (ctx, next) => {
     let topic = ctx.params.packageTypeTopic
     let { packageName } = ctx.req.body
     let packageHandeler = sac.statusMonitor.get('packages', topic).$value
-    ctx.body = await packageHandeler.checkInstall(packageName)
+    ctx.body = await packageHandeler.installer.checkInstall(packageName)
 })
 
 export { 包路由 as router }
