@@ -8,3 +8,14 @@ export const  install=async(packageInfo)=>{
     })
     return res
 }
+export const enable =async(topic)=>{
+    let res={}
+    try{
+     res =await internalFetch(`/packages/enable`, {
+        body: {topic: topic}, method: 'POST'
+    })
+    }catch(e){
+        console.error(e)
+    }
+    return res
+}

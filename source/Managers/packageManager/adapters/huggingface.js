@@ -32,7 +32,7 @@ export async function getReposInfoByTopic(keyword) {
     const models = await getPackagesByKeyword(keyword);
     return models.map(model => {
         return {
-            url: `${HUB_URL}/${model.modelId}`,
+            url: `${HUB_URL}/${model.name}`,
             updated: model.lastModified, // This information is available from the model data
             stars: null, // This information is not available from the model data
             openIssues: null, // This information is not available from the model data

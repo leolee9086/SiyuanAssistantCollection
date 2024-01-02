@@ -35,17 +35,18 @@
                                 <div class="b3-card__actions ">
 
                                     <PackageInstallIcon :packageInfo="repo.package"
+                                        v-if="!installed[repo.name]" 
                                         @package-installed="() => { 判定尚未安装(repo) }">
                                     </PackageInstallIcon>
 
-                                    <span v-if="!updated[repo.package.name]" class="block__icon block__icon--show ariaLabel"
+                                    <span v-if="!updated[repo.name]" class="block__icon block__icon--show ariaLabel"
                                         aria-label="更新" data-rss-name='${repo.name}' data-repo-name='${repo.repoUrl}'
                                         data-repo-source="github">
                                         <svg>
                                             <use xlink:href="#iconRefresh"></use>
                                         </svg>
                                     </span>
-                                    <span v-if="installed[repo.package.name]"
+                                    <span v-if="installed[repo.name]"
                                         class="block__icon block__icon--show ariaLabel" aria-label="卸载"
                                         data-rss-name='${repo.name}' data-repo-name='${repo.repoUrl}'
                                         data-repo-source="github" @click="() => { uninstall(repo) }">
@@ -114,7 +115,6 @@ let checkPackageEnabled =async  (topic)=> {
             }
         }
     )
-
 }
 const uninstall = (repo) => {
     sac.路由管理器.internalFetch(`/packages/${appData.packageTypeTopic}/unInstall`, {
@@ -130,11 +130,12 @@ const 判定尚未安装 = (repo) => {
     }).then(res => {
         console.log(res)
         console.log(installed)
-        installed[repo.package.name] = res.body
+        installed[repo.name] = res.body
     })
 }
 const 判定需要更新 = (repo) => {
-    sac.路由管理器.internalFetch(`/packages/${appData.packageTypeTopic}/meta`, {
+
+    repo&&sac.路由管理器.internalFetch(`/packages/${appData.packageTypeTopic}/meta`, {
         body: repo.package, method: 'POST'
 
     }).then(res => {

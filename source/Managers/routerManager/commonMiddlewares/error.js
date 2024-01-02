@@ -1,13 +1,13 @@
-export const useError=async(ctx,next)=>{
-    try {
-        await next();
-      } catch (err) {
-        ctx.status = err.status || 500;
-        ctx.body = err.message;
-        if(ctx.app){
-            ctx.app.emit('error', err,err.stack, ctx);
-        }else{
-            console.error('error',err,err.stack,ctx)
-        }
-      }
+export const useError = async (ctx, next) => {
+  try {
+    await next();
+  } catch (err) {
+    ctx.status = err.status || 500;
+    ctx.body = err.message;
+    if (ctx.app) {
+      ctx.app.emit('error', err, err.stack, ctx);
+    } else {
+      console.error('error', err, err.stack, ctx)
+    }
+  }
 }

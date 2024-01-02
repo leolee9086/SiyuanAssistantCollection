@@ -60,10 +60,12 @@ sac.eventBus.on('statusChange', (e) => {
 })
 const changeTopic = (topic) => {
     currentTopic.value = topic
+    emit('topic-change', topic)
+    emit('data-received', [])
+
     sac.路由管理器.internalFetch(`/packages/${topic}/listRemote`, { method: "POST" }).then(
         data => {
             console.log(data.body)
-            emit('topic-change', topic)
             emit('data-received', data.body)
         }
     )

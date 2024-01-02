@@ -29,7 +29,7 @@ rssrouter.post('/meta',async (ctx, next) => {
 rssrouter.get('/meta',async (ctx, next) => {
     const rssPackages=await rssPackagesAsync()
     let { packageName } = ctx.query; // 获取页码和每页的数量，如果没有则默认为1和10
-    ctx.body = await rssPackages.getMeta(packageName)
+    ctx.body = await rssPackages.local.getMeta(packageName)
     return ctx;
 })
 rssrouter.post('/install',async (ctx, next) => {
@@ -48,14 +48,14 @@ let enabled = {}
 let configs ={}
 rssrouter.post('/enable', async (ctx, next) => {
     const rssPackages=await rssPackagesAsync()
-
+    console.log(rssPackages,ctx)
     let name =ctx.req.body.packageName
     if (!enabled[name]) {
-        let config = await rssPackages.getConfig(name)
+        let config = await rssPackages.local.getConfig(name)
         configs[name]=config
         let routers = config.routers
         routers.forEach(async router => {
-            RSSRoute.get(router.endpoint, await rssPackages.load(name, router.file))
+            RSSRoute.get(router.endpoint, await rssPackages.local.load(name, router.file))
         });
         enabled[name] = true
     }

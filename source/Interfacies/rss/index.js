@@ -27,7 +27,7 @@ export const tabs = {
             console.log(data)
             sac.路由管理器.internalFetch('/search/rss/enable', {
                 body: {
-                    name: data.name
+                    packageName: data.name
                 }, method: 'POST'
             }).then(
                 data => {

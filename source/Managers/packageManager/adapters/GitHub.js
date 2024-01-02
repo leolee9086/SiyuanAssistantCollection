@@ -67,7 +67,7 @@ export async function getReposInfoByTopic(topic, metaFile) {
             const metaFileResponse = await got(metaFileUrl);
             metaData = await metaFileResponse.json();
         } catch (e) {
-            console.warn(e, '未能正确获取包数据',repo)
+            console.warn(e, '未能正确获取包元数据',repo)
         }
         return {
             url: `https://github.com/${repo.owner.login}/${repo.name}@${releaseData.tag_name}`,

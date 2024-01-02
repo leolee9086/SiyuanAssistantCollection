@@ -9,7 +9,7 @@ startCleanJob()
 export const usePackage = async (packageDefines) => {
     for (const packageDefine of packageDefines) {
         let packageHandler = type(packageDefine);
-        await sac.statusMonitor.set('packages', packageDefine.topic, packageHandler);
+        await sac.statusMonitor.set('packages', packageHandler.packageDefine.topic, packageHandler);
     }
 };
 await usePackage(siyuanPackageDefines)

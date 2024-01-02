@@ -1,5 +1,5 @@
 import { getReposFromURL } from "../adapters/fileList.js";
-import { fs,  path } from "../runtime.js";
+import { fs, path } from "../runtime.js";
 import { sac } from "../runtime.js";
 import { getAdapters } from "../adapters/index.js";
 import { genRemote } from "./remotePackages.js";
@@ -22,7 +22,7 @@ async function readJsonFile(path) {
 
 function preparePackageDefine(packageDefine = {}) {
     packageDefine.meta = packageDefine.meta || 'package.json';
-    packageDefine.workspace=fs
+    packageDefine.workspace = fs
     return packageDefine;
 }
 function genLocalPackageOperations(packageDefine) {
@@ -48,11 +48,12 @@ function genLocalPackageOperations(packageDefine) {
         },
         async getConfig(packageName) {
             const path = replacePath(packageDefine.location, packageName) + packageDefine.config;
-            return readJsonFile(path);
+            console.log(path)
+            return await readJsonFile(path);
         },
         async getMeta(packageName) {
             const path = replacePath(packageDefine.location, packageName) + packageDefine.meta;
-            return readJsonFile(path);
+            return await readJsonFile(path);
         },
         resolve(packageName, _path) {
             const dir = replacePath(packageDefine.location, packageName);
@@ -63,27 +64,27 @@ function genLocalPackageOperations(packageDefine) {
         }
     };
 }
-function genInstaller(packageDefine){
-    return{
+function genInstaller(packageDefine) {
+    return {
         async install(packageInfo) {
             const { name, url, source } = packageInfo;
-            let adapter= (await getAdapters([source]))[0]
+            let adapter = (await getAdapters([source]))[0]
             let installPath = replacePath(packageDefine.location, name)
             if (packageDefine.installer) {
                 await packageDefine.installer.install.bind(packageDefine)(packageInfo)
             } else if (!packageDefine.singleFile) {
                 await adapter.installPackageZip(installPath, name, url, packageInfo)
             } else {
-                if(adapter.installSingleFile){
+                if (adapter.installSingleFile) {
                     await adapter.installSingleFile(installPath, name, url, packageInfo)
                 }
             }
-        }, 
+        },
         async uninstall(packageInfo) {
-            if(!packageDefine.singleFile){
+            if (!packageDefine.singleFile) {
                 const { packageSource, packageRepo, packageName } = packageInfo;
                 const installPath = replacePath(packageDefine.location, packageName);
-                await fs.removeFile(installPath);    
+                await fs.removeFile(installPath);
             }
         },
         async checkInstall(packageInfo) {
@@ -97,15 +98,30 @@ function genInstaller(packageDefine){
 
 
 export const DefinePackagetype = (packageDefine = {}) => {
+    // 判断 packageDefine 是否是一个类
+    if (typeof packageDefine === 'function' && /^\s*class\s+/.test(packageDefine.toString())) {
+        // 如果是，使用 new 创建一个新的实例
+        // 将 local 等挂载到 packageDefine 上
+        packageDefine = new packageDefine();
+        console.log(packageDefine,packageDefine.__proto__)
+
+        packageDefine.__proto__.addPackageSourceFromUrl = async (url, type) => {
+            return await getReposFromURL(url, packageDefine.topic, type);
+        };
+        packageDefine.__proto__.remote = genRemote(packageDefine);
+        packageDefine.__proto__.installer = genInstaller(packageDefine);
+        packageDefine.__proto__.local = genLocalPackageOperations(packageDefine);
+    }
     //补全默认的meta.json文件
     packageDefine = preparePackageDefine(packageDefine);
+    console.log(packageDefine)
     return {
         packageDefine,
         async addPackageSourceFromUrl(url, type) {
             return await getReposFromURL(url, packageDefine.topic, type)
         },
-        remote:genRemote(packageDefine),
-        installer:genInstaller(packageDefine),
-        local:genLocalPackageOperations(packageDefine)
+        remote: genRemote(packageDefine),
+        installer: genInstaller(packageDefine),
+        local: genLocalPackageOperations(packageDefine)
     };
 };

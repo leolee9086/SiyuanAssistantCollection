@@ -15,6 +15,7 @@ const 包路由 = new sac.路由管理器.Router()
 包路由.post('/enable', async (ctx, next) => {
     console.log(ctx)
     const { topic } = ctx.req.body
+    console.log(topic)
     if (topic) {
         let packageHandeler = sac.statusMonitor.get('packages', topic).$value
         if (packageHandeler) {

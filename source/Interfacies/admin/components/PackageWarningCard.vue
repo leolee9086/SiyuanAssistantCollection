@@ -34,22 +34,18 @@
     </div>
 </template>
 <script setup>
-import { sac } from "runtime"
 import { defineProps,defineEmits } from 'vue'
+import {enable} from '../utils/package.js'
 let { topic } = defineProps(['topic'])
 const emit=defineEmits(['topic-enabled'])
 const enablePackageType = async () => {
-    let res = await sac.路由管理器.internalFetch('/packages/enable', {
-        method: "POST",
-        body: {
-            topic: topic
-        }
-    })
-    if (res.body.data && res.body.data.enabled) {
-        console.log(res.body.data)
+    let res = await enable(topic)
+    if (res.body&&res.body.data && res.body.data.enabled) {
         emit('topic-enabled',{topic: topic})
     }
 }
+
+
 </script>
 <style scoped>
 .sac-rss-card {
