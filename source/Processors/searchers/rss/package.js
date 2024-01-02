@@ -8,7 +8,7 @@ export const rssPackages=
         //包类型的设置文件名称,可以为空
         config:'rss.json',
         //包安装位置,必须
-        location: '/public/sac-rss-adapters/installed',
+        location: '/data/public/sac-rss-adapters/installed',
         //检索用的关键词,必须
         topic:"sac-rss-adapter",
         //支持的下载源

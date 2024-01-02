@@ -12,7 +12,6 @@
 import { defineProps,defineEmits } from 'vue'
 import { sac } from 'runtime';
 const emit = defineEmits(['package-installed'])
-
 const { packageInfo } = defineProps(['packageInfo'])
 const install=(packageInfo)=>{
     console.log(packageInfo)

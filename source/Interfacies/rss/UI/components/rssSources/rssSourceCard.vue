@@ -40,9 +40,7 @@
 <script setup>
 import { defineProps, ref, onMounted } from 'vue'
 import { sac } from 'runtime';
-const props = defineProps({
-    itemName: Object
-})
+const props = defineProps(['itemName'])
 const item = ref({})
 onMounted(
     () => {

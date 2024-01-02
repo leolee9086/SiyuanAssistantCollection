@@ -41,7 +41,7 @@ export async function getPackagesByKeyword(keyword) {
     return JSON.parse(response.body).objects;
 }
 // NPM adapter
-export async function getPackageInfoByKeyword(keyword) {
+ async function getPackageInfoByKeyword(keyword) {
     const packages = await getPackagesByKeyword(keyword);
     return packages.map(pkg => {
         let repoUrl = pkg.package.links && pkg.package.links.repository;
@@ -94,7 +94,7 @@ export async function getPackageInfoByKeyword(keyword) {
         };
     });
 }
-
+export {getPackageInfoByKeyword as getReposInfoByTopic} 
 // 主函数
 export async function 下载最新版本包(包名) {
     let 版本信息 = await 获取最新版本信息(包名);

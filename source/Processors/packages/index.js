@@ -117,9 +117,9 @@ const 包路由 = new sac.路由管理器.Router()
 })
 包路由.post('/:packageTypeTopic/checkInstall', async (ctx, next) => {
     let topic = ctx.params.packageTypeTopic
-    let { packageName } = ctx.req.body
+    let packageInfo = ctx.req.body
     let packageHandeler = sac.statusMonitor.get('packages', topic).$value
-    ctx.body = await packageHandeler.installer.checkInstall(packageName)
+    ctx.body = await packageHandeler.installer.checkInstall(packageInfo)
 })
 
 export { 包路由 as router }

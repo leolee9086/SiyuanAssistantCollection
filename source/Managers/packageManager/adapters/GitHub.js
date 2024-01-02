@@ -129,20 +129,16 @@ export async function installPackageZip(installPath, packageName, repo,packageIn
         });
     }
 }
-
-
 export async function installSingleFile(installPath, packageName, repo, packageInfo) {
     let version = 'latest';
     const response = await fetch(`https://api.github.com/repos/${repo.replace('https://github.com/', '')}/releases/${version}`);
     const data = await response.json();
     const files = data.assets;
-
     // 遍历所有文件
     for (const file of files) {
         const fileURL = file.browser_download_url;
         const tempPath = `/temp/noobTemp/bazzarPackage/${file.name}`;
         await download(fileURL, tempPath);
-
         // 生成新的文件名，含有包名和版本号
         const newName = `${packageName}@${packageInfo.version}_${file.name}`;
         // 拷贝到目标文件夹，使用新的文件名

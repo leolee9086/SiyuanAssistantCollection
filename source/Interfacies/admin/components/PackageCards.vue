@@ -69,7 +69,6 @@
 import { sac } from 'runtime'
 import { ref, onMounted, reactive, inject } from 'vue';
 import PackageTopicButtons from './PackageTopicButtons.vue';
-import PackageAddCard from './PackageAddCard.vue';
 import PackageSourceIcon from './PackageSourceIcon.vue';
 import PackageInstallIcon from './PackageInstallIcon.vue';
 import PackageSearchIcons from './PcakageSearchIcons.vue';
@@ -119,11 +118,7 @@ let checkPackageEnabled =async  (topic)=> {
 }
 const uninstall = (repo) => {
     sac.路由管理器.internalFetch(`/packages/${appData.packageTypeTopic}/unInstall`, {
-        body: {
-            packageSource: repo.source,
-            packageRepo: repo.repoUrl,
-            packageName: repo.name
-        }, method: 'POST'
+        body: repo.package, method: 'POST'
     }).then(res => {
         setTimeout(() => 判定尚未安装(repo), 500)
     })
@@ -131,11 +126,7 @@ const uninstall = (repo) => {
 const 判定尚未安装 = (repo) => {
     console.log(repo)
     sac.路由管理器.internalFetch(`/packages/${appData.packageTypeTopic}/checkInstall`, {
-        body: {
-            packageSource: repo.package.source,
-            packageRepo: repo.package.url,
-            packageName: repo.package.name
-        }, method: 'POST'
+        body: repo.package, method: 'POST'
     }).then(res => {
         console.log(res)
         console.log(installed)
@@ -144,11 +135,8 @@ const 判定尚未安装 = (repo) => {
 }
 const 判定需要更新 = (repo) => {
     sac.路由管理器.internalFetch(`/packages/${appData.packageTypeTopic}/meta`, {
-        body: {
-            packageSource: repo.source,
-            packageRepo: repo.url,
-            packageName: repo.name
-        }, method: 'POST'
+        body: repo.package, method: 'POST'
+
     }).then(res => {
         if (res.body.version === repo.version) {
             updated[repo.name] = res.body
