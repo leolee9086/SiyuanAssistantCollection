@@ -44,7 +44,7 @@ const openContent = (item,i) => {
     item:i,
     title: item.title,
     icon: item.icon || "",
-    type: 'rssContent'
+    type: 'rssContent',
   }
   console.log(data)
   sac.eventBus.emit('rss-ui-open-tab',data )

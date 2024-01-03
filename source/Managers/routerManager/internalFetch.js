@@ -1,7 +1,7 @@
 import delegate from '../../../static/delegates.js'
 import url from '../../../static/url.js';
 
-export const internalFetch = async (path, options = {}, router) => {
+export const internalFetch = async (path, options = {}, router,user) => {
   // 创建上下文对象
   const ctx = createMocCtx(path, options)
   ctx.path = path;
@@ -9,7 +9,7 @@ export const internalFetch = async (path, options = {}, router) => {
   ctx.headers = options.headers || {};
   ctx.request.body = options.body;
   ctx.status = 200;
-
+  ctx.state.user=user
   // 创建一个 Promise，当 signal 的 abort 事件被触发时，这个 Promise 会被拒绝
   const abortPromise = new Promise((resolve, reject) => {
     if (options.signal) {
@@ -46,9 +46,9 @@ export const internalFetch = async (path, options = {}, router) => {
   // 返回上下文的状态
   return ctx;
 };
-export const buildInternalFetch = (router) => {
+export const buildInternalFetch = (router,user) => {
   return async (path, options) => {
-    return internalFetch(path, options, router)
+    return internalFetch(path, options, router,user)
   }
 }
 

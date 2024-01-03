@@ -15,9 +15,14 @@
                         <use xlink:href="#iconAdd"></use>
                     </svg>
                 </span>
-                <span class="block__icon block__icon--show ariaLabel" aria-label="允许伺服">
-                    <input class="b3-switch fn__flex-center" checked="" data-type="plugin-enable" type="checkbox">
-                </span>
+                <div>
+                    <div class="block__icon block__icon--show ariaLabel" aria-label="设置访问这个端口所需要的权限">
+                        <span>访问权限</span><input style="box-sizing: border-box" value="100" class="b3-slider fn__block" max="10" min="1" step="1" type="range">
+                    </div>
+                    <div class="block__icon block__icon--show ariaLabel" aria-label="允许伺服">
+                        <span>允许伺服</span><input class="b3-switch fn__flex-center" checked="" data-type="plugin-enable" type="checkbox">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -25,12 +30,12 @@
 <script setup>
 import defineProps from "vue"
 import { sac } from "runtime";
-let {router,adapter}=defineProps(['router'])
-const 添加订阅项目 = ()=>{
-    sac.事件管理器.emit('rss-ui','open-dialog',{
-        type:'initFeed',
-        router:router,
-        adapter:adapter
+let { router, adapter } = defineProps(['router'])
+const 添加订阅项目 = () => {
+    sac.事件管理器.emit('rss-ui', 'open-dialog', {
+        type: 'initFeed',
+        router: router,
+        adapter: adapter
     })
 }
 </script>

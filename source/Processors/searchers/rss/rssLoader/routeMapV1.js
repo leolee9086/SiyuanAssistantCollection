@@ -97,7 +97,7 @@ const loadAll = async () => {
 const router = new Router();
 // 懒加载 Route Handler，Route 首次被请求时才会 解析 相关文件
 export const lazyloadRouteHandler = (routeHandlerPath) => {
-    let realPath = routeHandlerPath.replace('./routes', plugin.selfPath + '/installed/rss')
+    let realPath = routeHandlerPath.replace('./routes', '/public/sac-rss-adapter/installed/rss')
     if (!realPath.endsWith('.js')) {
         realPath = realPath + '.js'
     }
