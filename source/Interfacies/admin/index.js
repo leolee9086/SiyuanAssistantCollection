@@ -12,5 +12,11 @@ export const tabs = {
     }
 }
 export const Emitter = class {
-    channel = "admin"
+    channel = "admin";
+    ['@main-click-berry-button']=(e)=>{
+        this.emit('open-tab',{
+            'title':'扩展包管理',
+            "type":'packageManage'
+        })
+    }
 }

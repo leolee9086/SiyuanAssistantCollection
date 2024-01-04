@@ -16,7 +16,7 @@ export const emitters = {}
 export const use = (Emitter) => {
     let emitter = new Emitter()
     emitter.emit = (event, data) => {
-        sac.eventBus.emit(event, { emitter, data })
+        sac.eventBus.emit(emitter.channel + '-'+event, { emitter:emitter.channel, ...data })
     }
     emitters[emitter.channel] = emitter;
     // 遍历 emitter 对象的所有键

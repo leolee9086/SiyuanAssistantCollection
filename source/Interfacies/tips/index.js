@@ -5,8 +5,10 @@ import { 使用结巴拆分元素 } from '../../utils/tokenizer.js';
 import { 获取光标所在位置 } from '../../utils/rangeProcessor.js';
 import { sac } from './runtime.js';
 import { 智能防抖 } from '../../utils/functionTools.js';
+import { tipsRenderPackage } from './package.js';
+export const packages=[tipsRenderPackage]
 let 显示tips = 智能防抖(async (e) => {
-    let { pos, editableElement, blockElement, parentElement } = 获取光标所在位置();
+    /*let { pos, editableElement, blockElement, parentElement } = 获取光标所在位置();
     let 分词结果数组 = 使用结巴拆分元素(editableElement).filter((token) => {
         return (token.start <= pos && token.end >= pos) && (token.word && token.word.trim().length > 1);
     }).sort((a, b) => {
@@ -15,7 +17,7 @@ let 显示tips = 智能防抖(async (e) => {
     if (!分词结果数组[0]) {
         return
     }
-    //这一段是文字搜索
+    //这一段是文字搜索*/
     let res = await sac.路由管理器.internalFetch('/search/blocks/text', {
         body: {
             query: editableElement.innerText

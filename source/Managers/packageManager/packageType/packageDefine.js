@@ -109,9 +109,10 @@ function genInstaller(packageDefine) {
 
 export const DefinePackagetype = (packageDefine = {}) => {
     // 判断 packageDefine 是否是一个类
-    if (typeof packageDefine === 'function' && /^\s*class\s+/.test(packageDefine.toString())) {
+    if (typeof packageDefine === 'function' ) {
         // 如果是，使用 new 创建一个新的实例
         // 将 local 等挂载到 packageDefine 上
+        try{
         packageDefine = new packageDefine();
         console.log(packageDefine,packageDefine.__proto__)
 
@@ -121,6 +122,9 @@ export const DefinePackagetype = (packageDefine = {}) => {
         packageDefine.__proto__.remote = genRemote(packageDefine);
         packageDefine.__proto__.installer = genInstaller(packageDefine);
         packageDefine.__proto__.local = genLocalPackageOperations(packageDefine);
+        }catch(e){
+            throw  new Error("包类型定义错误",packageDefine,e)
+        }
     }
     //补全默认的meta.json文件
     packageDefine = preparePackageDefine(packageDefine);

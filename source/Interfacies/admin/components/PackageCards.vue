@@ -2,7 +2,7 @@
     <div class="fn__flex-1 fn__flex-column">
 
         <PackageSearchIcons></PackageSearchIcons>
-        <PackageTopicButtons v-if="appData.packageTypeTopic" :topic="appData.packageTypeTopic"
+        <PackageTopicButtons  :topic="appData.packageTypeTopic"
             @data-received="handleDataReceived"
             @topic-change="(topic) => {appData.packageTypeTopic=topic; checkPackageEnabled(appData.packageTypeTopic) }">
         </PackageTopicButtons>

@@ -51,6 +51,7 @@ function 创建Tab容器() {
           title: data.title,
           ...data
         },
+        
         id: plugin.name + DOCK_TYPE
       }
     }).then(

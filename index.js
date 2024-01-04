@@ -271,6 +271,7 @@ class SiyuanAssistantCollection extends ccPlugin {
     //界面部分之后应该改成事件模式
     this.从esm模块('./source/Interfacies/tips/index.js').合并子模块('tips处理器').then(
       () => { 
+        this.包管理器.usePackage(this.tips处理器.packages)
         this.路由管理器.根路由.use('/tips', this.tips处理器.router.routes('/')) 
         this.事件管理器.use(this.tips处理器.Emitter)
       }
