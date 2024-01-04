@@ -10,7 +10,7 @@ function escapeHTML(str) {
 export const buildTips = async (item) => {
     console.log(item)
     let tipsConainer = getTipsContainers()
-    item.item.forEach(
+    item.item && item.item.forEach(
         item => {
             if (item) {
                 // 如果不存在，则添加新的元素
@@ -27,10 +27,13 @@ export const buildTips = async (item) => {
                 <div>
                      <input class=" fn__flex-center"  type="checkbox"></input>
                     <strong><a href="${escapeHTML(item.link)}">${item.title}</a></strong>
-                    <strong>${item.textScore||0}</strong>
-                    <strong>${item.vectorScore||0}</strong>
+                    <strong>${item.textScore || 0}</strong>
+                    <strong>${item.vectorScore || 0}</strong>
                     <strong>${item.id}</strong>
+                    <strong>${item.source}</strong>
+                    <div>
                     ${item.description}
+                    </div>
                 </div>
                 <div class="tips-image-container ">
                     ${imageHTML}
@@ -38,7 +41,7 @@ export const buildTips = async (item) => {
                 </div>
                 </div>
                 `;
-                待添加数组.push({ content: divHTML, time: Date.now(), textScore:item.textScore||0, vectorScore: item.vectorScore||0, id: item.id })
+                待添加数组.push({ content: divHTML, time: Date.now(), textScore: item.textScore || 0, vectorScore: item.vectorScore || 0, id: item.id })
                 // tipsConainer.querySelector("#SAC-TIPS").innerHTML += (divHTML)
             }
         }
@@ -46,10 +49,10 @@ export const buildTips = async (item) => {
     智能防抖(批量渲染(tipsConainer))
 }
 async function 批量渲染(container) {
-    // 使用 Set 来去重，性能更好
     待添加数组 = 待添加数组.reduce((unique, item) => {
         return unique.some(u => u.id === item.id) ? unique : [...unique, item];
-    }, []); let frag = document.createDocumentFragment();
+    }, []);
+    let frag = document.createDocumentFragment();
     // 如果元素数量超过限制，移除多余的元素
     待添加数组.sort((a, b) => {
         // 计算时间差，单位为秒
@@ -72,13 +75,22 @@ async function 批量渲染(container) {
                 let bText = Bmatch ? Bmatch.join('') : "";
                 return bText.length - aText.length;
             }
-        }
+       }
     });
 
 
     if (待添加数组.length > 20) {
-        待添加数组 = 待添加数组.slice(待添加数组.length - 20);
+
+        // 反向数组，使最新的元素在前
+       // 待添加数组.reverse();
+
+        // 修剪数组，只保留最新的20个元素
+        待添加数组 = 待添加数组.slice(0, 20);
+
+        // 再次反向数组，使元素回到原来的顺序
+       // 待添加数组.reverse();
     }
+    console.log(待添加数组)
 
     // 将过滤后的元素添加到 DocumentFragment
     待添加数组.forEach(item => {

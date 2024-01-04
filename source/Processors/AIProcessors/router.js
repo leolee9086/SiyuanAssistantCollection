@@ -22,4 +22,5 @@ ai路由.post('/v1/embedding', async (ctx) => {
     ctx.body = result;
 });
 
+
 export default ai路由
