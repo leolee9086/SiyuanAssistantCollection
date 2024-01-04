@@ -24,17 +24,17 @@ export const tabs = {
     },
     "rssEditor": {
         init: (element, data, tab) => {
-            console.log(data)
-            sac.路由管理器.internalFetch('/search/rss/enable', {
+            
+            sac.路由管理器.internalFetch('/search/rss/getConfig', {
                 body: {
                     packageName: data.name
                 }, method: 'POST'
             }).then(
-                data => {
+                res => {
                     const app = initVueApp(
                         import.meta.resolve('./UI/components/rssEditor.vue'),
                         'rsscontent', {},
-                        'D:/思源主库/data/plugins/SiyuanAssistantCollection/source', { data: data.body })
+                        'D:/思源主库/data/plugins/SiyuanAssistantCollection/source', {meta:data, config: res.body })
                     app.mount(element)
                 }
             )

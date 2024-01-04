@@ -46,11 +46,11 @@ rssrouter.post('/checkInstall', async (ctx, next) => {
 })
 let enabled = {}
 let configs = {}
-rssrouter.post('/enable', async (ctx, next) => {
+rssrouter.post('/getConfig', async (ctx, next) => {
     const rssPackages = await rssPackagesAsync()
     let name = ctx.req.body.packageName
     if (!enabled[name]) {
-        let config = await rssPackages.local.getConfig(name)
+        let config = await rssPackages.local.getMeta(name)
         configs[name] = config
         let routers = config.routers
         //这一步才会启用路由
@@ -62,13 +62,17 @@ rssrouter.post('/enable', async (ctx, next) => {
     ctx.body = configs[name]
     next()
 })
-
-
+rssrouter.post('/addFeed',async(ctx, next)=>{
+    const feedDefine=ctx.req.body
+    const rssPackages = await rssPackagesAsync()
+    let config=await rssPackages.local.getMeta(feedDefine.packageName)
+    config.feeds.push(feedDefine)
+    config= await rssPackages.local.setConfig(feedDefine.packageName,config)
+    ctx.body=config
+})
 rssrouter.post('/feed', handleFeedRequest);
 rssrouter.post('/feedContent', handleFeedContentRequest);
-
 rssrouter.get('/feed/:path*', handleFeedRequest);
-
 async function handleFeedRequest(ctx, next) {
     let format = 'json';
     let remote;

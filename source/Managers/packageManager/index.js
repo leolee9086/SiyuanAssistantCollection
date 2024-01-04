@@ -6,10 +6,10 @@ import { DefinePackagetype as type } from "./packageType/packageDefine.js";
 //开始清理缓存的定时任务
 startCleanJob()
 // 将路径替换操作抽取为单独的函数
-export const usePackage = async (packageDefines) => {
+export const usePackage =  (packageDefines) => {
     for (const packageDefine of packageDefines) {
         let packageHandler = type(packageDefine);
-        await sac.statusMonitor.set('packages', packageHandler.packageDefine.topic, packageHandler);
+         sac.statusMonitor.setWithOutWaitForSave('packages', packageHandler.packageDefine.topic, packageHandler);
     }
 };
 await usePackage(siyuanPackageDefines)

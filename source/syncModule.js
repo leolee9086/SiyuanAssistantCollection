@@ -62,8 +62,7 @@ class PluginConfigurer {
             await this.plugin.saveData(`${key}.json`, this.plugin[this.prop][key])
         }
     }
-
-    async set(...args) {
+    _set(...args){
         if (args.length < 2) {
             throw new Error('You must provide at least two arguments');
         }
@@ -89,10 +88,21 @@ class PluginConfigurer {
             target[path[path.length - 1]] = value;
         }
         this.plugin.eventBus.emit(`${this.emit}Change`, { name: path.join('.'), value });
+        return path
+    }
+    async set(...args) {
+        let path= this._set(...args)
         if (this.save) {
             await this.plugin.saveData(`${path[0]}.json`, this.target[path[0]] || {});
         }
         return this;
+    }
+    setWithOutWaitForSave(...args){
+        let path= this._set(...args)
+        if (this.save) {
+             this.plugin.saveData(`${path[0]}.json`, this.target[path[0]] || {});
+        }
+        return this
     }
     validateNewValue(oldValue, value) {
         // 检查旧值是否存在

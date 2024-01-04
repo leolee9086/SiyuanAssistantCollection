@@ -30,7 +30,7 @@
 <script setup>
 import defineProps from "vue"
 import { sac } from "runtime";
-let { router, adapter } = defineProps(['router'])
+let { router, adapter } = defineProps(['router','adapter'])
 const 添加订阅项目 = () => {
     sac.事件管理器.emit('rss-ui', 'open-dialog', {
         type: 'initFeed',

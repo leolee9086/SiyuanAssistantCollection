@@ -1,5 +1,8 @@
 <template>
     <div>
+        <h3>编辑订阅标题</h3>
+        <input v-model="title" />
+
         <h3>编辑订阅路径</h3>
         <template v-for="(part, index) in routeParts" :key="index">
             <div v-if="part && isParam(part)">
@@ -27,6 +30,7 @@
 <script setup>
 import { ref, computed, inject } from 'vue';
 import cronEditor from '../../../../UI/components/cronEditor.vue'
+import { sac } from 'runtime'
 
 const appData = inject('appData');
 const router = appData.router;
@@ -53,9 +57,30 @@ function generateRoute() {
 }
 const description = ref('');
 const cronRule = ref('');
+const title = ref('');
+
 // 新增的数据属性
 const accessLevel = ref(10);
 function addRssFeed(){
-    console.log(appData)
+    console.log(appData,cronRule)
+    console.log(
+        {
+            packageName:appData.adapter,
+            path:generatedRoute._value,
+            timer:cronRule._value||"0 30 * * * *",
+            description,
+            title:title._value
+        }
+    )
+    sac.路由管理器.internalFetch('/search/rss/addFeed',{
+        method:'POST',
+        body:{
+            packageName:appData.adapter,
+            path:generatedRoute._value,
+            timer:cronRule._value||"0 30 * * * *",
+            description,
+            title:title._value
+        }
+    })
 }
 </script>

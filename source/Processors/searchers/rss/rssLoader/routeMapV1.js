@@ -4,7 +4,6 @@ import fs from '../../../../polyfills/fs.js';
 import path from '../../../../polyfills/path.js'
 import { 柯里化 } from '../../../../utils/functionTools.js'
 import moduleCache from "./moduleCache.js";
-import routeMapV2 from "./routeMapV2.js"
 import { logger } from "../../../../logger/index.js";
 const getObject = (currentFile, key) => {
     const api = moduleCache
@@ -113,28 +112,4 @@ export const lazyloadRouteHandler = (routeHandlerPath) => {
     func.$routeHandlerPath=routeHandlerPath
     return func
 }
-/*Object.getOwnPropertyNames(routeMapV2).forEach(
-    name => {
-        try {
-            let subRouter = new Router()
-            let define = routeMapV2[name]
-            for (let route in define) {
-                for (let method in define[route]) {
-                    let realPath = define[route][method]
-                    if (realPath instanceof Function) {
-                        subRouter[method](route, realPath)
-
-                    } else {
-                        subRouter[method](route, lazyloadRouteHandler(realPath))
-
-                    }
-                }
-            }
-            router.use(`/${name}`, subRouter.routes())
-        } catch (e) {
-            logger.rsswarn(e)
-        }
-    }
-)*/
-//await (await import('../../../../../installed/rss/router.js')).default(router,lazyloadRouteHandler)
 export default router;

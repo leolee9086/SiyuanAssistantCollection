@@ -23,7 +23,7 @@
     </div>
 </template>
 <script>
-import cronEditor from '../../../../UI/components/cronEditor.vue'
+import cronEditor from '../../../../../UI/components/cronEditor.vue'
 
 import { sac } from 'runtime';
 export default {

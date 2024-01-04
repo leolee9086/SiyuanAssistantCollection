@@ -27,6 +27,9 @@ function preparePackageDefine(packageDefine = {}) {
 }
 function genLocalPackageOperations(packageDefine) {
     return {
+        metas:{},
+        configs:{},
+        status:{},
         async list() {
             const dir = replacePath(packageDefine.location);
             const items = await fs.readDir(dir);
@@ -48,12 +51,19 @@ function genLocalPackageOperations(packageDefine) {
         },
         async getConfig(packageName) {
             const path = replacePath(packageDefine.location, packageName) + packageDefine.config;
-            console.log(path)
-            return await readJsonFile(path);
+            packageDefine.local.configs[packageName]=await readJsonFile(path);
+            return await packageDefine.local.configs[packageName]
+        },
+        async setConfig(packageName,data) {
+            const path = replacePath(packageDefine.location, packageName) + packageDefine.config;
+            await fs.writeFile(path,JSON.stringify(data))
+            packageDefine.local.configs[packageName]=data
+            return await packageDefine.local.configs[packageName]
         },
         async getMeta(packageName) {
             const path = replacePath(packageDefine.location, packageName) + packageDefine.meta;
-            return await readJsonFile(path);
+            packageDefine.local.metas[packageName]=await readJsonFile(path);
+            return packageDefine.local.metas[packageName]
         },
         resolve(packageName, _path) {
             const dir = replacePath(packageDefine.location, packageName);
