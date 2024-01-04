@@ -51,9 +51,9 @@ class ccPlugin extends Plugin {
     moduleURL = this.resolve(moduleURL)
     console.log(moduleURL)
     const 定义属性 = async (obj, name, value, options = {}) => {
-    /*  if (obj.hasOwnProperty(name)) {
-        throw new Error(`属性${name}已经存在，不要覆盖它`);
-      }*/
+      /*  if (obj.hasOwnProperty(name)) {
+          throw new Error(`属性${name}已经存在，不要覆盖它`);
+        }*/
       const { 只读 = true, 别名 = name } = options;
       Object.defineProperty(obj, 别名, {
         value: value,
@@ -85,9 +85,9 @@ class ccPlugin extends Plugin {
       let path = window.require('path');
       let modulePath = path.join(window.siyuan.config.system.workspaceDir + this.selfPath, moduleURL.split('SiyuanAssistantCollection').pop());
       let folderPath = path.dirname(modulePath);
-      console.log('开始监听:',folderPath)
-      fs.watch(folderPath, { recursive: true },async (eventType, filename) => {
-        if (filename&&eventType === 'change') {
+      console.log('开始监听:', folderPath)
+      fs.watch(folderPath, { recursive: true }, async (eventType, filename) => {
+        if (filename && eventType === 'change') {
           console.log(`${filename} file Changed`);
           this[子模块名称] = undefined;
           let updatedModule = await import(`${moduleURL}?date=${Date.now()}`);;
@@ -127,9 +127,9 @@ class SiyuanAssistantCollection extends ccPlugin {
     //后面的部分还在整理
     this.初始化插件异步状态()
   }
-  onLayoutReady(){
-    this.eventBus.emit('layout-tabs-ready',this.getOpenedTab())
-    
+  onLayoutReady() {
+    this.eventBus.emit('layout-tabs-ready', this.getOpenedTab())
+
   }
 
   //因为同步状态管理也有点多了所以我们重新require一下吧
@@ -226,12 +226,12 @@ class SiyuanAssistantCollection extends ccPlugin {
   async 加载子模块() {
     //后端模块加载的顺序就无所谓了,反正互相之间没有强依赖关系
     this.从esm模块('./source/Processors/packages/index.js').合并子模块('包处理器').then(
-      async()=>{
-        await this.路由管理器.根路由.use('/packages',this.包处理器.router.routes('/'))
+      async () => {
+        await this.路由管理器.根路由.use('/packages', this.包处理器.router.routes('/'))
         await this.从esm模块('./source/Interfacies/admin/index.js').合并子模块('控制台').then(
-          ()=>{
-            let emitter = this.事件管理器.use(this.控制台.Emitter )
-            this.UI管理器.useTabs(this.控制台.tabs,emitter)
+          () => {
+            let emitter = this.事件管理器.use(this.控制台.Emitter)
+            this.UI管理器.useTabs(this.控制台.tabs, emitter)
 
           }
         )
@@ -239,15 +239,15 @@ class SiyuanAssistantCollection extends ccPlugin {
     )
     //加载搜索处理器,用于搜索和rss
     this.从esm模块('./source/Processors/searchers/index.js').合并子模块('搜索处理器').then(
-      async () => { 
+      async () => {
         await this.包管理器.usePackage(this.搜索处理器.packages)
-        await this.路由管理器.根路由.use('/search', this.搜索处理器.router.routes('/')) 
+        await this.路由管理器.根路由.use('/search', this.搜索处理器.router.routes('/'))
         await this.从esm模块('./source/Interfacies/rss/index.js').合并子模块('rss订阅器').then(
           () => {
-             let emitter = this.事件管理器.use(this.rss订阅器.Emitter )
-             this.UI管理器.useTabs(this.rss订阅器.tabs,emitter)
-             this.UI管理器.useDialogs(this.rss订阅器.dialogs,emitter)
-             this.UI管理器.useDocks(this.rss订阅器.docks,emitter)
+            let emitter = this.事件管理器.use(this.rss订阅器.Emitter)
+            this.UI管理器.useTabs(this.rss订阅器.tabs, emitter)
+            this.UI管理器.useDialogs(this.rss订阅器.dialogs, emitter)
+            this.UI管理器.useDocks(this.rss订阅器.docks, emitter)
           }
         )
       }
@@ -270,23 +270,12 @@ class SiyuanAssistantCollection extends ccPlugin {
 
     //界面部分之后应该改成事件模式
     this.从esm模块('./source/Interfacies/tips/index.js').合并子模块('tips处理器').then(
-      () => { this.路由管理器.根路由.use('/tips', this.tips处理器.router.routes('/')) }
-    ) 
-    //加载后台处理器
-    //await Promise.all([
-    // await this.从esm模块('./source/utils/index.js').合并子模块(),
-    // await this.从esm模块('./source/vectorStorage/blockIndex.js').合并子模块('块索引器')
-    //用于查询DOM
-    //  await this.从esm模块('./source/utils/DOMFinder.js').设置模块为只读属性('DOM查找器')
-    //用于处理选区相关
-    // await this.从esm模块('./source/utils/rangeProcessor.js').设置模块为只读属性('选区处理器')
-    //  await this.从esm模块('./source/utils/textProcessor.js').合并子模块('文本处理器')
-    //  await this.从esm模块('./source/polyfills/kernelApi.js').合并成员为只读属性('default', { '别名': 'kernelApi' })
-    // await this.从esm模块('./source/polyfills/fs.js').合并成员为只读属性('default', { '别名': 'workspace' })
-    // await this.从esm模块('./source/utils/copyLute.js').合并成员为只读属性('setLute')
-    //  await this.从esm模块('./source/actionList/index.js').合并子模块()
-    // await this.从esm模块('./source/logger/index.js').合并子模块('日志记录器')
-    // ]);
+      () => { 
+        this.路由管理器.根路由.use('/tips', this.tips处理器.router.routes('/')) 
+        this.事件管理器.use(this.tips处理器.Emitter)
+      }
+    )
+ 
   }
   log(...args) {
     if (this.日志记录器) {
