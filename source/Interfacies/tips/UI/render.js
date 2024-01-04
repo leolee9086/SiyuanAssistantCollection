@@ -16,11 +16,21 @@ export const buildTips = async (item) => {
                 // 如果不存在，则添加新的元素
                 let imageHTML = item.image ? `<image src='${escapeHTML(item.image)}'></image>` : '';
                 let divHTML = `<div class="fn__flex-1 b3-card__info" 
-            style="font-size:small !important;background-color:var(--b3-theme-background);padding:4px !important;border-bottom:1px dashed var(--b3-theme-primary-light)">
+            style="
+            font-size:small !important;
+            background-color:var(--b3-theme-background);
+            padding:4px !important;
+            max-height:16.66vh;
+            overflow-y:hidden;
+            border-bottom:1px dashed var(--b3-theme-primary-light)">
             <div class="b3-card__body protyle-wysiwyg protyle-wysiwyg--attr" style="font-size:small !important;padding:0">
                 <div>
                      <input class=" fn__flex-center"  type="checkbox"></input>
-                    <strong><a href="${escapeHTML(item.link)}">${item.title}</a></strong>${item.description}
+                    <strong><a href="${escapeHTML(item.link)}">${item.title}</a></strong>
+                    <strong>${item.textScore||0}</strong>
+                    <strong>${item.vectorScore||0}</strong>
+                    <strong>${item.id}</strong>
+                    ${item.description}
                 </div>
                 <div class="tips-image-container ">
                     ${imageHTML}
@@ -28,7 +38,7 @@ export const buildTips = async (item) => {
                 </div>
                 </div>
                 `;
-                待添加数组.push({ content: divHTML, time: Date.now(), textScore: item.textScore, vectorScore: item.vectorScore, id: item.id })
+                待添加数组.push({ content: divHTML, time: Date.now(), textScore:item.textScore||0, vectorScore: item.vectorScore||0, id: item.id })
                 // tipsConainer.querySelector("#SAC-TIPS").innerHTML += (divHTML)
             }
         }
@@ -42,28 +52,32 @@ async function 批量渲染(container) {
     }, []); let frag = document.createDocumentFragment();
     // 如果元素数量超过限制，移除多余的元素
     待添加数组.sort((a, b) => {
-        if (a.vectorScore !== b.vectorScore) {
-            // vectorScore 不相等时，根据 vectorScore 排序
-            return b.vectorScore - a.vectorScore;
-        } else if (a.textScore !== b.textScore) {
-            // vectorScore 相等时，根据 textScore 排序
-            return b.textScore - a.textScore;
-        } else if (a.time !== b.time) {
-            // vectorScore 和 textScore 都相等时，根据时间排序
+        // 计算时间差，单位为秒
+        let timeDiff = Math.abs(a.time - b.time) / 1000;
+        if (timeDiff > 1) {
+            // 如果时间差大于1秒，按照时间排序
             return b.time - a.time;
         } else {
-            // 所有属性都相等时，根据内容长度排序
-            let Amatch = a.content.match(/<mark>(.*?)<\/mark>|<span>(.*?)<\/span>/g);
-            let Bmatch = b.content.match(/<mark>(.*?)<\/mark>|<span>(.*?)<\/span>/g);
-            let aText = Amatch ? Amatch.join('') : '';
-            let bText = Bmatch ? Bmatch.join('') : "";
-            return bText.length - aText.length;
+            // 如果时间差小于或等于1秒，按照 vectorScore 排序
+            if (a.vectorScore !== b.vectorScore) {
+                return b.vectorScore - a.vectorScore;
+            } else if (a.textScore !== b.textScore) {
+                // 如果 vectorScore 相等，按照 textScore 排序
+                return b.textScore - a.textScore;
+            } else {
+                // 如果 vectorScore 和 textScore 都相等，按照 content 中 <mark> 或 <span> 标签内的文本长度排序
+                let Amatch = a.content.match(/<mark>(.*?)<\/mark>|<span>(.*?)<\/span>/g);
+                let Bmatch = b.content.match(/<mark>(.*?)<\/mark>|<span>(.*?)<\/span>/g);
+                let aText = Amatch ? Amatch.join('') : '';
+                let bText = Bmatch ? Bmatch.join('') : "";
+                return bText.length - aText.length;
+            }
         }
     });
 
 
-    if (待添加数组.length > 100) {
-        待添加数组 = 待添加数组.slice(待添加数组.length - 100);
+    if (待添加数组.length > 20) {
+        待添加数组 = 待添加数组.slice(待添加数组.length - 20);
     }
 
     // 将过滤后的元素添加到 DocumentFragment

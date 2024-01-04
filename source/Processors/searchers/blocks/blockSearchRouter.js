@@ -13,7 +13,6 @@ blockSearchRouter.post('/text', async (ctx, next) => {
     let 结果数量 = sac.configurer.get('聊天工具设置', '默认参考数量').$value
     let 标题和文档包含全部内容 = true
     let data = await simpleTextSearcherModule.seachBlockWithText(ctx.req.body.query, { 使用原始结果, 结果数量, 标题和文档包含全部内容 })
-    console.log(data)
     ctx.body = data
 })
 //使用query字符串进行搜索
@@ -48,7 +47,6 @@ blockSearchRouter.post('/vector', async (ctx, next) => {
     let 参考分数较高时给出文档全文 = sac.configurer.get('聊天工具设置', '参考分数较高时给出文档全文').$value
     let res = await text2vec(ctx.req.body.query)
     let vector = res.body.data[0].embedding
-    console.log(res, vector)
     let res1 = await sac.路由管理器.internalFetch('/database/query', {
         body: {
             vector: vector,
@@ -60,7 +58,6 @@ blockSearchRouter.post('/vector', async (ctx, next) => {
         },
         method: 'POST',
     })
-    console.log(res1)
     let data = await vectorTextSearcherModule.seachBlockWithVector(res1.body.data, 标题和文档包含全部内容, 使用原始结果, 得分阈值, 参考分数较高时给出文档全文)
     ctx.body = data
 })
