@@ -31,16 +31,17 @@ let 显示tips = 智能防抖(async (e) => {
     })
     res1.body?sac.eventBus.emit('tips-ui-render-all',res1.body):null
 })
-sac.eventBus.on(sac.事件管理器.DOM键盘事件表.文本输入,(e)=>{
-    显示tips(e)
-})
-sac.eventBus.on(sac.事件管理器.DOM键盘事件表.组合结束,(e)=>{
-    显示tips(e)
-})
+
 export const Emitter=class {
     channel='tips-ui';
     ['render-all']=(e)=>{
         console.log(e)
         showTips(e)
+    }
+    ["@main-"+sac.事件管理器.DOM键盘事件表.文本输入]=(e)=>{
+        显示tips(e)
+    }
+    ["@main-"+sac.事件管理器.DOM键盘事件表.组合结束]=(e)=>{
+        显示tips(e)
     }
 }

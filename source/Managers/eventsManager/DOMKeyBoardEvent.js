@@ -27,7 +27,10 @@ import {plugin, sac} from './runtime.js'
 export const DOM键盘事件表={
     键盘按下:'keydown-document',
     键盘释放:'keyup-document',
-    键盘按压:'keypress-document'
+    键盘按压:'keypress-document',
+    文本输入:"document-text-input",
+    组合结束:"document-composition-end",
+    组合更新:"document-composition-updated"
 }
 export const 开始监听DOM键盘事件=()=>{
     document&&document.addEventListener(
