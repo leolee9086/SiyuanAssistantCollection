@@ -6,12 +6,12 @@ import { 获取光标所在位置 } from '../../utils/rangeProcessor.js';
 import { sac } from './runtime.js';
 import { 智能防抖 } from '../../utils/functionTools.js';
 import { tipsRenderPackage } from './package.js';
-import * as cheerio  from '../../../static/cheerio.js';
+import * as cheerio from '../../../static/cheerio.js';
 import { got } from '../../utils/network/got.js'
 import { 计算分词差异 } from '../../utils/tokenizer/diff.js';
 export const packages = [tipsRenderPackage]
 const renderInstancies = []
-let 显示文字搜索结果=(editableElement)=>{
+let 显示文字搜索结果 = (editableElement) => {
     sac.路由管理器.internalFetch('/search/blocks/text', {
         body: {
             query: editableElement.innerText
@@ -24,19 +24,17 @@ let 显示文字搜索结果=(editableElement)=>{
         }
     )
 }
-let 显示向量搜索结果=(editableElement)=>{
- 
-        sac.路由管理器.internalFetch('/search/blocks/vector', {
-            body: {
-                query: editableElement.innerText,
-            },
-            method: 'POST',
-        }).then(
-            res => {
-                res.body ? sac.eventBus.emit('tips-ui-render-all', res.body) : null
-            }
-        )
-    
+let 显示向量搜索结果 = (editableElement) => {
+    sac.路由管理器.internalFetch('/search/blocks/vector', {
+        body: {
+            query: editableElement.innerText,
+        },
+        method: 'POST',
+    }).then(
+        res => {
+            res.body ? sac.eventBus.emit('tips-ui-render-all', res.body) : null
+        }
+    )
 }
 
 let 上一个分词结果 = []
@@ -49,9 +47,9 @@ let 显示tips = async (e) => {
         return b.word.length - a.word.length
     });
     console.log(分词结果数组)
-    if(计算分词差异(分词结果数组,上一个分词结果)>=5){
-       上一个分词结果=分词结果数组 
-    }else{
+    if (计算分词差异(分词结果数组, 上一个分词结果) >= 5) {
+        上一个分词结果 = 分词结果数组
+    } else {
         return
     }
     if (!分词结果数组[0]) {
@@ -59,8 +57,8 @@ let 显示tips = async (e) => {
     }
     //这一段是文字搜索*/
     try {
-        智能防抖(显示文字搜索结果,()=>{console.log("文字查询被阻断")})(editableElement)
-        智能防抖(显示向量搜索结果,()=>{console.log("向量查询被阻断")})(editableElement)
+        智能防抖(显示文字搜索结果, () => { console.log("文字查询被阻断") })(editableElement)
+        智能防抖(显示向量搜索结果, () => { console.log("向量查询被阻断") })(editableElement)
     } catch (e) {
         console.error('基础tips渲染出错', e)
     }
@@ -71,7 +69,7 @@ let 显示tips = async (e) => {
                 text: editableElement.innerText,
                 tokens: 分词结果数组,
                 currentToken: 当前光标所在分词结果数组[0],
-                blockID:blockElement.getAttribute('data-node-id')
+                blockID: blockElement.getAttribute('data-node-id')
             }
             let asyncRender = async () => {
                 return await renderInstance.renderTips(editorContext)
@@ -103,11 +101,11 @@ export const Emitter = class {
                         renderInstance.__proto__.internalFetch = sac.路由管理器.internalFetch
                         renderInstance.__proto__.name = renderName
                         renderInstance.__proto__.cut = jieba.cut
-                        renderInstance.__proto__.loadUrlHTML=async(url,options)=>{
-                            const res= await got(url,options)
+                        renderInstance.__proto__.loadUrlHTML = async (url, options) => {
+                            const res = await got(url, options)
                             return cheerio.load(res.body)
                         }
-                        renderInstance.__proto__.got=got
+                        renderInstance.__proto__.got = got
                         renderInstance.Lute = Lute
                         renderInstancies.push(renderInstance)
                         console.log(renderInstancies)
