@@ -1,11 +1,14 @@
 import { tipsUIRouter } from './UI/router.js'
 export { tipsUIRouter as router }
 import { showTips } from './UI/render.js';
-import { 使用结巴拆分元素 } from '../../utils/tokenizer.js';
+import { jieba, 使用结巴拆分元素 } from '../../utils/tokenizer.js';
 import { 获取光标所在位置 } from '../../utils/rangeProcessor.js';
 import { sac } from './runtime.js';
 import { 智能防抖 } from '../../utils/functionTools.js';
 import { tipsRenderPackage } from './package.js';
+import * as cheerio  from '../../../static/cheerio.js';
+import { got } from '../../utils/network/got.js'
+import { 计算分词差异 } from '../../utils/tokenizer/diff.js';
 export const packages = [tipsRenderPackage]
 const renderInstancies = []
 let 显示文字搜索结果=(editableElement)=>{
@@ -35,19 +38,7 @@ let 显示向量搜索结果=(editableElement)=>{
         )
     
 }
-function 计算分词差异(currentTokenResults, previousTokenResults) {
-    // 创建两个集合，一个用于存储当前的分词结果，一个用于存储上一次的分词结果
-    let currentTokenSet = new Set(currentTokenResults.map(token => token.word));
-    let previousTokenSet = new Set(previousTokenResults.map(token => token.word));
 
-    // 计算两个集合的差集，即当前分词结果中存在但上一次分词结果中不存在的词语
-    let differenceSet = new Set([...currentTokenSet].filter(word => !previousTokenSet.has(word)));
-
-    // 变化幅度定义为差集的大小
-    let changeMagnitude = differenceSet.size;
-
-    return changeMagnitude;
-}
 let 上一个分词结果 = []
 let 显示tips = async (e) => {
     let { pos, editableElement, blockElement, parentElement } = 获取光标所在位置();
@@ -75,10 +66,15 @@ let 显示tips = async (e) => {
     }
     renderInstancies.forEach(
         renderInstance => {
+            let editorContext = {
+                position: pos,
+                text: editableElement.innerText,
+                tokens: 分词结果数组,
+                currentToken: 当前光标所在分词结果数组[0],
+                blockID:blockElement.getAttribute('data-node-id')
+            }
             let asyncRender = async () => {
-                return await renderInstance.renderTips({
-                    "测试": "测试"
-                })
+                return await renderInstance.renderTips(editorContext)
             }
             asyncRender().then(data => {
                 data.source = renderInstance.name
@@ -106,6 +102,12 @@ export const Emitter = class {
                         renderInstance.__proto__.sac = sac
                         renderInstance.__proto__.internalFetch = sac.路由管理器.internalFetch
                         renderInstance.__proto__.name = renderName
+                        renderInstance.__proto__.cut = jieba.cut
+                        renderInstance.__proto__.loadUrlHTML=async(url,options)=>{
+                            const res= await got(url,options)
+                            return cheerio.load(res.body)
+                        }
+                        renderInstance.__proto__.got=got
                         renderInstance.Lute = Lute
                         renderInstancies.push(renderInstance)
                         console.log(renderInstancies)
