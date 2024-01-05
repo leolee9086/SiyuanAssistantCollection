@@ -118,7 +118,6 @@ export const dialogs = {
 export const docks = {
     rssSourceMonitor: {
         init: async (element) => {
-            console.log(element)
             const app = initVueApp(
                 import.meta.resolve('./UI/components/rssSourceMonitor.vue'),
                 'rssSourceMonitor', 
@@ -126,7 +125,6 @@ export const docks = {
                 sac.localPath + '/source',
             )
             app.mount(element)
-
         }
     }
 }

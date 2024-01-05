@@ -1,17 +1,20 @@
 import { 智能防抖 } from "../../../utils/functionTools.js";
-import { getTipsContainers } from "./containers.js";
+import { sac } from "../runtime.js";
 let 待添加数组 = []
-export const showTips = (tipsItems) => {
-    buildTips(tipsItems)
+export const showTips = (tipsItems, element) => {
+    console.log(element)
+    buildTips(tipsItems, element)
 }
 function escapeHTML(str) {
     return Lute.EscapeHTMLStr(str);
 }
-export const buildTips = async (item) => {
+export const buildTips = async (item, element) => {
     console.log(item)
-    let tipsConainer = getTipsContainers()
     item.item && item.item.forEach(
         item => {
+            if (!item.targetBlocks) {
+                return
+            }
             if (item) {
                 // 如果不存在，则添加新的元素
                 let imageHTML = item.image ? `<image src='${escapeHTML(item.image)}'></image>` : '';
@@ -30,7 +33,7 @@ export const buildTips = async (item) => {
                     <strong>${item.textScore || 0}</strong>
                     <strong>${item.vectorScore || 0}</strong>
                     <strong>${item.id}</strong>
-                    <strong>${item.source}</strong>
+                    <strong data-source="${item.source}">${item.source}</strong>
                     <div>
                     ${item.description}
                     </div>
@@ -41,14 +44,37 @@ export const buildTips = async (item) => {
                 </div>
                 </div>
                 `;
-                待添加数组.push({ content: divHTML, time: Date.now(), textScore: item.textScore || 0, vectorScore: item.vectorScore || 0, id: item.id })
+                待添加数组.push({
+                    content: divHTML,
+                    time: Date.now(),
+                    textScore: item.textScore || 0,
+                    vectorScore: item.vectorScore || 0,
+                    id: item.id,
+                    targetBlocks: item.targetBlocks,
+                    render: item.render
+                })
                 // tipsConainer.querySelector("#SAC-TIPS").innerHTML += (divHTML)
             }
         }
     )
-    智能防抖(批量渲染(tipsConainer))
+    智能防抖(批量渲染(element))
 }
-async function 批量渲染(container) {
+const openFocusedTipsByEvent = (event) => {
+    console.log(event.target.dataset.source)
+    const source = event.target.dataset.source
+    if (source) {
+        sac.eventBus.emit('tips-ui-open-tab', {
+            type: "focusedTips",
+            title: source
+        })
+    }
+}
+async function 批量渲染(element) {
+    element.removeEventListener('click', openFocusedTipsByEvent)
+    element.addEventListener('click', openFocusedTipsByEvent)
+    if (!element) {
+        return
+    }
     待添加数组 = 待添加数组.reduce((unique, item) => {
         return unique.some(u => u.id === item.id) ? unique : [...unique, item];
     }, []);
@@ -75,30 +101,24 @@ async function 批量渲染(container) {
                 let bText = Bmatch ? Bmatch.join('') : "";
                 return bText.length - aText.length;
             }
-       }
+        }
     });
-
-
     if (待添加数组.length > 20) {
-
         // 反向数组，使最新的元素在前
-       // 待添加数组.reverse();
-
+        // 待添加数组.reverse();
         // 修剪数组，只保留最新的20个元素
         待添加数组 = 待添加数组.slice(0, 20);
-
         // 再次反向数组，使元素回到原来的顺序
-       // 待添加数组.reverse();
+        // 待添加数组.reverse();
     }
     console.log(待添加数组)
-
     // 将过滤后的元素添加到 DocumentFragment
     待添加数组.forEach(item => {
         let div = document.createElement('div');
         div.innerHTML = item.content;
         frag.appendChild(div.firstChild);
     });
-    container.querySelectorAll(".b3-card__info").forEach(div => {
+    element.querySelectorAll(".b3-card__info").forEach(div => {
         let checkbox = div.querySelector('input[type="checkbox"]');
         if (checkbox && checkbox.checked) {
             frag.prepend(div); // 将元素移动到"SAC-TIPS_pinned"中
@@ -106,6 +126,7 @@ async function 批量渲染(container) {
     }
     )
     // 一次性更新 container 的内容
-    container.querySelector('#SAC-TIPS').innerHTML = '';
-    container.querySelector('#SAC-TIPS').appendChild(frag);
+    element.querySelector('#SAC-TIPS').innerHTML = '';
+    element.querySelector('#SAC-TIPS').appendChild(frag);
 }
+
