@@ -1,7 +1,7 @@
 import { tipsUIRouter } from './UI/router.js'
 export { tipsUIRouter as router }
 import { showTips } from './UI/render.js';
-import { jieba, 使用结巴拆分元素 } from '../../utils/tokenizer.js';
+import { jieba, 使用结巴拆分元素 } from '../../utils/tokenizer/jieba.js';
 import { 获取光标所在位置 } from '../../utils/rangeProcessor.js';
 import { sac } from './runtime.js';
 import { 智能防抖 } from '../../utils/functionTools.js';

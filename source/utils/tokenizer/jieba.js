@@ -1,5 +1,6 @@
-import * as jieba from '../../static/jieba_rs_wasm.js'
-import { 创建token对象 } from "./DOMTokenizer.js";
+import * as jieba from '../../../static/jieba_rs_wasm.js'
+import { 创建token对象 } from "../DOMTokenizer.js";
+import { 校验分词是否连续,校验是否包含 } from './utils.js';
 //结巴的初始化会造成问题
 await jieba.default(import.meta.resolve('../../static/jieba_rs_wasm_bg.wasm'))
 jieba.add_word('思源笔记')
@@ -41,10 +42,4 @@ function 处理分词对象(分词对象序列) {
             }
         }
     }
-}
-function 校验是否包含(假定子词, 假定父词) {
-    return 假定子词.start >= 假定父词.start && 假定子词.end <= 假定父词.end;
-}
-function 校验分词是否连续(假定前词, 假定后词) {
-    return 假定前词.end === 假定后词.start || 假定后词.end === 假定前词.start;
 }
