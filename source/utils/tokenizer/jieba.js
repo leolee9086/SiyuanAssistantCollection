@@ -2,10 +2,9 @@ import * as jieba from '../../../static/jieba_rs_wasm.js'
 import { 创建token对象 } from "../DOMTokenizer.js";
 import { 校验分词是否连续,校验是否包含 } from './utils.js';
 //结巴的初始化会造成问题
-await jieba.default(import.meta.resolve('../../static/jieba_rs_wasm_bg.wasm'))
+await jieba.default(import.meta.resolve('../../../static/jieba_rs_wasm_bg.wasm'))
 jieba.add_word('思源笔记')
 jieba.add_word('链滴')
-
 export {jieba as jieba}
 export {jieba as 结巴}
 export function  使用结巴拆分元素(element) {

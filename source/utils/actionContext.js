@@ -10,7 +10,6 @@ class Context {
     this.clientApi = clientApi;
     this.eventType = eventType;
   }
-
   get cursor() {
     // 使用获取光标所在位置的函数来获取当前光标的位置
     const cursorPosition = 获取光标所在位置();

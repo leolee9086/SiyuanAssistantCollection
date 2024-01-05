@@ -97,7 +97,7 @@ function 创建TIPS侧栏容器() {
       position: "LeftBottom",
       size: { width: 200, height: 0 },
       icon: "iconFace",
-      title: "Custom Dock",
+      title: "Sac-tips",
     },
     data: {
       text: "This is my custom dock"
