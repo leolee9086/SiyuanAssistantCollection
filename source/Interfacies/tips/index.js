@@ -114,20 +114,19 @@ let 显示tips = (e) => {
     )
 }
 const loadTipsFrame=(element)=>{
-    const container =element.querySelector("#SAC-TIPS_pinned")
-    container.innerHTML+=`<iframe src="${import.meta.resolve('./tipsContainer.html')}"></iframe>`
-    
+    try {
+        显示tips()
+    } catch (e) {
+        console.error(e)
+    }
+    containers.push(element)
+    //const container =element.querySelector("#SAC-TIPS_pinned")
+    //container.innerHTML+=`<iframe src="${import.meta.resolve('./tipsContainer.html')}"></iframe>`
 }
 export const docks = {
     TipsMain: {
         async init(element) {
             console.log(element)
-            try {
-                显示tips()
-            } catch (e) {
-                console.warn(e)
-            }
-            containers.push(element)
             loadTipsFrame(element)
         }
     }
@@ -142,13 +141,6 @@ export const tabs = {
       </div>
    
         `;
-            console.log(element, data)
-            try {
-                显示tips()
-            } catch (e) {
-                console.error(e)
-            }
-            containers.push(element)
             loadTipsFrame(element)
 
         }
