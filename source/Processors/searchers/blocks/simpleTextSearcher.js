@@ -24,7 +24,7 @@ export const 根据共同词素数量对块进行排序 = (blocks, tokens, 标�
             return count;
         }, 0);
         if (标题和文档包含全部内容
-            //&& (block.type === 'd' || block.type === 'h')
+            && (block.type === 'd' || block.type === 'h')
         ) {
             // let content = Lute.New().BlockDOM2Text(kernelApi.getDoc.sync({ id: block.id, size: 102400 }).content)
             let content = kernelApi.getDoc.sync({ id: block.id, size: 3 }).content

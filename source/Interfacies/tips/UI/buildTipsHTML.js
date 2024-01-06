@@ -18,9 +18,6 @@ border-bottom:1px dashed var(--b3-theme-primary-light)">
         <svg class="b3-list-item__graphic"><use xlink:href="#iconSparkles"></use></svg>
         </span>
         <strong><a href="${escapeHTML(item.link)}">${item.title}</a></strong>
-        <strong>${item.textScore || 0}</strong>
-        <strong>${item.vectorScore || 0}</strong>
-        <strong>${item.id}</strong>
         <strong data-source="${item.source}">${item.source}</strong>
         <div class="fn__space fn__flex-1"></div>
         <input class=" fn__flex-center"  type="checkbox"></input>
@@ -37,5 +34,6 @@ border-bottom:1px dashed var(--b3-theme-primary-light)">
     </div>
     </div>
     `;
+
     return divHTML
 }

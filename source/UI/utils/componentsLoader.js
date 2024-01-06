@@ -90,7 +90,7 @@ export const initVueApp = (appURL, name, mixinOptions = {}, directory, data) => 
                     const dataReactive = reactive(data);
                     app.provide('appData', dataReactive);
                 }
-            }, data)
+            })
             if (window.require && directory) {
                 watched[directory] = true
                 let _mount = app.mount

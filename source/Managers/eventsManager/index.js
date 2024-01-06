@@ -95,10 +95,10 @@ sac.eventBus.on(DOM键盘事件表.文本输入, (e) => {
 })
 sac.eventBus.on(DOM键盘事件表.组合结束, async (e) => {
 
-    sac.路由管理器.internalFetch('/indexBuilder/index/blocks', {
+   /* sac.路由管理器.internalFetch('/indexBuilder/index/blocks', {
         body: {},
         method: "POST"
-    })
+    })*/
 })
 
 sac.eventBus.on('cron-job', async (e) => {

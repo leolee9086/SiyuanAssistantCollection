@@ -3,6 +3,7 @@ import { sac } from "../runtime.js";
 import { 排序待添加数组 } from "../utils/tipsArrayUtils.js";
 import { openFocusedTipsByEvent } from "./events.js";
 import { genTipsHTML } from "./buildTipsHTML.js";
+import { withPerformanceLogging } from "../../../utils/functionAndClass/performanceRun.js";
 let 待添加数组 = globalThis[Symbol.for('sac-tips')] || []
 globalThis[Symbol.for('sac-tips')] = 待添加数组
 export const showTips = (tipsItems, element, context) => {
@@ -45,7 +46,7 @@ const 准备渲染项目 = (item) => {
     }
 }
 
-let clickHandeler=(event)=>{
+let clickHandeler = (event) => {
     柯里化(openFocusedTipsByEvent)(event)(待添加数组)
 }
 // 移除和添加事件监听器
@@ -63,19 +64,25 @@ function 去重待添加数组() {
 
 // 限制待添加数组的长度
 function 限制待添加数组长度() {
-    if (待添加数组.length > 100) {
-        待添加数组 = 待添加数组.slice(0, 100);
+    if (待添加数组.length > 1000) {
+        待添加数组 = 待添加数组.slice(0, 1000);
     }
 }
-// 创建 DocumentFragment 并添加待添加数组中的元素
-function 创建并添加元素到DocumentFragment(frag) {
-    待添加数组.forEach(item => {
-        let div = document.createElement('div');
-        div.innerHTML = item.content;
-        frag.appendChild(div.firstChild);
-    });
-}
+// 创建 DocumentFragment 并添加待添加数组中的元素，并支持中断操作
+function 创建并添加元素到DocumentFragment(frag, signal) {
+    console.log(待添加数组.length)
+    let div = document.createElement('div');
 
+    for (let index = 0; index < 20&&index<待添加数组.length; index++) {
+        if (signal.aborted) {
+            console.log(`Operation aborted at index ${index}`);
+            break; // 使用 break 来确保完全退出循环
+        }
+        div.innerHTML=待添加数组[index].content
+        frag.appendChild(div.firstChild);
+    }
+
+}
 // 将选中的元素移动到 DocumentFragment 的顶部
 function 移动选中元素到顶部(element, frag) {
     element.querySelectorAll(".b3-card__info").forEach(div => {
@@ -85,24 +92,42 @@ function 移动选中元素到顶部(element, frag) {
         }
     });
 }
-// 更新元素内容
-function 更新元素内容(element, frag) {
+// 更新元素内容，并支持中断操作
+function 更新元素内容(element, frag,) {
+    if (signal.aborted) {
+        console.log('Operation aborted before updating content');
+
+        return;
+    }
     element.querySelector('#SAC-TIPS').innerHTML = '';
     element.querySelector('#SAC-TIPS').appendChild(frag);
 }
+
+
+
+let controller = new AbortController();
+let { signal } = controller;
 // 批量渲染函数，使用上述拆分的函数
 async function 批量渲染(element) {
+    let frag = document.createDocumentFragment();
+    controller.abort()
+    const newcontroller = new AbortController();
+    signal = newcontroller.signal
+    controller = newcontroller
     if (!element) {
         return;
     }
     更新事件监听(element);
-    去重待添加数组();
-    排序待添加数组(待添加数组);
+    withPerformanceLogging(去重待添加数组)();
+    withPerformanceLogging(排序待添加数组)(待添加数组);
+    
     限制待添加数组长度();
-    let frag = document.createDocumentFragment();
-    创建并添加元素到DocumentFragment(frag);
-    移动选中元素到顶部(element, frag);
-    更新元素内容(element, frag);
+    console.log(待添加数组)
+    globalThis[Symbol.for('sac-tips')] = 待添加数组
+
+   // withPerformanceLogging(移动选中元素到顶部)(element, frag);
+   // withPerformanceLogging(创建并添加元素到DocumentFragment)(frag, signal);
+   // withPerformanceLogging(更新元素内容)(element, frag,signal);
 }
 const 合并tips数组 = () => {
     let tipsSource = sac.statusMonitor.get('tips', 'current').$value
@@ -114,7 +139,6 @@ const 合并tips数组 = () => {
         // 更新tipsSource以反映删除的list
         sac.statusMonitor.set('tips', 'current', tipsSource);
     }
-    console.log(待添加数组)
 }
 function 安排合并tips数组() {
     requestIdleCallback(() => {
