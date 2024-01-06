@@ -1,4 +1,28 @@
-import logger from "../logger/index.js";
+const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+
+export const buildWsChennel =(channel,id)=>{
+  const socket = new WebSocket(`${protocol}//${window.location.host}/ws/broadcast?channel=sac`);
+  const socket1 = new WebSocket(`${protocol}//${window.location.host}/ws/broadcast?channel=sac`);
+
+  const sendMessage=(massage)=>{
+    socket.send(JSON.stringify({
+      id:id,
+      requestID:Lute.NewNodeID(),
+      message:massage,
+      channel:channel
+    }))
+  }
+  socket1.addEventListener(
+    'message',(event)=>{
+      console.log(event,event.data)
+    }
+  )
+  
+  return {
+    broadcast:sendMessage,
+  }
+}
+/*import logger from "../logger/index.js";
 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 const socket = new WebSocket(`${protocol}//${window.location.host}/ws/broadcast?channel=test`);
 const socket1 = new WebSocket(`${protocol}//${window.location.host}/ws/broadcast?channel=test`);
@@ -19,33 +43,33 @@ socket1.addEventListener('message', event => {
 // 每秒发送一个时钟消息
 setInterval(() => {
   try {
-      const now = new Date();
-      const timeString = now.toLocaleTimeString();
-      sendMessage(timeString);
+    const now = new Date();
+    const timeString = now.toLocaleTimeString();
+    sendMessage(timeString);
   } catch (error) {
-      socket.close();
+    socket.close();
   }
 }, 1000);
 
 
-  function addAutoReconnect(socket, initialDelay = 100) {
-    let delay = initialDelay;
-    socket.addEventListener('close', function handleSocketClose() {
-      setTimeout(() => {
-        console.log(`Attempting to reconnect with delay: ${delay}ms`);
-        const newSocket = new WebSocket(socket.url);
-        newSocket.addEventListener('open', function handleSocketOpen() {
-          console.log('Reconnected successfully');
-          // Remove the event listener to prevent memory leaks
-          newSocket.removeEventListener('open', handleSocketOpen);
-          // Reset the delay
-          delay = initialDelay;
-          // Add auto reconnect to the new socket
-          addAutoReconnect(newSocket, initialDelay);
-        });
-        newSocket.addEventListener('close', handleSocketClose);
-      }, delay);
-      // Increase the delay exponentially
-      delay *= 2;
-    });
-  }
+function addAutoReconnect(socket, initialDelay = 100) {
+  let delay = initialDelay;
+  socket.addEventListener('close', function handleSocketClose() {
+    setTimeout(() => {
+      console.log(`Attempting to reconnect with delay: ${delay}ms`);
+      const newSocket = new WebSocket(socket.url);
+      newSocket.addEventListener('open', function handleSocketOpen() {
+        console.log('Reconnected successfully');
+        // Remove the event listener to prevent memory leaks
+        newSocket.removeEventListener('open', handleSocketOpen);
+        // Reset the delay
+        delay = initialDelay;
+        // Add auto reconnect to the new socket
+        addAutoReconnect(newSocket, initialDelay);
+      });
+      newSocket.addEventListener('close', handleSocketClose);
+    }, delay);
+    // Increase the delay exponentially
+    delay *= 2;
+  });
+}*/

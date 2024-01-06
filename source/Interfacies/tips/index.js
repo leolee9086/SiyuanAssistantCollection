@@ -9,29 +9,28 @@ import { tipsRenderPackage } from './package.js';
 import * as cheerio from '../../../static/cheerio.js';
 import { got } from '../../utils/network/got.js'
 import { 计算分词差异 } from '../../utils/tokenizer/diff.js';
+import { kernelApi } from '../../asyncModules.js';
 export const packages = [tipsRenderPackage]
 const renderInstancies = []
 let containers = []
 let 显示文字搜索结果 = (editorContext, element) => {
-    console.log(element)
-
     sac.路由管理器.internalFetch('/search/blocks/text', {
         body: {
-            query:editorContext.editableElement.innerText
+            query: editorContext.editableElement.innerText
         },
         method: 'POST',
     }).then(
         res => {
-            let data=res.body
-            if(data&&data.item){
-                data.item=data.item.map(
-                    item=>{
-                        item.targetBlocks=[editorContext.blockID]
+            let data = res.body
+            if (data && data.item) {
+                data.item = data.item.map(
+                    item => {
+                        item.targetBlocks = [editorContext.blockID]
                         return item
                     }
                 )
             }
-            res.body ? showTips(data, element) : null
+            res.body ? showTips(data, element,editorContext) : null
         }
     )
 }
@@ -44,16 +43,16 @@ let 显示向量搜索结果 = (editorContext, element) => {
         method: 'POST',
     }).then(
         res => {
-            let data=res.body
-            if(data&&data.item){
-                data.item=data.item.map(
-                    item=>{
-                        item.targetBlocks=[editorContext.blockID]
+            let data = res.body
+            if (data && data.item) {
+                data.item = data.item.map(
+                    item => {
+                        item.targetBlocks = [editorContext.blockID]
                         return item
                     }
                 )
             }
-            res.body ? showTips(data, element) : null
+            res.body ? showTips(data, element,editorContext) : null
         }
     )
 }
@@ -96,7 +95,7 @@ let 显示tips = (e) => {
             }
             renderInstancies.forEach(
                 renderInstance => {
-                    
+                    try{
                     console.log(editorContext, 当前光标所在分词结果数组, 分词结果数组, pos)
                     let asyncRender = async () => {
                         return await renderInstance.renderTips(editorContext)
@@ -104,24 +103,30 @@ let 显示tips = (e) => {
                     asyncRender().then(data => {
                         data.source = renderInstance.name
                         data.item.forEach(
-                            item => item.source = renderInstance.name
+                            item => {
+                                item.targetBlocks = [editorContext.blockID]
+
+                                item.source = renderInstance.name
+                            }
                         )
-                        showTips(data, element)
+                        console.log(data)
+                        showTips(data, element,editorContext)
                     })
+                    }catch(e){
+                        console.warn(e)
+                    }
                 }
             )
         }
     )
 }
-const loadTipsFrame=(element)=>{
+const loadTipsFrame = (element) => {
     try {
         显示tips()
     } catch (e) {
         console.error(e)
     }
     containers.push(element)
-    //const container =element.querySelector("#SAC-TIPS_pinned")
-    //container.innerHTML+=`<iframe src="${import.meta.resolve('./tipsContainer.html')}"></iframe>`
 }
 export const docks = {
     TipsMain: {
@@ -166,12 +171,17 @@ export const Emitter = class {
                         }
                         renderInstance.__proto__.got = got
                         renderInstance.__proto__.Lute = Lute
+                        renderInstance.__proto__.kernelApi =kernelApi
                         renderInstancies.push(renderInstance)
                         console.log(renderInstancies)
                     }
                 )
             }
         )
+       /*setInterval(() => {
+            console.log(this.ws)
+            this.ws.broadcast('测试')
+        }, 1000)*/
     }
     channel = 'tips-ui';
     ["@main-" + sac.事件管理器.DOM键盘事件表.文本输入] = (e) => {
