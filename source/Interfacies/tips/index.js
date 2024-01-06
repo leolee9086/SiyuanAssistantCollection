@@ -117,7 +117,7 @@ let 显示tips = (e) => {
         }
     )
 }
-const loadTipsFrame = (element) => {
+const 构建tips显示界面 = (element) => {
     try {
         显示tips()
     } catch (e) {
@@ -129,7 +129,7 @@ export const docks = {
     TipsMain: {
         async init(element) {
             console.log(element)
-            loadTipsFrame(element)
+            构建tips显示界面(element)
         }
     }
 }
@@ -143,8 +143,7 @@ export const tabs = {
       </div>
    
         `;
-            loadTipsFrame(element)
-
+            构建tips显示界面(element)
         }
     }
 }
