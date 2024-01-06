@@ -3,67 +3,29 @@ export { tipsUIRouter as router }
 import { showTips } from './UI/render.js';
 import { 获取光标所在位置 } from '../../utils/rangeProcessor.js';
 import { sac } from './runtime.js';
-import { 智能防抖 } from '../../utils/functionTools.js';
 import { tipsRenderPackage } from './package/package.js';
 import { 计算分词差异 } from '../../utils/tokenizer/diff.js';
-import { 加载渲染实例,renderInstancies } from './package/loader.js';
+import { 加载渲染实例,renderInstancies, 加载渲染器类, } from './package/loader.js';
 import { 使用结巴拆分元素 } from '../../utils/tokenizer/jieba.js';
-
+//这是内部的tips实现,分别是根据文字进行搜索和根据向量进行搜索
+import { tipsRender as vectorTipsRender} from './builtinRenders/vectorTipsRender.js';
+import { tipsRender as textTipsRender} from './builtinRenders/textTipsRender.js';
+await sac.statusMonitor.set('tips','current',[])
 export const packages = [tipsRenderPackage]
 let containers = []
-let 显示文字搜索结果 = (editorContext, element) => {
-    sac.路由管理器.internalFetch('/search/blocks/text', {
-        body: {
-            query: editorContext.editableElement.innerText
-        },
-        method: 'POST',
-    }).then(
-        res => {
-            let data = res.body
-            if (data && data.item) {
-                data.item = data.item.map(
-                    item => {
-                        item.targetBlocks = [editorContext.blockID]
-                        return item
-                    }
-                )
-            }
-            res.body ? showTips(data, element,editorContext) : null
-        }
-    )
-}
-let 显示向量搜索结果 = (editorContext, element) => {
-    console.log(element)
-    sac.路由管理器.internalFetch('/search/blocks/vector', {
-        body: {
-            query: editorContext.editableElement.innerText,
-        },
-        method: 'POST',
-    }).then(
-        res => {
-            let data = res.body
-            if (data && data.item) {
-                data.item = data.item.map(
-                    item => {
-                        item.targetBlocks = [editorContext.blockID]
-                        return item
-                    }
-                )
-            }
-            res.body ? showTips(data, element,editorContext) : null
-        }
-    )
-}
 let 上一个分词结果 = []
 let 显示tips = (e) => {
     let { pos, editableElement, blockElement, parentElement } = 获取光标所在位置();
+    if(!editableElement){
+        return
+    }
     let 分词结果数组 = 使用结巴拆分元素(editableElement)
     let 当前光标所在分词结果数组 = 分词结果数组.filter((token) => {
         return (token.start <= pos && token.end >= pos) && (token.word && token.word.trim().length > 1);
     }).sort((a, b) => {
         return b.word.length - a.word.length
     });
-    if (计算分词差异(分词结果数组, 上一个分词结果) >= 5) {
+    if (计算分词差异(分词结果数组, 上一个分词结果) >= 0) {
         上一个分词结果 = 分词结果数组
     } else {
         return
@@ -86,8 +48,8 @@ let 显示tips = (e) => {
     containers.forEach(
         element => {
             try {
-                智能防抖(显示文字搜索结果, () => { console.log("文字查询被阻断") })(editorContext, element)
-                智能防抖(显示向量搜索结果, () => { console.log("向量查询被阻断") })(editorContext, element)
+              //  智能防抖(显示文字搜索结果, () => { console.log("文字查询被阻断") })(editorContext, element)
+               // 智能防抖(显示向量搜索结果, () => { console.log("向量查询被阻断") })(editorContext, element)
             } catch (e) {
                 console.error('基础tips渲染出错', e)
             }
@@ -96,9 +58,13 @@ let 显示tips = (e) => {
                     try{
                     console.log(editorContext, 当前光标所在分词结果数组, 分词结果数组, pos)
                     let asyncRender = async () => {
-                        return await renderInstance.renderTips(editorContext)
+                        return await renderInstance.renderEditorTips(editorContext)
                     }
                     asyncRender().then(data => {
+                        //如果有返回值就渲染
+                        if(!data){
+                            return
+                        }
                         data.source = renderInstance.name
                         data.item.forEach(
                             item => {
@@ -147,10 +113,10 @@ export const tabs = {
         }
     }
 }
-
-
 export const Emitter = class {
     async onload() {
+        加载渲染器类(textTipsRender,'textSearchTips')
+        加载渲染器类(vectorTipsRender,'vectorSearchTips')
         const tipsRenderPackagesAsync = async () => { return await sac.statusMonitor.get('packages', 'sac-tips-render').$value }
         let tipsPackagesDefine = await tipsRenderPackagesAsync()
         let tipsRenders = await tipsPackagesDefine.local.list()

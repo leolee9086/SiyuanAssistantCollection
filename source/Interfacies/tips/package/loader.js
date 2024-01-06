@@ -4,18 +4,20 @@ import { kernelApi } from '../../../asyncModules.js';
 import { jieba } from '../../../utils/tokenizer/jieba.js';
 import { sac } from '../../../asyncModules.js';
 export const renderInstancies = []
-
 // 定义加载渲染实例的函数
 export async function 加载渲染实例(tipsPackagesDefine, renderName) {
     let renderClass = await tipsPackagesDefine.local.load(renderName);
-    let renderInstance = new renderClass();
-    初始化渲染实例(renderInstance, renderName);
+    return 加载渲染器类(renderClass,renderName)
+}
+export  function 加载渲染器类(renderClass, renderName){
+    let renderInstance= 初始化渲染实例(renderClass, renderName);
     renderInstancies.push(renderInstance);
     console.log("tips渲染器实例加载",renderName,renderInstance,renderInstancies);
     return renderInstancies
 }
 // 定义初始化渲染实例的函数
-function 初始化渲染实例(renderInstance, renderName) {
+function 初始化渲染实例(renderClass, renderName) {
+    let renderInstance = new renderClass();
     renderInstance.__proto__.sac = sac;
     renderInstance.__proto__.internalFetch = sac.路由管理器.internalFetch;
     renderInstance.__proto__.name = renderName;
@@ -27,4 +29,22 @@ function 初始化渲染实例(renderInstance, renderName) {
     renderInstance.__proto__.got = got;
     renderInstance.__proto__.Lute = Lute;
     renderInstance.__proto__.kernelApi = kernelApi;
+    renderInstance.__proto__.showTips = (data,editorContext)=>{
+        if(!editorContext){
+            console.warn(renderName+'tips渲染出错',"没有提供合适的编辑器上下文")
+        }
+        try{
+            data.source = renderInstance.name
+            data.item.forEach(
+                item => {
+                    item.targetBlocks = [editorContext.blockID]
+                    item.source = renderInstance.name
+                }
+            )
+            sac.statusMonitor.get('tips','current').$value.push(data)
+        }catch(e){
+            console.warn(renderName+'tips渲染出错',e)
+        }
+    }
+    return renderInstance
 }
