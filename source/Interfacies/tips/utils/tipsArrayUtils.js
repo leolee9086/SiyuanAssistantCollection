@@ -1,3 +1,5 @@
+import { 柯里化 } from "../../../utils/functionTools.js";
+import { 比较时间差,比较TextScore,比较VectorScore,比较内容标记长度 } from "./sorters.js";
 export const 构建空闲排序任务 = (tips数组, 比较算法) => {
     let idleCallbackHandle = null;
     let index = 1; // 初始化 index
@@ -45,45 +47,40 @@ export const 构建空闲排序任务 = (tips数组, 比较算法) => {
 
 
 
-export function 排序待添加数组(待添加数组){
-    待添加数组.sort((a, b) => {
-        let timeDiff = 比较时间差(a, b);
-        if (timeDiff > 1) {
-            return b.time - a.time;
-        } else {
-            if (a.vectorScore !== b.vectorScore) {
-                return 比较VectorScore(a, b);
-            } else if (a.textScore !== b.textScore) {
-                return 比较TextScore(a, b);
-            } else {
-                return 比较内容标记长度(a, b);
+function 通用排序(排序算法列表,待排序数组) {
+    待排序数组.sort((a, b) => {
+        for (let i = 0; i < 排序算法列表.length; i++) {
+            const 排序算法 = 排序算法列表[i];
+            let 排序结果;
+            try {
+                排序结果 = 排序算法(a, b);
+                // 确保排序结果是一个数字
+                if (typeof 排序结果 !== 'number') {
+                    throw new Error(`排序算法 "${排序算法.name}" 没有返回数字类型的结果`);
+                }
+            } catch (error) {
+                console.error(error.message);
+                // 忽略这个排序算法，继续下一个
+                continue;
             }
+            // 如果排序结果不为0，则直接返回结果
+            if (排序结果 !== 0) {
+                return 排序结果;
+            }
+            // 如果排序结果为0，则继续使用下一个排序算法
         }
+        // 所有排序算法比较结果都为0，则认为两个元素相等，返回0
+        return 0;
     });
 }
-
-
-
-// 比较时间差
-function 比较时间差(a, b) {
-    return Math.abs(a.time - b.time) / 1000;
+export const 排序待添加数组=(待添加数组)=>{
+   let 排序函数 = 柯里化(通用排序)([
+    比较时间差,
+    比较VectorScore,
+    比较TextScore,
+    比较内容标记长度,
+   ])
+   排序函数(待添加数组)
 }
 
-// 比较 vectorScore
-function 比较VectorScore(a, b) {
-    return b.vectorScore - a.vectorScore;
-}
 
-// 比较 textScore
-function 比较TextScore(a, b) {
-    return b.textScore - a.textScore;
-}
-
-// 比较内容标记长度
-function 比较内容标记长度(a, b) {
-    let Amatch = a.content.match(/<mark>(.*?)<\/mark>|<span>(.*?)<\/span>/g);
-    let Bmatch = b.content.match(/<mark>(.*?)<\/mark>|<span>(.*?)<\/span>/g);
-    let aText = Amatch ? Amatch.join('') : '';
-    let bText = Bmatch ? Bmatch.join('') : "";
-    return bText.length - aText.length;
-}

@@ -1,17 +1,15 @@
 import { tipsUIRouter } from './UI/router.js'
 export { tipsUIRouter as router }
 import { showTips } from './UI/render.js';
-import { jieba, 使用结巴拆分元素 } from '../../utils/tokenizer/jieba.js';
 import { 获取光标所在位置 } from '../../utils/rangeProcessor.js';
 import { sac } from './runtime.js';
 import { 智能防抖 } from '../../utils/functionTools.js';
-import { tipsRenderPackage } from './package.js';
-import * as cheerio from '../../../static/cheerio.js';
-import { got } from '../../utils/network/got.js'
+import { tipsRenderPackage } from './package/package.js';
 import { 计算分词差异 } from '../../utils/tokenizer/diff.js';
-import { kernelApi } from '../../asyncModules.js';
+import { 加载渲染实例,renderInstancies } from './package/loader.js';
+import { 使用结巴拆分元素 } from '../../utils/tokenizer/jieba.js';
+
 export const packages = [tipsRenderPackage]
-const renderInstancies = []
 let containers = []
 let 显示文字搜索结果 = (editorContext, element) => {
     sac.路由管理器.internalFetch('/search/blocks/text', {
@@ -105,7 +103,6 @@ let 显示tips = (e) => {
                         data.item.forEach(
                             item => {
                                 item.targetBlocks = [editorContext.blockID]
-
                                 item.source = renderInstance.name
                             }
                         )
@@ -151,37 +148,16 @@ export const tabs = {
         }
     }
 }
+
+
 export const Emitter = class {
     async onload() {
         const tipsRenderPackagesAsync = async () => { return await sac.statusMonitor.get('packages', 'sac-tips-render').$value }
         let tipsPackagesDefine = await tipsRenderPackagesAsync()
         let tipsRenders = await tipsPackagesDefine.local.list()
-        tipsRenders.forEach(
-            renderName => {
-                tipsPackagesDefine.local.load(renderName).then(
-                    renderClass => {
-                        let renderInstance = new renderClass()
-                        renderInstance.__proto__.sac = sac
-                        renderInstance.__proto__.internalFetch = sac.路由管理器.internalFetch
-                        renderInstance.__proto__.name = renderName
-                        renderInstance.__proto__.cut = jieba.cut
-                        renderInstance.__proto__.loadUrlHTML = async (url, options) => {
-                            const res = await got(url, options)
-                            return cheerio.load(res.body)
-                        }
-                        renderInstance.__proto__.got = got
-                        renderInstance.__proto__.Lute = Lute
-                        renderInstance.__proto__.kernelApi =kernelApi
-                        renderInstancies.push(renderInstance)
-                        console.log(renderInstancies)
-                    }
-                )
-            }
-        )
-       /*setInterval(() => {
-            console.log(this.ws)
-            this.ws.broadcast('测试')
-        }, 1000)*/
+        for (let renderName of tipsRenders) {
+            await 加载渲染实例(tipsPackagesDefine, renderName);
+        }
     }
     channel = 'tips-ui';
     ["@main-" + sac.事件管理器.DOM键盘事件表.文本输入] = (e) => {
