@@ -133,6 +133,7 @@ class 数据集 {
                     logger.datacollecterror('主键必须以14位数字开头');
                     continue;
                 }
+                //0.1.1版本将移除这一功能
                 迁移数据项向量结构(数据项)
                 if (数据项.vector) {
                     Object.keys(数据项.vector).forEach(key => {
