@@ -8,7 +8,6 @@ import path from "../../../polyfills/path.js"
 import crypto from "../../../../static/crypto-browserify.js"
 import { buildFeedXML } from "./content/xml.js";
 const rssPackagesAsync = async () => { return await sac.statusMonitor.get('packages', 'sac-rss-adapter').$value }
-
 export const rssrouter = new sac.路由管理器.Router()
 rssrouter.post('/list', async (ctx, next) => {
     ctx.path = '/packages/sac-rss-adapter/list'

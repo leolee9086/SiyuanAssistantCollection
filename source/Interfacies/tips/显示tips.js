@@ -3,12 +3,17 @@ import { 获取光标所在位置 } from '../../utils/rangeProcessor.js';
 import { 计算分词差异 } from '../../utils/tokenizer/diff.js';
 import { renderInstancies } from './package/loader.js';
 import { 使用结巴拆分元素 } from '../../utils/tokenizer/jieba.js';
-import { withPerformanceLogging } from '../../utils/functionAndClass/performanceRun.js';
-let containers=[]
-let tasks = []
-export const 添加容器 =(element)=> containers.push(element)
+import { sac } from './runtime.js';
+import { hasClosestBlock } from '../../utils/DOMFinder.js';
+import { 输入事件发生在protyle内部 } from '../../utils/events/isIn.js';
+let containers = []
+export const 添加容器 = (element) => containers.push(element)
 let 上一个分词结果 = []
-export let 显示tips = async(e) => {
+export let 显示tips = async (e) => {
+    console.log(e)
+    if(!输入事件发生在protyle内部(e)){
+        return
+    }
     let { pos, editableElement, blockElement, parentElement } = 获取光标所在位置();
     if (!editableElement) {
         return;
@@ -38,6 +43,7 @@ export let 显示tips = async(e) => {
         blockID: blockElement.getAttribute('data-node-id'),
         editableElement
     };
+    sac.statusMonitor.set('context', 'editor', editorContext)
     containers.forEach(
         element => {
             renderInstancies.forEach(
@@ -57,10 +63,12 @@ export let 显示tips = async(e) => {
                                 item => {
                                     item.targetBlocks = [editorContext.blockID];
                                     item.source = renderInstance.name;
+                                    item.type = 'keyboardTips'
                                 }
                             );
+
                             showTips(data, element, editorContext)
-                            
+
                         });
                     } catch (e) {
                         console.warn(e);

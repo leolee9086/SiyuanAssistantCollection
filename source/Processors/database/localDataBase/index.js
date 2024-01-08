@@ -1,9 +1,12 @@
 import logger from '../../../logger/index.js'
 import { 计算余弦相似度, 计算欧氏距离相似度, 查找最相似点 } from './vector.js';
-import  jsonSyAdapter  from './workspaceAdapters/jsonAdapter.js';
+import jsonSyAdapter from './workspaceAdapters/jsonAdapter.js';
 import msgSyAdapter from './workspaceAdapters/msgAdapter.js'
 import { 校验主键 } from './keys.js';
 import { plugin } from '../../../asyncModules.js';
+import { 数据集文件夹名非法字符校验正则, 迁移为合法文件夹名称 } from './utils/fileName.js';
+import { 计算LuteNodeID模 } from './utils/mod.js';
+
 globalThis._blockActionDataBase = globalThis._blockActionDataBase || {}
 export class 数据库 {
     constructor(文件保存地址) {
@@ -16,7 +19,7 @@ export class 数据库 {
         if (this._数据库[数据集名称]) {
             if (this.logLevel === 'debug') {
                 logger.databaselog(`数据集:${数据集名称}已经存在,将返回`)
-            } 
+            }
             return this._数据库[数据集名称]
         }
         this._数据库[数据集名称] = new 数据集(
@@ -31,7 +34,13 @@ export class 数据库 {
         )
         return this._数据库[数据集名称]
     }
-    根据名称获取数据集(数据集名称){
+    合并数据集() {
+
+    }
+    合并全部数据集() {
+
+    }
+    根据名称获取数据集(数据集名称) {
         return this._数据库[数据集名称]
     }
 }
@@ -50,19 +59,53 @@ class 数据集 {
         this.待保存数据分片 = []
         this.待保存路径值 = []
         this.保存队列 = [];
-        this.文件保存格式=plugin.configurer.get('向量工具设置','向量保存格式')
+        this.文件保存格式 = plugin.configurer.get('向量工具设置', '向量保存格式')
+        this.数据迁移中=true
+
+        this.加载数据并迁移旧版数据位置()
+        this.加载数据 = this.加载数据并迁移旧版数据位置
     }
-    get 文件适配器(){
-        return this.文件保存格式==='msgpack'?new msgSyAdapter(this.文件保存地址):new jsonSyAdapter(this.文件保存地址)
+    async 加载数据并迁移旧版数据位置() {
+        // 定义一个正则表达式来匹配大多数文件系统中不允许的字符
+        if(this.数据迁移中){
+            console.warn(`数据集${this.数据集名称}正在迁移中`)
+        }
+        if (数据集文件夹名非法字符校验正则.test(this.数据集名称)) {
+            console.warn('从0.1.0版本开始,数据集名称不应该包含斜杠、反斜杠、冒号、问号、百分号、星号、双引号、竖线、尖括号和空格等,现在开始迁移数据');
+            console.warn(`数据集名称${this.数据集名称}将会被映射到` + 迁移为合法文件夹名称(this.数据集名称))
+            try {
+                await this.$加载数据();
+                this.数据加载中 = false
+                this.数据集名称 = 迁移为合法文件夹名称(this.数据集名称)
+                for (let 主键值 of this.主键列表) {
+                    this.记录待保存数据项(this.数据集对象[主键值]);
+                }
+                this.已经修改=true
+                await this.保存数据(true)
+                await this.$加载数据();
+                console.warn('数据集数据迁移已经完成,请手动删除旧版数据')
+                // 这里可能需要添加代码来处理数据集名称的迁移逻辑
+            } catch (e) {
+                console.error('数据集迁移错误', e);
+            }
+        } else {
+            await this.$加载数据();
+            this.数据加载中 = false
+
+        }
+        this.数据迁移中 = false
     }
-    async 迁移数据(新数据格式){
+    get 文件适配器() {
+        return this.文件保存格式 === 'msgpack' ? new msgSyAdapter(this.文件保存地址) : new jsonSyAdapter(this.文件保存地址)
+    }
+    async 迁移数据(新数据格式) {
         this.文件保存格式 = 新数据格式
         this.主键列表.forEach(
-            主键值=>{
+            主键值 => {
                 this.记录待保存数据项(this.数据集对象[主键值])
             }
         )
-        this.已经修改 =true
+        this.已经修改 = true
         await this.保存数据()
     }
     get 文件保存地址() {
@@ -89,6 +132,11 @@ class 数据集 {
                 if (!校验主键(数据项主键)) {
                     logger.datacollecterror('主键必须以14位数字开头');
                     continue;
+                }
+                if (!数据项.$vectors) {
+                    console.warn('数据项没有向量字段,将创建新的');
+                    //初始化数据项的向量数据
+                    数据项.$vectors = {}
                 }
                 this.记录待保存数据项(数据项);
                 if (静态化) {
@@ -197,14 +245,11 @@ class 数据集 {
         查询结果 = this.应用后置过滤函数(查询结果, 后置过滤函数)
         return 查询结果
     }
-    //通过主键对文件数的模,可知哪些文件需要保存
-    获取主键模(主键值) {
-        let num = 主键值.substring(0, 14);
-        let mod = num % this.文件总数;
-        return mod
-    }
+
     记录待保存数据项(数据项) {
-        let 主键模 = this.获取主键模(数据项[this.主键名])
+        let 主键值 = 数据项[this.主键名]
+            //通过主键对文件数的模,可知哪些文件需要保存
+        let 主键模 = 计算LuteNodeID模(主键值,this.文件总数)
         let 保存路径 = 数据项[this.文件路径键名]
         this.待保存数据分片[主键模] = true
         this.待保存路径值[保存路径] = true
@@ -214,7 +259,7 @@ class 数据集 {
     async 创建分组数据(数据集对象) {
         let 分组数据 = {};
         Object.getOwnPropertyNames(数据集对象).forEach(主键值 => {
-            let mod = this.获取主键模(主键值)
+            let mod =  计算LuteNodeID模(主键值,this.文件总数)
             let 数据项 = 数据集对象[主键值]
             if (this.待保存数据分片[mod] && this.待保存路径值[数据项[this.文件路径键名]]) {
                 let 文件路径名 = 数据集对象[主键值][this.文件路径键名];
@@ -231,9 +276,9 @@ class 数据集 {
         for (let i = 0; i < 总文件数; i++) {
             临时数据对象[i] = {};
         }
-        Object.getOwnPropertyNames(分组数据对象).forEach(主键名 => {
-            let mod = this.获取主键模(主键名)
-            临时数据对象[mod][主键名] = 分组数据对象[主键名];
+        Object.getOwnPropertyNames(分组数据对象).forEach(主键值 => {
+            let mod =  计算LuteNodeID模(主键值,this.文件总数)
+            临时数据对象[mod][主键值] = 分组数据对象[主键值];
         });
         return 临时数据对象;
     }
@@ -254,7 +299,7 @@ class 数据集 {
         if (this.保存队列.length < 1000 && !force) {
             return;
         }
-        logger.log('开始保存数据')
+        console.log('开始保存数据')
         let 总文件数 = this.文件总数;
         let 数据集对象 = this.数据集对象;
         let 分组数据 = await this.创建分组数据(数据集对象);
@@ -269,11 +314,11 @@ class 数据集 {
             }
             if (记录数组.length == 总文件数) {
                 if (this.logLevel === 'debug') {
-                    logger.datasetlog(`${文件路径名}索引已更新`);
+                    console.log(`${文件路径名}索引已更新`);
                 }
             } else {
                 if (this.logLevel === 'debug') {
-                    logger.datasetlog(`${文件路径名}索引分片${记录数组.join(',')}已更新`)
+                    console.log(`${文件路径名}索引分片${记录数组.join(',')}已更新`)
                 }
             }
         }
@@ -281,9 +326,13 @@ class 数据集 {
         this.待保存路径值 = {};
         this.已经修改 = false;
     }
-    async 加载数据() {
+    async $加载数据() {
+        if (this.数据集加载中) {
+            console.warn('数据集正在加载,请等待')
+        }
+        this.数据集加载中 = true
         this.数据集对象 = await this.文件适配器.加载全部数据(this.数据集对象)
-        this.数据加载完成=true
+        this.数据加载完成 = true
     }
 }
 export default 数据库

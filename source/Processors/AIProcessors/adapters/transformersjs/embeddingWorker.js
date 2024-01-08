@@ -8,7 +8,6 @@ let extractor
 let 当前模型名称
 export async function 准备管线(模型名称){
     try{
-        console.log(模型名称,当前模型名称)
         if(模型名称!==当前模型名称){
             当前模型名称=模型名称
 

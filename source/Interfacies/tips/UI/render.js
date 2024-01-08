@@ -68,40 +68,8 @@ function 限制待添加数组长度() {
         待添加数组 = 待添加数组.slice(0, 1000);
     }
 }
-// 创建 DocumentFragment 并添加待添加数组中的元素，并支持中断操作
-function 创建并添加元素到DocumentFragment(frag, signal) {
-    console.log(待添加数组.length)
-    let div = document.createElement('div');
 
-    for (let index = 0; index < 20&&index<待添加数组.length; index++) {
-        if (signal.aborted) {
-            console.log(`Operation aborted at index ${index}`);
-            break; // 使用 break 来确保完全退出循环
-        }
-        div.innerHTML=待添加数组[index].content
-        frag.appendChild(div.firstChild);
-    }
 
-}
-// 将选中的元素移动到 DocumentFragment 的顶部
-function 移动选中元素到顶部(element, frag) {
-    element.querySelectorAll(".b3-card__info").forEach(div => {
-        let checkbox = div.querySelector('input[type="checkbox"]');
-        if (checkbox && checkbox.checked) {
-            frag.prepend(div);
-        }
-    });
-}
-// 更新元素内容，并支持中断操作
-function 更新元素内容(element, frag,) {
-    if (signal.aborted) {
-        console.log('Operation aborted before updating content');
-
-        return;
-    }
-    element.querySelector('#SAC-TIPS').innerHTML = '';
-    element.querySelector('#SAC-TIPS').appendChild(frag);
-}
 
 
 
@@ -109,7 +77,7 @@ let controller = new AbortController();
 let { signal } = controller;
 // 批量渲染函数，使用上述拆分的函数
 async function 批量渲染(element) {
-    let frag = document.createDocumentFragment();
+   // let frag = document.createDocumentFragment();
     controller.abort()
     const newcontroller = new AbortController();
     signal = newcontroller.signal
@@ -120,11 +88,9 @@ async function 批量渲染(element) {
     更新事件监听(element);
     withPerformanceLogging(去重待添加数组)();
     withPerformanceLogging(排序待添加数组)(待添加数组);
-    
     限制待添加数组长度();
-    console.log(待添加数组)
     globalThis[Symbol.for('sac-tips')] = 待添加数组
-
+    //这里由vue接管了渲染
    // withPerformanceLogging(移动选中元素到顶部)(element, frag);
    // withPerformanceLogging(创建并添加元素到DocumentFragment)(frag, signal);
    // withPerformanceLogging(更新元素内容)(element, frag,signal);

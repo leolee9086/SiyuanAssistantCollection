@@ -13,6 +13,7 @@ export const tipsRender = class {
                     data.item=data.item.map(
                         item=>{
                             item.targetBlocks=[editorContext.blockID]
+                            item.type='keyboardTips'
                             return item
                         }
                     )

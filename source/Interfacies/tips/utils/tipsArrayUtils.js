@@ -1,6 +1,8 @@
 import { 柯里化 } from "../../../utils/functionTools.js";
-import { 比较时间差,比较TextScore,比较VectorScore,比较内容标记长度 } from "./sorters.js";
-export const 构建空闲排序任务 = (tips数组, 比较算法) => {
+import { 比较时间差并归一化,比较TextScore,比较VectorScore,比较内容标记长度并归一化 } from "./sorters.js";
+import { fixScore,scoreItem } from "./rater.js";
+import { getCurrentEditorContext } from "./context.js";
+const 构建空闲排序任务 = (tips数组, 比较算法) => {
     let idleCallbackHandle = null;
     let index = 1; // 初始化 index
   
@@ -46,40 +48,26 @@ export const 构建空闲排序任务 = (tips数组, 比较算法) => {
   };
 
 
-
-function 通用排序(排序算法列表,待排序数组) {
-    待排序数组.sort((a, b) => {
-        for (let i = 0; i < 排序算法列表.length; i++) {
-            const 排序算法 = 排序算法列表[i];
-            let 排序结果;
-            try {
-                排序结果 = 排序算法(a, b);
-                // 确保排序结果是一个数字
-                if (typeof 排序结果 !== 'number') {
-                    throw new Error(`排序算法 "${排序算法.name}" 没有返回数字类型的结果`);
-                }
-            } catch (error) {
-                console.error(error.message);
-                // 忽略这个排序算法，继续下一个
-                continue;
-            }
-            // 如果排序结果不为0，则直接返回结果
-            if (排序结果 !== 0) {
-                return 排序结果;
-            }
-            // 如果排序结果为0，则继续使用下一个排序算法
-        }
-        // 所有排序算法比较结果都为0，则认为两个元素相等，返回0
-        return 0;
+  export const 排序待添加数组 = (待添加数组) => {
+    let baseString  = getCurrentEditorElementContent()
+    // 一次遍历来初始化scores并计算scores.time
+    待添加数组.forEach(item => {
+      if (!item.scores) {
+        item.scores = {}; // 初始化scores对象
+      }
+      scoreItem(item,baseString)
     });
-}
-export const 排序待添加数组=(待添加数组)=>{
-   let 排序函数 = 柯里化(通用排序)([
-    比较时间差,
-    比较VectorScore,
-    比较TextScore,
-    比较内容标记长度,
-   ])
-   排序函数(待添加数组)
-}
+    //fixScore(待添加数组)
 
+    // 现在数组中的每个item都有了scores属性，可以进行排序
+    // 使用sort方法进行排序，这是内部的遍历，我们无法优化这部分
+    待添加数组.sort((a, b) => b.score- a.score);
+  };
+  function getCurrentEditorElementContent(){
+    let editorContext = getCurrentEditorContext()
+    if(editorContext&&editorContext.editableElement){
+      return editorContext.editableElement.innerText||""
+    }else{
+      return ""
+    }
+  }

@@ -24,8 +24,7 @@ databaseRouter.post(
                 data.collection_name, data.main_key, data.file_path_key
             )
             if(!数据集.数据加载完成){
-                await 数据集.加载数据()
-
+                 数据集.加载数据()
             }
             ctx.body = {
                 msg: 0,
@@ -78,6 +77,7 @@ databaseRouter.post(
         } else if (!本地块数据集.数据加载完成) {
             ctx.error(`数据集${data.collection_name}数据加载未完成`)
         }
+        
         else {
             try {
                 ctx.body.data = 本地块数据集.主键列表
@@ -116,5 +116,32 @@ databaseRouter.post(
         }
     }
 )
+databaseRouter.post(
+    '/add',async(ctx,next)=>{
+        let data = {
+            collection_name: '',
+            keys: [],
+            ...ctx.req.body
+        }
+        let 本地块数据集 = 向量存储.公开向量数据库实例.根据名称获取数据集(data.collection_name)
+        if (!本地块数据集) {
+            ctx.error(`数据集${data.collection_name}不存在`)
+            
+        } else if (!本地块数据集.数据加载完成) {
+            ctx.error(`数据集${data.collection_name}数据加载未完成`)
+            
+        }
+        else {
+            try {
+                await 本地块数据集.添加数据(data.vectors)
+                await 本地块数据集.保存数据()
+            }
+            catch (e) {
+                ctx.error("删除数据时发生错误,请检查日志" + e)
+                
+            }
+        }
 
+    }
+)
 export { databaseRouter }
