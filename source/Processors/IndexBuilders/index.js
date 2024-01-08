@@ -1,7 +1,7 @@
 import { sac } from "../../asyncModules.js";
 import { 清理块索引 } from "./utils/cleaner.js";
 let { internalFetch, Router } = sac.路由管理器
-let 获取块数据集名称 = async () => {
+let 获取旧块数据集名称 = async () => {
     let 旧块数据集名 = 'blockVectors' + '/' + (await internalFetch('/config/query', {
         method: 'POST',
         body: { query: ['向量工具设置', '默认文本向量化模型'] }

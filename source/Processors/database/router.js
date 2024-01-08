@@ -24,7 +24,7 @@ databaseRouter.post(
                 data.collection_name, data.main_key, data.file_path_key
             )
             if(!数据集.数据加载完成){
-                 数据集.加载数据()
+                await 数据集.加载数据()
             }
             ctx.body = {
                 msg: 0,
@@ -37,7 +37,33 @@ databaseRouter.post(
         }
     }
 )
+databaseRouter.post(
+    '/export/json',async(ctx,next)=>{
+        try {
+            let data = {
+                dataBase: 'public',
+                collection_name: '',
+                main_key: 'id',
+                file_path_key: 'box',
+                ...ctx.req.body
+            }
+            
+            let 数据集 = 向量存储.公开向量数据库实例.创建数据集(
+                data.collection_name, data.main_key, data.file_path_key
+            )
+            if(!数据集.数据加载完成){
+                await 数据集.加载数据()
+            }
+            ctx.body = {
+                msg: 0,
+                data: 数据集.数据集对象
+            }
+        } catch (e) {
+            ctx.error(e.message)
+        }
 
+    }
+)
 databaseRouter.post(
     '/query', async (ctx, next) => {
         let data = {
