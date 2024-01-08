@@ -19,26 +19,30 @@ databaseRouter.post(
                 file_path_key: 'box',
                 ...ctx.req.body
             }
-            
+
             let 数据集 = 向量存储.公开向量数据库实例.创建数据集(
-                data.collection_name, data.main_key, data.file_path_key
+                data.collection_name, data.file_path_key
             )
-            if(!数据集.数据加载完成){
+            if (!数据集.数据加载中) {
                 await 数据集.加载数据()
             }
             ctx.body = {
                 msg: 0,
                 data: {
-                    succeed: true
+                    succeed: true,
+                    collection_name: data.collection_name
                 }
             }
         } catch (e) {
+            console.error(ctx)
             ctx.error(e.message)
         }
+        next()
+
     }
 )
 databaseRouter.post(
-    '/export/json',async(ctx,next)=>{
+    '/export/json', async (ctx, next) => {
         try {
             let data = {
                 dataBase: 'public',
@@ -47,11 +51,11 @@ databaseRouter.post(
                 file_path_key: 'box',
                 ...ctx.req.body
             }
-            
+
             let 数据集 = 向量存储.公开向量数据库实例.创建数据集(
-                data.collection_name, data.main_key, data.file_path_key
+                data.collection_name, data.file_path_key
             )
-            if(!数据集.数据加载完成){
+            if (!数据集.数据加载中) {
                 await 数据集.加载数据()
             }
             ctx.body = {
@@ -77,17 +81,16 @@ databaseRouter.post(
         let 本地块数据集 = 向量存储.公开向量数据库实例.根据名称获取数据集(data.collection_name)
         if (!本地块数据集) {
             ctx.error(`数据集${data.collection_name}不存在`)
-        } else if (!本地块数据集.数据加载完成) {
-            ctx.error(`数据集${data.collection_name}数据加载未完成`)
+        } else if (本地块数据集.数据加载中) {
+            console.warn(`数据集${data.collection_name}数据加载未完成`)
         }
-        else {
-            try {
-                let result = await 本地块数据集.以向量搜索数据('vector', data.vector)
-                ctx.body.data=result
-            }
-            catch (e) {
-                ctx.error("查询中发现出现未知错误,请检查日志" + e)
-            }
+        try {
+            console.log(data)
+            let result = await 本地块数据集.以向量搜索数据(data.vector_name, data.vector)
+            ctx.body.data = result
+        }
+        catch (e) {
+            ctx.error("查询中发现出现未知错误,请检查日志" + e)
         }
 
     }
@@ -96,24 +99,37 @@ databaseRouter.post(
     '/keys', async (ctx, next) => {
         let data = {
             collection_name: '',
+            with_meta: true,
             ...ctx.req.body
         }
-        let 本地块数据集 = 向量存储.公开向量数据库实例.根据名称获取数据集(data.collection_name)
+        let 本地块数据集 = await 向量存储.公开向量数据库实例.根据名称获取数据集(data.collection_name)
         if (!本地块数据集) {
             ctx.error(`数据集${data.collection_name}不存在`)
-        } else if (!本地块数据集.数据加载完成) {
-            ctx.error(`数据集${data.collection_name}数据加载未完成`)
+        } else if (本地块数据集.数据加载中) {
+            console.warn(`数据集${data.collection_name}数据加载未完成,但已经可以使用`)
         }
-        
-        else {
-            try {
+
+        try {
+            if (data.with_meta) {
+                ctx.body.data = 本地块数据集.主键列表.map(
+                    item => {
+                        return {
+                            id: item,
+                            meta: 本地块数据集.数据集对象[item].meta
+                        }
+                    }
+                )
+                ctx.body.msg = 0
+            } else {
                 ctx.body.data = 本地块数据集.主键列表
                 ctx.body.msg = 0
-            }
-            catch (e) {
-                ctx.error('查询中出现未知错误,请检查日志' + e.meesage)
+
             }
         }
+        catch (e) {
+            ctx.error('查询中出现未知错误,请检查日志' + e.meesage)
+        }
+
     }
 )
 databaseRouter.post(
@@ -126,8 +142,8 @@ databaseRouter.post(
         let 本地块数据集 = 向量存储.公开向量数据库实例.根据名称获取数据集(data.collection_name)
         if (!本地块数据集) {
             ctx.error(`数据集${data.collection_name}不存在`)
-            
-        } else if (!本地块数据集.数据加载完成) {
+
+        } else if (本地块数据集.数据加载中) {
             ctx.error(`数据集${data.collection_name}数据加载未完成`)
         }
         else {
@@ -137,13 +153,14 @@ databaseRouter.post(
             }
             catch (e) {
                 ctx.error("删除数据时发生错误,请检查日志" + e)
-                
+
             }
         }
     }
 )
 databaseRouter.post(
-    '/add',async(ctx,next)=>{
+    '/add', async (ctx, next) => {
+        console.log(ctx)
         let data = {
             collection_name: '',
             keys: [],
@@ -152,19 +169,19 @@ databaseRouter.post(
         let 本地块数据集 = 向量存储.公开向量数据库实例.根据名称获取数据集(data.collection_name)
         if (!本地块数据集) {
             ctx.error(`数据集${data.collection_name}不存在`)
-            
-        } else if (!本地块数据集.数据加载完成) {
+
+        } else if (本地块数据集.数据加载中) {
             ctx.error(`数据集${data.collection_name}数据加载未完成`)
-            
+
         }
         else {
             try {
                 await 本地块数据集.添加数据(data.vectors)
+                console.log(data)
                 await 本地块数据集.保存数据()
             }
             catch (e) {
-                ctx.error("删除数据时发生错误,请检查日志" + e)
-                
+                ctx.error("添加数据时发生错误,请检查日志" + e)
             }
         }
 

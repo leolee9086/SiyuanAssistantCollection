@@ -20,15 +20,16 @@ export const internalFetch = async (path, options = {}, router,user) => {
   });
   // 查找本地函数
   const fetchPromise = router.routes('/')(ctx, (ctx, next) => {
+    console.log(ctx)
     return new Promise((resolve, reject) => {
       try {
-        if (ctx.status !== 404) { // 如果路由存在
-          resolve();
+        if (ctx&&ctx.status !== 404) { // 如果路由存在
+          resolve(ctx);
         } else { // 如果路由不存在
-          reject();
+          reject(new Error('404 not found'));
         }
       } catch (e) {
-        reject();
+        reject(new Error('503 server Error'+e));
 
       }
     });

@@ -3,13 +3,14 @@ import { 计算余弦相似度 } from "../vector.js";
 import { 查找最相似点 } from "../vector.js";
 export const 以过滤函数和向量字段名创建查询数据集 = (数据集对象, 向量字段名, 前置过滤函数) => {
     let 主键值数组 = Object.getOwnPropertyNames(数据集对象);
+    console.log(向量字段名)
     // 使用filter和map替换forEach
     let 查询数据集 = 主键值数组
         .filter(主键值 => !前置过滤函数 || 前置过滤函数(数据集对象[主键值]))
         .map(主键值 => {
             return {
                 data: 数据集对象[主键值],
-                vector: 数据集对象[主键值][向量字段名]
+                vector: 数据集对象[主键值].vector[向量字段名]
             }
         });
     return 查询数据集;
@@ -44,7 +45,7 @@ export const 准备向量查询函数 = (数据集对象) => {
         查询结果 = 处理查询结果(查询结果)
         // 查询结果 = this.应用后置过滤函数(查询结果, 后置过滤函数)
         查询结果 = 应用后置过滤函数(查询结果, 后置过滤函数)
-        return 查询结果
+        return JSON.parse(JSON.stringify(查询结果))
     }
 }
 

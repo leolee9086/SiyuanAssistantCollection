@@ -6,23 +6,25 @@ transformers.env.allowRemoteModels = true;
 transformers.env.localModelPath = '/public/onnxModels/';
 let extractor
 let 当前模型名称
-export async function 准备管线(模型名称){
-    try{
-        if(模型名称!==当前模型名称){
-            当前模型名称=模型名称
+export async function 准备管线(模型名称) {
+    try {
+        if (模型名称 !== 当前模型名称) {
+            当前模型名称 = 模型名称
 
-            extractor = await transformers.pipeline('feature-extraction',模型名称,{
+            extractor = await transformers.pipeline('feature-extraction', 模型名称, {
                 quantized: true,
             });
             return {}
+        }else{
+            return {}
         }
-    }catch(e){
-        return { msg: '错误', detail: 'extractor未能成功初始化:'+e };
+    } catch (e) {
+        return { msg: '错误', detail: 'extractor未能成功初始化:' + e };
     }
 }
 export async function 提取向量(text, 最大句子长度) {
-    if(!extractor){
-        return { msg: '错误', detail: 'extractor没有初始化'};
+    if (!extractor) {
+        return { msg: '错误', detail: 'extractor没有初始化' };
     }
     let 句子组 = 将文本拆分为句子(text, 最大句子长度);
     let 句子长度比例组 = 句子组.map(句子 => 句子.length / text.length);
@@ -35,11 +37,13 @@ export async function 提取向量(text, 最大句子长度) {
             }
         }
         if (句子向量组.length > 0) {
-            let result= {data:[
-                {
-                    embedding:计算加权平均向量(句子向量组, 句子长度比例组)
-                }
-            ]};
+            let result = {
+                data: [
+                    {
+                        embedding: 计算加权平均向量(句子向量组, 句子长度比例组)
+                    }
+                ]
+            };
             return result
         } else {
             return [];
@@ -48,4 +52,18 @@ export async function 提取向量(text, 最大句子长度) {
         console.error(e);
         return { msg: '错误', detail: e.message };
     }
+}
+
+export async function 批量提取向量(文本数组, 最大句子长度) {
+    let 批量结果 = [];
+    for (let text of 文本数组) {
+        try {
+            let 单个结果 = await 提取向量(text, 最大句子长度);
+            批量结果.push(单个结果);
+        } catch (e) {
+            console.error(e);
+            批量结果.push({ msg: '错误', detail: e.message });
+        }
+    }
+    return 批量结果;
 }

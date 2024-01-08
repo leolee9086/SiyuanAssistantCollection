@@ -23,14 +23,14 @@ blockSearchRouter.get('/text/:query', async (ctx, next) => {
 })
 blockSearchRouter.post('/vector', async (ctx, next) => {
     //保证块数据集已经创建
-    let 块数据集名 = 'blockVectors' + '/' + (await sac.路由管理器.internalFetch('/config/query', {
+    let 当前模型名 =  (await sac.路由管理器.internalFetch('/config/query', {
         method: 'POST',
         body: { query: ['向量工具设置', '默认文本向量化模型'] }
     })).body.data
     let collectionsRes= await sac.路由管理器.internalFetch('/database/collections/build', {
         method: 'POST',
         body: {
-            collection_name: 块数据集名,
+            collection_name: 'blocks',
             main_key: 'id',
             file_path_key: 'box',
         }
@@ -48,11 +48,12 @@ blockSearchRouter.post('/vector', async (ctx, next) => {
     let res1 = await sac.路由管理器.internalFetch('/database/query', {
         body: {
             vector: vector,
-            collection_name: 块数据集名,
+            collection_name: 'blocks',
             limit: 结果数量,
             offset: 8,
             filter: '',
-            output_fields: 'meta'
+            output_fields: 'meta',
+            vector_name:当前模型名
         },
         method: 'POST',
     })

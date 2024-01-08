@@ -4,7 +4,8 @@ export const 迁移数据项向量结构 = (数据项) => {
         updated: Date.now(),
         neighbors: [],
         meta: {},
-        vector: {}
+        vector: {},
+        id:数据项.id
     };
 
     // 如果数据项已经有meta字段，则直接迁移meta
@@ -25,7 +26,6 @@ export const 迁移数据项向量结构 = (数据项) => {
     }
 
     初始化数据项向量字段(数据项, 迁移结果);
-    初始化数据项向量元数据字段(数据项, 迁移结果);
 
     return 迁移结果;
 };

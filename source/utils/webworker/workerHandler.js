@@ -71,7 +71,6 @@ function 初始化Worker线程池(处理器文件地址, characters) {
 // 找到可用的 worker
 function 找到可用Worker(worker文件地址) {
   // 使用文件名作为键
-  console.log(worker线程池, worker文件地址)
   let 可用worker = worker线程池[worker文件地址].reduce((最短任务列表的worker, 当前worker) => {
     if ((!最短任务列表的worker || 当前worker.任务列表.length < 最短任务列表的worker.任务列表.length)) {
       return 当前worker;
@@ -137,7 +136,6 @@ async function 处理广播任务(worker线程池, 数据组, 任务名, worker�
       return result.value;
     }
   });
-  console.log(results)
   if (results.find(item => item.$reason)) throw new Error(JSON.stringify(results))
   return results
 }
@@ -159,12 +157,10 @@ export function importWorker(处理器文件地址, 任务名 = []) {
       if (prop === 'then') {
         return (resolve, reject) => reject(new Error('暂时只能同步调用'));
       }
-      console.log([...任务名, prop])
 
       return importWorker(处理器文件地址, [...任务名, prop]);
     },
     apply: function (target, thisArg, args) {
-      console.log(args, 处理器文件地址, 任务名)
       return Promise.resolve(使用worker处理数据(args, 处理器文件地址, 任务名, false));
     }
   })

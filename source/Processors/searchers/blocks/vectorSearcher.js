@@ -2,6 +2,8 @@ import { kernelApi } from "../runtime.js"
 export const seachBlockWithVector = async (blocks,标题和文档包含全部内容,使用原始结果,得分阈值,参考分数较高时给出文档全文) => {
     blocks = blocks.filter(item => { return item.meta && item.similarityScore > 得分阈值 }).map(
         item => {
+            item.meta = kernelApi.sql.sync({ stmt: `select * from blocks where id ="${item.id}"` })[0]
+            console.log(item)
             try {
                 if (标题和文档包含全部内容 && item.meta.type === 'd' || item.meta.type === 'h') {
                     let block = JSON.parse(JSON.stringify(item.meta))
@@ -56,7 +58,7 @@ export const seachBlockWithVector = async (blocks,标题和文档包含全部内
         return res
     } else return {
         title: "块搜索结果",
-        description: "使用分词结果搜索的块结果",
+        description: "使用向量搜索的块结果",
         item: res.map(
             block => {
                 return {

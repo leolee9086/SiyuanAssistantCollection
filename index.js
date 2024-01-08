@@ -260,13 +260,14 @@ class SiyuanAssistantCollection extends ccPlugin {
     this.从esm模块('./source/Processors/database/index.js').合并子模块('向量数据库').then(
       () => {
         this.路由管理器.根路由.use('/database', this.向量数据库.router.routes('/'))
+        this.从esm模块('./source/Processors/indexBuilders/index.js').合并子模块('索引处理器').then(
+          () => {
+            this.路由管理器.根路由.use('/indexBuilder', this.索引处理器.router.routes('/'))
+          }
+        )
       }
     )
-    this.从esm模块('./source/Processors/indexBuilders/index.js').合并子模块('索引处理器').then(
-      () => {
-        this.路由管理器.根路由.use('/indexBuilder', this.索引处理器.router.routes('/'))
-      }
-    )
+ 
 
     //界面部分之后应该改成事件模式
     this.从esm模块('./source/Interfacies/tips/index.js').合并子模块('tips处理器').then(

@@ -160,6 +160,5 @@ const searchBlocks = (query) => {
             res.body ? results.value = data : null
         }
     )
-
 }
 </script>
