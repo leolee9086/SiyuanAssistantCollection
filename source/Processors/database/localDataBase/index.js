@@ -103,7 +103,7 @@ class 数据集 {
     get 文件适配器() {
         return this.文件保存格式 === 'msgpack' ? new msgSyAdapter(this.文件保存地址) : new jsonSyAdapter(this.文件保存地址)
     }
-    async 迁移数据(新数据格式) {
+    async 迁移数据保存格式(新数据格式) {
         this.文件保存格式 = 新数据格式
         this.主键列表.forEach(
             主键值 => {
