@@ -1,5 +1,4 @@
 import { sac } from "../runtime.js";
-//import { seachBlockWithText } from "./simpleTextSearcher.js";
 import { importWorker } from "../../../utils/webworker/workerHandler.js";
 import { text2vec } from "../utils/text2vec.js";
 const simpleTextSearcherModule = importWorker(import.meta.resolve('./simpleTextSearcher.js'))
@@ -7,7 +6,6 @@ await simpleTextSearcherModule.$eval(document.getElementById('protyleLuteScript'
 const vectorTextSearcherModule = importWorker(import.meta.resolve('./vectorSearcher.js'))
 await vectorTextSearcherModule.$eval(document.getElementById('protyleLuteScript').textContent)
 const blockSearchRouter = new sac.路由管理器.Router()
-
 blockSearchRouter.post('/text', async (ctx, next) => {
     let 使用原始结果 = false
     let 结果数量 = sac.configurer.get('聊天工具设置', '默认参考数量').$value
