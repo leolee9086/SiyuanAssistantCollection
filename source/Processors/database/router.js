@@ -49,8 +49,6 @@ databaseRouter.post(
             ...ctx.req.body
         }
         let 本地块数据集 = 向量存储.公开向量数据库实例.根据名称获取数据集(data.collection_name)
-        console.log(本地块数据集)
-
         if (!本地块数据集) {
             ctx.error(`数据集${data.collection_name}不存在`)
         } else if (!本地块数据集.数据加载完成) {
@@ -59,7 +57,6 @@ databaseRouter.post(
         else {
             try {
                 let result = await 本地块数据集.以向量搜索数据('vector', data.vector)
-                console.log(result)
                 ctx.body.data=result
             }
             catch (e) {
