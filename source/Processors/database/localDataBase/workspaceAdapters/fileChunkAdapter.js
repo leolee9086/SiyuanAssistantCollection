@@ -5,7 +5,6 @@ import { 读取工作空间文件列表 } from "../utils/glob.js";
 export class fileChunkAdapter {
     constructor(文件保存地址, 序列化, 反序列化, 扩展名) {
         console.log(文件保存地址)
-
         this.总文件数 = 8
         this.文件保存地址 = 文件保存地址
         this.序列化 = 序列化
@@ -14,13 +13,14 @@ export class fileChunkAdapter {
         if (this.扩展名 !== 'json') {
             this.文件保存地址 = this.文件保存地址 + `_${this.扩展名}`
         }
+        this.写入队列=[]
+        this.正在写入=false
     }
     async 创建原子写入操作(待保存分片数据, 分片号, 文件路径名) {
-        let content = await this.序列化(待保存分片数据);
+        let 文件内容 = await this.序列化(待保存分片数据);
         let 文件夹路径 = path.join(this.文件保存地址, 文件路径名 ? 文件路径名 : '');
         let 文件名 = path.join(文件夹路径, `chunk${分片号}.${this.扩展名}`);
-        let 原子写入记录 = fs.writeFile(文件名, content)
-        console.log(文件夹路径,文件名)
+        let 原子写入记录 = fs.writeFile(文件名, 文件内容)
         return 原子写入记录
     }
     async 创建批处理写入操作(待保存分片字典, 文件路径名) {
@@ -31,7 +31,12 @@ export class fileChunkAdapter {
             写入操作数组.push(写入操作)
             写入分片号数组.push(分片号)
         }
-        return { 写入操作: 写入操作数组, 记录数组: 写入分片号数组 }
+        try {
+            await Promise.all(写入操作数组);
+        } catch (err) {
+            console.error('写入文件时出错:', err);
+        }
+        return 写入分片号数组
     }
     async 加载数据切片(文件路径, 切片编号, 反序列化函数) {
         let content = {}

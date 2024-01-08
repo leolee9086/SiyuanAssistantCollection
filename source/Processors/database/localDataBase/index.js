@@ -1,12 +1,11 @@
 import logger from '../../../logger/index.js'
-import { 计算余弦相似度, 计算欧氏距离相似度, 查找最相似点 } from './vector.js';
 import jsonSyAdapter from './workspaceAdapters/jsonAdapter.js';
 import msgSyAdapter from './workspaceAdapters/msgAdapter.js'
 import { 校验主键 } from './keys.js';
 import { plugin } from '../../../asyncModules.js';
 import { 数据集文件夹名非法字符校验正则, 迁移为合法文件夹名称 } from './utils/fileName.js';
 import { 计算LuteNodeID模 } from './utils/mod.js';
-
+import { 准备向量查询函数 } from './utils/query.js';
 globalThis._blockActionDataBase = globalThis._blockActionDataBase || {}
 export class 数据库 {
     constructor(文件保存地址) {
@@ -60,14 +59,20 @@ class 数据集 {
         this.待保存路径值 = []
         this.保存队列 = [];
         this.文件保存格式 = plugin.configurer.get('向量工具设置', '向量保存格式')
-        this.数据迁移中=true
-
+        this.数据迁移中 = true
+        this.准备查询函数()
         this.加载数据并迁移旧版数据位置()
         this.加载数据 = this.加载数据并迁移旧版数据位置
     }
+    准备查询函数() {
+        this.以向量搜索数据 = (...args) => {
+            let 查询函数 = 准备向量查询函数(this.数据集对象)
+            return 查询函数(...args)
+        }
+    }
     async 加载数据并迁移旧版数据位置() {
         // 定义一个正则表达式来匹配大多数文件系统中不允许的字符
-        if(this.数据迁移中){
+        if (this.数据迁移中) {
             console.warn(`数据集${this.数据集名称}正在迁移中`)
         }
         if (数据集文件夹名非法字符校验正则.test(this.数据集名称)) {
@@ -80,7 +85,7 @@ class 数据集 {
                 for (let 主键值 of this.主键列表) {
                     this.记录待保存数据项(this.数据集对象[主键值]);
                 }
-                this.已经修改=true
+                this.已经修改 = true
                 await this.保存数据(true)
                 await this.$加载数据();
                 console.warn('数据集数据迁移已经完成,请手动删除旧版数据')
@@ -194,62 +199,12 @@ class 数据集 {
         )
         this.已经修改 = true
     }
-    创建查询数据集(向量字段名, 前置过滤函数) {
-        let 查询数据集 = []
-        let 主键值数组 = Object.getOwnPropertyNames(this.数据集对象)
-        主键值数组.forEach(
-            主键值 => {
-                let flag
-                let 数据项 = this.数据集对象[主键值]
-                if (前置过滤函数 && !前置过滤函数(数据项)) {
-                    flag = true
-                }
-                if (!flag) {
-                    查询数据集.push(
-                        {
-                            data: 数据项,
-                            vector: 数据项[向量字段名]
-                        }
-                    )
-                }
-            }
-        )
-        return 查询数据集
-    }
-    处理查询结果(查询结果, 原始查询结果) {
-        if (!原始查询结果) {
-            查询结果 = 查询结果.map(
-                item => {
-                    let obj = JSON.parse(JSON.stringify(item.data.data))
-                    obj.similarityScore = item.score
-                    return obj
-                }
-            )
-        }
-        return 查询结果
-    }
-    应用后置过滤函数(查询结果, 后置过滤函数) {
-        if (后置过滤函数) {
-            查询结果 = 查询结果.filter(
-                item => {
-                    return 后置过滤函数(item)
-                }
-            )
-        }
-        return 查询结果
-    }
-    以向量搜索数据(向量字段名, 向量值, 结果数量 = 10, 查询方法, 原始查询结果, 前置过滤函数, 后置过滤函数) {
-        let 查询数据集 = this.创建查询数据集(向量字段名, 前置过滤函数)
-        let 查询结果 = 查找最相似点(向量值, 查询数据集, 结果数量, 计算余弦相似度)
-        查询结果 = this.处理查询结果(查询结果, 原始查询结果)
-        查询结果 = this.应用后置过滤函数(查询结果, 后置过滤函数)
-        return 查询结果
-    }
+
 
     记录待保存数据项(数据项) {
         let 主键值 = 数据项[this.主键名]
-            //通过主键对文件数的模,可知哪些文件需要保存
-        let 主键模 = 计算LuteNodeID模(主键值,this.文件总数)
+        //通过主键对文件数的模,可知哪些文件需要保存
+        let 主键模 = 计算LuteNodeID模(主键值, this.文件总数)
         let 保存路径 = 数据项[this.文件路径键名]
         this.待保存数据分片[主键模] = true
         this.待保存路径值[保存路径] = true
@@ -259,7 +214,7 @@ class 数据集 {
     async 创建分组数据(数据集对象) {
         let 分组数据 = {};
         Object.getOwnPropertyNames(数据集对象).forEach(主键值 => {
-            let mod =  计算LuteNodeID模(主键值,this.文件总数)
+            let mod = 计算LuteNodeID模(主键值, this.文件总数)
             let 数据项 = 数据集对象[主键值]
             if (this.待保存数据分片[mod] && this.待保存路径值[数据项[this.文件路径键名]]) {
                 let 文件路径名 = 数据集对象[主键值][this.文件路径键名];
@@ -277,7 +232,7 @@ class 数据集 {
             临时数据对象[i] = {};
         }
         Object.getOwnPropertyNames(分组数据对象).forEach(主键值 => {
-            let mod =  计算LuteNodeID模(主键值,this.文件总数)
+            let mod = 计算LuteNodeID模(主键值, this.文件总数)
             临时数据对象[mod][主键值] = 分组数据对象[主键值];
         });
         return 临时数据对象;
@@ -289,29 +244,15 @@ class 数据集 {
                 待保存分片字典[i] = 临时数据对象[i]
             }
         }
-        let 写入操作对象 = await this.文件适配器.创建批处理写入操作(待保存分片字典, 文件路径名)
-        return 写入操作对象
+        let 操作记录数组 = await this.文件适配器.创建批处理写入操作(待保存分片字典, 文件路径名)
+        return 操作记录数组
     }
-    async 保存数据(force) {
-        if (!this.已经修改) {
-            return;
-        }
-        if (this.保存队列.length < 1000 && !force) {
-            return;
-        }
-        console.log('开始保存数据')
+    async 写入分组数据(分组数据) {
         let 总文件数 = this.文件总数;
-        let 数据集对象 = this.数据集对象;
-        let 分组数据 = await this.创建分组数据(数据集对象);
         for (let 文件路径名 in 分组数据) {
             let 分组数据对象 = 分组数据[文件路径名];
             let 临时数据对象 = await this.创建临时数据对象(分组数据对象, 总文件数);
-            let { 写入操作, 记录数组 } = await this.创建写入操作(临时数据对象, 总文件数, 文件路径名);
-            try {
-                await Promise.all(写入操作);
-            } catch (err) {
-                console.error('写入文件时出错:', err);
-            }
+            let 记录数组 = await this.创建写入操作(临时数据对象, 总文件数, 文件路径名);
             if (记录数组.length == 总文件数) {
                 if (this.logLevel === 'debug') {
                     console.log(`${文件路径名}索引已更新`);
@@ -322,6 +263,18 @@ class 数据集 {
                 }
             }
         }
+    }
+    async 保存数据(强制写入) {
+        if (!this.已经修改) {
+            return;
+        }
+        if (this.保存队列.length < 1000 && !强制写入) {
+            return;
+        }
+        console.log('开始保存数据')
+        let 数据集对象 = this.数据集对象;
+        let 分组数据 = await this.创建分组数据(数据集对象);
+        await this.写入分组数据(分组数据)
         this.待保存数据分片 = {};
         this.待保存路径值 = {};
         this.已经修改 = false;
