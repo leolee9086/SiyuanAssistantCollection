@@ -7,11 +7,13 @@ import { 数据集文件夹名非法字符校验正则, 迁移为合法文件夹
 import { 计算LuteNodeID模 } from './utils/mod.js';
 import { 准备向量查询函数 } from './utils/query.js';
 import { 合并已存在数据项, 迁移数据项向量结构 } from './utils/item.js';
-
+import { 加载数据到目标数据集 } from './workspaceAdapters/utils/loadAll.js';
+let 命名常量 = {
+    主键名:"id"
+}
 export class 数据集 {
-    constructor(数据集名称, 主键名, 文件路径键名,  logLevel, 数据库) {
+    constructor(数据集名称, 文件路径键名,  logLevel, 数据库) {
         //数据集对象用于存储实际数据
-        this.主键名 = 主键名;
         this.文件路径键名 = 文件路径键名 || '';
         this.数据集名称 = 数据集名称;
         this.logLevel = logLevel;
@@ -87,7 +89,7 @@ export class 数据集 {
         if (!数据组[0]) {
             return;
         }
-        let 主键名 = this.主键名;
+        let 主键名 = 命名常量.主键名;
         let 数据集对象 = this.数据集对象;
         let 修改标记 = false;
         // 如果数据集对象一开始是空的，标记为已经修改
@@ -124,7 +126,7 @@ export class 数据集 {
         const resultKey = keys[keys.length - 1];
         let 数据集对象 = this.数据集对象;
         let 查询结果 = [];
-        let _主键名 = this.主键名;
+        let _主键名 = 命名常量.主键名;
         function getValueByPath(obj) {
             let value = obj;
             for (let key of keys) {
@@ -161,7 +163,7 @@ export class 数据集 {
         this.已经修改 = true;
     }
     记录待保存数据项(数据项) {
-        let 主键值 = 数据项[this.主键名];
+        let 主键值 = 数据项[命名常量.主键名];
         //通过主键对文件数的模,可知哪些文件需要保存
         let 主键模 = 计算LuteNodeID模(主键值, this.文件总数);
         let 保存路径 = 数据项[this.文件路径键名];
@@ -240,12 +242,6 @@ export class 数据集 {
         this.已经修改 = false;
     }
     async $加载数据() {
-        if (this.数据集加载中) {
-            console.warn('数据集正在加载,请等待');
-        }
-        this.数据集加载中 = true;
-        this.数据集对象 = await this.文件适配器.加载全部数据(this.数据集对象);
-
-        this.数据加载完成 = true;
+        await 加载数据到目标数据集(this.文件适配器,this)
     }
 }

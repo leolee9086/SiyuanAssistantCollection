@@ -8,7 +8,7 @@ export class 数据库 {
         this.logLevel = 'debug'
         globalThis._blockActionDataBase[this.文件保存地址] = this._数据库
     }
-    创建数据集(数据集名称, 主键名 = 'id', 文件路径名) {
+    创建数据集(数据集名称, 文件路径名) {
         if (this._数据库[数据集名称]) {
             if (this.logLevel === 'debug') {
                 logger.databaselog(`数据集:${数据集名称}已经存在,将返回`)
@@ -17,7 +17,6 @@ export class 数据库 {
         }
         this._数据库[数据集名称] = new 数据集(
             数据集名称,
-            主键名,
             文件路径名,
             this.logLevel,
             {
