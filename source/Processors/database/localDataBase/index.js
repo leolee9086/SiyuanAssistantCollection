@@ -5,7 +5,7 @@ import { 校验主键 } from './keys.js';
 import { plugin } from '../../../asyncModules.js';
 import { 数据集文件夹名非法字符校验正则, 迁移为合法文件夹名称 } from './utils/fileName.js';
 import { 计算LuteNodeID模 } from './utils/mod.js';
-import { 准备向量查询函数, 迁移数据项向量结构 } from './utils/query.js';
+import { 准备向量查询函数, 初始化数据项向量字段, 迁移数据项向量结构 } from './utils/query.js';
 globalThis._blockActionDataBase = globalThis._blockActionDataBase || {}
 export class 数据库 {
     constructor(文件保存地址) {
@@ -133,24 +133,15 @@ class 数据集 {
                     logger.datacollecterror('主键必须以14位数字开头');
                     continue;
                 }
+
+                //改为默认静态化
+                数据集对象[数据项主键] = JSON.parse(JSON.stringify(数据项));
+
                 //0.1.1版本将移除这一功能
                 迁移数据项向量结构(数据项)
-                if (数据项.vector) {
-                    Object.keys(数据项.vector).forEach(key => {
-                        if (!Array.isArray(数据项.vector[key]) || 数据项.vector[key].some(v => typeof v !== 'number')) {
-                            console.warn(`数据项的vector字段中的${key}不是有效的向量`);
-                            // 初始化或修正该项为有效向量，这里假设向量是二维的，仅作为示例
-                            数据项.vector[key] = [0, 0]; // 或者其他逻辑来初始化向量
-                        }
-                    });
-                } else {
-                    console.warn('数据项没有向量字段,将创建新的');
-                    // 初始化数据项的向量数据
-                    数据项.vector = {};
-                }
+                初始化数据项向量字段(数据项)
                 if (静态化) {
                     //如果数据是静态化的,那就添加一个拷贝
-                    数据集对象[数据项主键] = JSON.parse(JSON.stringify(数据项));
                 } else {
                     //否则就直接添加原始数据项目
                     数据集对象[数据项主键] = 数据项;

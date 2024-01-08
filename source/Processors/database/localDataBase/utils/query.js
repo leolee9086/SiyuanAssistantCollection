@@ -22,6 +22,22 @@ export const 迁移数据项向量结构 = (数据项) => {
     }
     return 数据项;
 }
+export const 初始化数据项向量字段 = (数据项)=>{
+    if (数据项.vector) {
+        Object.keys(数据项.vector).forEach(key => {
+            if (!Array.isArray(数据项.vector[key]) || 数据项.vector[key].some(v => typeof v !== 'number')) {
+                console.warn(`数据项的vector字段中的${key}不是有效的向量`);
+                // 初始化或修正该项为有效向量，这里假设向量是二维的，仅作为示例
+                数据项.vector[key] = [0, 0]; // 或者其他逻辑来初始化向量
+            }
+        });
+    } else {
+        console.warn('数据项没有向量字段,将创建新的');
+        // 初始化数据项的向量数据
+        数据项.vector = {};
+    }
+    return 数据项
+}
 export const 获取数据项向量字段值 = (数据项, 向量字段名) => {
     return 数据项.vector[向量字段名] || [];
 }
