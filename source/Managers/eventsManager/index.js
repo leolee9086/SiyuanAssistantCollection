@@ -89,18 +89,6 @@ export const registJobs = (Emitter) => {
         });
     });
 }
-
-sac.eventBus.on(DOM键盘事件表.文本输入, (e) => {
-    //显示tips(e)
-})
-sac.eventBus.on(DOM键盘事件表.组合结束, async (e) => {
-
-   /* sac.路由管理器.internalFetch('/indexBuilder/index/blocks', {
-        body: {},
-        method: "POST"
-    })*/
-})
-
 sac.eventBus.on('cron-job', async (e) => {
     let {
         cronTime,
