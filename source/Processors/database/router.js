@@ -9,6 +9,7 @@ const 向量存储 = {
 }
 let Router = sac.路由管理器.Router
 let databaseRouter = new Router()
+let 已初始化数据集 = []
 databaseRouter.post(
     '/collections/build', async (ctx, next) => {
         try {
@@ -23,7 +24,9 @@ databaseRouter.post(
             let 数据集 = 向量存储.公开向量数据库实例.创建数据集(
                 data.collection_name, data.file_path_key
             )
-            if (!数据集.数据加载中) {
+            if (!数据集.数据加载中&&已初始化数据集.indexOf(数据集)==='-1') {
+                已初始化数据集.push(数据集)
+
                 await 数据集.加载数据()
             }
             ctx.body = {
@@ -84,6 +87,8 @@ databaseRouter.post(
         } else if (本地块数据集.数据加载中) {
             console.warn(`数据集${data.collection_name}数据加载未完成`)
         }
+        if(本地块数据集){
+
         try {
             console.log(data)
             let result = await 本地块数据集.以向量搜索数据(data.vector_name, data.vector)
@@ -92,7 +97,7 @@ databaseRouter.post(
         catch (e) {
             ctx.error("查询中发现出现未知错误,请检查日志" + e)
         }
-
+    }
     }
 )
 databaseRouter.post(
@@ -108,6 +113,7 @@ databaseRouter.post(
         } else if (本地块数据集.数据加载中) {
             console.warn(`数据集${data.collection_name}数据加载未完成,但已经可以使用`)
         }
+        if(本地块数据集){
 
         try {
             if (data.with_meta) {
@@ -129,6 +135,7 @@ databaseRouter.post(
         catch (e) {
             ctx.error('查询中出现未知错误,请检查日志' + e.meesage)
         }
+    }
 
     }
 )
@@ -144,9 +151,10 @@ databaseRouter.post(
             ctx.error(`数据集${data.collection_name}不存在`)
 
         } else if (本地块数据集.数据加载中) {
-            ctx.error(`数据集${data.collection_name}数据加载未完成`)
+            console.warn(`数据集${data.collection_name}数据加载未完成`)
         }
-        else {
+        if(本地块数据集){
+
             try {
                 await 本地块数据集.删除数据(data.keys)
                 await 本地块数据集.保存数据()
@@ -171,13 +179,12 @@ databaseRouter.post(
             ctx.error(`数据集${data.collection_name}不存在`)
 
         } else if (本地块数据集.数据加载中) {
-            ctx.error(`数据集${data.collection_name}数据加载未完成`)
+            console.warn(`数据集${data.collection_name}数据加载未完成`)
 
         }
-        else {
+        if(本地块数据集){
             try {
                 await 本地块数据集.添加数据(data.vectors)
-                console.log(data)
                 await 本地块数据集.保存数据()
             }
             catch (e) {

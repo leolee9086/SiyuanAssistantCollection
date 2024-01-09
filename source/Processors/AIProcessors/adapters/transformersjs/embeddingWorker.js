@@ -56,13 +56,17 @@ export async function 提取向量(text, 最大句子长度) {
 
 export async function 批量提取向量(文本数组, 最大句子长度) {
     let 批量结果 = [];
-    for (let text of 文本数组) {
+    for (let 内容对象 of 文本数组) {
         try {
-            let 单个结果 = await 提取向量(text, 最大句子长度);
-            批量结果.push(单个结果);
+            let 单个结果 = await 提取向量(内容对象.content, 最大句子长度);
+            if(单个结果){
+             批量结果.push({id:内容对象.id,data:单个结果.data});
+            }else{
+             批量结果.push({id:内容对象.id,msg:"错误",detail:'索引器返回了空向量'})   
+            }
         } catch (e) {
             console.error(e);
-            批量结果.push({ msg: '错误', detail: e.message });
+            批量结果.push({id:内容对象.id, msg: '错误', detail: e.message });
         }
     }
     return 批量结果;
