@@ -1,4 +1,4 @@
-import { mixin } from "../../utils/mixin.js";
+import { mixin } from "../../../../utils/object/mixin.js";
 import { sac } from "../../../../asyncModules.js";
 export const getOpenAISetting = (options, mixinOptions) => {
     let _options = {

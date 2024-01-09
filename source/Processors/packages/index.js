@@ -1,4 +1,5 @@
 import { sac } from "../../asyncModules.js";
+import { 根据主题获取包管理器实例 } from "./publicUtils/getPackageHandler.js";
 const 包路由 = new sac.路由管理器.Router()
 包路由.post('/listPackageTypes', async (ctx, next) => {
     console.log(ctx)
@@ -17,7 +18,7 @@ const 包路由 = new sac.路由管理器.Router()
     const { topic } = ctx.req.body
     console.log(topic)
     if (topic) {
-        let packageHandeler = sac.statusMonitor.get('packages', topic).$value
+        let packageHandeler = 根据主题获取包管理器实例(topic)
         if (packageHandeler) {
             packageHandeler.enabled = true
             ctx.body = {
@@ -43,7 +44,7 @@ const 包路由 = new sac.路由管理器.Router()
     console.log(ctx)
     const { topic } = ctx.req.body
     if (topic) {
-        let packageHandeler = sac.statusMonitor.get('packages', topic).$value
+        let packageHandeler = 根据主题获取包管理器实例(topic)
         if (packageHandeler) {
             ctx.body = {
                 data: { enabled: packageHandeler.enabled },
@@ -65,7 +66,7 @@ const 包路由 = new sac.路由管理器.Router()
 })
 包路由.get('/:packageTypeTopic/list', async (ctx, next) => {
     let topic = ctx.params.packageTypeTopic
-    let packageHandeler = sac.statusMonitor.get('packages', topic).$value
+    let packageHandeler = 根据主题获取包管理器实例(topic)
     let { page = 1, pageSize = 10 } = ctx.query; // 获取页码和每页的数量，如果没有则默认为1和10
     let rssListData = await packageHandeler.local.list(page, pageSize)
     ctx.body = {
@@ -75,7 +76,7 @@ const 包路由 = new sac.路由管理器.Router()
 })
 包路由.post('/:packageTypeTopic/list', async (ctx, next) => {
     let topic = ctx.params.packageTypeTopic
-    let packageHandeler = sac.statusMonitor.get('packages', topic).$value
+    let packageHandeler = 根据主题获取包管理器实例(topic)
     let { page = 1, pageSize = 10 } = ctx.req.body; // 获取页码和每页的数量，如果没有则默认为1和10
     let rssListData = await packageHandeler.local.list(page, pageSize)
     ctx.body = {
@@ -85,7 +86,7 @@ const 包路由 = new sac.路由管理器.Router()
 })
 包路由.post('/:packageTypeTopic/listRemote', async (ctx, next) => {
     let topic = ctx.params.packageTypeTopic
-    let packageHandeler = sac.statusMonitor.get('packages', topic).$value
+    let packageHandeler =根据主题获取包管理器实例(topic)
     if (packageHandeler) {
         let PackagesList = await packageHandeler.remote.listFromAllRemoteSource()
         ctx.body = PackagesList
@@ -96,13 +97,13 @@ const 包路由 = new sac.路由管理器.Router()
 包路由.post('/:packageTypeTopic/meta', async (ctx, next) => {
     let topic = ctx.params.packageTypeTopic
     let { packageName } = ctx.req.body
-    let packageHandeler = sac.statusMonitor.get('packages', topic).$value
+    let packageHandeler = 根据主题获取包管理器实例(topic)
     ctx.body = await packageHandeler.local.getMeta(packageName)
 })
 包路由.post('/:packageTypeTopic/install', async (ctx, next) => {
     let topic = ctx.params.packageTypeTopic
     let packageInfo = ctx.req.body
-    let packageHandeler = sac.statusMonitor.get('packages', topic).$value
+    let packageHandeler = 根据主题获取包管理器实例(topic)
     if (packageHandeler) {
         ctx.body = await packageHandeler.installer.install(packageInfo)
     } else {
@@ -113,13 +114,13 @@ const 包路由 = new sac.路由管理器.Router()
 包路由.post('/:packageTypeTopic/uninstall', async (ctx, next) => {
     let topic = ctx.params.packageTypeTopic
     let packageInfo = ctx.req.body
-    let packageHandeler = sac.statusMonitor.get('packages', topic).$value
+    let packageHandeler =根据主题获取包管理器实例(topic)
     ctx.body = await packageHandeler.installer.uninstall(packageInfo)
 })
 包路由.post('/:packageTypeTopic/checkInstall', async (ctx, next) => {
     let topic = ctx.params.packageTypeTopic
     let packageInfo = ctx.req.body
-    let packageHandeler = sac.statusMonitor.get('packages', topic).$value
+    let packageHandeler = 根据主题获取包管理器实例(topic)
     ctx.body = await packageHandeler.installer.checkInstall(packageInfo)
 })
 

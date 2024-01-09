@@ -16,7 +16,7 @@ let 命名常量 = {
 export class 数据集 {
     constructor(数据集名称, 文件路径键名, logLevel, 数据库配置) {
         //数据集对象用于存储实际数据
-        this.文件路径键名 = 文件路径键名 || '';
+        this.文件路径键名 = 文件路径键名 || 命名常量.主键名;
         this.数据集名称 = 数据集名称;
         this.文件夹名称 = 迁移为合法文件夹名称(this.数据集名称)
         this.logLevel = logLevel;

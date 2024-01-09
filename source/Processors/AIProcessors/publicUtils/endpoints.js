@@ -1,6 +1,6 @@
-//这里封装一层,隔离向量化引擎与向量搜索
-import { sac } from "../runtime.js";
+import { sac } from "../../../asyncModules.js";
 let {internalFetch}=sac.路由管理器
+
 export const text2vec=async(text)=>{
     //这个的路由提供者是ai模块
     return await internalFetch('/ai/v1/embedding',{

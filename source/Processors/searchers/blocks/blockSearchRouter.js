@@ -1,6 +1,6 @@
 import { sac } from "../runtime.js";
 import { importWorker } from "../../../utils/webworker/workerHandler.js";
-import { text2vec } from "../utils/text2vec.js";
+import { text2vec } from "../../AIProcessors/publicUtils/endpoints.js";
 const simpleTextSearcherModule = importWorker(import.meta.resolve('./simpleTextSearcher.js'))
 await simpleTextSearcherModule.$eval(document.getElementById('protyleLuteScript').textContent)
 const vectorTextSearcherModule = importWorker(import.meta.resolve('./vectorSearcher.js'))

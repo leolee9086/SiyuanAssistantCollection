@@ -33,7 +33,6 @@ let 索引器路由 = new Router()
                 清理块索引( res.body.data.collection_name)
             },1000
         )
-    
     }
 )
 
