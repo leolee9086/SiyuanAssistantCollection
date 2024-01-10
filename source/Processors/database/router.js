@@ -85,12 +85,11 @@ databaseRouter.post(
         if (!本地块数据集) {
             ctx.error(`数据集${data.collection_name}不存在`)
         } else if (本地块数据集.数据加载中) {
-            console.warn(`数据集${data.collection_name}数据加载未完成`)
+            sac.logger.databasewarn(`数据集${data.collection_name}数据加载未完成`)
         }
         if (本地块数据集) {
 
             try {
-                console.log(data)
                 let result = await 本地块数据集.以向量搜索数据(data.vector_name,data.vector,data.limit,data.filter_before,data.filter_after)
                 ctx.body.data = result
             }

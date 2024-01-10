@@ -43,20 +43,23 @@ const totalHeight = ref(0);
 sac.eventBus.on('logger-add', (e) => {
     let { messages } = e.detail;
     if (Array.isArray(messages)) {
-        messages.forEach(
-            item => {
-                item.id = item.id || Lute.NewNodeID()
-                loggerItems.push(item)
-                levels.add(item.level);
-                names.add(item.name)
-            }
-        )
+        messages.forEach(item => {
+            item.id = item.id || Lute.NewNodeID();
+            loggerItems.push(item);
+            levels.add(item.level);
+            names.add(item.name);
+        });
     } else {
-        messages.id = messages.id || Lute.NewNodeID()
+        messages.id = messages.id || Lute.NewNodeID();
         loggerItems.push(messages);
         levels.add(messages.level);
-        names.add(messages.name)
-
+        names.add(messages.name);
+    }
+    // 检查loggerItems的长度，如果超过100，删除最早的日志项
+    while (loggerItems.length > 100) {
+        const removedItem = loggerItems.shift(); // 删除并获取数组的第一个元素
+        // 可选：如果需要，更新levels和names集合
+        // 这取决于是否需要从集合中删除不再存在于loggerItems中的项
     }
 });
 // 计算属性来收集所有不同的日志级别
