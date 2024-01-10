@@ -39,8 +39,36 @@ function genLocalPackageOperations(packageDefine) {
                 return []
             }
         },
-        async getStatus() {
+        //status包含了包类型中所有包的状态
+        async getAllStatus() {
+            let statusFile =path.join(replacePath(packageDefine.location),packageDefine.status||"status.json")
+            if(await fs.exists(statusFile)){
+                return JSON.parse(statusFile)
+            }else{
+                return {}
+            }
             // Implement getStatus method
+        },
+        async getStatus(packageName){
+            let allStatus = this.getAllStatus()
+            return allStatus[packageName]
+        },
+        async initStatus(packageName){
+            let status = await this.getAllStatus()
+            if(status[packageName]){
+                return status[packageName]
+            }
+            let meta = await this.getMeta(packageName)
+            if(packageDefine.initStatus){
+                let data =  await packageDefine.initStatus(meta,packageName)
+                this.status[packageName]=data
+                await fs.writeFile(statusFile,JSON.stringify(this.status))
+                return this.status[packageName]
+            }else{
+                this.status[packageName]=JSON.parse(JSON.stringify(meta))
+                await fs.writeFile(statusFile,JSON.stringify(this.status))
+                return this.status[packageName]
+            }
         },
         async writeStatus(packageName, status) {
             // Implement writeStatus method

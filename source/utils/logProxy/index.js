@@ -1,7 +1,6 @@
-import fs from '../polyfills/fs.js'
-import {  plugin } from '../asyncModules.js';
+import fs from '../../polyfills/fs.js'
+import { plugin, sac } from '../../asyncModules.js';
 import { safeStringify } from './safeStringify.js';
-import { sac } from '../asyncModules.js';
 let chunk = []
 const writeToFile = async () => {
   let currentHour = new Date().toISOString().slice(0, 13)
@@ -11,29 +10,36 @@ const writeToFile = async () => {
   await fs.writeFile(filename, filecontent)
   chunk = [] // 清空缓存
 }
-
-// 每十分钟执行一次写入操作
-setInterval(async () => {
-  try {
-    if (chunk.length > 0) {
-      // 触发事件，将chunk内容发送出去
-      sac.eventBus.emit('logger-add', { message: chunk } );
-      chunk = []; // 发送后清空chunk
-    }
-  } catch (error) {
-    console.error('写入文件时发生错误:', error);
+let addLog = async (messages) => {
+  const maxSize = 1024*10; // 设置最大大小，例如1MB
+  let massageString = ""
+  let messageSize =0
+  try{
+    massageString =JSON.stringify(messages)
+     messageSize = new Blob([JSON.stringify(messages)]).size; // 估计大小
+  }catch(e){
+    console.error('无法发送消息',e,messages)
   }
-}, 1000)
+  if (messageSize > maxSize) {
+    console.error('Message too large to send',messages);
+    return; // 如果过大，拒绝发送
+  }
+  sac.eventBus.emit('logger-add', { messages });
+}
+let writters = new Map(
+  [
+    ['log', [{ writeObject: async function (...message) { addLog(message) } }]],
+    ['warn', [{ writeObject: async function (...message) { addLog(message) } }]],
+    ['info', [{ writeObject: async function (...message) { addLog(message) } }]],
+    ['error', [{ writeObject: async function (...message) { addLog(message) } }]],
+    ['debug', [{ writeObject: async function (...message) { addLog(message) } }]]
+  ]
+)
+
 class 日志记录器原型 {
   constructor(config) {
     this.config = {
-      writters: new Map([
-        ['log', [{ write: async function(...message) { console.log(...message); chunk.push(safeStringify(message)) } }]],
-        ['warn', [{ write: async function(...message) { console.warn(...message); chunk.push(safeStringify(message)) } }]],
-        ['info', [{ write: async function(...message) { console.info(...message); chunk.push(safeStringify(message))} }]],
-        ['error', [{ write: async function(...message) { console.error(...message); chunk.push(safeStringify(message)) } }]],
-        ['debug', [{ write: async function(...message) { console.debug(...message); chunk.push(safeStringify(message)) } }]]
-      ]),
+      writters: writters,
       maxRetries: 5,
       ...config
     };
@@ -65,21 +71,27 @@ class 日志记录器原型 {
     const 原始调用栈 = new Error().stack;
     const lines = 原始调用栈.split('\n')
     const newStackTrace = lines.slice(3).join('\n')  // Join the remaining lines back together
-    if (!plugin.configurer.get('日志设置', 日志名称).$value) {
+   /* if (!plugin.configurer.get('日志设置', 日志名称).$value) {
       //将日志级别初始化为false
       if (plugin.configurer.get('日志设置', 日志名称).$value === undefined) {
         plugin.configurer.set('日志设置', 日志名称, false)
         console.warn('没有设置日志类型,初始化为false', 日志名称, '请注意', newStackTrace)
       }
       return
-    }
+    }*/
     // Get the current stack trace
     // Send log message to all writters of the corresponding level
     for (const writter of this.config.writters.get(日志级别)) {
       let 重试次数 = 0;
       while (重试次数 < this.config.maxRetries) {
         try {
-          writter.write(日志级别 + ' of ' + 日志名称 + ' :\n ', ...messages, '\n' + 'stack:\n' + newStackTrace);
+          writter.writeObject&&writter.writeObject({
+            level: 日志级别,
+            name: 日志名称,
+            messages: messages,
+            stack: newStackTrace&&newStackTrace.split("\n")
+          });
+          writter.write&&writter.write(日志级别 + ' of ' + 日志名称 + ' :\n ', ...messages, '\n' + 'stack:\n' + newStackTrace);
           break;  // If the write is successful, break the loop
         } catch (error) {
           console.error(`Failed to send ${日志级别} message to writter:`, error);

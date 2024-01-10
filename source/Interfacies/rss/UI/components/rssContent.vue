@@ -27,7 +27,6 @@ onMounted(async () => {
     const feed = await response.body;
     content.value.value = lute.SpinBlockDOM(feed.description);
     link.value.value = Lute.EscapeHTMLStr(feed.link);
-
 });
 const openlink=(e)=>{
     let href = e.currentTarget.getAttribute('href')

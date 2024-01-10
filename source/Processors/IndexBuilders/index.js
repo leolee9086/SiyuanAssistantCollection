@@ -27,7 +27,7 @@ let 索引器路由 = new Router()
 })
 初始化块数据集().then(
     res=>{
-        console.log(res)
+        sac.logger.log(res)
         setInterval(
             ()=>{
                 清理块索引( res.body.data.collection_name)

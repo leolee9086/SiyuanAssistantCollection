@@ -1,14 +1,13 @@
 <template>
-  <CcGrid class="rss-card-grid fn__flex-1" :items="items">
-    <template v-for="(item,i) in items" :key="item.link">
+  <div class="rss-card-grid fn__flex-1" :items="items">
+    <template v-for="(item,i) in items" :key="item.link+i">
       <div class="rss-card" @click="() => openContent(item,i)">
         <h2 class="rss-card__title">{{ item.title }}</h2>
         <p class="rss-card__content" v-html="safeContent(item.content)"></p>
         <a :href="item.link" target="_blank" class="rss-card__link">打开来源页</a>
       </div>
     </template>
-
-  </CcGrid>
+  </div>
 </template>
 <script setup>
 import { ref, onMounted, inject } from 'vue';

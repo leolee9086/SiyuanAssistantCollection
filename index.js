@@ -51,9 +51,9 @@ class ccPlugin extends Plugin {
     moduleURL = this.resolve(moduleURL)
     console.log(moduleURL)
     const 定义属性 = async (obj, name, value, options = {}) => {
-      /*  if (obj.hasOwnProperty(name)) {
+       if (obj.hasOwnProperty(name)) {
           throw new Error(`属性${name}已经存在，不要覆盖它`);
-        }*/
+        }
       const { 只读 = true, 别名 = name } = options;
       Object.defineProperty(obj, 别名, {
         value: value,
@@ -126,12 +126,32 @@ class SiyuanAssistantCollection extends ccPlugin {
     this.初始化插件同步状态()
     //后面的部分还在整理
     this.初始化插件异步状态()
+    this.loggerProxy=new Proxy({}, {
+      get(target, prop, receiver) {
+        if (prop in console) {
+          return console[prop];
+        } else {
+          return console.log;
+        }
+      }
+    });
   }
   onLayoutReady() {
     this.eventBus.emit('layout-tabs-ready', this.getOpenedTab())
 
   }
+  get logger(){
+    if(!this.日志代理){
+      return this.loggerProxy
+    }else{
+      return this.日志代理.logger
+    }
+  }
+  
+  get log(){
+    return this.日志代理&&this.日志代理.logger.log?this.日志代理.logger.log:this.loggerProxy.log
 
+  }
   //因为同步状态管理也有点多了所以我们重新require一下吧
   require(moduleName) {
     const moduleCache = {
@@ -174,6 +194,7 @@ class SiyuanAssistantCollection extends ccPlugin {
     //这里是创建UI容器,因为dock等需要同步创建
     //基础设置的读取是同步进行的
     this.require('./source/UIContainers.js')
+    
   }
   读取基础设置() {
     let xhr = new XMLHttpRequest();
@@ -206,33 +227,35 @@ class SiyuanAssistantCollection extends ccPlugin {
   }
   async 加载管理器() {
     //用于管理事件,所有的事件全部由此处触发和处理
-    this.log('开始加载事件管理器')
+    this.logger.log('开始加载事件管理器')
     await this.从esm模块('./source/Managers/eventsManager/index.js').合并子模块('事件管理器')
-    this.log('事件管理器加载完毕')
+    this.logger.log('事件管理器加载完毕')
     //用于管理各种相关包的下载
-    this.log('加载包管理器')
+    this.logger.log('加载包管理器')
     await this.从esm模块('./source/Managers/packageManager/index.js').合并子模块('包管理器')
-    this.log('包管理器加载完毕')
+    this.logger.log('包管理器加载完毕')
     //用于管理各种路由
-    this.log('加载函数路由管理器')
+    this.logger.log('加载函数路由管理器')
     await this.从esm模块('./source/Managers/routerManager/index.js').合并子模块('路由管理器')
-    this.log('函数路由管理器加载完毕')
+    this.logger.log('函数路由管理器加载完毕')
     await this.从esm模块('./source/Managers/uiManager/index.js').合并子模块('UI管理器')
-    this.log('ui管理器加载完毕')
+    this.logger.log('ui管理器加载完毕')
     //console.log('开始加载搜索管理器')
     //await this.从esm模块('./source/searchers/index.js').设置模块为只读属性("搜索管理器")
     //console.log('搜索管理器加载完毕')
   }
+
   async 加载子模块() {
+    await this.从esm模块('./source/utils/logProxy/index.js').合并子模块("日志代理")
+
     //后端模块加载的顺序就无所谓了,反正互相之间没有强依赖关系
     this.从esm模块('./source/Processors/packages/index.js').合并子模块('包处理器').then(
       async () => {
         await this.路由管理器.根路由.use('/packages', this.包处理器.router.routes('/'))
         await this.从esm模块('./source/Interfacies/admin/index.js').合并子模块('控制台').then(
-          () => {
+         async () => {
             let emitter = this.事件管理器.use(this.控制台.Emitter)
             this.UI管理器.useTabs(this.控制台.tabs, emitter)
-
           }
         )
       }
@@ -282,13 +305,7 @@ class SiyuanAssistantCollection extends ccPlugin {
     )
  
   }
-  log(...args) {
-    if (this.日志记录器) {
-      this.日志记录器.default.pluginMainlog(...args)
-    } else {
-      console.log(...args)
-    }
-  }
+ 
   async 设置Lute() {
     this._lute = this.setLute({
       headingAnchor: false,

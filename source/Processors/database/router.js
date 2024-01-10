@@ -24,9 +24,8 @@ databaseRouter.post(
             let 数据集 = 向量存储.公开向量数据库实例.创建数据集(
                 data.collection_name, data.file_path_key
             )
-            if (!数据集.数据加载中&&已初始化数据集.indexOf(数据集)==='-1') {
+            if (!数据集.数据加载中 && 已初始化数据集.indexOf(数据集) === -1) {
                 已初始化数据集.push(数据集)
-
                 await 数据集.加载数据()
             }
             ctx.body = {
@@ -77,7 +76,8 @@ databaseRouter.post(
             vector: [],
             collection_name: '',
             limit: 10,
-            filter: '',
+            filter_before: '',
+            filter_after:"",
             output_fields: '',
             ...ctx.req.body
         }
@@ -87,17 +87,17 @@ databaseRouter.post(
         } else if (本地块数据集.数据加载中) {
             console.warn(`数据集${data.collection_name}数据加载未完成`)
         }
-        if(本地块数据集){
+        if (本地块数据集) {
 
-        try {
-            console.log(data)
-            let result = await 本地块数据集.以向量搜索数据(data.vector_name, data.vector)
-            ctx.body.data = result
+            try {
+                console.log(data)
+                let result = await 本地块数据集.以向量搜索数据(data.vector_name,data.vector,data.limit,data.filter_before,data.filter_after)
+                ctx.body.data = result
+            }
+            catch (e) {
+                ctx.error("查询中发现出现错误,请检查日志" + e)
+            }
         }
-        catch (e) {
-            ctx.error("查询中发现出现未知错误,请检查日志" + e)
-        }
-    }
     }
 )
 databaseRouter.post(
@@ -113,29 +113,28 @@ databaseRouter.post(
         } else if (本地块数据集.数据加载中) {
             console.warn(`数据集${data.collection_name}数据加载未完成,但已经可以使用`)
         }
-        if(本地块数据集){
-
-        try {
-            if (data.with_meta) {
-                ctx.body.data = 本地块数据集.主键列表.map(
-                    item => {
-                        return {
-                            id: item,
-                            meta: 本地块数据集.数据集对象[item].meta
+        if (本地块数据集) {
+            try {
+                if (data.with_meta) {
+                    ctx.body.data = 本地块数据集.主键列表.map(
+                        item => {
+                            return {
+                                id: item,
+                                meta: 本地块数据集.数据集对象[item].meta
+                            }
                         }
-                    }
-                )
-                ctx.body.msg = 0
-            } else {
-                ctx.body.data = 本地块数据集.主键列表
-                ctx.body.msg = 0
+                    )
+                    ctx.body.msg = 0
+                } else {
+                    ctx.body.data = 本地块数据集.主键列表
+                    ctx.body.msg = 0
 
+                }
+            }
+            catch (e) {
+                ctx.error('查询中出现未知错误,请检查日志' + e.meesage)
             }
         }
-        catch (e) {
-            ctx.error('查询中出现未知错误,请检查日志' + e.meesage)
-        }
-    }
 
     }
 )
@@ -153,8 +152,7 @@ databaseRouter.post(
         } else if (本地块数据集.数据加载中) {
             console.warn(`数据集${data.collection_name}数据加载未完成`)
         }
-        if(本地块数据集){
-
+        if (本地块数据集) {
             try {
                 await 本地块数据集.删除数据(data.keys)
                 await 本地块数据集.保存数据()
@@ -163,6 +161,22 @@ databaseRouter.post(
                 ctx.error("删除数据时发生错误,请检查日志" + e)
 
             }
+        }
+    }
+)
+databaseRouter.post(
+    '/isLoading', async (ctx, next) => {
+        let data = {
+            collection_name: '',
+            keys: [],
+            ...ctx.req.body
+        }
+        let 本地块数据集 = 向量存储.公开向量数据库实例.根据名称获取数据集(data.collection_name)
+        if (!本地块数据集) {
+            ctx.error(`数据集${data.collection_name}不存在`)
+
+        } else if (本地块数据集.数据加载中) {
+            ctx.body
         }
     }
 )
@@ -182,7 +196,7 @@ databaseRouter.post(
             console.warn(`数据集${data.collection_name}数据加载未完成`)
 
         }
-        if(本地块数据集){
+        if (本地块数据集) {
             try {
                 await 本地块数据集.添加数据(data.vectors)
                 await 本地块数据集.保存数据()
@@ -191,7 +205,6 @@ databaseRouter.post(
                 ctx.error("添加数据时发生错误,请检查日志" + e)
             }
         }
-
     }
 )
 export { databaseRouter }

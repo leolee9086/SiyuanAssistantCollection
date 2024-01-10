@@ -24,7 +24,7 @@ export const 清理块索引 = async (数据集名称) => {
             item => { return !data.includes(item.id) }
         )
         if (id数组1.length) {
-            console.log(`删除${id数组1.length}条多余索引`)
+            sac.logger.indexlog(`删除${id数组1.length}条多余索引`)
             await internalFetch('/database/delete', {
                 method: "POST", body: {
                     collection_name: 数据集名称,
@@ -50,10 +50,10 @@ export const 定时获取更新块 = async () => {
         if(索引正在更新中){
             间隔时间 = Math.min(间隔时间 +1000, 最大间隔时间);
 
-            console.log(`索引正在更新中,${间隔时间/1000}秒后重试`)
+            sac.logger.indexlog(`索引正在更新中,${间隔时间/1000}秒后重试`)
             return  
         }
-        console.log(`当前索引更新间隔为:${间隔时间 / 1000}秒`)
+        sac.logger.indexlog(`当前索引更新间隔为:${间隔时间 / 1000}秒`)
         let 已获取块哈希数组 = Array.from(已索引块哈希).map(hash => `'${hash}'`).join(',');
         let 更新块SQL = 已获取块哈希数组.length > 0
             ? `select * from blocks where hash NOT IN (${已获取块哈希数组}) AND content <> '' order by updated desc limit 100`
@@ -70,7 +70,8 @@ export const 定时获取更新块 = async () => {
         } else {
             // 如果没有获取到新的块，指数级增加间隔时间，但不超过最大间隔时间
             间隔时间 = Math.min(间隔时间 * 2, 最大间隔时间);
-            console.log(`未找到更新的块，增加间隔时间至${间隔时间}毫秒`);
+            
+            sac.logger.indexlog(`未找到更新的块，增加间隔时间至${间隔时间}毫秒`);
         }
     };
 
@@ -86,7 +87,7 @@ export const 定时获取更新块 = async () => {
 
 export function 定时实行块索引添加(retryInterval = 1000) {
     if(!待索引数组.length&&索引失败数组.lenght){
-         console.log(`队列清空,放回${索引失败数组.lenght}个块`)
+        sac.logger.indexlog(`队列清空,放回${索引失败数组.lenght}个块`)
          索引失败数组.forEach(
             block=>{
                 待索引数组.push(block)
@@ -140,7 +141,7 @@ export function 定时实行块索引添加(retryInterval = 1000) {
                         }
                     });
                     if(结果数组.length){
-                        console.log(`
+                        sac.logger.indexlog(`
 已索引以下${成功索引块.length}个块: \n${成功索引块.map(块 => 块.id)};
 索引中块${索引中块哈希.size}个
 索引耗时:${索引耗时}毫秒,待索引块数量为${待索引数组.length}个;
@@ -154,7 +155,7 @@ export function 定时实行块索引添加(retryInterval = 1000) {
         }
         setTimeout(定时实行块索引添加, retryInterval); // 设置一个合理的间隔时间，例如1秒，以避免CPU过载
     } else {
-        console.log('待索引数组为空，没有更多块需要索引。');
+        sac.logger.indexlog('待索引数组为空，没有更多块需要索引。');
         setTimeout(定时实行块索引添加, retryInterval); // 设置一个合理的间隔时间，例如1秒，以避免CPU过载
     }
 }
@@ -191,7 +192,7 @@ function indexBlocks(blocks, callback) {
             }
         }).then(
             res => {
-                console.log()
+                sac.logger.indexlog()
                 callback(res.body,其他线程索引中块.length);
             }
         )
@@ -200,7 +201,5 @@ function indexBlocks(blocks, callback) {
         callback([],其他线程索引中块.length);
     }
 }
-
 定时实行块索引添加()
-
 定时获取更新块();

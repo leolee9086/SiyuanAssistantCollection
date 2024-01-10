@@ -3,7 +3,7 @@ export const tabs = {
     "packageManage": {
         init: (element, data, tab) => {
             const app = initVueApp(
-                import.meta.resolve('./components/PackageCards.vue'),
+                import.meta.resolve('./components/logger/loggerList.vue'),
                 'rsscontent', {},
                 'D:/思源主库/data/plugins/SiyuanAssistantCollection/source', { ...data })
             app.mount(element)

@@ -14,7 +14,7 @@ try {
         }
     })
 } catch (e) {
-    console.error(e)
+    sac.logger.indexError(e)
 }
 async function 处理入库队列() {
     if (正在添加) {
@@ -22,7 +22,7 @@ async function 处理入库队列() {
     }
     if (已索引未入库队列.length > 0) {
         正在添加 = true
-        console.log(`当前入库队列长度为${已索引未入库队列.length}`)
+        sac.logger.indexlog(`当前入库队列长度为${已索引未入库队列.length}`)
         await 添加到块数据集(已索引未入库队列); // 将数据项添加到数据库
     }
 

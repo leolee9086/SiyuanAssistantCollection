@@ -17,7 +17,7 @@ ai路由.post('/v1/embedding', async (ctx) => {
     let {input,model}=requestData
     // 使用openAI嵌入字符串
     let result =await (await 选择后端模型(model))(input);
-    console.log(result)
+    sac.logger.airouterlog(`成功向量化`,`成功向量化,使用模型为${model}`)
     // 将结果返回给客户端
     ctx.body = result;
 });
