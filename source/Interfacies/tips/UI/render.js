@@ -69,10 +69,6 @@ function 限制待添加数组长度() {
     }
 }
 
-
-
-
-
 let controller = new AbortController();
 let { signal } = controller;
 // 批量渲染函数，使用上述拆分的函数
@@ -114,3 +110,13 @@ function 安排合并tips数组() {
 }
 
 安排合并tips数组();
+export function 处理并显示tips(data, element, 编辑器上下文) {
+    data.source = renderInstance.name;
+    for (let tipsItem of data.item) {
+        tipsItem.targetBlocks = [编辑器上下文.blockID];
+        tipsItem.source = tipsItem.source || renderInstance.name;
+        tipsItem.type = 'keyboardTips';
+
+    }
+    showTips(data, element, 编辑器上下文);
+}

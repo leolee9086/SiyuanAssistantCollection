@@ -2,6 +2,7 @@ import { sac } from "../runtime.js";
 import RSSRoute from './rssLoader/routeMapV1.js'
 import { buildFeedXML } from "./content/xml.js";
 import { getFeedJson } from "./getFeedJson.js";
+import { handleFeedQueryVector } from "./rssCache.js";
 const rssPackagesAsync = async () => { return await sac.statusMonitor.get('packages', 'sac-rss-adapter').$value }
 export let enabled = {}
 let configs = {}
@@ -86,6 +87,7 @@ rssrouter.post('/addFeed', async (ctx, next) => {
 rssrouter.post('/feed', handleFeedRequest);
 rssrouter.post('/feedContent',handleFeedContentRequest);
 rssrouter.get('/feed/:path*', handleFeedRequest);
+rssrouter.post('/vector',handleFeedQueryVector)
 async function handleFeedRequest(ctx, next) {
     let format = 'json';
     let remote;

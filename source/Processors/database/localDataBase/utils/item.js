@@ -73,5 +73,14 @@ export const 去除特殊键值 = (数据项) => {
     return 数据项;
 };
 export const 对分片执行去除特殊键值 = (分片) => {
-    return 分片.map(数据项 => 去除特殊键值(数据项));
+    if (Array.isArray(分片)) {
+        // 如果分片是数组，对每个元素执行去除特殊键值
+        return 分片.map(数据项 => 去除特殊键值(数据项));
+    } else {
+        // 如果分片是对象，对每个键值执行去除特殊键值
+        Object.keys(分片).forEach(key => {
+            分片[key] = 去除特殊键值(分片[key]);
+        });
+        return 分片;
+    }
 };

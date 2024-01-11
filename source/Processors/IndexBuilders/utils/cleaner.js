@@ -1,19 +1,28 @@
 import { sac, kernelApi } from "../../../asyncModules.js";
 import { 添加到入库队列 } from "./adder.js";
+import fs from "../../../polyfills/fs.js";
 let { internalFetch } = sac.路由管理器
 let 已索引块哈希 = new Set();
 let 待索引数组 = [];
-let 索引失败数组= []
-let 索引中块哈希= new Set()
-let 索引正在更新中 =false
+let 索引失败数组 = []
+let 索引中块哈希 = new Set()
+let 索引正在更新中 = false
 export const 清理块索引 = async (数据集名称) => {
+
+
     let id数组查询结果 = await internalFetch('/database/keys', {
         method: 'POST',
         body: {
             collection_name: 数据集名称
         }
     })
-    id数组查询结果.body.data.forEach(item => 已索引块哈希.add(item.meta.hash))
+    let ids = id数组查询结果.body.data
+
+    ids.forEach(item => 已索引块哈希.add(item.meta.hash))
+    if (await fs.exists('/temp/noobTemp/blockHashs.json')) {
+        let 缓存的已索引结果 = JSON.parse(await fs.readFile('/temp/noobTemp/blockHashs.json'))
+        缓存的已索引结果.forEach(item => 已索引块哈希.add(item))
+    }
     let idSQL = `select id,hash from blocks  where content <> '' order by updated desc limit 102400`
     let data = kernelApi.SQL.sync({ 'stmt': idSQL })
     if (data) {
@@ -28,30 +37,44 @@ export const 清理块索引 = async (数据集名称) => {
             await internalFetch('/database/delete', {
                 method: "POST", body: {
                     collection_name: 数据集名称,
-                    keys: id数组1.map(item=>{return item.id})
+                    keys: id数组1.map(item => { return item.id })
                 }
             })
         }
     }
+    await fs.writeFile('/temp/noobTemp/blockHashs.json', JSON.stringify(Array.from(已索引块哈希)))
 }
 export const 定时获取更新块 = async () => {
+    try {
+        await sac.路由管理器.internalFetch('/database/collections/build', {
+            method: "POST",
+            body: {
+                collection_name: 'blocks',
+                main_key: 'id',
+                file_path_key: 'box',
+
+            }
+        }
+        )
+    } catch (e) {
+        console.error(e)
+    }
     let 初始间隔时间 = 3000
     let 间隔时间 = 初始间隔时间; // 初始间隔时间为1000毫秒
     const 最小间隔时间 = 1000; // 最短间隔时间为1秒
     const 最大间隔时间 = 600000; // 最长间隔时间为十分钟
 
     sac.eventBus.on('ws-main', (e) => {
-        if(e.detail.cmd==="transactions"){
-            间隔时间 = Math.max(最小间隔时间, 间隔时间 - 10000); 
+        if (e.detail.cmd === "transactions") {
+            间隔时间 = Math.max(最小间隔时间, 间隔时间 - 10000);
         }
-      // 每次减少10秒，但不低于1秒
+        // 每次减少10秒，但不低于1秒
     });
     const 获取更新的块 = () => {
-        if(索引正在更新中){
-            间隔时间 = Math.min(间隔时间 +1000, 最大间隔时间);
-
-            sac.logger.indexlog(`索引正在更新中,${间隔时间/1000}秒后重试`)
-            return  
+        if (索引正在更新中) {
+            间隔时间 = Math.min(间隔时间 + 1000, 最大间隔时间);
+            sac.logger.indexlog(`索引正在更新中,${间隔时间 / 1000}秒后重试`)
+            return
         }
         sac.logger.indexlog(`当前索引更新间隔为:${间隔时间 / 1000}秒`)
         let 已获取块哈希数组 = Array.from(已索引块哈希).map(hash => `'${hash}'`).join(',');
@@ -70,8 +93,8 @@ export const 定时获取更新块 = async () => {
         } else {
             // 如果没有获取到新的块，指数级增加间隔时间，但不超过最大间隔时间
             间隔时间 = Math.min(间隔时间 * 2, 最大间隔时间);
-            
-            sac.logger.indexlog(`未找到更新的块，增加间隔时间至${间隔时间}毫秒`);
+
+            sac.logger.indexlog(`未找到更新的块，增加新内容发现间隔时间至${间隔时间}毫秒`);
         }
     };
 
@@ -86,14 +109,14 @@ export const 定时获取更新块 = async () => {
 };
 
 export function 定时实行块索引添加(retryInterval = 1000) {
-    if(!待索引数组.length&&索引失败数组.lenght){
+    if (!待索引数组.length && 索引失败数组.lenght) {
         sac.logger.indexlog(`队列清空,放回${索引失败数组.lenght}个块`)
-         索引失败数组.forEach(
-            block=>{
+        索引失败数组.forEach(
+            block => {
                 待索引数组.push(block)
             }
-         )
-         索引失败数组 = []; // 清空索引失败数组
+        )
+        索引失败数组 = []; // 清空索引失败数组
 
     }
     if (待索引数组.length > 0) {
@@ -107,10 +130,10 @@ export function 定时实行块索引添加(retryInterval = 1000) {
             if (待处理的块数组.length > 0) {
                 let 索引开始时间 = Date.now(); // 记录索引开始的时间
                 let 索引开始前已索引块数量 = 已索引块哈希.size
-                indexBlocks(待处理的块数组, (结果数组,其他线程索引中块数量) => {
+                indexBlocks(待处理的块数组, (结果数组, 其他线程索引中块数量) => {
                     let 索引结束时间 = Date.now(); // 记录索引结束的时间
                     let 索引耗时 = 索引结束时间 - 索引开始时间; // 计算索引耗时
-                    let 成功索引块 =[]
+                    let 成功索引块 = []
                     结果数组.forEach((结果) => {
                         if (!(结果 && 结果.data && 结果.data.length > 0)) {
                             // 当返回值中的结果的data不是一个非空数组时，根据结果的id将块放回索引失败数组
@@ -140,12 +163,12 @@ export function 定时实行块索引添加(retryInterval = 1000) {
                             }
                         }
                     });
-                    if(结果数组.length){
+                    if (结果数组.length) {
                         sac.logger.indexlog(`
 已索引以下${成功索引块.length}个块: \n${成功索引块.map(块 => 块.id)};
 索引中块${索引中块哈希.size}个
 索引耗时:${索引耗时}毫秒,待索引块数量为${待索引数组.length}个;
-本轮平均处理时长为${Math.floor(索引耗时 / 待处理的块数组.length)}毫秒,总计${待处理的块数组.length}个块,其中${待处理的块数组.length-成功索引块.length-其他线程索引中块数量}个块处理失败,${其他线程索引中块数量}个块在处理中已经跳过;
+本轮平均处理时长为${Math.floor(索引耗时 / 待处理的块数组.length)}毫秒,总计${待处理的块数组.length}个块,其中${待处理的块数组.length - 成功索引块.length - 其他线程索引中块数量}个块处理失败,${其他线程索引中块数量}个块在处理中已经跳过;
 已完成索引${已索引块哈希.size}个块;本轮索引开始时已成功索引数量${索引开始前已索引块数量}
                         `);
 
@@ -153,10 +176,10 @@ export function 定时实行块索引添加(retryInterval = 1000) {
                 });
             }
         }
-        setTimeout(定时实行块索引添加, retryInterval); // 设置一个合理的间隔时间，例如1秒，以避免CPU过载
+        setTimeout(定时实行块索引添加, Math.max(retryInterval, 1000)); // 设置一个合理的间隔时间，例如1秒，以避免CPU过载
     } else {
-        sac.logger.indexlog('待索引数组为空，没有更多块需要索引。');
-        setTimeout(定时实行块索引添加, retryInterval); // 设置一个合理的间隔时间，例如1秒，以避免CPU过载
+        sac.logger.indexlog(`待索引数组为空，没有更多块需要索引。共计索引${已索引块哈希.size}个块`);
+        setTimeout(定时实行块索引添加, retryInterval*2); // 设置一个合理的间隔时间，例如1秒，以避免CPU过载
     }
 }
 
@@ -164,20 +187,20 @@ export function 定时实行块索引添加(retryInterval = 1000) {
 function indexBlocks(blocks, callback) {
     // 索引逻辑实现...
     // 索引完成后调用回调
-    let 其他线程索引中块=[]
+    let 其他线程索引中块 = []
     let strings = blocks.map(block => {
         if (索引中块哈希.has(block.hash)) {
             其他线程索引中块.push(block)
             return
-        } 
-        else{
+        }
+        else {
             索引中块哈希.add(block.hash)
-            return {id:block.id,content:block.content}
+            return { id: block.id, content: block.content }
         }
     }).filter(
-        item=>{return item}
+        item => { return item }
     )
-    if(strings[0]){
+    if (strings[0]) {
         internalFetch('/ai/v1/embedding', {
             method: "POST",
             body: {
@@ -193,12 +216,12 @@ function indexBlocks(blocks, callback) {
         }).then(
             res => {
                 sac.logger.indexlog()
-                callback(res.body,其他线程索引中块.length);
+                callback(res.body, 其他线程索引中块.length);
             }
         )
-    
-    }else{
-        callback([],其他线程索引中块.length);
+
+    } else {
+        callback([], 其他线程索引中块.length);
     }
 }
 定时实行块索引添加()

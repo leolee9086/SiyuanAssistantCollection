@@ -114,6 +114,17 @@ export  function 柯里化(原始函数) {
       }
   };
 }
+export function 左向柯里化(原始函数) {
+  return function 反向柯里化版本函数(...输入参数) {
+    if (输入参数.length >= 原始函数.length) {
+      return 原始函数.apply(this, 输入参数.slice(0, 原始函数.length));
+    } else {
+      return function(...args2) {
+        return 反向柯里化版本函数.apply(this, 输入参数.concat(args2));
+      };
+    }
+  };
+}
 export function 等待参数达到长度后执行(原始函数, 预定长度) {
   let 柯里化版本函数 = 柯里化(原始函数);
   return function(...输入参数) {

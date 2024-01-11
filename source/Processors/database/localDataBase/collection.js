@@ -277,8 +277,7 @@ export class 数据集 {
         let 数据集对象 = this.数据集对象;
         let 分组数据 = await this.创建分组数据(数据集对象);
         await this.写入分组数据(分组数据);
-        await fs.writeFile(this.索引文件名称, JSON.stringify(
-            data||元数据));
+        await fs.writeFile(this.索引文件名称, JSON.stringify(data||元数据));
         this.待保存数据分片 = {};
         this.待保存路径值 = {};
         this.已经修改 = false;

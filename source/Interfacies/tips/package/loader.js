@@ -38,8 +38,8 @@ function 初始化渲染实例(renderClass, renderName) {
             data.source = renderInstance.name
             data.item.forEach(
                 item => {
-                    item.targetBlocks = [editorContext.blockID]
-                    item.source = renderInstance.name
+                    item.targetBlocks =item.targetBlocks|| [editorContext.blockID]
+                    item.source = item.source||renderInstance.name
                 }
             )
             sac.statusMonitor.get('tips','current').$value.push(data)

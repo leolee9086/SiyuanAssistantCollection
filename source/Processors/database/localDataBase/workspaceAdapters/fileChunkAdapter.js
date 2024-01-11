@@ -18,7 +18,12 @@ export class fileChunkAdapter {
         this.正在写入=false
     }
     async 创建原子写入操作(待保存分片数据, 分片号, 文件路径名) {
-        let 清理后分片数据 = 对分片执行去除特殊键值(待保存分片数据)
+        let 清理后分片数据
+        try{
+         清理后分片数据 = 对分片执行去除特殊键值(待保存分片数据)
+        }catch(e){
+            console.error(e,待保存分片数据)    
+        }
         let 文件内容 = await this.序列化(清理后分片数据);
         let 文件夹路径 = path.join(this.文件保存地址, 文件路径名 ? 文件路径名 : '');
         let 文件名 = path.join(文件夹路径, `chunk${分片号}.${this.扩展名}`);

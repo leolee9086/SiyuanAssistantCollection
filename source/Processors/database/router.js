@@ -199,6 +199,10 @@ databaseRouter.post(
             try {
                 await 本地块数据集.添加数据(data.vectors)
                 await 本地块数据集.保存数据()
+                ctx.body={
+                    msg:0,
+                    succeed:true
+                }
             }
             catch (e) {
                 ctx.error("添加数据时发生错误,请检查日志" + e)

@@ -3,6 +3,9 @@ import { 计算cpu核心数量 } from "../os/cpu.js";
 import { 正规化URL } from "../url.js";
 import { stringifyWithFunctions } from "./serilizer.js";
 let worker线程池 = {}
+
+const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
 worker线程池 = globalThis[Symbol.for('_worker线程池_')] || worker线程池
 globalThis[Symbol.for('_worker线程池_')] = worker线程池
 function 创建Worker线程() {
@@ -13,7 +16,7 @@ function 创建Worker线程() {
   return worker;
 }
 // 创建任务处理函数
-function 创建任务处理函数(worker, 任务列表, characters) {
+function 创建任务处理函数(worker, 任务列表) {
   return (任务数据, 任务名) => {
     return new Promise((resolve, reject) => {
       let 任务id = '';
@@ -48,17 +51,17 @@ function 创建任务处理函数(worker, 任务列表, characters) {
   };
 }
 // 初始化 worker 线程池
-function 初始化Worker线程池(处理器文件地址, characters) {
+function 初始化Worker线程池(处理器文件地址,worker线程数=0) {
   // 使用文件名作为键
   if (!worker线程池[处理器文件地址]) {
     worker线程池[处理器文件地址] = [];
     let worker线程组 = worker线程池[处理器文件地址];
-    let cpu核心数 = 计算cpu核心数量();
-    for (let i = 0; i < cpu核心数; i++) {
+     worker线程数 =worker线程数|| 计算cpu核心数量();
+    for (let i = 0; i < worker线程数; i++) {
       let worker = 创建Worker线程(处理器文件地址);
       worker.moduleName = 处理器文件地址
       let 任务列表 = [];
-      let 处理任务 = 创建任务处理函数(worker, 任务列表, characters);
+      let 处理任务 = 创建任务处理函数(worker, 任务列表);
       worker线程组.push({
         worker: worker,
         处理任务: 处理任务,
@@ -85,8 +88,7 @@ function 找到可用Worker(worker文件地址) {
 // 使用 worker 处理数据
 export const 使用worker处理数据 = async (数据组, 处理器文件地址, 任务名, 广播) => {
   处理器文件地址 = 正规化URL(处理器文件地址)
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  await 初始化Worker线程池(处理器文件地址, characters);
+  await 初始化Worker线程池(处理器文件地址);
   if (!广播) {
     try {
       let 可用worker = 找到可用Worker(处理器文件地址);
@@ -157,7 +159,15 @@ export function importWorker(处理器文件地址, 任务名 = []) {
       if (prop === 'then') {
         return (resolve, reject) => reject(new Error('暂时只能同步调用'));
       }
-
+      if (prop === '$setWorkerCount') {
+        return (num)=>{
+          if (!worker线程池[处理器文件地址]){
+            初始化Worker线程池(处理器文件地址,num);
+          }else{
+            console.error('worker已经初始化,无法调整数量')
+          }
+        }
+      }
       return importWorker(处理器文件地址, [...任务名, prop]);
     },
     apply: function (target, thisArg, args) {
