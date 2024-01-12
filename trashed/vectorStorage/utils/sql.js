@@ -1,4 +1,4 @@
-import { plugin } from "../../asyncModules.js"
+import { plugin } from "../../../source/asyncModules.js"
 let {configurer} = plugin
 let 手动索引模式 = configurer.get('向量工具设置','手动索引').$value
 export const 手动索引过滤语句 = ()=>{

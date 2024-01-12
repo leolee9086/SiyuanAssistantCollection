@@ -1,6 +1,6 @@
-import { plugin } from "../../asyncModules.js"
-import fs from "../../polyfills/fs.js"
-import { Constants } from "../../asyncModules.js"
+import { plugin } from "../../../source/asyncModules.js"
+import fs from "../../../source/polyfills/fs.js"
+import { Constants } from "../../../source/asyncModules.js"
 const {模型存放地址}=Constants
 let 在线模型列表 = Object.getOwnPropertyNames(plugin.默认设置.模型设置)
 let 本地模型列表 = plugin.默认设置.向量工具设置.默认文本向量化模型.options.filter(

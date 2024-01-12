@@ -40,3 +40,28 @@ export function 在空闲时间执行任务(任务数组) {
     };
     requestIdleCallback(执行下一步);
 }
+
+
+// source/utils/functionAndClass/idleTime.js
+export function 创建空闲时间函数序列(函数数组) {
+    return function() {
+        let 结果;
+        let 当前函数索引 = 0;
+
+        const 执行下一步 = (截止时间) => {
+            while ((截止时间.timeRemaining() > 0 || 截止时间.didTimeout) && 当前函数索引 < 函数数组.length) {
+                try {
+                    结果 = 函数数组[当前函数索引](结果);
+                } catch (错误) {
+                    console.error(`执行函数 ${当前函数索引} 时出错:`, 错误);
+                }
+                当前函数索引++;
+            }
+            if (当前函数索引 < 函数数组.length) {
+                requestIdleCallback(执行下一步);
+            }
+        };
+
+        requestIdleCallback(执行下一步);
+    };
+}

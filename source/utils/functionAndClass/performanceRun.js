@@ -1,5 +1,5 @@
+import { sac } from "../../asyncModules.js";
 const functionPerformance = new Map();
-
 export function withPerformanceLogging(fn) {
   return function(...args) {
     const start = performance.now();
@@ -9,7 +9,7 @@ export function withPerformanceLogging(fn) {
       const end = performance.now();
       const executionTime = (end - start).toFixed(2);
       functionPerformance.set(fn, executionTime);
-      console.log(`Function ${fn.name || 'anonymous'} took ${executionTime} milliseconds.`);
+     // sac.logger.performancelog(`Function ${fn.name || 'anonymous'} took ${executionTime} milliseconds.`);
     };
 
     if (result instanceof Promise) {

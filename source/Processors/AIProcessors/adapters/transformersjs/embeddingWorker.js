@@ -1,6 +1,7 @@
 import { 将文本拆分为句子 } from "../../../../utils/sentence.js";
-import { 计算加权平均向量 } from "../../../../vectorStorage/vector.js";
+import { 计算加权平均向量 } from "../../../../../trashed/vectorStorage/vector.js";
 import * as transformers from '../../../../../static/transformers@2.5.3.js'
+import { withPerformanceLogging } from "../../../../utils/functionAndClass/performanceRun.js";
 transformers.env.backends.onnx.wasm.wasmPaths = '/plugins/SiyuanAssistantCollection/static/';
 transformers.env.allowRemoteModels = true;
 transformers.env.localModelPath = '/public/onnxModels/';
@@ -58,7 +59,8 @@ export async function 批量提取向量(文本数组, 最大句子长度) {
     let 批量结果 = [];
     for (let 内容对象 of 文本数组) {
         try {
-            let 单个结果 = await 提取向量(内容对象.content, 最大句子长度);
+            console.log(内容对象.content.length)
+            let 单个结果 = await withPerformanceLogging(提取向量)(内容对象.content, 最大句子长度);
             if(单个结果){
              批量结果.push({id:内容对象.id,data:单个结果.data});
             }else{

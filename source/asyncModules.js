@@ -2,8 +2,10 @@
 import kernelApi from './polyfills/kernelApi.js';
 //为了在webworker环境中可以使用
 let pluginName  = import.meta.resolve('../').split('/').filter(item=>{return item}).pop()
-let pluginInstance=globalThis[Symbol.for(`plugin_${pluginName}`)]
-let clientApiInstance=globalThis[Symbol.for(`clientApi`)]
+let pluginInstance
+let clientApiInstance
+pluginInstance=globalThis[Symbol.for(`plugin_${pluginName}`)]
+clientApiInstance=globalThis[Symbol.for(`clientApi`)]
 export {clientApiInstance as clientApi}
 export {pluginInstance as plugin}
 export {pluginInstance as sac}

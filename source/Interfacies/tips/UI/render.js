@@ -85,6 +85,7 @@ async function 批量渲染(element) {
     withPerformanceLogging(去重待添加数组)();
     withPerformanceLogging(排序待添加数组)(待添加数组);
     限制待添加数组长度();
+    //这里待会要改一下
     globalThis[Symbol.for('sac-tips')] = 待添加数组
     //这里由vue接管了渲染
    // withPerformanceLogging(移动选中元素到顶部)(element, frag);
@@ -108,13 +109,12 @@ function 安排合并tips数组() {
         安排合并tips数组(); // 任务完成后再次安排
     });
 }
-
 安排合并tips数组();
 export function 处理并显示tips(data, element, 编辑器上下文) {
-    data.source = renderInstance.name;
+    if(data&&data.item&&data.item[0])
     for (let tipsItem of data.item) {
         tipsItem.targetBlocks = [编辑器上下文.blockID];
-        tipsItem.source = tipsItem.source || renderInstance.name;
+        tipsItem.source = tipsItem.source || data.source;
         tipsItem.type = 'keyboardTips';
 
     }
