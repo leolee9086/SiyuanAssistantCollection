@@ -11,11 +11,6 @@ import { initVueApp } from '../../UI/utils/componentsLoader.js';
 await sac.statusMonitor.set('tips','current',[])
 export const packages = [tipsRenderPackage]
 const 构建tips显示界面 = (element,data) => {
-    /*try {
-        显示tips()
-    } catch (e) {
-        console.error(e)
-    }*/
     添加容器(element)
     let app =initVueApp(
         import.meta.resolve('./UI/components/tipsCards.vue'),
@@ -29,7 +24,6 @@ const 构建tips显示界面 = (element,data) => {
 export const docks = {
     TipsMain: {
         async init(element) {
-            console.log(element)
             构建tips显示界面(element)
         }
     }

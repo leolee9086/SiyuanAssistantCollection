@@ -1,36 +1,34 @@
-import { 智能防抖, 柯里化 } from "../../../utils/functionTools.js";
+import { 智能防抖} from "../../../utils/functionTools.js";
 import { sac } from "../runtime.js";
 import { 排序待添加数组 } from "../utils/tipsArrayUtils.js";
-import { openFocusedTipsByEvent } from "./events.js";
 import { genTipsHTML } from "./buildTipsHTML.js";
 import { withPerformanceLogging } from "../../../utils/functionAndClass/performanceRun.js";
 let 待添加数组 = globalThis[Symbol.for('sac-tips')] || []
 globalThis[Symbol.for('sac-tips')] = 待添加数组
-export const showTips = (tipsItems, element, context) => {
-    console.log(element)
-    buildTips(tipsItems, element, context)
-}
 
-export const buildTips = async (item, element, context) => {
-    console.log(item)
-    item.item && item.item.forEach(
-        item => {
-            if (!item.targetBlocks) {
-                return
-            }
-            if (!item.actionId) {
-                item.actionId = Lute.NewNodeID()
-            }
-            if (item.action) {
-                item.$action = () => {
-                    item.action(context)
-                }
-            }
-            待添加数组.push(准备渲染项目(item))
+export function 处理并显示tips(data, element, 编辑器上下文) {
+    if(data&&data.item&&data.item[0])
+    for (let tipsItem of data.item) {
+        tipsItem.targetBlocks = [编辑器上下文.blockID];
+        tipsItem.source = tipsItem.source || data.source;
+        tipsItem.type = 'keyboardTips';
+        if (!tipsItem.targetBlocks) {
+            return
         }
-    )
+        if (!tipsItem.actionId) {
+            tipsItem.actionId = Lute.NewNodeID()
+        }
+        if (tipsItem.action) {
+            tipsItem.$action = () => {
+                tipsItem.action(编辑器上下文)
+            }
+        }
+        待添加数组.push(准备渲染项目(tipsItem))
+
+    }
     智能防抖(批量渲染(element))
 }
+
 const 准备渲染项目 = (item) => {
     if (item) {
         // 如果不存在，则添加新的元素
@@ -45,16 +43,6 @@ const 准备渲染项目 = (item) => {
         // tipsConainer.querySelector("#SAC-TIPS").innerHTML += (divHTML)
     }
 }
-
-let clickHandeler = (event) => {
-    柯里化(openFocusedTipsByEvent)(event)(待添加数组)
-}
-// 移除和添加事件监听器
-function 更新事件监听(element) {
-    element.removeEventListener('click', clickHandeler);
-    element.addEventListener('click', clickHandeler);
-}
-
 // 去重待添加数组中的元素
 function 去重待添加数组() {
     待添加数组 = 待添加数组.reduce((unique, item) => {
@@ -81,16 +69,11 @@ async function 批量渲染(element) {
     if (!element) {
         return;
     }
-    更新事件监听(element);
     withPerformanceLogging(去重待添加数组)();
     withPerformanceLogging(排序待添加数组)(待添加数组);
     限制待添加数组长度();
     //这里待会要改一下
     globalThis[Symbol.for('sac-tips')] = 待添加数组
-    //这里由vue接管了渲染
-   // withPerformanceLogging(移动选中元素到顶部)(element, frag);
-   // withPerformanceLogging(创建并添加元素到DocumentFragment)(frag, signal);
-   // withPerformanceLogging(更新元素内容)(element, frag,signal);
 }
 const 合并tips数组 = () => {
     let tipsSource = sac.statusMonitor.get('tips', 'current').$value
@@ -110,13 +93,4 @@ function 安排合并tips数组() {
     });
 }
 安排合并tips数组();
-export function 处理并显示tips(data, element, 编辑器上下文) {
-    if(data&&data.item&&data.item[0])
-    for (let tipsItem of data.item) {
-        tipsItem.targetBlocks = [编辑器上下文.blockID];
-        tipsItem.source = tipsItem.source || data.source;
-        tipsItem.type = 'keyboardTips';
 
-    }
-    showTips(data, element, 编辑器上下文);
-}

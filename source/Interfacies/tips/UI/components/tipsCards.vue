@@ -1,5 +1,9 @@
 <template>
-    <div @mouseover.stop="stopUpdating" @mouseleave.stop="startUpdating">
+    <div 
+    @mouseover.stop="stopUpdating" 
+    @mouseleave.stop="startUpdating"
+    @click.stop="clickHandeler"
+    >
 
         <template v-for="(item, i) in data">
             <div class="fn__flex-1 b3-card__info" v-if="mounted && data[i]" style="
@@ -49,10 +53,15 @@ border-bottom:1px dashed var(--b3-theme-primary-light)">
 </template>
 <script setup>
 import { onMounted, ref, inject } from 'vue';
+import { openFocusedTipsByEvent } from '../events.js';
+import { 柯里化 } from '../../../../utils/functionTools.js';
 const data = ref(null);
 const mounted = ref("")
 const { appData } = inject('appData')
 const isUpdating = ref(true);
+let clickHandeler = (event) => {
+    柯里化(openFocusedTipsByEvent)(event)(data.value)
+}
 onMounted(() => {
     requestIdleCallback(() => {
         // 这里执行闲时数据渲染逻辑

@@ -88,7 +88,7 @@ export function scoreItem(item, baseString) {
     item.lastScoredTime = Date.now()
     return item.score
 }
-export function fixScore(items) {
+export function 修正评分(items) {
     const similarityThreshold = 0.8; // 设定相似度阈值
     const similarityPenaltyFactor = 0.1; // 设定相似内容的降权因子
     const scorePrecision = 0.1; // 设定得分精度
@@ -105,7 +105,6 @@ export function fixScore(items) {
     items.forEach(item => {
         const roundedScore = Math.round((item.scores.textScore || 0) / scorePrecision) * scorePrecision;
         const similarityCount = scoreCounts.get(roundedScore) || 0;
-
         // 根据相似内容的数量进行降权
         const similarityPenalty = 1 - (similarityPenaltyFactor * (similarityCount - 1)); // 减1是因为要排除项目本身
         item.lastScore = item.score * similarityPenalty; // 应用降权到最终得分

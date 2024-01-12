@@ -3,7 +3,6 @@ export const seachBlockWithVector = async (blocks,标题和文档包含全部内
     blocks = blocks.filter(item => { return item.meta && item.similarityScore > 得分阈值 }).map(
         item => {
             item.meta = kernelApi.sql.sync({ stmt: `select * from blocks where id ="${item.id}"` })[0]
-            console.log(item)
             try {
                 if (标题和文档包含全部内容 && item.meta.type === 'd' || item.meta.type === 'h') {
                     let block = JSON.parse(JSON.stringify(item.meta))
@@ -53,7 +52,6 @@ export const seachBlockWithVector = async (blocks,标题和文档包含全部内
     }, {});
     // 将对象转换为数组并返回
     let res= Object.values(blocks);
-    console.log(res,blocks)
     if (使用原始结果) {
         return res
     } else return {

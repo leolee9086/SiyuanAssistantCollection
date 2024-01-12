@@ -45,7 +45,6 @@ export async function readFromCache(cachePath, remote) {
     }
     return null;
 }
-
 export async function writeToCache(cachePath,feedJson){
     await fs.writeFile(cachePath, JSON.stringify(feedJson));
     let vec = await text2vec(feedJson.description)
@@ -109,7 +108,6 @@ export async function writeToCache(cachePath,feedJson){
 export const handleFeedQueryVector=async(ctx,next)=>{
     let {query}=ctx.req.body
     let vec = await text2vec(query)
-
     if(!本地rss数据集已经启用){
         ctx.body={
             msg:1,
@@ -126,7 +124,6 @@ export const handleFeedQueryVector=async(ctx,next)=>{
                 }
             }
         )
-        console.log(res)
         ctx.body={
             mas:0,
             data:{
@@ -148,5 +145,4 @@ export const handleFeedQueryVector=async(ctx,next)=>{
             }
         }
     }
-    console.error(ctx)
 }
