@@ -61,7 +61,7 @@ export const 合并已存在数据项 = (已存在数据项, 迁移结果) => {
     }
     return 已存在数据项;
 };
-
+//这个函数的作用是去除非存储键值,因此需要改为正确的名称
 export const 去除特殊键值 = (数据项) => {
     Object.keys(数据项).forEach((key) => {
         if (key.startsWith('$') || typeof 数据项[key] === 'function') {

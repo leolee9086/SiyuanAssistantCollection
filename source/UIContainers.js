@@ -65,22 +65,28 @@ function 创建Tab容器() {
 创建Tab容器()
 
 function 创建AI侧栏容器() {
+  let chatDocks = []
   const DOCK_TYPE = 'SAC_CHAT'
+  plugin.statusMonitor.set('docks', 'ai-chat', chatDocks)
+
   plugin.addDock({
     config: {
       position: "LeftBottom",
       size: { width: 200, height: 0 },
-      icon: "iconSaving",
-      title: "Custom Dock",
+      icon: "iconSparkles",
+      title: "ai chat",
     },
     data: {
-      text: "This is my custom dock"
+      name: "aiChat",
+      channel: "ai-chat"
     },
     type: DOCK_TYPE,
     init() {
-      this.element.innerHTML = `<div id="ai-chat-interface" class='fn__flex-column' style="pointer-events: auto;overflow:hidden;max-height:100%"></div>`;
+      this.element.innerHTML = `<div id="sac-interface" class='fn__flex-column' style="pointer-events: auto;overflow:hidden;max-height:100%"></div>`;
+      chatDocks.push(this)
       plugin.statusMonitor.set('dockContainers', 'main', this.element)
-      plugin.eventBus.emit('dockConainerInited', this.element)
+      plugin.eventBus.emit('ai-chat-dock-container-inited', this)
+    
     },
     destroy() {
       plugin.log("destroy dock:", DOCK_TYPE);

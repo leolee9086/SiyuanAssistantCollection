@@ -290,7 +290,13 @@ class SiyuanAssistantCollection extends ccPlugin {
         )
       }
     )
- 
+    this.从esm模块('./source/Interfacies/chat/index.js').合并子模块('聊天界面').then(
+      ()=>{
+        let emitter= this.事件管理器.use(this.聊天界面.Emitter)
+        this.UI管理器.useDocks(this.聊天界面.docks, emitter)
+        this.UI管理器.useTabs(this.聊天界面.tabs, emitter)
+      }
+    )
 
     //界面部分之后应该改成事件模式
     this.从esm模块('./source/Interfacies/tips/index.js').合并子模块('tips处理器').then(
