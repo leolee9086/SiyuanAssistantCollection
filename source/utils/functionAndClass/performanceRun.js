@@ -9,7 +9,7 @@ export function withPerformanceLogging(fn) {
       const end = performance.now();
       const executionTime = (end - start).toFixed(2);
       functionPerformance.set(fn, executionTime);
-     // sac.logger.performancelog(`Function ${fn.name || 'anonymous'} took ${executionTime} milliseconds.`);
+      console.log(`Function ${fn.name || 'anonymous'} took ${executionTime} milliseconds.`);
     };
 
     if (result instanceof Promise) {

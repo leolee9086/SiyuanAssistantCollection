@@ -50,7 +50,21 @@ export function 获取光标所在位置() {
         range: range
     };
 }
-
+export function getEditorRange(nodeElement) {
+  const selection = window.getSelection();
+  if (selection.rangeCount > 0) {
+    const range = selection.getRangeAt(0);
+    // 确保选区范围在指定的节点元素内
+    if (nodeElement.contains(range.startContainer) && nodeElement.contains(range.endContainer)) {
+      return range;
+    }
+  }
+  // 如果没有选区或选区不在节点元素内，则创建一个新的范围
+  const range = document.createRange();
+  range.selectNodeContents(nodeElement);
+  range.collapse(true); // 折叠范围到起始位置，即光标位置
+  return range;
+}
 export function 获取选区屏幕坐标(nodeElement, range) {
     if (!range) {
       range = getEditorRange(nodeElement);

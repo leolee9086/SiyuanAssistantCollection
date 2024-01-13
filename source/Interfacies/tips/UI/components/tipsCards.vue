@@ -29,9 +29,8 @@ border-bottom:1px dashed var(--b3-theme-primary-light)">
                                     <use xlink:href="#iconKeymap"></use>
                                 </svg>
                             </span>
-                            <strong><a :href="escapeHTML(item.link)">{{ item.title }}</a></strong>
+                            <strong><a :href="item.link">{{ item.title }}</a></strong>
                             <strong v-if="item.score">{{ (item.score*10).toFixed(3) }}</strong>
-
                             <div class="fn__space fn__flex-1">
                                 <div class="fn__space "> </div>
                                 <input class=" fn__flex-center" type="checkbox">
@@ -55,6 +54,7 @@ border-bottom:1px dashed var(--b3-theme-primary-light)">
 import { onMounted, ref, inject } from 'vue';
 import { openFocusedTipsByEvent } from '../events.js';
 import { 柯里化 } from '../../../../utils/functionTools.js';
+import { sac } from '../../runtime.js';
 const data = ref(null);
 const mounted = ref("")
 const { appData } = inject('appData')
@@ -68,9 +68,7 @@ onMounted(() => {
         fetchData();
     });
 });
-function escapeHTML(string){
-    return Lute.EscapeHTMLStr(string)
-}
+
 function stopUpdating(e) {
     if (e.target === e.currentTarget) {
         isUpdating.value = false;
@@ -86,7 +84,7 @@ function fetchData() {
     // 模拟数据获取
     if (!isUpdating.value) return; // 如果 isUpdating 为 false，则不更新数据
     let source = (appData && appData.source) || "all"
-    let tips = globalThis[Symbol.for('sac-tips')] || []
+    let tips = sac.statusMonitor.get('tips','current').$value || []
     data.value = tips.filter(item => {
         return item && item.id && item.description && (item.source === source || source === 'all')
     }).slice(0, 20);
