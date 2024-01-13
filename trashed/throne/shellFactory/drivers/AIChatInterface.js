@@ -3,7 +3,6 @@ import { pluginInstance as plugin, kernelApi } from '../../../asyncModules.js';
 import { aiMessageButton } from './AiChatInterface/buttons/aiMessageButton.js';
 import { 创建输入菜单按钮 } from './AiChatInterface/buttons/userInputButtonLeft.js';
 import { 创建聊天容器 } from './AiChatInterface/chatContainers/index.js'
-import { 创建用户输入框 } from './AiChatInterface/userInputArea/index.js';
 import { 创建提交按钮 } from './AiChatInterface/buttons/userInputButtonRight.js';
 import { 创建用户输入区 } from './AiChatInterface/userInputArea/index.js';
 import { 创建用户消息卡片 } from './AiChatInterface/messageCard/userMessage.js';

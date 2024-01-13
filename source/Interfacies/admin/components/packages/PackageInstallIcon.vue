@@ -11,7 +11,7 @@
 <script setup> 
 import { defineProps,defineEmits } from 'vue'
 
-import { install } from '../utils/package.js';
+import { install } from '../../utils/package.js';
 const emit = defineEmits(['package-installed'])
 const { packageInfo } = defineProps(['packageInfo'])
 const installPackage=async(packageInfo)=>{

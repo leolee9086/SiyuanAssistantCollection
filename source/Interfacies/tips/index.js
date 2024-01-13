@@ -12,7 +12,7 @@ import { 获取选区屏幕坐标 } from '../../utils/rangeProcessor.js';
 import { 输入事件发生在protyle内部 } from '../../utils/events/isIn.js';
 import { markElementIfMouseOver } from './mouseTips.js';
 
-markElementIfMouseOver(document);
+//markElementIfMouseOver(document);
 await sac.statusMonitor.set('tips', 'current', [])
 export const packages = [tipsRenderPackage]
 const 构建tips显示界面 = (element, data) => {

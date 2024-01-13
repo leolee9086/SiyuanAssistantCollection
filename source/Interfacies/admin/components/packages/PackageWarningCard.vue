@@ -35,7 +35,7 @@
 </template>
 <script setup>
 import { defineProps,defineEmits } from 'vue'
-import {enable} from '../utils/package.js'
+import {enable} from '../../utils/package.js'
 let { topic } = defineProps(['topic'])
 const emit=defineEmits(['topic-enabled'])
 const enablePackageType = async () => {

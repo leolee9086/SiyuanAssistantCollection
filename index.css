@@ -63,7 +63,7 @@
     background-color: #28a745;
 }
 .user-message {
-    align-self: flex-end;
+    align-self: flex-start;
     background-color: #007bff;
     color: #fff;
     border-radius: 5px;

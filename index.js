@@ -292,9 +292,12 @@ class SiyuanAssistantCollection extends ccPlugin {
     )
     this.从esm模块('./source/Interfacies/chat/index.js').合并子模块('聊天界面').then(
       ()=>{
+        this.包管理器.usePackage(this.聊天界面.packages)
+
         let emitter= this.事件管理器.use(this.聊天界面.Emitter)
         this.UI管理器.useDocks(this.聊天界面.docks, emitter)
         this.UI管理器.useTabs(this.聊天界面.tabs, emitter)
+
       }
     )
 

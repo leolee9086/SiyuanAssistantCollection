@@ -1,4 +1,7 @@
 import { initVueApp } from "../../UI/utils/componentsLoader.js"
+import { sac } from "../../asyncModules.js"
+import { handleBlockIconClick } from "./noteChat/chatmenu.js"
+import { aiPersonaPackage } from "./package/index.js"
 export const docks ={
     aiChat:{
         init(element,data,tab){
@@ -6,7 +9,6 @@ export const docks ={
                 import.meta.resolve('./UI/components/chatContainer.vue'),
                 'rsscontent', {},
                 'D:/思源主库/data/plugins/SiyuanAssistantCollection/source')
-                console.error(app,element)
                 app.mount(element)
         }
     }
@@ -25,6 +27,10 @@ export const tabs ={
 export const Emitter = class {
     channel='ai-chat'
     async onload(){
-        
+        console.log(sac.statusMonitor.get('packages','sac-ai-persona').$value)
     }
+    [`@main-click-blockicon`]=handleBlockIconClick
+    
 }
+
+export const packages =[aiPersonaPackage]

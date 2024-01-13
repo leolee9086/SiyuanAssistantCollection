@@ -7,9 +7,7 @@ let 待索引数组 = [];
 let 索引失败数组 = []
 let 索引中块哈希 = new Set()
 let 索引正在更新中 = false
-export const 清理块索引 = async (数据集名称) => {
-
-
+export const 清理块索引 = async (数据集名称, 间隔时间 = 3000) => {
     let id数组查询结果 = await internalFetch('/database/keys', {
         method: 'POST',
         body: {
@@ -17,31 +15,40 @@ export const 清理块索引 = async (数据集名称) => {
         }
     })
     let ids = id数组查询结果.body.data
-
     ids.forEach(item => 已索引块哈希.add(item.meta.hash))
     if (await fs.exists('/temp/noobTemp/blockHashs.json')) {
         let 缓存的已索引结果 = JSON.parse(await fs.readFile('/temp/noobTemp/blockHashs.json'))
         缓存的已索引结果.forEach(item => 已索引块哈希.add(item))
     }
+
     let idSQL = `select id,hash from blocks  where content <> '' order by updated desc limit 102400`
-    let data = kernelApi.SQL.sync({ 'stmt': idSQL })
-    if (data) {
-        data = data.map(item => {
-            return item.id
-        })
-        let id数组1 = id数组查询结果.body.data.filter(
-            item => { return !data.includes(item.id) }
-        )
-        if (id数组1.length) {
-            sac.logger.indexlog(`删除${id数组1.length}条多余索引`)
-            await internalFetch('/database/delete', {
-                method: "POST", body: {
-                    collection_name: 数据集名称,
-                    keys: id数组1.map(item => { return item.id })
+    kernelApi.SQL({ 'stmt': idSQL }).then(
+        async data => {
+            if (data && data[0]) {
+                data = data.map(item => {
+                    return item.id
+                })
+                let id数组1 = id数组查询结果.body.data.filter(
+                    item => { return !data.includes(item.id) }
+                )
+                if (id数组1.length) {
+                    sac.logger.indexlog(`删除${id数组1.length}条多余索引`)
+                    await internalFetch('/database/delete', {
+                        method: "POST", body: {
+                            collection_name: 数据集名称,
+                            keys: id数组1.map(item => { return item.id })
+                        }
+                    })
+                    间隔时间 = Math.max(间隔时间 * 2, 15 * 1000)
+                    setTimeout(() => { 清理块索引(数据集名称, 间隔时间) }, 间隔时间)
+                } else {
+                    间隔时间 = Math.min(间隔时间 * 2, 15 * 1000 * 60)
+                    sac.logger.indexlog(`没有多余索引需要清除,当前索引清理时间为${间隔时间}`)
+                    setTimeout(() => { 清理块索引(数据集名称, 间隔时间) }, 间隔时间)
                 }
-            })
+            }
         }
-    }
+    )
     await fs.writeFile('/temp/noobTemp/blockHashs.json', JSON.stringify(Array.from(已索引块哈希)))
 }
 export const 定时获取更新块 = async () => {
@@ -179,7 +186,7 @@ export function 定时实行块索引添加(retryInterval = 1000) {
         setTimeout(定时实行块索引添加, Math.max(retryInterval, 1000)); // 设置一个合理的间隔时间，例如1秒，以避免CPU过载
     } else {
         sac.logger.indexlog(`待索引数组为空，没有更多块需要索引。共计索引${已索引块哈希.size}个块`);
-        setTimeout(定时实行块索引添加, retryInterval*2); // 设置一个合理的间隔时间，例如1秒，以避免CPU过载
+        setTimeout(定时实行块索引添加, retryInterval * 2); // 设置一个合理的间隔时间，例如1秒，以避免CPU过载
     }
 }
 

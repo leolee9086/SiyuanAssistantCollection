@@ -22,15 +22,15 @@ let 初始化块数据集 = async () => {
 
 let 索引器路由 = new Router()
 索引器路由.post('/index/blocks', async (ctx, next) => {
-    await 初始化块数据集()
-    await 清理块索引(await 获取块数据集名称())
+//    await 初始化块数据集()
+//    await 清理块索引(await 获取块数据集名称())
 })
 初始化块数据集().then(
     res=>{
         sac.logger.log(res)
-        setInterval(
+        setTimeout(
             ()=>{
-                清理块索引( res.body.data.collection_name)
+                清理块索引(res.body.data.collection_name)
             },1000
         )
     }
