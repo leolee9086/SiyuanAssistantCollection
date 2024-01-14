@@ -3,7 +3,8 @@ import { chatCompletions } from "../adapters/zhipu/chat.js";
 let { Router } = sac.路由管理器
 let modelMap={
     'zhipu-characterglm':"characterglm",
-    'zhipu-chatglm_turbo':"chatglm_turbo"
+    'zhipu-chatglm-turbo':"chatglm_turbo",
+    'zhipu-chatglm-pro':"chatglm_pro"
 }
 
 const 对话补全路由 = new Router()

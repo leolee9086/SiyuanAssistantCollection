@@ -25,7 +25,7 @@ const postMessage = async()=>{
     let res =  await sac.路由管理器.internalFetch('/ai/v1/chat/completions',{
         method:"POST",
         body:{
-            model: 'zhipu-chatglm_turbo',
+            model: 'zhipu-chatglm-pro',
             messages: [{role:"user",content:"你是谁"}],
         }
     })
