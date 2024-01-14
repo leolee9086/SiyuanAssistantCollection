@@ -62,13 +62,20 @@
 #confirm-btn {
     background-color: #28a745;
 }
-.user-message {
+.user-message,.ai-message {
     align-self: flex-start;
     background-color: #007bff;
-    color: #fff;
     border-radius: 5px;
     margin: 5px;
     padding: 5px;
+    width: 90%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); /* 卡片的阴影 */
+}
+.user-message{
+    color: #fff;
+}
+.ai-message{
+    align-self: flex-end;
 }
 
 .insert-button {

@@ -2,10 +2,8 @@
     <div class="fn__flex-1 fn__flex-column chat-container">
         <div class="message-container fn__flex-1 fn__flex-column">
             <userMessageCard></userMessageCard>
-            <div class="ai-message" data-message-id="${message.id}" draggable="true">
-                这是一段测试消息
-            </div>
-
+   
+            <aiMessageCard></aiMessageCard>
         </div>
         <div class='user-input-container'>
             <button class="ai-quote-btn">
@@ -21,4 +19,5 @@
 <script setup>
 import { sac } from '../../../../asyncModules.js';
 import userMessageCard from './userMessageCard.vue';
+import aiMessageCard from './aiMessageCard.vue';
 </script>

@@ -1,32 +1,37 @@
 <template>
     <div class="user-message user-message-card fn__flex">
-        <div class="fn__flex-column">
+        <div class="fn__flex-column fn__flex-1">
             <div class="user-message-header fn__flex">
-                <img class="user-avatar" :src="user.avatar" alt="User's avatar">
-                <h3 class="user-name">{{ user.name }}</h3>
-                <span class="message-timestamp">{{ message.timestamp | formatDate }}</span>
+                <span class="user-avatar b3-tooltips b3-tooltips__nw block__icon block__icon--show" :src="user.avatar" alt="User's avatar">
+                    <svg  class="b3-tooltips b3-tooltips__nw block__icon block__icon--show">
+                        <use xlink:href="#iconAccount">
+                        </use>
+                    </svg>
+                </span>
+
+                <span class="sac-user-name">{{ user.name }}</span>
                 <div class="fn__space fn__flex-1"></div>
                 <span class="user-message-actions fn__flex fn__flex-inline">
-                    <span class="b3-tooltips b3-tooltips__nw block__icon block__icon--show"
+                    <span class="block__icon block__icon--show"
                         @click="replyToMessage(message.id)" aria-label="Reply to message">
+                        <svg>
+                            <use xlink:href="#iconRefresh"></use>
+                        </svg>
+                    </span>
+                    <span class="block__icon block__icon--show" @click="editMessage(message.id)"
+                        aria-label="Edit message">
                         <svg>
                             <use xlink:href="#iconCopy"></use>
                         </svg>
                     </span>
-                    <span class="b3-tooltips b3-tooltips__nw block__icon block__icon--show" @click="editMessage(message.id)"
-                        aria-label="Edit message">
-                        <svg>
-                            <use xlink:href="#iconEdit"></use>
-                        </svg>
-                    </span>
-                    <span class="b3-tooltips b3-tooltips__nw block__icon block__icon--show"
+                    <span class=" block__icon block__icon--show"
                         @click="deleteMessage(message.id)" aria-label="Delete message">
                         <svg>
                             <use xlink:href="#iconTrashcan"></use>
                         </svg> </span>
                 </span>
             </div>
-            <div class="user-message-content" v-if="!isEditing">
+            <div class="user-message-content" v-if="!isEditing" contenteditable="true">
                 <p>{{ message.content }}</p>
             </div>
         </div>
@@ -75,3 +80,8 @@ const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString(undefined, options);
 };
 </script>
+<style>
+.sac-user-name{
+    padding-top: 8px;
+}
+</style>
