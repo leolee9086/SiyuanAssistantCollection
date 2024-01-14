@@ -32,4 +32,22 @@ let 创建嵌入器 = async (model) => {
     // 将结果返回给客户端
     ctx.body = result;
 })
+嵌入路由.post('/:model',async (ctx)=>{
+    let requestData = ctx.request.body;
+    let { input } = requestData
+    let {model} =ctx.params
+    // 使用openAI嵌入字符串
+    let func=  await 创建嵌入器(model)
+    let result = await func(input,model);
+    let message
+    if (Array.isArray(result)) {
+        message = result[0]
+    } else {
+        message = result
+    }
+    sac.logger.aiRouterLog(`成功向量化,使用模型为${model}`)
+    // 将结果返回给客户端
+    ctx.body = result;
+
+})
 export {嵌入路由 as embeddingRouter}
