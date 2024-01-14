@@ -4,7 +4,7 @@ import { 计算余弦相似度 } from "../../../utils/vector/similarity.js";
 export function 准备tokens(item) {
     if ((!item.describeTokens) && item.description) {
         // 使用jieba分词库对item.describe进行分词
-        item.describeTokens = jieba.tokenize(item.description, "search");
+        item.describeTokens = jieba.tokenize(item.description, "search").filter(item=>{return item.word.length>=2});
     }
 }
 export function 准备评分空值(item) {
@@ -14,7 +14,7 @@ export function 准备特征向量(item) {
     item.vector = item.vector || {}
 }
 let lastBaseTokens = []
-let lastBaseVector = {}
+let lastBaseVector = []
 let lastBaseString = ""
 let lastBaseVectorString = ""
 
@@ -23,18 +23,18 @@ function 准备基准字符集(baseString) {
         lastBaseTokens = jieba.tokenize(baseString, "search")
         lastBaseString = baseString
     }
-    return lastBaseTokens
+    return lastBaseTokens.filter(item=>{return item.word.length>=2})
 }
 async function 准备基准向量(baseString) {
-    if (baseString.trim() !== lastBaseString.trim()) {
+    if (baseString.trim() !== lastBaseVectorString.trim()) {
         lastBaseVectorString = ""
         lastBaseVector = []
-
         try {
             let res = await text2vec(baseString)
             lastBaseVector = res.body.data[0].embedding
             lastBaseVectorString = baseString
         } catch (e) {
+            console,error(e)
             lastBaseVector = []
             lastBaseVectorString = ""
         }
@@ -53,14 +53,20 @@ export async function 根据特征向量对tips评分(item, baseString) {
     if (!item.description) {
         return 0; // 如果不存在或不是数组，返回0分
     }
+    //我们这里的目标并不是对所有tips进行评分而是给出更加多样化的tips
+    if(item.textScore>0.5){
+        return 0
+    }
     if (!item.vector['leolee9086/text2vec-base-chinese']) {
         let res = await text2vec(item.description)
         item.vector['leolee9086/text2vec-base-chinese'] = res.body.data[0].embedding
     }
     let 基准向量 = await 准备基准向量(baseString)
-    item.scores.vectorScore = await 计算余弦相似度(item.vector['leolee9086/text2vec-base-chinese'], 基准向量)
-}
+    if(基准向量[0]){
+        item.scores.vectorScore = await 计算余弦相似度(item.vector['leolee9086/text2vec-base-chinese'], 基准向量)
 
+    }
+}
 export function 根据文本内容对tips评分(item, baseString) {
     // 确保item.describeTokens存在且为数组
     if (!item.describeTokens || !Array.isArray(item.describeTokens)) {
@@ -70,13 +76,17 @@ export function 根据文本内容对tips评分(item, baseString) {
 
     // 创建一个集合，用于存储baseTokens中的所有词
     const baseWords = new Set(baseTokens.map(token => token.word));
-    // 计算item.describeTokens中的词与baseWords的交集数量
-    const intersection = item.describeTokens.filter(token => baseWords.has(token.word)).length;
+    
+    // 创建一个集合，用于存储item.describeTokens中的所有不重复词
+    const itemWords = new Set(item.describeTokens.map(token => token.word));
 
-    // 计算相似度得分，这里使用简单的交集数量除以基准词的数量
-    const score = intersection / baseWords.size;
+    // 计算itemWords中的词与baseWords的交集数量
+    const intersection = [...itemWords].filter(word => baseWords.has(word)).length;
 
-    item.scores.textScore = score
+    // 计算相似度得分，这里使用交集数量除以baseTokens的大小
+    const score = intersection / baseTokens.length;
+
+    item.scores.textScore = score;
 }
 function 是否过于陈旧(item) {
     const tenMinutes = 10 * 60 * 1000; // 十分钟的毫秒数
@@ -88,7 +98,8 @@ function hasValidDescription(item) {
     return item.describeTokens && item.describeTokens.length >= minDescriptionLength;
 }
 
-export async function scoreItem(item, baseString) {
+
+export async function scoreItem(item, baseString,bm25scores) {
     // 删除时间过久的项目
     if (是否过于陈旧(item)) {
         return 0; // 如果项目太旧，直接返回0分
@@ -108,6 +119,11 @@ export async function scoreItem(item, baseString) {
     根据生成时间对tips项目排序(item); // 填充scores.time属性
     根据文本内容对tips评分(item, baseString)
     await 根据特征向量对tips评分(item, baseString)
+    try{
+    item.scores.bm25=bm25scores.find(doc=>{return doc.id===item.id}).score
+    }catch(e){
+        console.error(e)
+    }
     let totalScore = 0;
     let scoreCount = 0;
     for (const key in item.scores) {

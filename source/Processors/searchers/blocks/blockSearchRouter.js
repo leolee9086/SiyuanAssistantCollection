@@ -23,11 +23,11 @@ blockSearchRouter.get('/text/:query', async (ctx, next) => {
 })
 blockSearchRouter.post('/vector', async (ctx, next) => {
     //保证块数据集已经创建
-    let 当前模型名 =  (await sac.路由管理器.internalFetch('/config/query', {
+    let 当前模型名 = (await sac.路由管理器.internalFetch('/config/query', {
         method: 'POST',
         body: { query: ['向量工具设置', '默认文本向量化模型'] }
     })).body.data
-    let collectionsRes= await sac.路由管理器.internalFetch('/database/collections/build', {
+    let collectionsRes = await sac.路由管理器.internalFetch('/database/collections/build', {
         method: 'POST',
         body: {
             collection_name: 'blocks',
@@ -35,8 +35,8 @@ blockSearchRouter.post('/vector', async (ctx, next) => {
             file_path_key: 'box',
         }
     })
-    if(collectionsRes.body.msg){
-        console.warn('数据集查询异常:',collectionsRes.body.error)
+    if (collectionsRes.body.msg) {
+        console.warn('数据集查询异常:', collectionsRes.body.error)
     }
     let 使用原始结果 = false
     let 结果数量 = sac.configurer.get('聊天工具设置', '默认参考数量').$value
@@ -51,9 +51,10 @@ blockSearchRouter.post('/vector', async (ctx, next) => {
             collection_name: 'blocks',
             limit: 结果数量,
             offset: 8,
-            filter: '',
+            filter_before: ctx.req.body.filter_before||"",
+            filter_after:"",
             output_fields: 'meta',
-            vector_name:当前模型名
+            vector_name: 当前模型名
         },
         method: 'POST',
     })

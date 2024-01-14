@@ -8,10 +8,8 @@ export const 以过滤函数和向量字段名创建查询数据集 = (数据集
     let 过滤后的数据集数组 = 数据集数组
     if (前置查询条件) {
         let query = new Mingo.Query(前置查询条件);
-        console.log(数据集数组,query)
 
         过滤后的数据集数组 = query.find(数据集数组).all();
-        console.log(过滤后的数据集数组,query)
 
     }
     // 创建Mingo查询对象

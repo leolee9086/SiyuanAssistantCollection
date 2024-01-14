@@ -24,23 +24,6 @@ export const seachBlockWithVector = async (blocks,标题和文档包含全部内
             }
         }
     )
-    let docs = []
-    blocks.forEach(
-        block => {
-            if (block.similarityScore > 0.8) {
-                if (参考分数较高时给出文档全文) {
-                    let root = block.root
-                    let rootContent = kernelApi.getDoc.sync({ id: block.id, size: 3 }).content
-                    let rootInfo = kernelApi.sql.sync({ stmt: `select * from blocks where id ="${root}"` })
-                    rootInfo.similarityScore = block.similarityScore
-                    rootInfo.content = rootContent
-                    rootInfo.vector=block.vector
-                    docs.push(rootInfo)
-                }
-            }
-        }
-    )
-    blocks = blocks.concat(docs)
     blocks = blocks.reduce((uniqueBlocks, currentBlock) => {
         if (uniqueBlocks[currentBlock.id]) {
             // 如果已经存在相同ID的块，比较内容长度，保留内容更长的块

@@ -1,5 +1,5 @@
 <template>
-    <div @mouseover.stop="stopUpdating" @mouseleave.stop="startUpdating" @click.stop="clickHandeler">
+    <div @mouseover.stop="stopUpdating" @mouseleave.stop="startUpdating" @click.stop="clickHandler">
 
         <template v-for="(item, i) in data">
             <div class="fn__flex-1 b3-card__info" v-if="mounted && data[i]" style="
@@ -40,8 +40,8 @@ border-bottom:1px dashed var(--b3-theme-primary-light)">
                             </div>
                         </div>
                         <div class="fn__flex fn__flex-1">
-                            <strong>{{ item.score ? (item.score * 10).toFixed(3) :item.score }}</strong>
-                            <strong>{{ item.scores }}</strong>
+                            <strong>{{ item.score ? (item.score * 10).toFixed(3) : item.score }}</strong>
+                           <!-- <strong>{{ item.scores }}</strong>-->
                             <div class="fn__space fn__flex-1">
                             </div>
                             <span class="b3-tooltips b3-tooltips__nw block__icon block__icon--show"
@@ -60,7 +60,7 @@ border-bottom:1px dashed var(--b3-theme-primary-light)">
 
                     </div>
                     <template v-if="item.imageHTML">
-                        <div class="tips-image-container" :v-html="item.imageHTML">
+                        <div class="tips-image-container" v-html="item.imageHTML">
                         </div>
                     </template>
                 </div>
@@ -71,17 +71,16 @@ border-bottom:1px dashed var(--b3-theme-primary-light)">
 <script setup>
 import { onMounted, ref, inject } from 'vue';
 import { openFocusedTipsByEvent } from '../events.js';
-import { 柯里化 } from '../../../../utils/functionTools.js';
 import { sac } from '../../runtime.js';
 const data = ref(null);
 const mounted = ref("")
 const { appData } = inject('appData')
 const isUpdating = ref(true);
-let clickHandeler = (event) => {
-    柯里化(openFocusedTipsByEvent)(event)(data.value)
+let clickHandler = (event) => {
+    openFocusedTipsByEvent(event, data.value)
 }
 onMounted(() => {
-    requestIdleCallback(() => {
+    requestAnimationFrame(() => {
         // 这里执行闲时数据渲染逻辑
         fetchData();
     });
@@ -101,7 +100,7 @@ function startUpdating(e) {
 function fetchData() {
     // 模拟数据获取
     if (!isUpdating.value) return; // 如果 isUpdating 为 false，则不更新数据
-    let source = (appData && appData.source) || "all"
+    let source = appData?.source || "all"
     let tips = sac.statusMonitor.get('tips', 'current').$value || []
     data.value = tips.filter(item => {
         return item && item.id && item.description && (item.source === source || source === 'all')
@@ -109,7 +108,7 @@ function fetchData() {
     if (data.value && data.value[0]) {
         mounted.value = true
     }
-    requestIdleCallback(() => { fetchData() }, { deadline: 1000 })
+    requestAnimationFrame(() => { fetchData() }, { deadline: 1000 })
 }
 
 </script>

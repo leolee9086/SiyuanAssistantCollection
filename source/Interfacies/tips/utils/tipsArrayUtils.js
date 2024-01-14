@@ -2,6 +2,7 @@ import { 柯里化 } from "../../../utils/functionTools.js";
 import { 比较时间差并归一化, 比较TextScore, 比较VectorScore, 比较内容标记长度并归一化 } from "./sorters.js";
 import { 修正评分, scoreItem } from "./rater.js";
 import { getCurrentEditorContext } from "./context.js";
+import { BM25 } from "../../../utils/text/bm25.js";
 const 构建空闲排序任务 = (tips数组, 比较算法) => {
   let idleCallbackHandle = null;
   let index = 1; // 初始化 index
@@ -51,11 +52,16 @@ const 构建空闲排序任务 = (tips数组, 比较算法) => {
 export const 排序待添加数组 = async (待添加数组) => {
   let baseString = await getCurrentEditorElementContent();
   // 一次遍历来初始化scores并计算scores.time
+  let bm25=new BM25()
+  for (let item of 待添加数组) {
+    bm25.addDocument(item,['description','link'])
+  }
+  const bm25scores =bm25.query(baseString)
   for (let item of 待添加数组) {
     if (!item.scores) {
       item.scores = {}; // 初始化scores对象
     }
-    await scoreItem(item, baseString);
+    await scoreItem(item, baseString,bm25scores);
   }
   //fixScore(待添加数组)
   // 现在数组中的每个item都有了scores属性，可以进行排序

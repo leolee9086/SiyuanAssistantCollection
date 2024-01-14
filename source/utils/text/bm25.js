@@ -1,56 +1,77 @@
 import { jieba } from "../tokenizer/jieba.js";
-let D = []; // 文档集合
-let docLengths = []; // 文档长度集合
-let avgdl = 0; // 文档平均长度
-let N = 0; // 文档数量
-let IDF = {}; // 逆文档频率
-const k1 = 1.5;
-const b = 0.75;
 
-function addDocument(doc) {
-  const terms = jieba.cut(doc);
-  D.push(terms);
-  docLengths.push(terms.length);
-  avgdl = docLengths.reduce((a, b) => a + b, 0) / D.length;
-  N = D.length;
+export class BM25 {
+  constructor() {
+    this.D = []; // 文档集合
+    this.docLengths = []; // 文档长度集合
+    this.avgdl = 0; // 文档平均长度
+    this.N = 0; // 文档数量
+    this.IDF = {}; // 逆文档频率
+    this.k1 = 1.5;
+    this.b = 0.75;
+  }
 
-  // 更新IDF值
-  const termSet = new Set(terms);
-  termSet.forEach(term => {
-    IDF[term] = IDF[term] || 0;
-    IDF[term] += 1;
-  });
+  addDocument(doc, contentProperties) {
+    let combinedContent = contentProperties.map(prop => doc[prop]).join(' ');
+    const terms = jieba.cut(combinedContent);
+    this.D.push({ terms: terms, id: doc.id });
+    this.docLengths.push(terms.length);
+    this.avgdl = this.docLengths.reduce((a, b) => a + b, 0) / this.D.length;
+    this.N = this.D.length;
 
-  Object.keys(IDF).forEach(term => {
-    IDF[term] = Math.log((N - IDF[term] + 0.5) / (IDF[term] + 0.5) + 1);
-  });
-}
+    const termSet = new Set(terms);
+    termSet.forEach(term => {
+      this.IDF[term] = this.IDF[term] || 0;
+      this.IDF[term] += 1;
+    });
 
-function calculateScore(docTerms, queryTerms) {
-  const f = {};
-  docTerms.forEach(term => {
-    f[term] = (f[term] || 0) + 1;
-  });
+    Object.keys(this.IDF).forEach(term => {
+      this.IDF[term] = Math.log((this.N - this.IDF[term] + 0.5) / (this.IDF[term] + 0.5) + 1);
+    });
+  }
 
-  let score = 0;
-  queryTerms.forEach(term => {
-    if (!IDF.hasOwnProperty(term)) return;
-    const idf = IDF[term];
-    const tf = f[term] || 0;
-    const numerator = tf * (k1 + 1);
-    const denominator = tf + k1 * (1 - b + b * docTerms.length / avgdl);
-    score += idf * numerator / denominator;
-  });
+  calculateScore(docTerms, queryTerms) {
+    const f = {};
+    docTerms.forEach(term => {
+      f[term] = (f[term] || 0) + 1;
+    });
 
-  return score;
-}
+    let score = 0;
+    queryTerms.forEach(term => {
+      if (!this.IDF.hasOwnProperty(term)) return;
+      const idf = this.IDF[term];
+      const tf = f[term] || 0;
+      const numerator = tf * (this.k1 + 1);
+      const denominator = tf + this.k1 * (1 - this.b + this.b * docTerms.length / this.avgdl);
+      score += idf * numerator / denominator;
+    });
 
-function query(query) {
-  const queryTerms = jieba.cut(query);
-  const scores = D.map((docTerms, index) => ({
-    score: calculateScore(docTerms, queryTerms),
-    index: index
-  }));
+    return score;
+  }
 
-  return scores.sort((a, b) => b.score - a.score);
+  query(query) {
+    const queryTerms = jieba.cut(query);
+    let scores = this.D.map(doc => ({
+      score: this.calculateScore(doc.terms, queryTerms),
+      id: doc.id
+    }));
+
+    // 找到最高分和最低分
+    const maxScore = Math.max(...scores.map(s => s.score));
+    const minScore = Math.min(...scores.map(s => s.score));
+
+    // 如果所有分数都相同，则归一化没有意义
+    if (maxScore === minScore) {
+      scores = scores.map(s => ({ ...s, score: 1 }));
+    } else {
+      // 归一化分数
+      scores = scores.map(s => ({
+        ...s,
+        score: (s.score - minScore) / (maxScore - minScore)
+      }));
+    }
+
+    // 按归一化分数降序排序
+    return scores.sort((a, b) => b.score - a.score);
+  }
 }

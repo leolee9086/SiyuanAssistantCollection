@@ -72,8 +72,22 @@ export class fileChunkAdapter {
                     if (error) {
                         log += error
                     }
-                    数据集对象 = Object.assign(数据集对象, content)
-                }
+                    for (let key in content) {
+                        if (content.hasOwnProperty(key)) {
+                          let 数据项 = content[key];
+                          if (!数据项.vector || typeof 数据项.vector !== 'object' || Object.values(数据项.vector).some(v => !Array.isArray(v) || v.some(item => typeof item !== 'number'))) {
+                            log += `数据项${key}的vector字段不是有效的向量\n`;
+                            continue; // 跳过不符合结构的数据项
+                          }
+                          if(!数据项.id||!数据项.meta){
+                            log += `数据项${key}缺少必须项\n`;
+                            continue; // 跳过不符合结构的数据项
+                          }
+                          // 如果数据项符合结构，则合并到数据集对象中
+                          数据集对象[key] = 数据项;
+                        }
+                      }
+                            }
                 await this.处理日志(log, 子文件夹路径)
             }
             return 数据集对象

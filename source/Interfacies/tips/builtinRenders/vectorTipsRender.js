@@ -1,8 +1,11 @@
-export const tipsRender = class{
-    async renderEditorTips(editorContext){
+export const tipsRender = class {
+    async renderEditorTips(editorContext) {
         this.internalFetch('/search/blocks/vector', {
             body: {
                 query: editorContext.editableElement.innerText,
+                filter_before: {
+                    "id": { $ne: editorContext.blockID }
+                }
             },
             method: 'POST',
         }).then(
@@ -18,9 +21,9 @@ export const tipsRender = class{
                     )
                 }
 
-                res.body ? this.showTips(data,editorContext) : null
+                res.body ? this.showTips(data, editorContext) : null
             }
-        )    
+        )
         this.internalFetch('/search/rss/vector', {
             body: {
                 query: editorContext.editableElement.innerText,
@@ -38,9 +41,9 @@ export const tipsRender = class{
                         }
                     )
                 }
-                res.body ? this.showTips(data,editorContext) : null
+                res.body ? this.showTips(data, editorContext) : null
             }
-        )    
+        )
     }
 }
 
