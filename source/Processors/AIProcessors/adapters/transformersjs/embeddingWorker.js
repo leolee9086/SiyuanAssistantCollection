@@ -2,6 +2,7 @@ import { 将文本拆分为句子 } from "../../../../utils/sentence.js";
 import { 计算加权平均向量 } from "../../../../../trashed/vectorStorage/vector.js";
 import * as transformers from '../../../../../static/transformers@2.5.3.js'
 import { withPerformanceLogging } from "../../../../utils/functionAndClass/performanceRun.js";
+import { vec2OpenAiEmbeddingResonseObject } from "../../utils/2openAI.js";
 transformers.env.backends.onnx.wasm.wasmPaths = '/plugins/SiyuanAssistantCollection/static/';
 transformers.env.allowRemoteModels = true;
 transformers.env.localModelPath = '/public/onnxModels/';
@@ -39,11 +40,7 @@ export async function 提取向量(text, 最大句子长度) {
         }
         if (句子向量组.length > 0) {
             let result = {
-                data: [
-                    {
-                        embedding: 计算加权平均向量(句子向量组, 句子长度比例组)
-                    }
-                ]
+                data: [vec2OpenAiEmbeddingResonseObject(计算加权平均向量(句子向量组, 句子长度比例组),0)]
             };
             return result
         } else {

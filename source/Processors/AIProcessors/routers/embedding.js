@@ -14,6 +14,11 @@ let 创建嵌入器 = async (model) => {
             return await transformersjsAdapter.prepareEmbedding(input,model)
         }
     }
+    if(model = 'zhipu_embedding'){
+        return async (input)=>{
+             
+        }
+    }
 }
 嵌入路由.post('/',async (ctx) => {
     // 获取请求的数据

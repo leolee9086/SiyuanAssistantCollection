@@ -20,8 +20,16 @@ let topBarBerryButton = plugin.addTopBar(
   }
 )
 topBarBerryButton.addEventListener('click', (e) => {
-  plugin.eventBus.emit('click-berry-button', e)
-})
+  if (e.button === 0) { // 左键点击
+    plugin.eventBus.emit('click-berry-button', e);
+  }
+});
+
+topBarBerryButton.addEventListener('contextmenu', (e) => {
+  if (e.button === 2) { // 右键点击
+    plugin.eventBus.emit('contextmenu-berry-button', e);
+  }
+});
 plugin.statusMonitor.set('UI', 'topBarBerryButton', topBarBerryButton)
 
 function 创建Tab容器() {

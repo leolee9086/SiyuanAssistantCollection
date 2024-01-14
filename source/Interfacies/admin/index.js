@@ -29,6 +29,15 @@ export const tabs = {
             app.mount(element)
 
         }
+    },
+    "modelManage":{
+        init:(element, data, tab) => {
+            const app = initVueApp(
+                import.meta.resolve('./components/aiAdapterSetting/aiAdapterCards.vue'),
+                'rsscontent', {},
+                'D:/思源主库/data/plugins/SiyuanAssistantCollection/source', { ...data })
+            app.mount(element)
+        }
     }
 }
 export const Emitter = class {
@@ -41,6 +50,12 @@ export const Emitter = class {
         })
     }
     ['@main-click-berry-button']=(e)=>{
+        this.emit('open-tab',{
+            'title':'扩展包管理',
+            "type":'loggerList'
+        })
+    }
+    ['@main-contextmenu-berry-button']=(e)=>{
         this.emit('open-tab',{
             'title':'扩展包管理',
             "type":'packageManage'
