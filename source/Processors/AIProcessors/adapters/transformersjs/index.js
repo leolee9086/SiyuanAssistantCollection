@@ -4,7 +4,7 @@ export const Adapter =   class transformersjsAdapter{
     init(){
 
     }
-    async embedding(text,modelName){
+    async prepareEmbedding(text,modelName){
         if(!this.models.embedding.includes(modelName)){
             return 
         }

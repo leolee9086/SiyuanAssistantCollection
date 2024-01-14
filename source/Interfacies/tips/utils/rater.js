@@ -50,7 +50,7 @@ function isTooOld(item) {
 
 function hasValidDescription(item) {
     const minDescriptionLength = 2;
-    return item.describeTokens.length >= minDescriptionLength;
+    return item.describeTokens&& item.describeTokens.length >= minDescriptionLength;
 }
 
 export function scoreItem(item, baseString) {
