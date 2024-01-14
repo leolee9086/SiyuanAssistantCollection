@@ -1,27 +1,5 @@
-export function 将向量单位化(输入向量) {
-    let 平方和 = 输入向量.reduce((acc, cur) => acc + cur * cur, 0);
-    let 长度 = Math.sqrt(平方和);
-    let 单位化向量 = 输入向量.map(value => value / 长度);
-    return 单位化向量
-}
-export function 计算加权平均向量(向量组, 权重组, 是否单位化结果) {
-    let 总向量 = []
-    for (let i = 0; i < 向量组[0].length; i++) {
-        let sum = 0;
-        for (let j = 0; j < 向量组.length; j++) {
-            //计权相加
-            sum += 向量组[j][i] * 权重组[j];
-        }
-        总向量.push(sum);
-    }
-    let 加权平均向量 = 总向量.map((value, index) => value / 向量组.length);
-    if (是否单位化结果) {
-        let 单位化向量 = 将向量单位化(加权平均向量)
-        return 单位化向量
-    } else {
-        return 加权平均向量
-    }
-}
+import { 计算余弦相似度 } from "../../../utils/vector/similarity.js";
+
 export async function 创建简单短哈希(文本,短码长度=8) {
     const 编码器 = new TextEncoder();
     const 编码结果 = 编码器.encode(文本);
@@ -48,22 +26,6 @@ export const 计算向量相似度=(输入点, 点数据集, 相似度算法)=>{
     }
     return similarityScores;
 }
-export const 计算欧氏距离相似度=(vector1, vector2)=>{
-    let sum = 0;
-    for (let i = 0; i < vector1.length; i++) {
-        sum += Math.pow(vector1[i] - vector2[i], 2);
-    }
-    return Math.sqrt(sum);
-}
-export const 计算余弦相似度=(vector1, vector2)=>{
-    //假设这些向量已经全部正规化了
-    let dotProduct = 0;
-    for (let i = 0; i < vector1.length; i++) {
-      dotProduct += vector1[i] * vector2[i];
-    }
-    return dotProduct;
-}
-
 export function 查找最相似点(输入点, 点数据集, 查找阈值 = 10, 相似度算法=计算余弦相似度, 过滤条件) {
     let 拷贝点
     if (!Array.isArray(输入点)) {

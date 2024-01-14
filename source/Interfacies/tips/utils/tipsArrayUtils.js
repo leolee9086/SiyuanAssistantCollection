@@ -48,19 +48,17 @@ const 构建空闲排序任务 = (tips数组, 比较算法) => {
 };
 
 
-export const 排序待添加数组 = (待添加数组) => {
-  let baseString = getCurrentEditorElementContent()
+export const 排序待添加数组 = async (待添加数组) => {
+  let baseString = await getCurrentEditorElementContent();
   // 一次遍历来初始化scores并计算scores.time
-  待添加数组.forEach(item => {
+  for (let item of 待添加数组) {
     if (!item.scores) {
       item.scores = {}; // 初始化scores对象
     }
-    scoreItem(item, baseString)
-  });
+    await scoreItem(item, baseString);
+  }
   //fixScore(待添加数组)
-
   // 现在数组中的每个item都有了scores属性，可以进行排序
-  // 使用sort方法进行排序，这是内部的遍历，我们无法优化这部分
   待添加数组.sort((a, b) => b.score - a.score);
 };
 function getCurrentEditorElementContent() {

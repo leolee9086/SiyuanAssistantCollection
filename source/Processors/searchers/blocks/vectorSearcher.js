@@ -9,11 +9,13 @@ export const seachBlockWithVector = async (blocks,标题和文档包含全部内
                     let content = kernelApi.getDoc.sync({ id: item.id, size: 3 }).content
                     block.content = content
                     block.similarityScore = item.similarityScore
+                    block.vector=item.vector
                     return block
                 }
                 else {
                     let block = JSON.parse(JSON.stringify(item.meta))
                     block.similarityScore = item.similarityScore
+                    block.vector=JSON.parse(JSON.stringify(item.vector))
                     return block
                 }
             } catch (e) {
@@ -32,6 +34,7 @@ export const seachBlockWithVector = async (blocks,标题和文档包含全部内
                     let rootInfo = kernelApi.sql.sync({ stmt: `select * from blocks where id ="${root}"` })
                     rootInfo.similarityScore = block.similarityScore
                     rootInfo.content = rootContent
+                    rootInfo.vector=block.vector
                     docs.push(rootInfo)
                 }
             }

@@ -8,9 +8,7 @@ import { tipsRender as vectorTipsRender } from './builtinRenders/vectorTipsRende
 import { tipsRender as textTipsRender } from './builtinRenders/textTipsRender.js';
 import { 显示tips } from './显示tips.js';
 import { initVueApp } from '../../UI/utils/componentsLoader.js';
-import { 获取选区屏幕坐标 } from '../../utils/rangeProcessor.js';
 import { 输入事件发生在protyle内部 } from '../../utils/events/isIn.js';
-import { markElementIfMouseOver } from './mouseTips.js';
 
 //markElementIfMouseOver(document);
 await sac.statusMonitor.set('tips', 'current', [])

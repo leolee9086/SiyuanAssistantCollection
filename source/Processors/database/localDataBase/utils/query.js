@@ -1,5 +1,5 @@
 import { 柯里化 } from "../../../../utils/functionTools.js";
-import { 计算余弦相似度 } from "../vector.js";
+import { 计算余弦相似度 } from "../../../../utils/vector/similarity.js";
 import { 查找最相似点 } from "../vector.js";
 import Mingo from '../../../../../static/mingo.js'
 export const 以过滤函数和向量字段名创建查询数据集 = (数据集对象, 向量字段名, 前置查询条件) => {

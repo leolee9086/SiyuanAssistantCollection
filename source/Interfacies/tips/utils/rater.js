@@ -1,37 +1,72 @@
+import { text2vec } from "../../../Processors/AIProcessors/publicUtils/endpoints.js";
 import { jieba } from "../../../utils/tokenizer/jieba.js";
-export function prepareTokens(item) {
+import { 计算余弦相似度 } from "../../../utils/vector/similarity.js";
+export function 准备tokens(item) {
     if ((!item.describeTokens) && item.description) {
         // 使用jieba分词库对item.describe进行分词
-        item.describeTokens = jieba.tokenize(item.description,"search");
+        item.describeTokens = jieba.tokenize(item.description, "search");
     }
 }
-export function prepareScores(item) {
+export function 准备评分空值(item) {
     item.scores = item.scores || {}
 }
+export function 准备特征向量(item) {
+    item.vector = item.vector || {}
+}
+let lastBaseTokens = []
+let lastBaseVector = {}
+let lastBaseString = ""
+let lastBaseVectorString = ""
 
-export function scoreItemByTime(item) {
+function 准备基准字符集(baseString) {
+    if (baseString.trim() !== lastBaseString.trim()) {
+        lastBaseTokens = jieba.tokenize(baseString, "search")
+        lastBaseString = baseString
+    }
+    return lastBaseTokens
+}
+async function 准备基准向量(baseString) {
+    if (baseString.trim() !== lastBaseString.trim()) {
+        lastBaseVectorString = ""
+        lastBaseVector = []
+
+        try {
+            let res = await text2vec(baseString)
+            lastBaseVector = res.body.data[0].embedding
+            lastBaseVectorString = baseString
+        } catch (e) {
+            lastBaseVector = []
+            lastBaseVectorString = ""
+        }
+    }
+    return lastBaseVector
+}
+export function 根据生成时间对tips项目排序(item) {
     const now = Date.now(); // 获取当前时间的时间戳
     const timeDifference = Math.max(now - item.time, 0); // 计算时间差，忽略未来时间
     // 设置衰减率，使得5分钟后分数约为1/e
     const decayRate = -0.00002314815; // 每毫秒的衰减率，相当于5分钟后衰减1/e
     item.scores.time = Math.max(0, Math.exp(decayRate * timeDifference));
 }
-
-let lastBaseTokens = []
-let lastBaseString = ""
-function prepareBaseTokens(baseString) {
-    if (baseString.trim() !== lastBaseString.trim()) {
-        lastBaseTokens = jieba.tokenize(baseString,"search")
-        lastBaseString = baseString
+export async function 根据特征向量对tips评分(item, baseString) {
+    // 确保item.describeTokens存在且为数组
+    if (!item.description) {
+        return 0; // 如果不存在或不是数组，返回0分
     }
-    return lastBaseTokens
+    if (!item.vector['leolee9086/text2vec-base-chinese']) {
+        let res = await text2vec(item.description)
+        item.vector['leolee9086/text2vec-base-chinese'] = res.body.data[0].embedding
+    }
+    let 基准向量 = await 准备基准向量(baseString)
+    item.scores.vectorScore = await 计算余弦相似度(item.vector['leolee9086/text2vec-base-chinese'], 基准向量)
 }
-export function scoreItemByText(item, baseString) {
+
+export function 根据文本内容对tips评分(item, baseString) {
     // 确保item.describeTokens存在且为数组
     if (!item.describeTokens || !Array.isArray(item.describeTokens)) {
         return 0; // 如果不存在或不是数组，返回0分
     }
-    const baseTokens = prepareBaseTokens(baseString); // 对baseString进行分词
+    const baseTokens = 准备基准字符集(baseString); // 对baseString进行分词
 
     // 创建一个集合，用于存储baseTokens中的所有词
     const baseWords = new Set(baseTokens.map(token => token.word));
@@ -43,37 +78,38 @@ export function scoreItemByText(item, baseString) {
 
     item.scores.textScore = score
 }
-function isTooOld(item) {
+function 是否过于陈旧(item) {
     const tenMinutes = 10 * 60 * 1000; // 十分钟的毫秒数
     return Date.now() - item.time > tenMinutes;
 }
 
 function hasValidDescription(item) {
     const minDescriptionLength = 2;
-    return item.describeTokens&& item.describeTokens.length >= minDescriptionLength;
+    return item.describeTokens && item.describeTokens.length >= minDescriptionLength;
 }
 
-export function scoreItem(item, baseString) {
-    prepareScores(item); // 假设这个函数会填充scores对象
-    prepareTokens(item)
-    scoreItemByTime(item); // 填充scores.time属性
-    scoreItemByText(item, baseString)
+export async function scoreItem(item, baseString) {
     // 删除时间过久的项目
-    if (isTooOld(item)) {
+    if (是否过于陈旧(item)) {
         return 0; // 如果项目太旧，直接返回0分
-    }
-
-    // 删除description分词后长度小于2的项目
-    if (!hasValidDescription(item)) {
-        return 0; // 如果描述无效，直接返回0分
     }
     if (!item.scores || typeof item.scores !== 'object') {
         return 0; // 如果scores不存在或不是对象，返回0分
     }
 
+    准备评分空值(item); // 假设这个函数会填充scores对象
+
+    准备tokens(item)
+    // 删除description分词后长度小于2的项目
+    if (!hasValidDescription(item)) {
+        return 0; // 如果描述无效，直接返回0分
+    }
+    准备特征向量(item)
+    根据生成时间对tips项目排序(item); // 填充scores.time属性
+    根据文本内容对tips评分(item, baseString)
+    await 根据特征向量对tips评分(item, baseString)
     let totalScore = 0;
     let scoreCount = 0;
-
     for (const key in item.scores) {
         if (item.scores.hasOwnProperty(key)) {
             totalScore += item.scores[key];

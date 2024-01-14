@@ -12,6 +12,7 @@ export const tipsRender = class{
                     data.item = data.item.map(
                         item => {
                             item.targetBlocks = [editorContext.blockID]
+                            item.vector = item.block.vector
                             return item
                         }
                     )

@@ -1,5 +1,5 @@
 import { 将文本拆分为句子 } from "../../../../utils/sentence.js";
-import { 计算加权平均向量 } from "../../../../../trashed/vectorStorage/vector.js";
+import { 计算加权平均向量 } from "../../../../utils/vector/normalization.js";
 import * as transformers from '../../../../../static/transformers@2.5.3.js'
 import { withPerformanceLogging } from "../../../../utils/functionAndClass/performanceRun.js";
 import { vec2OpenAiEmbeddingResonseObject } from "../../utils/2openAI.js";

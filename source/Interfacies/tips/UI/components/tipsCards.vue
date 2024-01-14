@@ -40,7 +40,8 @@ border-bottom:1px dashed var(--b3-theme-primary-light)">
                             </div>
                         </div>
                         <div class="fn__flex fn__flex-1">
-                            <strong>{{ item.score ? (item.score * 10).toFixed(3) : "计算中" }}</strong>
+                            <strong>{{ item.score ? (item.score * 10).toFixed(3) :item.score }}</strong>
+                            <strong>{{ item.scores }}</strong>
                             <div class="fn__space fn__flex-1">
                             </div>
                             <span class="b3-tooltips b3-tooltips__nw block__icon block__icon--show"
@@ -104,7 +105,7 @@ function fetchData() {
     let tips = sac.statusMonitor.get('tips', 'current').$value || []
     data.value = tips.filter(item => {
         return item && item.id && item.description && (item.source === source || source === 'all')
-    }).slice(0, 20);
+    }).slice(0, 20).sort((a, b) => b.score - a.score);
     if (data.value && data.value[0]) {
         mounted.value = true
     }
