@@ -1,18 +1,7 @@
 import { sac } from "../../asyncModules.js";
-import { 使用openAI生成嵌入 } from './adapters/openAI/embedding.js'
-import { 使用transformersjs生成嵌入 } from "./adapters/transformersjs/embedding.js";
 import { embeddingRouter } from "./routers/embedding.js";
 let { Router } = sac.路由管理器
 let ai路由 = new Router()
-let 当前向量嵌入模型 = 'leolee9086/text2vec-base-chinese'
-let 选择后端模型 = async () => {
-    if (当前向量嵌入模型 === 'openAI' || 当前向量嵌入模型 === 'text-embedding-ada-002') {
-        return 使用openAI生成嵌入
-    }
-    if (当前向量嵌入模型 === 'leolee9086/text2vec-base-chinese') {
-        return await 使用transformersjs生成嵌入('leolee9086/text2vec-base-chinese')
-    }
-}
 
 
 ai路由.post(
@@ -24,7 +13,6 @@ ai路由.post(
             'Authorization': `Bearer ${apiKey}`,
             // 其他可能需要的头部信息
         };
-
     }
 )
 ai路由.post(
