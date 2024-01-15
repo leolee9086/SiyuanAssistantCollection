@@ -10,7 +10,6 @@ export async function 处理并显示tips(data, 编辑器上下文) {
             tipsItem.source = tipsItem.source || data.source;
             待添加数组.push(准备渲染项目(tipsItem, 编辑器上下文))
         }
-    批量渲染()
 }
 export function 准备渲染项目(tipsItem, 编辑器上下文) {
     tipsItem.targetBlocks = tipsItem.targetBlocks || [编辑器上下文.blockID];
@@ -70,15 +69,39 @@ function 限制待添加数组长度() {
 let controller = new AbortController();
 let { signal } = controller;
 // 批量渲染函数，使用上述拆分的函数
+
+let tips整理中
 async function 批量渲染() {
-    // let frag = document.createDocumentFragment();
-    controller.abort()
-    const newcontroller = new AbortController();
-    signal = newcontroller.signal
-    controller = newcontroller
-    智能防抖(withPerformanceLogging(去重待添加数组))()
-    智能防抖(withPerformanceLogging(排序待添加数组))(待添加数组);
-    限制待添加数组长度()
-    //这里待会要改一下
-    sac.statusMonitor.set('tips', 'current', 待添加数组)
+
+    let f = () => {
+        tips整理中 = true
+        try {
+            // let frag = document.createDocumentFragment();
+            controller.abort()
+            const newcontroller = new AbortController();
+            signal = newcontroller.signal
+            controller = newcontroller
+            智能防抖(withPerformanceLogging(去重待添加数组))(signal)
+            智能防抖(withPerformanceLogging(排序待添加数组))(待添加数组, signal);
+            限制待添加数组长度()
+            //这里待会要改一下
+            tips整理中 = false
+
+            sac.statusMonitor.set('tips', 'current', 待添加数组)
+        } catch (e) {
+            const newcontroller = new AbortController();
+            signal = newcontroller.signal
+            controller = newcontroller
+            tips整理中 = false
+        }
+        requestAnimationFrame(批量渲染)
+
+    }
+    if (!tips整理中) {
+        requestIdleCallback(f)
+        return
+    }
+
+    requestIdleCallback(批量渲染)
 }
+requestIdleCallback(批量渲染)

@@ -1,11 +1,11 @@
 export const 迁移数据项向量结构 = (数据项) => {
     let 迁移结果 = {
-        created: Date.now(),
-        updated: Date.now(),
-        neighbors: [],
+        created:数据项.created|| Date.now(),
+        updated: 数据项.updated||Date.now(),
+        neighbors:数据项.neighbors|| [],
         meta: {},
         vector: {},
-        id: 数据项.id
+        id: 数据项.id,
     };
     // 如果数据项已经有meta字段，则直接迁移meta
     if (数据项.meta) {
@@ -13,7 +13,7 @@ export const 迁移数据项向量结构 = (数据项) => {
     } else {
         // 将数据项除了vector之外的所有字段复制到meta中
         for (let key in 数据项) {
-            if (数据项.hasOwnProperty(key) && key !== 'vector') {
+            if (数据项.hasOwnProperty(key) && key !== 'vector'&& key !== 'created'&& key !== 'updated'&& key !== 'neighbors') {
                 迁移结果.meta[key] = 数据项[key];
             }
         }
@@ -31,10 +31,10 @@ export const 初始化数据项向量字段 = (数据项, 迁移结果) => {
             if (!Array.isArray(数据项.vector[key]) || 数据项.vector[key].some(v => typeof v !== 'number')) {
                 console.warn(`数据项的vector字段中的${key}不是有效的向量`);
                 // 初始化或修正该项为有效向量，这里假设向量是二维的，仅作为示例
-                迁移结果.vector[key] = [0, 0]; // 或者其他逻辑来初始化向量
+                迁移结果.vector[key] = new Float32Array([0, 0]); // 或者其他逻辑来初始化向量
             } else {
                 //正常情况下直接复制向量
-                迁移结果.vector[key] = 数据项.vector[key]
+                迁移结果.vector[key] =new Float32Array(数据项.vector[key])
             }
         });
     }
