@@ -83,7 +83,6 @@ function 创建任务队列(编辑器上下文, renderInstancies,编辑器上下
 }
 
 async function 执行任务(renderInstance, 编辑器上下文,编辑器上下文特征向量) {
-  
     const $处理并显示tips = 柯里化(处理并显示tips)(编辑器上下文);
     try {
         if (renderInstance.renderEditorTips) {
