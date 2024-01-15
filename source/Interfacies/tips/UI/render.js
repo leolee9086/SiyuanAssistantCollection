@@ -51,12 +51,11 @@ function 去重待添加数组() {
 }
 
 // 限制待添加数组的长度，只保留最新的10个元素，同时保持原有顺序
-function 限制待添加数组长度() {
-    if(待添加数组.length>1000){
+function 限制待添加数组长度(num) {
+    if(待添加数组.length>(num||1000)){
             移除每个维度最低分的项目(待添加数组)
-    
     }
-    if (待添加数组.length > 1000) {
+    if (待添加数组.length > (num||1000)) {
 
         // 根据time属性创建一个映射，然后根据time降序排序
         const sortedByTime = 待添加数组
@@ -121,9 +120,19 @@ async function 批量渲染() {
     const { signal } = newController;
 
     try {
-        智能防抖(去重待添加数组)(signal);
-        智能防抖(排序待添加数组)(待添加数组, signal);
-        限制待添加数组长度();
+        const startTime = performance.now();
+
+        await 智能防抖(去重待添加数组)(signal);
+        await 智能防抖(排序待添加数组)(待添加数组, signal);
+
+        const endTime = performance.now();
+        if (endTime - startTime > 50) {
+            // 如果去重和排序操作耗时超过100毫秒，清空数组
+            限制待添加数组长度(20);
+        } else {
+            限制待添加数组长度();
+        }
+
         sac.statusMonitor.set('tips', 'current', 待添加数组);
     } catch (e) {
         // 错误处理
@@ -131,7 +140,7 @@ async function 批量渲染() {
         // 无论成功或失败，都重置控制器和标志
         controller = newController;
         tips整理中 = false;
-        调度批量渲染()
+        调度批量渲染();
     }
 }
 

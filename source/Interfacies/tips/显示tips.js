@@ -42,7 +42,7 @@ export let 显示tips = async () => {
     sac.statusMonitor.set('context', 'editor', 编辑器上下文);
     let 编辑器上下文特征向量
     //因为向量检索的成本比较高
-    if (更新并检查分词差异(编辑器上下文.tokens,20)) {
+    if (更新并检查分词差异(编辑器上下文.tokens)) {
         sac.logger.tipsLog(`触发编辑器上下文向量索引,正在生成编辑器向量`)
         let res = await text2vec(编辑器上下文.editableElement.innerText)
         console.error(res)

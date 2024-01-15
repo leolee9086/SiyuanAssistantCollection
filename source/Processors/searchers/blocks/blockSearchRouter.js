@@ -39,7 +39,7 @@ blockSearchRouter.post('/vector', async (ctx, next) => {
         console.warn('数据集查询异常:', collectionsRes.body.error)
     }
     let 使用原始结果 = false
-    let 结果数量 = 100
+    let 结果数量 = 36
     let 标题和文档包含全部内容 = sac.configurer.get('聊天工具设置', '发送参考时文档和标题块发送全部内容').$value
     let 得分阈值 = 0.5
     let 参考分数较高时给出文档全文 = sac.configurer.get('聊天工具设置', '参考分数较高时给出文档全文').$value
@@ -58,6 +58,7 @@ blockSearchRouter.post('/vector', async (ctx, next) => {
         },
         method: 'POST',
     })
+    
     let data = await vectorTextSearcherModule.seachBlockWithVector(res1.body.data, 标题和文档包含全部内容, 使用原始结果, 得分阈值, 参考分数较高时给出文档全文)
     ctx.body = data
 })

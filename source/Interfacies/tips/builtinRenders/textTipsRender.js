@@ -16,6 +16,10 @@ export const tipsRender = class {
                             item.type='keyboardTips'
                             return item
                         }
+                    ).filter(
+                        item=>{
+                            return item.block.id!==editorContext.blockID
+                        }
                     )
                 }
                 //如果主动调用showTips函数的话,就必须给出编辑器上下文,否则会被直接忽略
