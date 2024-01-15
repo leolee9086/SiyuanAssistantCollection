@@ -115,10 +115,10 @@ export async function scoreItem(item, baseString,bm25scores) {
     if (!hasValidDescription(item)) {
         return 0; // 如果描述无效，直接返回0分
     }
-    准备特征向量(item)
+   // 准备特征向量(item)
     根据生成时间对tips项目排序(item); // 填充scores.time属性
     根据文本内容对tips评分(item, baseString)
-    await 根据特征向量对tips评分(item, baseString)
+  //  await 根据特征向量对tips评分(item, baseString)
     try{
     item.scores.bm25=bm25scores.find(doc=>{return doc.id===item.id}).score
     }catch(e){

@@ -20,7 +20,6 @@ export const 清理块索引 = async (数据集名称, 间隔时间 = 3000) => {
         let 缓存的已索引结果 = JSON.parse(await fs.readFile('/temp/noobTemp/blockHashs.json'))
         缓存的已索引结果.forEach(item => 已索引块哈希.add(item))
     }
-
     let idSQL = `select id,hash from blocks  where content <> '' order by updated desc limit 102400`
     kernelApi.SQL({ 'stmt': idSQL }).then(
         async data => {

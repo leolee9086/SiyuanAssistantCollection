@@ -1,5 +1,5 @@
 export const tipsRender = class {
-    async renderEditorTips(editorContext) {
+    async renderEditorVectorTips(editorContext) {
         this.internalFetch('/search/blocks/vector', {
             body: {
                 query: editorContext.editableElement.innerText,
