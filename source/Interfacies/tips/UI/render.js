@@ -52,56 +52,95 @@ function 去重待添加数组() {
 
 // 限制待添加数组的长度，只保留最新的10个元素，同时保持原有顺序
 function 限制待添加数组长度() {
-    if (待添加数组.length > 100) {
+    if(待添加数组.length>1000){
+            移除每个维度最低分的项目(待添加数组)
+    
+    }
+    if (待添加数组.length > 1000) {
+
         // 根据time属性创建一个映射，然后根据time降序排序
         const sortedByTime = 待添加数组
             .map((item, index) => ({ index, time: item.time }))
             .sort((a, b) => b.time - a.time)
-            .slice(0, 20) // 选择最新的100个元素
+            .slice(0, 10) // 选择最新的100个元素
             .map(item => item.index); // 转换回原数组的索引
 
-        // 创建一个新数组，包含原数组中最新的100个元素，保持原有顺序
+        // 创建一个新数组，包含原数组中最新的20个元素，保持原有顺序
         待添加数组 = sortedByTime
             .sort((a, b) => a - b) // 按原索引升序排序以保持原顺序
             .map(index => 待添加数组[index]);
     }
 }
-let controller = new AbortController();
-let { signal } = controller;
-// 批量渲染函数，使用上述拆分的函数
 
-let tips整理中
-async function 批量渲染() {
 
-    let f = () => {
-        tips整理中 = true
-        try {
-            // let frag = document.createDocumentFragment();
-            controller.abort()
-            const newcontroller = new AbortController();
-            signal = newcontroller.signal
-            controller = newcontroller
-            智能防抖(withPerformanceLogging(去重待添加数组))(signal)
-            智能防抖(withPerformanceLogging(排序待添加数组))(待添加数组, signal);
-            限制待添加数组长度()
-            //这里待会要改一下
-            tips整理中 = false
-
-            sac.statusMonitor.set('tips', 'current', 待添加数组)
-        } catch (e) {
-            const newcontroller = new AbortController();
-            signal = newcontroller.signal
-            controller = newcontroller
-            tips整理中 = false
+export const 移除每个维度最低分的项目 = (待添加数组) => {
+    // 找出所有存在的维度
+    const allDimensions = new Set();
+    待添加数组.forEach(item => {
+      if (item.scores) {
+        Object.keys(item.scores).forEach(dimension => {
+          allDimensions.add(dimension);
+        });
+      }
+    });
+  
+    // 对于每个维度，找出得分最低的项目并移除它
+    allDimensions.forEach(dimension => {
+      let lowestScore = Infinity;
+      let lowestScoreIndex = -1;
+  
+      待添加数组.forEach((item, index) => {
+        if (item.scores && item.scores[dimension] !== undefined && item.scores[dimension] < lowestScore) {
+          lowestScore = item.scores[dimension];
+          lowestScoreIndex = index;
         }
-        requestAnimationFrame(批量渲染)
+      });
+  
+      // 如果找到了得分最低的项目，移除它
+      if (lowestScoreIndex !== -1) {
+        待添加数组.splice(lowestScoreIndex, 1);
+      }
+    });
+  };
 
-    }
-    if (!tips整理中) {
-        requestIdleCallback(f)
-        return
+
+
+
+let tips整理中 = false;
+let controller = new AbortController();
+
+async function 批量渲染() {
+    if (tips整理中) {
+        // 如果已经在整理中，则不再触发新的整理
+        return;
     }
 
-    requestIdleCallback(批量渲染)
+    tips整理中 = true;
+    controller.abort(); // 取消之前的操作
+    const newController = new AbortController();
+    const { signal } = newController;
+
+    try {
+        智能防抖(去重待添加数组)(signal);
+        智能防抖(排序待添加数组)(待添加数组, signal);
+        限制待添加数组长度();
+        sac.statusMonitor.set('tips', 'current', 待添加数组);
+    } catch (e) {
+        // 错误处理
+    } finally {
+        // 无论成功或失败，都重置控制器和标志
+        controller = newController;
+        tips整理中 = false;
+        调度批量渲染()
+    }
 }
-requestIdleCallback(批量渲染)
+
+// 使用requestIdleCallback来调度批量渲染，设置一个合理的timeout
+function 调度批量渲染() {
+    requestIdleCallback(批量渲染, { timeout: 1000 });
+}
+
+// 初始调度
+调度批量渲染();
+
+  

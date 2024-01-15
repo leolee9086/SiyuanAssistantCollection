@@ -76,7 +76,7 @@ export const 定时获取更新块 = async () => {
         }
         // 每次减少10秒，但不低于1秒
     });
-    const 获取更新的块 = () => {
+    const 获取更新的块 = async() => {
         if (索引正在更新中) {
             间隔时间 = Math.min(间隔时间 + 1000, 最大间隔时间);
             sac.logger.indexlog(`索引正在更新中,${间隔时间 / 1000}秒后重试`)
@@ -87,7 +87,7 @@ export const 定时获取更新块 = async () => {
         let 更新块SQL = 已获取块哈希数组.length > 0
             ? `select * from blocks where hash NOT IN (${已获取块哈希数组}) AND content <> '' order by updated desc limit 100`
             : `select * from blocks where content <> '' order by updated desc limit 100`;
-        let 更新块数据 = kernelApi.SQL.sync({ 'stmt': 更新块SQL });
+        let 更新块数据 = await kernelApi.SQL({ 'stmt': 更新块SQL });
         if (更新块数据 && 更新块数据.length > 0) {
             更新块数据.forEach(块 => {
                 if (!已索引块哈希.has(块.hash)) {

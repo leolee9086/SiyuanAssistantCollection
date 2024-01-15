@@ -45,7 +45,7 @@ export function 根据生成时间对tips项目排序(item) {
     const now = Date.now(); // 获取当前时间的时间戳
     const timeDifference = Math.max(now - item.time, 0); // 计算时间差，忽略未来时间
     // 设置衰减率，使得5分钟后分数约为1/e
-    const decayRate = -0.00002314815; // 每毫秒的衰减率，相当于5分钟后衰减1/e
+    const decayRate = -0.00002314815*100; // 每毫秒的衰减率，相当于5分钟后衰减1/e
     item.scores.time = Math.max(0, Math.exp(decayRate * timeDifference));
 }
 export async function 根据特征向量对tips评分(item, baseString) {
@@ -115,10 +115,8 @@ export async function scoreItem(item, baseString,bm25scores) {
     if (!hasValidDescription(item)) {
         return 0; // 如果描述无效，直接返回0分
     }
-   // 准备特征向量(item)
     根据生成时间对tips项目排序(item); // 填充scores.time属性
     根据文本内容对tips评分(item, baseString)
-  //  await 根据特征向量对tips评分(item, baseString)
     try{
     item.scores.bm25=bm25scores.find(doc=>{return doc.id===item.id}).score
     }catch(e){
@@ -159,6 +157,6 @@ export function 修正评分(items) {
         const similarityCount = scoreCounts.get(roundedScore) || 0;
         // 根据相似内容的数量进行降权
         const similarityPenalty = 1 - (similarityPenaltyFactor * (similarityCount - 1)); // 减1是因为要排除项目本身
-        item.lastScore = item.score * similarityPenalty; // 应用降权到最终得分
+        item.scores.textScore = item.scores.textScore * similarityPenalty; // 应用降权到最终得分
     });
 }

@@ -2,6 +2,7 @@ import { 柯里化 } from "../../../../utils/functionTools.js";
 import { 计算余弦相似度, 计算余弦相似度32位 } from "../../../../utils/vector/similarity.js";
 import { 查找最相似点 } from "../vector.js";
 import Mingo from '../../../../../static/mingo.js'
+import { withPerformanceLogging } from "../../../../utils/functionAndClass/performanceRun.js";
 export const 以过滤函数和向量字段名创建查询数据集 = (数据集对象, 向量字段名, 前置查询条件) => {
     // 将数据集对象的值转换为数组
     let 数据集数组 = Object.values(数据集对象);
@@ -47,7 +48,7 @@ export const 应用后置过滤函数 = (查询结果, 后置过滤条件) => {
 export const 准备向量查询函数 = (数据集对象) => {
     return (向量字段名, 向量值, 结果数量 = 10, 前置过滤条件, 后置过滤条件) => {
         let 查询数据集 = 柯里化(以过滤函数和向量字段名创建查询数据集)(数据集对象)(向量字段名)(前置过滤条件)
-        let 查询结果 = 查找最相似点(向量值, 查询数据集, 结果数量, 计算余弦相似度32位)
+        let 查询结果 = withPerformanceLogging(查找最相似点)(向量值, 查询数据集, 结果数量,计算余弦相似度32位)
         查询结果 = 处理查询结果(查询结果)
         // 查询结果 = this.应用后置过滤函数(查询结果, 后置过滤函数)
         查询结果 = 应用后置过滤函数(查询结果, 后置过滤条件)

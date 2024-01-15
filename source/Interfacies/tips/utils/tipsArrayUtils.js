@@ -47,23 +47,25 @@ const 构建空闲排序任务 = (tips数组, 比较算法) => {
 
   return { start, stop };
 };
-
-
+let bm25 = new BM25()
 export const 排序待添加数组 = async (待添加数组) => {
   let baseString = await getCurrentEditorElementContent();
   // 一次遍历来初始化scores并计算scores.time
-  let bm25=new BM25()
   for (let item of 待添加数组) {
-    bm25.addDocument(item,['description','link'])
+    bm25.addDocument(item, ['description', 'link'])
   }
-  const bm25scores =bm25.query(baseString)
+  const bm25scores = bm25.query(baseString)
   for (let item of 待添加数组) {
     if (!item.scores) {
       item.scores = {}; // 初始化scores对象
     }
-    await scoreItem(item, baseString,bm25scores);
+    await scoreItem(item, baseString, bm25scores);
   }
-  //fixScore(待添加数组)
+  try {
+    修正评分(待添加数组)
+  } catch (e) {
+    console.error(e)
+  }
   // 现在数组中的每个item都有了scores属性，可以进行排序
   待添加数组.sort((a, b) => b.score - a.score);
 };

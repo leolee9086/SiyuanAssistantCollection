@@ -41,7 +41,7 @@ border-bottom:1px dashed var(--b3-theme-primary-light)">
                         </div>
                         <div class="fn__flex fn__flex-1">
                             <strong>{{ item.score ? (item.score * 10).toFixed(3) : item.score }}</strong>
-                            <strong>{{ item.scores }}</strong>
+                           <!-- <strong>{{ item.scores }}</strong>-->
                             <div class="fn__space fn__flex-1">
                             </div>
                             <span class="b3-tooltips b3-tooltips__nw block__icon block__icon--show"

@@ -41,7 +41,8 @@ export let 显示tips = async () => {
     编辑器上下文.currentToken = 当前光标所在分词结果;
     sac.statusMonitor.set('context', 'editor', 编辑器上下文);
     let 编辑器上下文特征向量
-    if (更新并检查分词差异(编辑器上下文.tokens)) {
+    //因为向量检索的成本比较高
+    if (更新并检查分词差异(编辑器上下文.tokens,20)) {
         sac.logger.tipsLog(`触发编辑器上下文向量索引,正在生成编辑器向量`)
         let res = await text2vec(编辑器上下文.editableElement.innerText)
         console.error(res)
@@ -109,7 +110,7 @@ async function 执行任务(renderInstance, 编辑器上下文, 编辑器上下�
                         } catch (e) {
                             sac.logger.tipsWarn(e)
                         }
-                    }
+                    },{timeout:500}
                     )
                 }
             }

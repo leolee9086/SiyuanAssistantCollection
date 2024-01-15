@@ -12,6 +12,11 @@ export class BM25 {
   }
 
   addDocument(doc, contentProperties) {
+    if(this.D.find(docItem=>{
+      return docItem.id===doc.id
+    })){
+      return
+    }
     let combinedContent = contentProperties.map(prop => doc[prop]).join(' ');
     const terms = jieba.cut(combinedContent);
     this.D.push({ terms: terms, id: doc.id });

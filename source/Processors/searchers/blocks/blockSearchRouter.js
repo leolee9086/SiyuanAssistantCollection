@@ -8,7 +8,7 @@ await vectorTextSearcherModule.$eval(document.getElementById('protyleLuteScript'
 const blockSearchRouter = new sac.路由管理器.Router()
 blockSearchRouter.post('/text', async (ctx, next) => {
     let 使用原始结果 = false
-    let 结果数量 = sac.configurer.get('聊天工具设置', '默认参考数量').$value
+    let 结果数量 = 100
     let 标题和文档包含全部内容 = true
     let data = await simpleTextSearcherModule.seachBlockWithText(ctx.req.body.query, { 使用原始结果, 结果数量, 标题和文档包含全部内容 })
     ctx.body = data
@@ -16,7 +16,7 @@ blockSearchRouter.post('/text', async (ctx, next) => {
 //使用query字符串进行搜索
 blockSearchRouter.get('/text/:query', async (ctx, next) => {
     let 使用原始结果 = false
-    let 结果数量 = sac.configurer.get('聊天工具设置', '默认参考数量').$value
+    let 结果数量 = 100
     let 标题和文档包含全部内容 = sac.configurer.get('聊天工具设置', '发送参考时文档和标题块发送全部内容').$value
     let data = await simpleTextSearcherModule.seachBlockWithText(ctx.params.query, { 使用原始结果, 结果数量, 标题和文档包含全部内容 })
     ctx.body = data
@@ -39,7 +39,7 @@ blockSearchRouter.post('/vector', async (ctx, next) => {
         console.warn('数据集查询异常:', collectionsRes.body.error)
     }
     let 使用原始结果 = false
-    let 结果数量 = sac.configurer.get('聊天工具设置', '默认参考数量').$value
+    let 结果数量 = 100
     let 标题和文档包含全部内容 = sac.configurer.get('聊天工具设置', '发送参考时文档和标题块发送全部内容').$value
     let 得分阈值 = 0.5
     let 参考分数较高时给出文档全文 = sac.configurer.get('聊天工具设置', '参考分数较高时给出文档全文').$value
@@ -63,7 +63,7 @@ blockSearchRouter.post('/vector', async (ctx, next) => {
 })
 blockSearchRouter.get('/vector/:query', async (ctx, next) => {
     let 使用原始结果 = false
-    let 结果数量 = sac.configurer.get('聊天工具设置', '默认参考数量').$value
+    let 结果数量 = 100
     let 标题和文档包含全部内容 = sac.configurer.get('聊天工具设置', '发送参考时文档和标题块发送全部内容').$value
     let 得分阈值 = 0.8
     let 参考分数较高时给出文档全文 = sac.configurer.get('聊天工具设置', '参考分数较高时给出文档全文').$value
