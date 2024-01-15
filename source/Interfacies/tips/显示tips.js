@@ -3,7 +3,7 @@ import { renderInstancies } from './package/loader.js';
 import { 使用结巴拆分元素 } from '../../utils/tokenizer/jieba.js';
 import { sac } from './runtime.js';
 import { 获取当前光标所在分词结果 } from '../../utils/rangeProcessor.js';
-import { 更新并检查分词差异, 计算分词差异 } from '../../utils/tokenizer/diff.js';
+import { 更新并检查分词差异} from '../../utils/tokenizer/diff.js';
 import { 处理并显示tips } from './UI/render.js';
 import { 柯里化 } from '../../utils/functionTools.js';
 import { 在空闲时间执行任务 } from '../../utils/functionAndClass/idleTime.js';
