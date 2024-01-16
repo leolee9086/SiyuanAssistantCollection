@@ -114,17 +114,28 @@ export  function 柯里化(原始函数) {
       }
   };
 }
-export function 左向柯里化(原始函数) {
-  return function 反向柯里化版本函数(...输入参数) {
-    if (输入参数.length >= 原始函数.length) {
-      return 原始函数.apply(this, 输入参数.slice(0, 原始函数.length));
-    } else {
-      return function(...args2) {
-        return 反向柯里化版本函数.apply(this, 输入参数.concat(args2));
-      };
-    }
-  };
+
+export function 逆序柯里化(原始函数) {
+  function 逆序柯里化内部(已收集参数) {
+    return function(...新参数) {
+      // 将新参数逆序并与已收集的参数合并
+      const 所有参数 = 新参数.reverse().concat(已收集参数);
+      if (所有参数.length >= 原始函数.length) {
+        // 如果收集的参数足够，则逆序并调用原始函数
+        return 原始函数(...所有参数.reverse());
+      } else {
+        // 否则返回一个新函数继续收集参数
+        return 逆序柯里化内部(所有参数);
+      }
+    };
+  }
+  // 开始逆序柯里化过程，初始没有已收集的参数
+  return 逆序柯里化内部([]);
 }
+
+let test = (a, b, c, d) => a / b / c / d;
+console.log(逆序柯里化(test)(1)(2)(3)(4)); // 应该输出 0.041666666666666664，即 1 / (2 / (3 / 4))
+console.log(逆序柯里化(test)(1, 2, 3, 4)); // 应该输出 0.041666666666666664，即 1 / (2 / (3 / 4))
 export function 等待参数达到长度后执行(原始函数, 预定长度) {
   let 柯里化版本函数 = 柯里化(原始函数);
   return function(...输入参数) {

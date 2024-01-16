@@ -1,4 +1,4 @@
-import { 左向柯里化, 柯里化 } from '../functionTools.js';
+import { 逆序柯里化, 柯里化 } from '../functionTools.js';
 export const 计算分词差异=(当前分词结果, 上一个分词结果)=>{
     // 创建两个集合，一个用于存储当前的分词结果，一个用于存储上一次的分词结果
     let 当前token集合 = new Set(当前分词结果.map(token => token.word));
@@ -29,5 +29,5 @@ export const 准备阈值检查函数=(分词结果数组)=>{
     return 柯里化(更新并检查分词差异)(分词结果数组)
 }
 export const 准备分词数组检查函数=(阈值=0)=>{
-    return 左向柯里化(更新并检查分词差异)(阈值)
+    return 逆序柯里化(更新并检查分词差异)(阈值)
 }

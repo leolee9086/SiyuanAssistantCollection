@@ -1,13 +1,16 @@
 import { sac, kernelApi } from "../../../asyncModules.js";
 import { 添加到入库队列 } from "./adder.js";
 import fs from "../../../polyfills/fs.js";
+import { 构建块向量数据项 } from "./dataBaseItem.js";
+import { 为索引记录准备索引函数 } from "./indexer.js";
+import { 逆序柯里化, 柯里化 } from "../../../utils/functionTools.js";
 let { internalFetch } = sac.路由管理器
 let 已索引块哈希 = new Set();
 let 待索引数组 = [];
 let 索引失败数组 = []
 let 索引中块哈希 = new Set()
 let 索引正在更新中 = false
-
+let 块向量索引函数 =逆序柯里化(为索引记录准备索引函数)(索引中块哈希)
 export const 清理块索引 = async (数据集名称, 间隔时间 = 3000) => {
     let id数组查询结果 = await internalFetch('/database/keys', {
         method: 'POST',
@@ -15,8 +18,8 @@ export const 清理块索引 = async (数据集名称, 间隔时间 = 3000) => {
             collection_name: 数据集名称
         }
     })
-    let 已入库块id数组 = id数组查询结果.body.data
-    已入库块id数组.forEach(item => 已索引块哈希.add(item.meta.hash))
+    let 已入库块哈希映射 = id数组查询结果.body.data
+    已入库块哈希映射.forEach(item => 已索引块哈希.add(item.meta.hash))
     if (await fs.exists('/temp/noobTemp/blockHashs.json')) {
         let 缓存的已索引结果 = JSON.parse(await fs.readFile('/temp/noobTemp/blockHashs.json'))
         缓存的已索引结果.forEach(item => 已索引块哈希.add(item))
@@ -28,7 +31,7 @@ export const 清理块索引 = async (数据集名称, 间隔时间 = 3000) => {
                 data = data.map(item => {
                     return item.id
                 })
-                let id数组1 = 已入库块id数组.filter(
+                let id数组1 = 已入库块哈希映射.filter(
                     item => { return !data.includes(item.id) }
                 )
                 if (id数组1.length) {
@@ -76,7 +79,7 @@ export const 定时获取更新块 = async () => {
         }
         // 每次减少10秒，但不低于1秒
     });
-    const 获取更新的块 = async() => {
+    const 获取更新的块 = async () => {
         if (索引正在更新中) {
             间隔时间 = Math.min(间隔时间 + 1000, 最大间隔时间);
             sac.logger.indexlog(`索引正在更新中,${间隔时间 / 1000}秒后重试`)
@@ -113,7 +116,14 @@ export const 定时获取更新块 = async () => {
 
     定时执行(); // 初始调用
 };
-
+function 记录哈希并添加到入库队列(块数据, 向量名, 向量值) {
+    if (块数据) {
+        索引中块哈希.delete(块数据.hash);
+        已索引块哈希.add(块数据.hash);
+        let 块数据项 = 构建块向量数据项(块数据,向量名,向量值)
+        添加到入库队列(块数据项);
+    }
+}
 export function 定时实行块索引添加(retryInterval = 1000) {
     if (!待索引数组.length && 索引失败数组.lenght) {
         sac.logger.indexlog(`队列清空,放回${索引失败数组.lenght}个块`)
@@ -136,10 +146,10 @@ export function 定时实行块索引添加(retryInterval = 1000) {
             if (待处理的块数组.length > 0) {
                 let 索引开始时间 = Date.now(); // 记录索引开始的时间
                 let 索引开始前已索引块数量 = 已索引块哈希.size
-                indexBlocks(待处理的块数组, (结果数组, 其他线程索引中块数量) => {
+                块向量索引函数(待处理的块数组,(结果数组, 其他线程索引中块数量) => {
                     let 索引结束时间 = Date.now(); // 记录索引结束的时间
                     let 索引耗时 = 索引结束时间 - 索引开始时间; // 计算索引耗时
-                    let 成功索引块 = []
+                    let 本轮索引成功块数组 = []
                     结果数组.forEach((结果) => {
                         if (!(结果 && 结果.data && 结果.data.length > 0)) {
                             // 当返回值中的结果的data不是一个非空数组时，根据结果的id将块放回索引失败数组
@@ -149,32 +159,17 @@ export function 定时实行块索引添加(retryInterval = 1000) {
                             }
                         } else {
                             const 待处理块 = 待处理的块数组.find(块 => 块.id === 结果.id);
-                            if (待处理块) {
-                                索引中块哈希.delete(待处理块.hash);
-                                已索引块哈希.add(待处理块.hash);
-                                成功索引块.push(待处理块)
-                                添加到入库队列(
-                                    {
-                                        id: 待处理块.id,
-                                        meta: {
-                                            link: `siyuan://blocks/${待处理块.id}`,
-                                            box: 待处理块.box,
-                                            hash: 待处理块.hash
-                                        },
-                                        vector: {
-                                            'leolee9086/text2vec-base-chinese': 结果.data[0].embedding
-                                        }
-                                    }
-                                );
-                            }
+                            记录哈希并添加到入库队列(待处理块,'leolee9086/text2vec-base-chinese', 结果.data[0].embedding)
+                            本轮索引成功块数组.push(待处理块)
+
                         }
                     });
                     if (结果数组.length) {
                         sac.logger.indexlog(`
-已索引以下${成功索引块.length}个块: \n${成功索引块.map(块 => 块.id)};
+已索引以下${本轮索引成功块数组.length}个块: \n${本轮索引成功块数组.map(块 => 块.id)};
 索引中块${索引中块哈希.size}个
 索引耗时:${索引耗时}毫秒,待索引块数量为${待索引数组.length}个;
-本轮平均处理时长为${Math.floor(索引耗时 / 待处理的块数组.length)}毫秒,总计${待处理的块数组.length}个块,其中${待处理的块数组.length - 成功索引块.length - 其他线程索引中块数量}个块处理失败,${其他线程索引中块数量}个块在处理中已经跳过;
+本轮平均处理时长为${Math.floor(索引耗时 / 待处理的块数组.length)}毫秒,总计${待处理的块数组.length}个块,其中${待处理的块数组.length - 本轮索引成功块数组.length - 其他线程索引中块数量}个块处理失败,${其他线程索引中块数量}个块在处理中已经跳过;
 已完成索引${已索引块哈希.size}个块;本轮索引开始时已成功索引数量${索引开始前已索引块数量}
                         `);
 
@@ -190,7 +185,7 @@ export function 定时实行块索引添加(retryInterval = 1000) {
 }
 
 // 假设的indexBlocks函数，需要实现具体的索引逻辑
-function indexBlocks(blocks, callback) {
+function _indexBlocks(blocks, callback) {
     // 索引逻辑实现...
     // 索引完成后调用回调
     let 其他线程索引中块 = []
