@@ -35,10 +35,10 @@ export function 在空闲时间执行任务(任务数组) {
             }
         }
         if (当前任务索引 < 任务数组.length) {
-            requestIdleCallback(执行下一步);
+            requestIdleCallback(执行下一步,{timeout:1000});
         }
     };
-    requestIdleCallback(执行下一步);
+    requestIdleCallback(执行下一步,{timeout:1000});
 }
 
 

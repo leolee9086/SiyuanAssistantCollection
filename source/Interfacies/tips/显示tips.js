@@ -29,11 +29,9 @@ function 创建编辑器上下文() {
     };
 }
 //这样复制而不是全部复制是为了有机会大致检查一下
-export let 显示tips = async () => {
-
+export let 生成tips渲染任务 = async () => {
     //我现在有点怀疑自己是猪
     let 编辑器上下文 = 创建编辑器上下文()
-
     const 当前光标所在分词结果 = 获取当前光标所在分词结果(编辑器上下文.tokens, 编辑器上下文.position);
     if (!当前光标所在分词结果) {
         return;
@@ -45,7 +43,6 @@ export let 显示tips = async () => {
     if (更新并检查分词差异(编辑器上下文.tokens)) {
         sac.logger.tipsLog(`触发编辑器上下文向量索引,正在生成编辑器向量`)
         let res = await text2vec(编辑器上下文.editableElement.innerText)
-        console.error(res)
         if (res.body.data) {
             编辑器上下文特征向量 = res.body.data[0].embedding
         }
@@ -94,28 +91,40 @@ let 触发条件表 = [
     }
 ]
 
-async function 执行任务(renderInstance, 编辑器上下文, 编辑器上下文特征向量) {
-    const $处理并显示tips = 柯里化(处理并显示tips)(编辑器上下文);
-    try {
-        for (const 触发条件 of 触发条件表) {
-            if (renderInstance[触发条件.name]) {
-                if (await 触发条件.assert(renderInstance, 编辑器上下文, 编辑器上下文特征向量)) {
-                    requestIdleCallback(async () => {
-                        try {
-                            let data = await (智能防抖(renderInstance[触发条件.name].bind(renderInstance)))(编辑器上下文);
-                            if (data) {
-                                data.source = renderInstance.name;
-                                $处理并显示tips(data);
-                            }
-                        } catch (e) {
-                            sac.logger.tipsWarn(e)
-                        }
-                    },{timeout:500}
-                    )
-                }
-            }
-        }
-    } catch (e) {
-        sac.logger.tipsWarn(e)
+// 将函数拆分为两个部分：触发条件检查和任务执行
+
+// 触发条件检查函数
+async function 检查触发条件(renderInstance, 编辑器上下文, 编辑器上下文特征向量) {
+    for (const 触发条件 of 触发条件表) {
+      const { name, assert } = 触发条件;
+      const conditionMet = await assert(renderInstance, 编辑器上下文, 编辑器上下文特征向量);
+      if (renderInstance[name] && conditionMet) {
+        return name; // 返回满足条件的触发条件名称
+      }
     }
-}
+    return null; // 如果没有条件满足，返回null
+  }
+  
+  // 任务执行函数
+  async function 执行任务(renderInstance, 编辑器上下文, 编辑器上下文特征向量) {
+    const 显示tips = 柯里化(处理并显示tips)(renderInstance)(编辑器上下文);
+    try {
+      const triggerName = await 检查触发条件(renderInstance, 编辑器上下文, 编辑器上下文特征向量);
+      if (triggerName) {
+       // requestIdleCallback(async () => {
+          try {
+            const debouncedFunction = 智能防抖(renderInstance[triggerName].bind(renderInstance));
+            const data = await debouncedFunction(编辑器上下文);
+            if (data) {
+              data.source = renderInstance.name;
+              显示tips(data);
+            }
+          } catch (e) {
+            sac.logger.tipsWarn(e);
+          }
+       // }, { timeout: 500 });
+      }
+    } catch (e) {
+      sac.logger.tipsWarn(e);
+    }
+  }

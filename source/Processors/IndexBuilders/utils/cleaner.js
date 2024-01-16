@@ -69,7 +69,6 @@ export const 定时获取更新块 = async () => {
     let 间隔时间 = 初始间隔时间; // 初始间隔时间为1000毫秒
     const 最小间隔时间 = 1000; // 最短间隔时间为1秒
     const 最大间隔时间 = 600000; // 最长间隔时间为十分钟
-
     sac.eventBus.on('ws-main', (e) => {
         if (e.detail.cmd === "transactions") {
             间隔时间 = Math.max(最小间隔时间, 间隔时间 - 10000);

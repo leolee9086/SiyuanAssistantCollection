@@ -4,7 +4,9 @@ import { 排序待添加数组 } from "../utils/tipsArrayUtils.js";
 import { genTipsHTML } from "./buildTipsHTML.js";
 import { withPerformanceLogging } from "../../../utils/functionAndClass/performanceRun.js";
 let 待添加数组 = sac.statusMonitor.get('tips', 'current').$value || []
-export async function 处理并显示tips(data, 编辑器上下文) {
+export async function 处理并显示tips(data, 编辑器上下文,renderInstance) {
+    data.source = renderInstance.name
+
     if (data && data.item && data.item[0])
         for (let tipsItem of data.item) {
             tipsItem.source = tipsItem.source || data.source;

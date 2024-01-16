@@ -4,7 +4,7 @@ import { kernelApi } from '../../../asyncModules.js';
 import { jieba } from '../../../utils/tokenizer/jieba.js';
 import { sac } from '../../../asyncModules.js';
 import { 封装对象函数使用缓存 } from '../../../utils/functionAndClass/cacheAble.js';
-import { 准备渲染项目 } from '../UI/render.js';
+import { 准备渲染项目, 处理并显示tips } from '../UI/render.js';
 export const renderInstancies = []
 // 定义加载渲染实例的函数
 export async function 加载渲染实例(tipsPackagesDefine, renderName) {
@@ -38,7 +38,8 @@ function 初始化渲染实例(renderClass, renderName) {
         try {
             let tips = sac.statusMonitor.get('tips', 'current').$value
             if(data){
-                data.source = renderInstance.name
+                处理并显示tips(data,editorContext,renderInstance)
+                /*data.source = renderInstance.name
                 data.item.forEach(
                     item => {
                         if (item) {
@@ -47,7 +48,7 @@ function 初始化渲染实例(renderClass, renderName) {
                             tips.push(准备渲染项目(item))
                         }
                     }
-                )
+                )*/
     
             }
         } catch (e) {

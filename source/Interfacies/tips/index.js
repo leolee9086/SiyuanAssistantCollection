@@ -6,7 +6,7 @@ import { 加载渲染实例, 加载渲染器类, } from './package/loader.js';
 //这是内部的tips实现,分别是根据文字进行搜索和根据向量进行搜索
 import { tipsRender as vectorTipsRender } from './builtinRenders/vectorTipsRender.js';
 import { tipsRender as textTipsRender } from './builtinRenders/textTipsRender.js';
-import { 显示tips } from './显示tips.js';
+import { 生成tips渲染任务 } from './显示tips.js';
 import { initVueApp } from '../../UI/utils/componentsLoader.js';
 import { 输入事件发生在protyle内部 } from '../../utils/events/isIn.js';
 
@@ -58,12 +58,12 @@ export const Emitter = class {
     channel = 'tips-ui';
     ["@main-" + sac.事件管理器.DOM键盘事件表.文本输入] = (e) => {
         if (输入事件发生在protyle内部) {
-            显示tips()
+            生成tips渲染任务()
         }
     }
     ["@main-" + sac.事件管理器.DOM键盘事件表.组合结束] = (e) => {
         if (输入事件发生在protyle内部) {
-            显示tips()
+            生成tips渲染任务()
         }
     }
 }
