@@ -7,6 +7,7 @@ let 待索引数组 = [];
 let 索引失败数组 = []
 let 索引中块哈希 = new Set()
 let 索引正在更新中 = false
+
 export const 清理块索引 = async (数据集名称, 间隔时间 = 3000) => {
     let id数组查询结果 = await internalFetch('/database/keys', {
         method: 'POST',
@@ -14,8 +15,8 @@ export const 清理块索引 = async (数据集名称, 间隔时间 = 3000) => {
             collection_name: 数据集名称
         }
     })
-    let ids = id数组查询结果.body.data
-    ids.forEach(item => 已索引块哈希.add(item.meta.hash))
+    let 已入库块id数组 = id数组查询结果.body.data
+    已入库块id数组.forEach(item => 已索引块哈希.add(item.meta.hash))
     if (await fs.exists('/temp/noobTemp/blockHashs.json')) {
         let 缓存的已索引结果 = JSON.parse(await fs.readFile('/temp/noobTemp/blockHashs.json'))
         缓存的已索引结果.forEach(item => 已索引块哈希.add(item))
@@ -27,7 +28,7 @@ export const 清理块索引 = async (数据集名称, 间隔时间 = 3000) => {
                 data = data.map(item => {
                     return item.id
                 })
-                let id数组1 = id数组查询结果.body.data.filter(
+                let id数组1 = 已入库块id数组.filter(
                     item => { return !data.includes(item.id) }
                 )
                 if (id数组1.length) {
