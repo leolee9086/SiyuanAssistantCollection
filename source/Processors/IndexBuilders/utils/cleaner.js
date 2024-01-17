@@ -186,7 +186,7 @@ export function 定时实行块索引添加(retryInterval = 1000) {
                         let 总索引时间 = 平均索引时间 * 索引次数
                         总索引时间 = 总索引时间 + (索引耗时 * workerCount)
                         索引次数 += 1
-                        平均索引时间 = 总索引时间 / 索引次数
+                        平均索引时间 = 总索引时间 / 索引次数/workerCount
                         sac.logger.indexlog(`
 已索引以下${本轮索引成功块数组.length}个块: \n${本轮索引成功块数组.map(块 => 块.id)};
 索引中块${索引中块哈希.size}个
