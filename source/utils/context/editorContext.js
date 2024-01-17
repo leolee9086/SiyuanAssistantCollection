@@ -8,6 +8,12 @@ export function 创建编辑器上下文() {
     return null;
   }
   let 分词结果数组 = 使用结巴拆分元素(editableElement);
+  const 当前光标所在分词结果 = 获取当前光标所在分词结果(编辑器上下文.tokens, 编辑器上下文.position);
+  if (!当前光标所在分词结果) {
+    return;
+  }
+  编辑器上下文.currentToken = 当前光标所在分词结果;
+
   return {
     position: pos,
     text: editableElement.innerText,
