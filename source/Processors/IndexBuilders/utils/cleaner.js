@@ -124,6 +124,10 @@ function 记录哈希并添加到入库队列(块数据, 向量名, 向量值) {
         添加到入库队列(块数据项);
     }
 }
+
+
+let 索引次数 =1
+let 平均索引时间=0
 export function 定时实行块索引添加(retryInterval = 1000) {
     if (!待索引数组.length && 索引失败数组.lenght) {
         sac.logger.indexlog(`队列清空,放回${索引失败数组.lenght}个块`)
@@ -133,7 +137,6 @@ export function 定时实行块索引添加(retryInterval = 1000) {
             }
         )
         索引失败数组 = []; // 清空索引失败数组
-
     }
     if (待索引数组.length > 0) {
         // 计算每个worker应处理的块数量
@@ -165,18 +168,24 @@ export function 定时实行块索引添加(retryInterval = 1000) {
                         }
                     });
                     if (结果数组.length) {
+                        let 总索引时间 = 平均索引时间*索引次数
+                        总索引时间 = 总索引时间+(索引耗时*workerCount)
+                        索引次数+=1
+                        平均索引时间= 总索引时间/索引次数
                         sac.logger.indexlog(`
 已索引以下${本轮索引成功块数组.length}个块: \n${本轮索引成功块数组.map(块 => 块.id)};
 索引中块${索引中块哈希.size}个
 索引耗时:${索引耗时}毫秒,待索引块数量为${待索引数组.length}个;
 本轮平均处理时长为${Math.floor(索引耗时 / 待处理的块数组.length)}毫秒,总计${待处理的块数组.length}个块,其中${待处理的块数组.length - 本轮索引成功块数组.length - 其他线程索引中块数量}个块处理失败,${其他线程索引中块数量}个块在处理中已经跳过;
-已完成索引${已索引块哈希.size}个块;本轮索引开始时已成功索引数量${索引开始前已索引块数量}
+已完成索引${已索引块哈希.size}个块;本轮索引开始时已成功索引数量${索引开始前已索引块数量},已经调整下一次索引时间为${Math.max(平均索引时间,retryInterval)/1000}秒后
                         `);
-
+                      
+                        
                     }
                 });
             }
         }
+        retryInterval=Math.max(平均索引时间,retryInterval)
         setTimeout(定时实行块索引添加, Math.max(retryInterval, 1000)); // 设置一个合理的间隔时间，例如1秒，以避免CPU过载
     } else {
         sac.logger.indexlog(`待索引数组为空，没有更多块需要索引。共计索引${已索引块哈希.size}个块`);

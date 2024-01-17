@@ -51,10 +51,16 @@ let bm25 = new BM25()
 export const 排序待添加数组 = async (待添加数组) => {
   let baseString = await getCurrentEditorElementContent();
   let startTime = performance.now();
+  let threshold = 50; // 设置50毫秒作为性能阈值
 
   // 一次遍历来初始化scores并计算scores.time
   for (let item of 待添加数组) {
     bm25.addDocument(item, ['description', 'link']);
+    let currentTime = performance.now();
+    if (currentTime - startTime > threshold) {
+      // 如果添加时间超过阈值，停止添加
+      break;
+    }
   }
 
   const bm25scores = bm25.query(baseString);

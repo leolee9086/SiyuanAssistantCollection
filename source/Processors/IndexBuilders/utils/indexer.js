@@ -41,3 +41,4 @@ export function 为索引记录准备索引函数(索引中块哈希,blocks, cal
         callback([], 其他线程索引中块.length);
     }
 }
+

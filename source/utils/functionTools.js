@@ -145,6 +145,21 @@ export function 等待参数达到长度后执行(原始函数, 预定长度) {
       }
   };
 }
+export function 等待参数长度到达(参数长度) {
+  return {
+    执行: function(目标函数) {
+      return function(...参数) {
+        if (参数.length >= 参数长度) {
+          return 目标函数(...参数);
+        } else {
+          return function(...新参数) {
+            return 目标函数(...参数, ...新参数);
+          };
+        }
+      };
+    }
+  };
+}
 
 export function 组合函数(...函数数组){
   // 使用 Array.prototype.flat 来确保函数数组总是一维的

@@ -20,7 +20,10 @@
                 <template v-for="(text, k) in message.stack" :key="k">
                     <div>{{ text }}</div>
                 </template>
+                <div v-if="message.count > 1">Count: {{ message.count }}</div>
+
             </div>
+
         </template>
     </div>
 </template>
@@ -45,13 +48,29 @@ sac.eventBus.on('logger-add', (e) => {
     if (Array.isArray(messages)) {
         messages.forEach(item => {
             item.id = item.id || Lute.NewNodeID();
-            loggerItems.push(item);
+            const lastItem = loggerItems[loggerItems.length - 1];
+            if (lastItem && item.name === lastItem.name && item.level === lastItem.level && item.messages.join() === lastItem.messages.join()) {
+                // 如果消息相同，增加计数器而不是添加新条目
+                lastItem.count = (lastItem.count || 1) + 1;
+            } else {
+                // 添加一个新条目，并设置计数器为1
+                item.count = 1;
+                loggerItems.push(item);
+            }
             levels.add(item.level);
             names.add(item.name);
         });
     } else {
         messages.id = messages.id || Lute.NewNodeID();
-        loggerItems.push(messages);
+        const lastItem = loggerItems[loggerItems.length - 1];
+        if (lastItem && messages.name === lastItem.name && messages.level === lastItem.level && messages.messages.join() === lastItem.messages.join()) {
+            // 如果消息相同，增加计数器而不是添加新条目
+            lastItem.count = (lastItem.count || 1) + 1;
+        } else {
+            // 添加一个新条目，并设置计数器为1
+            messages.count = 1;
+            loggerItems.push(messages);
+        }
         levels.add(messages.level);
         names.add(messages.name);
     }
