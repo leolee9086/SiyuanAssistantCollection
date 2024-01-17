@@ -1,13 +1,14 @@
 import { sac } from '../../asyncModules.js';
 import { buildLogProxy } from './proxy.js';
+import { 去循环序列化, 是否循环引用 } from './safeStringify.js';
 export let chunk = []
 let addLog = async (messages) => {
   const maxSize = 1024; // 设置最大大小，例如1MB
   let massageString = ""
   let messageSize = 0
   try {
-    massageString = JSON.stringify(messages)
-    messageSize = new Blob([JSON.stringify(messages)]).size; // 估计大小
+    massageString = 去循环序列化(messages)
+    messageSize = new Blob([去循环序列化(messages)]).size; // 估计大小
   } catch (e) {
     console.error('无法发送消息', e, messages)
     return
@@ -98,7 +99,7 @@ class 日志记录器原型 {
       await writter.writeObject({
         level: logLevel,
         name: logName,
-        messages: messages,
+        messages: messages.map(message => { return !是否循环引用(message)? message : 去循环序列化(message) }),
         stack: newStackTrace && newStackTrace.split("\n")
       });
     }

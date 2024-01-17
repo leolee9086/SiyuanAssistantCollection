@@ -32,7 +32,7 @@
 import { ref, onMounted, computed, reactive, watch } from 'vue';
 import { sac } from "runtime";
 import { getColorForLogLevel } from './utils/messageColor.js';
-
+import { 去循环序列化 } from '../../../../utils/logProxy/safeStringify.js';
 const loggerItems = reactive([]);
 const filter = reactive({ name: '', level: '' });
 
@@ -49,7 +49,7 @@ sac.eventBus.on('logger-add', (e) => {
         messages.forEach(item => {
             item.id = item.id || Lute.NewNodeID();
             const lastItem = loggerItems[loggerItems.length - 1];
-            if (lastItem && item.name === lastItem.name && item.level === lastItem.level && item.messages.join() === lastItem.messages.join()) {
+            if (lastItem && item.name === lastItem.name && item.level === lastItem.level && item.messages === lastItem.messages) {
                 // 如果消息相同，增加计数器而不是添加新条目
                 lastItem.count = (lastItem.count || 1) + 1;
             } else {
@@ -63,7 +63,7 @@ sac.eventBus.on('logger-add', (e) => {
     } else {
         messages.id = messages.id || Lute.NewNodeID();
         const lastItem = loggerItems[loggerItems.length - 1];
-        if (lastItem && messages.name === lastItem.name && messages.level === lastItem.level && messages.messages.join() === lastItem.messages.join()) {
+        if (lastItem && messages.name === lastItem.name && messages.level === lastItem.level && messages.messages === lastItem.messages) {
             // 如果消息相同，增加计数器而不是添加新条目
             lastItem.count = (lastItem.count || 1) + 1;
         } else {

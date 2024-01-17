@@ -36,9 +36,18 @@ export class 数据集 {
             this.同步数据()
         }, 5000)
     
-        this.修改时间 = 0
+        this.修改时间 = Date.now()
     }
     async 同步数据() {
+        if (!this.已经修改) {
+            return;
+        }
+        if(this.数据保存中){
+            return
+        }
+        if(!this.数据加载完成){
+            return
+        }
         this.索引文件名称 = this.数据库配置.文件保存地址 + '/' + this.文件夹名称 + '/index.json'
 
         let 远程端主键列表 = [];
@@ -63,7 +72,7 @@ export class 数据集 {
                     await this.加载数据()
                 }
                 let data = {
-                    upated: this.修改时间||Date.now(),
+                    upated: this.修改时间,
                     keys: 合并后主键列表
                 }
                 await fs.writeFile(this.索引文件名称, JSON.stringify(
@@ -71,7 +80,7 @@ export class 数据集 {
     
             }else if((需要删除的主键||需要添加的主键||this.已经修改)&&this.修改时间&&this.修改时间-远程端更新时间>2000){
                 let data = {
-                    upated: this.修改时间||Date.now(),
+                    upated: this.修改时间,
                     keys: 合并后主键列表
                 }
                 await fs.writeFile(this.索引文件名称, JSON.stringify(
@@ -81,7 +90,7 @@ export class 数据集 {
 
         } else {
             let data = {
-                upated: this.修改时间||Date.now(),
+                upated: this.修改时间,
                 keys: 合并后主键列表
             }
             await fs.writeFile(this.索引文件名称, JSON.stringify(

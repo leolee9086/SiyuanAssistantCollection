@@ -43,7 +43,7 @@ export const tipsRender = class {
                 res.body ? this.showTips(data, editorContext) : null
             }
         )
-        if (editorContext.currentToken.word.length >= 2) {
+        if (editorContext.currentToken&&editorContext.currentToken.word.length >= 2) {
             this.internalFetch('/search/blocks/vector', {
                 body: {
                     query: editorContext.currentToken.word,

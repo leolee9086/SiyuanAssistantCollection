@@ -40,7 +40,7 @@ function 处理复杂数据类型(value, depth, arrayLimit) {
   return value;
 }
 
-export function safeStringify(obj, depth = 5, arrayLimit = 50) {
+export function 去循环序列化(obj, depth = 5, arrayLimit = 50) {
   const cache = new Set();
   return JSON.stringify(obj, (key, value) => {
     if (depth <= 0) {
@@ -48,9 +48,25 @@ export function safeStringify(obj, depth = 5, arrayLimit = 50) {
     }
     if (typeof value === 'object' && value !== null) {
       value = 处理循环引用(cache)(key, value);
-      value = 处理复杂数据类型(value, depth, arrayLimit);
       depth--;
     }
     return value;
   });
+}
+export function 是否循环引用(obj) {
+  const cache = new Set();
+  try {
+    JSON.stringify(obj, (key, value) => {
+      if (typeof value === 'object' && value !== null) {
+        if (cache.has(value)) {
+          throw new Error('Detected a cycle');
+        }
+        cache.add(value);
+      }
+      return value;
+    });
+    return false; // 如果没有循环引用，返回false
+  } catch (error) {
+    return true; // 如果检测到循环引用，返回true
+  }
 }

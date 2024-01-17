@@ -1,9 +1,22 @@
 import * as jieba from '../../../static/jieba_rs_wasm.js'
-import { sac } from '../../asyncModules.js';
 import { 创建token对象 } from "../DOMTokenizer.js";
 import { 校验分词是否连续,校验是否包含 } from './utils.js';
+import fs from '../../polyfills/fs.js';
 //结巴的初始化会造成问题
 await jieba.default(import.meta.resolve('../../../static/jieba_rs_wasm_bg.wasm'))
+try{
+  let dict = await fs.readFile('/data/public/sac-tokenizer/dict.json')
+
+  let 已学习词典= JSON.parse(dict)
+  已学习词典.forEach(
+    word=>{
+      word&&jieba.add_word(word)
+    }
+  )
+}catch(e){
+  console.warn(e)
+}
+
 jieba.add_word('思源笔记')
 jieba.add_word('链滴')
 export {jieba as jieba}

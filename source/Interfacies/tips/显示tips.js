@@ -1,7 +1,6 @@
 import { 获取选区屏幕坐标 } from '../../utils/rangeProcessor.js';
 import { renderInstancies } from './package/loader.js';
 import { sac } from './runtime.js';
-import { 获取当前光标所在分词结果 } from '../../utils/rangeProcessor.js';
 import { 更新并检查分词差异 } from '../../utils/tokenizer/diff.js';
 import { 处理并显示tips } from './UI/render.js';
 import { 智能防抖, 柯里化 } from '../../utils/functionTools.js';
@@ -33,9 +32,13 @@ async function 显示灰色小字(编辑器上下文) {
 //这样复制而不是全部复制是为了有机会大致检查一下
 export let 显示actions并生成tips渲染任务 = (flag) => {
   let 编辑器上下文 = 创建编辑器上下文()
-  显示灰色小字(编辑器上下文, "测试")
-  if (!flag) {
-    生成tips渲染任务(编辑器上下文)
+  if (编辑器上下文) {
+    显示灰色小字(编辑器上下文, "测试")
+    if (!flag) {
+      生成tips渲染任务(编辑器上下文)
+    }
+  } else {
+    sac.logger.warn('编辑机器上下文生成失败')
   }
 }
 async function 生成tips渲染任务(编辑器上下文) {
@@ -46,7 +49,7 @@ async function 生成tips渲染任务(编辑器上下文) {
   if (更新并检查分词差异(编辑器上下文.tokens)) {
     sac.logger.tipsLog(`触发编辑器上下文向量索引,正在生成编辑器向量`)
     let res = await text2vec(编辑器上下文.editableElement.innerText)
-    if (res.body.data) {
+    if (res.body && res.body.data) {
       编辑器上下文特征向量 = res.body.data[0].embedding
     }
   }
@@ -123,10 +126,10 @@ async function 执行任务(renderInstance, 编辑器上下文, 编辑器上下�
           显示tips(data);
         }
       } catch (e) {
-        sac.logger.tipsWarn(e);
+        sac.logger.tipsWarn.stack(e,e.stack);
       }
     }
   } catch (e) {
-    sac.logger.tipsWarn(e);
+    sac.logger.tipsWarn.stack(e);
   }
 }

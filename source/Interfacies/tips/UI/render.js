@@ -2,7 +2,6 @@ import { 智能防抖 } from "../../../utils/functionTools.js";
 import { sac } from "../runtime.js";
 import { 排序待添加数组 } from "../utils/tipsArrayUtils.js";
 import { genTipsHTML } from "./buildTipsHTML.js";
-import { withPerformanceLogging } from "../../../utils/functionAndClass/performanceRun.js";
 let 待添加数组 = sac.statusMonitor.get('tips', 'current').$value || []
 export async function 处理并显示tips(data, 编辑器上下文,renderInstance) {
     data.source = renderInstance.name
@@ -43,12 +42,17 @@ export function 准备渲染项目(tipsItem, 编辑器上下文) {
 }
 // 去重待添加数组中的元素，并去除description短于两个字符的元素
 function 去重待添加数组() {
+    const currentTime = Date.now(); // 获取当前时间
     待添加数组 = 待添加数组.reduce((unique, item) => {
         if (item.description && item.description.length < 2) {
             return unique; // 如果description短于两个字符，则不添加到数组中
         }
         let isDuplicate = unique.some(u => u.id === item.id && u.description === item.description);
-        return isDuplicate ? unique : [...unique, item];
+        if (!isDuplicate) {
+            item.time = currentTime; // 更新时间为当前时间
+            unique.push(item);
+        }
+        return unique;
     }, []);
 }
 

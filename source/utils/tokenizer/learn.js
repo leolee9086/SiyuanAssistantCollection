@@ -1,54 +1,89 @@
-import {jieba} from './jieba.js'
-import { 校验分词是否连续, 校验是否包含 } from './utils.js';
-import { kernelApi,sac } from '../../asyncModules.js';
+import { jieba } from './jieba.js'
+import { kernelApi, sac } from '../../asyncModules.js';
 import cheerio from '../../../static/cheerio.js'
-let 组合频率字典 = sac.statusMonitor.get('meta','tokens').$value||new Map();
-sac.statusMonitor.set('meta','tokens',组合频率字典)
-
-function 更新组合频率(前一个分词, 后一个分词) {
-    let 组合 = 前一个分词.word + 后一个分词.word;
-    // 需要排除的虚词列表
-    const 虚词 = ['的', '地', '得', '和', '或', '并', '之', '于', '以', '抑', '乃', '则', '者', '又'];
-
-    // 检查组合是否以虚词开头或结尾
-    const 是虚词开头或结尾 = 虚词.some(词 => 组合.startsWith(词) || 组合.endsWith(词));
-
-    // 检查组合是否全部为非标点符号和非空，且不以虚词开头或结尾
-    if (组合 && !/[\p{P}\s]/gu.test(组合) && !是虚词开头或结尾) {
-        if (组合频率字典[组合]) {
-            组合频率字典[组合]++;
-        } else {
-            组合频率字典[组合] = 1;
-        }
+import fs from '../../polyfills/fs.js'
+import { 计算平均值和标准差 } from '../statistics/index.js';
+import { 判定是否虚词开头或结尾, 判定是否标点符号开头结尾或全部 } from '../text/assert.js';
+let 组合频率字典 = sac.statusMonitor.get('meta', 'tokens').$value || new Map();
+let 已处理组合 = {};
+let 已学习词典 = new Set(); // 初始化一个新的Set来存储已学习的词组
+let 学习中 = false
+sac.statusMonitor.set('meta', 'tokens', 组合频率字典)
+export async function 学习新词组(文本) {
+    if (学习中) {
+        setTimeout(() => 学习新词组(文本), 2000)
     }
+    学习中 = true
+    try {
+        const 分词结果 = await jieba.tokenize(文本, "search");
+        for (const [索引, 当前分词] of 分词结果.entries()) {
+            if (!当前分词.word.trim()) continue; // 如果当前分词是空文本，则跳过
+            let 当前位置 = 当前分词.end; // 假设分词结果包含 end 属性
+            for (let i = 索引 + 1; i < 分词结果.length; i++) {
+                let 组合 = 当前分词.word;
+                let j = 索引 + 1;
+                // 从当前分词开始向后构建所有可能的连续子串
+                while (j <= i) {
+                    const 下一个分词 = 分词结果[j];
+                    if (!下一个分词.word.trim()) break; // 如果下一个分词是空文本，则停止当前组合的构建
+
+                    // 检查下一个分词是否紧跟当前分词
+                    if (下一个分词.start === 当前位置) {
+                        组合 += 下一个分词.word;
+                        当前位置 = 下一个分词.end; // 更新当前位置
+                    } else {
+                        break; // 如果不连续，停止当前组合的构建
+                    }
+                    j++;
+                }
+                // 如果组合在构建过程中遇到虚词或标点，或者 j 没有达到 i（说明中间断开了），则不更新频率
+                if (j <= i || 判定是否虚词开头或结尾(组合) || 判定是否标点符号开头结尾或全部(组合)) {
+                    break;
+                }
+                // 更新组合频率
+                await 更新组合频率(组合);
+            }
+        }
+        await 处理组合频率并添加新词();
+        await fs.writeFile('/data/public/sac-tokenizer/frequence.json', JSON.stringify([...组合频率字典]));
+    } catch (e) {
+        console.warn(e)
+    }
+    学习中 = false
 }
-function 计算平均值和标准差(频率字典) {
-    const 频率值 = Object.values(频率字典);
-    const 平均值 = 频率值.reduce((a, b) => a + b, 0) / 频率值.length;
-    const 方差 = 频率值.reduce((a, b) => a + Math.pow(b - 平均值, 2), 0) / 频率值.length;
-    const 标准差 = Math.sqrt(方差);
-    return { 平均值, 标准差 };
+
+async function 更新组合频率(组合) {
+    if (!组合频率字典.has(组合)) {
+        组合频率字典.set(组合, 0);
+    }
+    组合频率字典.set(组合, 组合频率字典.get(组合) + 1);
 }
 
 function 显著性判断(频率, 平均值, 标准差) {
     // 这里我们使用平均值加上两倍标准差作为阈值
     return 频率 > 平均值 + 3 * 标准差;
 }
-let 已处理组合 = {};
-function 处理组合频率并添加新词() {
-    const { 平均值, 标准差 } = 计算平均值和标准差(组合频率字典);
-    const 组合 = Object.keys(组合频率字典).find(组合 => !已处理组合[组合]); // 获取并标记第一个未处理的键
-    const 频率 = 组合频率字典[组合];
-    console.log(组合频率字典)
 
+async function 处理组合频率并添加新词() {
+    // 移除极端值后计算平均值和标准差
+    const 频率值 = Object.values(组合频率字典);
+    const 过滤后的频率值 = 频率值.filter(频率 => {
+        // 这里可以根据需要调整过滤条件
+        return 频率 > 1 && 频率 < 频率值.length;
+    });
+    const { 平均值, 标准差 } = 计算平均值和标准差(过滤后的频率值);
+
+    const 组合 = Object.keys(组合频率字典).find(组合 => !已处理组合[组合]);
+    const 频率 = 组合频率字典[组合];
     if (显著性判断(频率, 平均值, 标准差) && Object.keys(组合频率字典).length > 1000) {
         jieba.add_word(组合);
-        sac.logger.tokenizerInfo(`学习到新的组合${组合},已经添加到词典中`);
+        sac.logger.tokenizerInfo(`学习到新的组合『${组合}』,已经添加到词典中`);
+        已学习词典.add(组合); // 将新学习的组合添加到已学习词典中
+        await fs.writeFile('/data/public/sac-tokenizer/dict.json', JSON.stringify(Array.from(已学习词典)))
+
     }
-    // 标记已处理的组合
     已处理组合[组合] = true;
 
-    // 如果还有未处理的组合，再次请求空闲回调
     if (Object.keys(组合频率字典).some(组合 => !已处理组合[组合])) {
         setTimeout(处理组合频率并添加新词, 2000);
     } else {
@@ -58,20 +93,7 @@ function 处理组合频率并添加新词() {
 
 // 启动空闲时间处理
 setTimeout(处理组合频率并添加新词, 2000);
-// 新增函数：从文本中学习新词组
-export async function 学习新词组(文本) {
-    console.log(文本)
-    const 分词结果 = await jieba.tokenize(文本,"search"); // 使用精确模式进行分词
-    分词结果.forEach((当前分词, 索引) => {
-        if (索引 < 分词结果.length - 1) {
-            const 下一个分词 = 分词结果[索引 + 1];
-            if (校验分词是否连续(当前分词, 下一个分词)) {
-                更新组合频率(当前分词, 下一个分词);
-            }
-        }
-    });
-    处理组合频率并添加新词();
-}
+
 function getOneWeekAgo() {
     const date = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const year = date.getFullYear();
@@ -86,12 +108,11 @@ function getOneWeekAgo() {
 async function 随机抽取长块() {
     const oneWeekAgo = getOneWeekAgo();
     const query = `SELECT id FROM blocks WHERE  updated > ${oneWeekAgo} AND type="d" ORDER BY RANDOM() LIMIT 1;`;
-    const blocks = await kernelApi.sql({stmt:query});
-    const doc = await kernelApi.getDoc({id:blocks[0].id})
+    const blocks = await kernelApi.sql({ stmt: query });
+    const doc = await kernelApi.getDoc({ id: blocks[0].id })
     if (blocks && blocks.length > 0) {
         const $ = cheerio.load(doc.content);
         const textContent = $('body').text();
-        console.log(textContent)
         return textContent;
     }
     return null; // 如果没有找到合适的块，返回null
