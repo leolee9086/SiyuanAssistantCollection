@@ -1,6 +1,5 @@
-import { 获取光标所在位置, 获取选区屏幕坐标 } from '../../utils/rangeProcessor.js';
+import { 获取选区屏幕坐标 } from '../../utils/rangeProcessor.js';
 import { renderInstancies } from './package/loader.js';
-import { 使用结巴拆分元素 } from '../../utils/tokenizer/jieba.js';
 import { sac } from './runtime.js';
 import { 获取当前光标所在分词结果 } from '../../utils/rangeProcessor.js';
 import { 更新并检查分词差异 } from '../../utils/tokenizer/diff.js';
@@ -8,26 +7,10 @@ import { 处理并显示tips } from './UI/render.js';
 import { 智能防抖, 柯里化 } from '../../utils/functionTools.js';
 import { 在空闲时间执行任务 } from '../../utils/functionAndClass/idleTime.js';
 import { text2vec } from '../../Processors/AIProcessors/publicUtils/endpoints.js';
+import { 创建编辑器上下文 } from '../../utils/context/editorContext.js';
 let 键盘tips数组 = []
 sac.statusMonitor.set('tips', 'current', 键盘tips数组)
 export let 上一个分词结果 = []
-// 通用逻辑函数
-function 创建编辑器上下文() {
-  let { pos, editableElement, blockElement } = 获取光标所在位置();
-  if (!editableElement) {
-    return null;
-  }
-  let 分词结果数组 = 使用结巴拆分元素(editableElement);
-  return {
-    position: pos,
-    text: editableElement.innerText,
-    tokens: 分词结果数组,
-    blockID: blockElement.getAttribute('data-node-id'),
-    editableElement,
-    logger: sac.logger
-  };
-}
-
 let 小字元素 = document.createElement('div');
 
 async function 显示灰色小字(编辑器上下文) {
