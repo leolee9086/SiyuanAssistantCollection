@@ -38,7 +38,6 @@ export let 显示actions并生成tips渲染任务 = (flag) => {
     if (!flag) {
       生成tips渲染任务(编辑器上下文)
     }
-    requestIdleCallback(学习新词组(编辑器上下文.editableElement.innerText))
   } else {
     sac.logger.warn('编辑机器上下文生成失败')
   }

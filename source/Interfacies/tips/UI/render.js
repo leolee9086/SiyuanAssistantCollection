@@ -2,15 +2,19 @@ import { 智能防抖 } from "../../../utils/functionTools.js";
 import { sac } from "../runtime.js";
 import { 排序待添加数组 } from "../utils/tipsArrayUtils.js";
 import { genTipsHTML } from "./buildTipsHTML.js";
+import { 学习新词组 } from "../../../utils/tokenizer/learn.js";
 let 待添加数组 = sac.statusMonitor.get('tips', 'current').$value || []
-export async function 处理并显示tips(data, 编辑器上下文,renderInstance) {
+export async function 处理并显示tips(data, 编辑器上下文, renderInstance) {
     data.source = renderInstance.name
 
-    if (data && data.item && data.item[0])
+    if (data && data.item && data.item[0]){
         for (let tipsItem of data.item) {
             tipsItem.source = tipsItem.source || data.source;
             待添加数组.push(准备渲染项目(tipsItem, 编辑器上下文))
+            requestIdleCallback(()=>{学习新词组(tipsItem.description)})
+
         }
+    }
 }
 export function 准备渲染项目(tipsItem, 编辑器上下文) {
     tipsItem.targetBlocks = tipsItem.targetBlocks || [编辑器上下文.blockID];
@@ -56,10 +60,10 @@ function 去重待添加数组() {
 
 // 限制待添加数组的长度，只保留最新的10个元素，同时保持原有顺序
 function 限制待添加数组长度(num) {
-    if(待添加数组.length>(num||1000)){
-            移除每个维度最低分的项目(待添加数组)
+    if (待添加数组.length > (num || 1000)) {
+        移除每个维度最低分的项目(待添加数组)
     }
-    if (待添加数组.length > (num||1000)) {
+    if (待添加数组.length > (num || 1000)) {
 
         // 根据time属性创建一个映射，然后根据time降序排序
         const sortedByTime = 待添加数组
@@ -80,31 +84,31 @@ export const 移除每个维度最低分的项目 = (待添加数组) => {
     // 找出所有存在的维度
     const allDimensions = new Set();
     待添加数组.forEach(item => {
-      if (item.scores) {
-        Object.keys(item.scores).forEach(dimension => {
-          allDimensions.add(dimension);
-        });
-      }
+        if (item.scores) {
+            Object.keys(item.scores).forEach(dimension => {
+                allDimensions.add(dimension);
+            });
+        }
     });
-  
+
     // 对于每个维度，找出得分最低的项目并移除它
     allDimensions.forEach(dimension => {
-      let lowestScore = Infinity;
-      let lowestScoreIndex = -1;
-  
-      待添加数组.forEach((item, index) => {
-        if (item.scores && item.scores[dimension] !== undefined && item.scores[dimension] < lowestScore) {
-          lowestScore = item.scores[dimension];
-          lowestScoreIndex = index;
+        let lowestScore = Infinity;
+        let lowestScoreIndex = -1;
+
+        待添加数组.forEach((item, index) => {
+            if (item.scores && item.scores[dimension] !== undefined && item.scores[dimension] < lowestScore) {
+                lowestScore = item.scores[dimension];
+                lowestScoreIndex = index;
+            }
+        });
+
+        // 如果找到了得分最低的项目，移除它
+        if (lowestScoreIndex !== -1) {
+            待添加数组.splice(lowestScoreIndex, 1);
         }
-      });
-  
-      // 如果找到了得分最低的项目，移除它
-      if (lowestScoreIndex !== -1) {
-        待添加数组.splice(lowestScoreIndex, 1);
-      }
     });
-  };
+};
 
 
 
@@ -156,4 +160,3 @@ function 调度批量渲染() {
 // 初始调度
 调度批量渲染();
 
-  

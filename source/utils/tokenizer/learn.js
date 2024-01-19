@@ -4,28 +4,41 @@ import cheerio from '../../../static/cheerio.js'
 import fs from '../../polyfills/fs.js'
 import { 计算平均值和标准差 } from '../statistics/index.js';
 import { 判定是否虚词开头或结尾, 判定是否标点符号开头结尾或全部 } from '../text/assert.js';
-let 组合频率字典=new Map()
-try{
-    let frequence = await fs.readFile('/data/public/sac-tokenizer/frequence.json')
-
-     frequence= JSON.parse(frequence)
-        Object.keys(frequence).forEach(
-            key=>{
-               组合频率字典.set(key,frequence[key]) 
-            }
-        )
-  
-}catch(e){
-
+let 组合频率字典 = new Map();
+try {
+    let frequence = await fs.readFile('/data/public/sac-tokenizer/frequence.json', 'utf8');
+    frequence = JSON.parse(frequence);
+    for (const [key, value] of Object.entries(frequence)) {
+        组合频率字典.set(key, value);
+    }
+} catch (e) {
+    console.error(e);
 }
 let 已处理组合 = {};
 let 已学习词典 = new Set(); // 初始化一个新的Set来存储已学习的词组
+let 已处理文本 = new Set()
+try {
+    let dict = await fs.readFile('/data/public/sac-tokenizer/dict.json')
+
+    dict = JSON.parse(dict)
+    dict.forEach(
+        word => {
+            word && 已学习词典.add(word)
+        }
+    )
+} catch (e) {
+    console.warn(e)
+}
 let 学习中 = false
 sac.statusMonitor.set('meta', 'tokens', 组合频率字典)
 export async function 学习新词组(文本) {
     if (学习中) {
-        setTimeout(() => 学习新词组(文本), 2000)
+        return
     }
+    if(已处理文本.has(文本.substring(0,1024))){
+        return
+    }
+    已处理文本.add(文本.substring(0,1024))
     学习中 = true
     try {
         const 分词结果 = await jieba.tokenize(文本, "search");
@@ -58,8 +71,9 @@ export async function 学习新词组(文本) {
             }
         }
         await 处理组合频率并添加新词();
-        await fs.writeFile('/data/public/sac-tokenizer/frequence.json', JSON.stringify([...组合频率字典]));
-    } catch (e) {
+        await fs.writeFile('/data/public/sac-tokenizer/frequence.json', JSON.stringify(Object.fromEntries(组合频率字典)));
+    }
+    catch (e) {
         console.warn(e)
     }
     清理组合频率字典()
@@ -67,6 +81,9 @@ export async function 学习新词组(文本) {
 }
 
 async function 更新组合频率(组合) {
+    if(组合.length<=2){
+        return
+    }
     if (!组合频率字典.has(组合)) {
         组合频率字典.set(组合, 0);
     }
@@ -74,31 +91,31 @@ async function 更新组合频率(组合) {
 }
 async function 清理组合频率字典() {
     if (组合频率字典.size > 10000) {
-      // 首先删除所有频率为1的项
-      for (let [组合, 频率] of 组合频率字典) {
-        if (频率 === 1) {
-          组合频率字典.delete(组合);
-        }
-      }
-      // 如果删除频率为1的项后仍然超过10000，继续删除频率最低的项
-      while (组合频率字典.size > 10000) {
-        let 最低频率组合 = null;
-        let 最低频率 = Infinity;
+        // 首先删除所有频率为1的项
         for (let [组合, 频率] of 组合频率字典) {
-          if (频率 < 最低频率) {
-            最低频率 = 频率;
-            最低频率组合 = 组合;
-          }
+            if (频率 === 1) {
+                组合频率字典.delete(组合);
+            }
         }
-        if (最低频率组合 !== null) {
-          组合频率字典.delete(最低频率组合);
-        } else {
-          // 如果所有项的频率都相同，则可以选择随机删除或者采取其他策略
-          break; // 或者可以抛出一个错误或者返回一个状态表示无法进一步清理
+        // 如果删除频率为1的项后仍然超过10000，继续删除频率最低的项
+        while (组合频率字典.size > 10000) {
+            let 最低频率组合 = null;
+            let 最低频率 = Infinity;
+            for (let [组合, 频率] of 组合频率字典) {
+                if (频率 < 最低频率) {
+                    最低频率 = 频率;
+                    最低频率组合 = 组合;
+                }
+            }
+            if (最低频率组合 !== null) {
+                组合频率字典.delete(最低频率组合);
+            } else {
+                // 如果所有项的频率都相同，则可以选择随机删除或者采取其他策略
+                break; // 或者可以抛出一个错误或者返回一个状态表示无法进一步清理
+            }
         }
-      }
     }
-  }
+}
 function 显著性判断(频率, 平均值, 标准差) {
     // 这里我们使用平均值加上两倍标准差作为阈值
     return 频率 > 平均值 + 3 * 标准差;
@@ -106,31 +123,29 @@ function 显著性判断(频率, 平均值, 标准差) {
 
 async function 处理组合频率并添加新词() {
     // 移除极端值后计算平均值和标准差
-    const 频率值 = Object.values(组合频率字典);
+    const 频率值 = Array.from(组合频率字典.values());
+
     const 过滤后的频率值 = 频率值.filter(频率 => {
         // 这里可以根据需要调整过滤条件
         return 频率 > 1 && 频率 < 频率值.length;
     });
     const { 平均值, 标准差 } = 计算平均值和标准差(过滤后的频率值);
-
-    const 组合 = Object.keys(组合频率字典).find(组合 => !已处理组合[组合]);
-    const 频率 = 组合频率字典[组合];
-    if (显著性判断(频率, 平均值, 标准差) && Object.keys(组合频率字典).length > 1000) {
+    const 组合 = Array.from(组合频率字典.keys()).find(组合 => !已处理组合[组合]);
+    const 频率 = 组合频率字典.get(组合);
+    if (显著性判断(频率, 平均值, 标准差) && 组合频率字典.size > 1000) {
         jieba.add_word(组合);
         sac.logger.tokenizerInfo(`学习到新的组合『${组合}』,已经添加到词典中`);
         已学习词典.add(组合); // 将新学习的组合添加到已学习词典中
-        await fs.writeFile('/data/public/sac-tokenizer/dict.json', JSON.stringify(Array.from(已学习词典)))
-
+        await fs.writeFile('/data/public/sac-tokenizer/dict.json', JSON.stringify(Array.from(已学习词典)));
     }
     已处理组合[组合] = true;
 
-    if (Object.keys(组合频率字典).some(组合 => !已处理组合[组合])) {
+    if (Array.from(组合频率字典.keys()).some(组合 => !已处理组合[组合])) {
         setTimeout(处理组合频率并添加新词, 2000);
     } else {
         setTimeout(处理组合频率并添加新词, 4000);
     }
 }
-
 // 启动空闲时间处理
 setTimeout(处理组合频率并添加新词, 2000);
 
