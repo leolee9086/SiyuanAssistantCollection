@@ -49,7 +49,6 @@ export class 数据集 {
         this.修改时间 = Date.now()
         this._已经修改 = value
     }
-       
     get 文件适配器() {
         return this.文件保存格式 === 'msgpack' ? new msgSyAdapter(this.文件保存地址) : new jsonSyAdapter(this.文件保存地址);
     }
