@@ -42,6 +42,13 @@ export class 数据集 {
     get 索引文件名称(){
         return this.数据库配置.文件保存地址 + '/' + this.文件夹名称 + '/index.json'
     }
+    get 已经修改() {
+        return this._已经修改
+    }
+    set 已经修改(value) {
+        this.修改时间 = Date.now()
+        this._已经修改 = value
+    }
     校验远程数据可写入(){
         if (!this.已经修改) {
             return;
@@ -113,13 +120,7 @@ export class 数据集 {
             return 查询函数(...args);
         };
     }
-    get 已经修改() {
-        return this._已经修改
-    }
-    set 已经修改(value) {
-        this.修改时间 = Date.now()
-        this._已经修改 = value
-    }
+    
     get 文件适配器() {
         return this.文件保存格式 === 'msgpack' ? new msgSyAdapter(this.文件保存地址) : new jsonSyAdapter(this.文件保存地址);
     }
