@@ -39,7 +39,7 @@ export class 数据集 {
     
         this.修改时间 = Date.now()
     }
-    校验数据可读(){
+    校验远程数据可写入(){
         if (!this.已经修改) {
             return;
         }
@@ -52,7 +52,7 @@ export class 数据集 {
         return true
     }
     async 同步数据() {
-        if(!this.校验数据可读){
+        if(!this.校验远程数据可写入){
             return
         }
         this.索引文件名称 = this.数据库配置.文件保存地址 + '/' + this.文件夹名称 + '/index.json'
