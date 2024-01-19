@@ -36,10 +36,10 @@ export class 数据集 {
         this.数据刷新定时任务 = setInterval(() => {
             this.同步数据()
         }, 5000)
-    
+
         this.修改时间 = Date.now()
     }
-    get 索引文件名称(){
+    get 索引文件名称() {
         return this.数据库配置.文件保存地址 + '/' + this.文件夹名称 + '/index.json'
     }
     get 已经修改() {
@@ -58,23 +58,23 @@ export class 数据集 {
     get 主键列表() {
         return Object.getOwnPropertyNames(this.数据集对象);
     }
-    校验远程数据可写入(){
+    校验远程数据可写入() {
         if (!this.已经修改) {
             return;
         }
-        if(this.数据保存中){
+        if (this.数据保存中) {
             return
         }
-        if(!this.数据加载完成){
+        if (!this.数据加载完成) {
+            //数据加载完成前不允许写入
             return
         }
         return true
     }
     async 同步数据() {
-        if(!this.校验远程数据可写入){
+        if (!this.校验远程数据可写入) {
             return
         }
-
         let 远程端主键列表 = [];
         let 本地端主键列表 = this.主键列表;
         let 远程端更新时间 = 0
@@ -87,8 +87,8 @@ export class 数据集 {
             远程端更新时间 = 索引内容.updated
             let 需要添加的主键 = 远程端主键列表.filter(x => !本地端主键列表.includes(x));
             let 需要删除的主键 = 本地端主键列表.filter(x => !远程端主键列表.includes(x));
-
-            if (远程端更新时间&&远程端主键列表&&(远程端更新时间 - this.修改时间) > 1000) {
+            sac.logger.datasetLog(`需要删除当前端主键${需要删除的主键},需要添加${需要添加的主键}`)
+            if (远程端更新时间 && 远程端主键列表 && (远程端更新时间 - this.修改时间) > 1000) {
                 // 合并主键列表并写入索引文件
                 if (需要添加的主键) {
                     console.log("远程端主键列表更新,加载新的数据")
@@ -100,27 +100,23 @@ export class 数据集 {
                     updated: this.修改时间,
                     keys: 合并后主键列表
                 }
-                await fs.writeFile(this.索引文件名称, JSON.stringify(
-                    data));
-    
-            }else if((需要删除的主键||需要添加的主键||this.已经修改)&&this.修改时间&&this.修改时间-远程端更新时间>2000){
+                await fs.writeFile(this.索引文件名称, JSON.stringify(data));
+
+            } else if ((需要删除的主键 || 需要添加的主键 || this.已经修改) && this.修改时间 && this.修改时间 - 远程端更新时间 > 2000) {
                 let data = {
                     updated: this.修改时间,
                     keys: 合并后主键列表
                 }
-                await fs.writeFile(this.索引文件名称, JSON.stringify(
-                    data));
-                await this.保存数据(false,data)
+                await fs.writeFile(this.索引文件名称, JSON.stringify(data));
+                await this.保存数据(false, data)
             }
-
         } else {
             let data = {
                 updated: this.修改时间,
                 keys: 合并后主键列表
             }
-            await fs.writeFile(this.索引文件名称, JSON.stringify(
-                data));z
-            await this.保存数据(false,data)
+            await fs.writeFile(this.索引文件名称, JSON.stringify(data));
+            await this.保存数据(false, data)
         }
     }
     准备查询函数() {
@@ -129,7 +125,7 @@ export class 数据集 {
             return 查询函数(...args);
         };
     }
- 
+
     async 迁移数据保存格式(新数据格式) {
         this.文件保存格式 = 新数据格式;
         this.主键列表.forEach(
@@ -205,7 +201,6 @@ export class 数据集 {
         return 查询结果;
     }
     删除数据(主键名数组) {
-        console.log(主键名数组)
 
         let 数据集对象 = this.数据集对象;
         主键名数组.forEach(
@@ -273,36 +268,40 @@ export class 数据集 {
             }
         }
     }
-    async 保存数据(强制写入,data) {
+    async 保存数据(强制写入, data = {
+        updated: this.修改时间 || Date.now(),
+        keys: this.主键列表
+    }) {
         if (!this.已经修改) {
             return;
         }
-        if(this.数据保存中){
+        if (this.数据保存中) {
             return
         }
-        if(!this.数据加载完成){
+        if (!this.数据加载完成) {
             return
         }
         if (this.保存队列.length < 100 && !强制写入) {
             return;
         }
         let 元数据 = {
-            updated: this.修改时间||Date.now(),
+            updated: this.修改时间 || Date.now(),
             keys: this.主键列表
         }
         this.数据保存中 = true
-        sac.logger.datasetLog('开始保存数据');
+        sac.logger.datasetLog(`开始保存数据,待写入数据条目${this.主键列表}个`);
         let 数据集对象 = this.数据集对象;
         let 分组数据 = await this.创建分组数据(数据集对象);
         await this.写入分组数据(分组数据);
-        await fs.writeFile(this.索引文件名称, JSON.stringify(data||元数据));
+        await fs.writeFile(this.索引文件名称, JSON.stringify(data || 元数据));
         this.待保存数据分片 = {};
         this.待保存路径值 = {};
         this.已经修改 = false;
-        this.数据保存中 =false
+        this.数据保存中 = false
     }
     async 加载数据() {
+        this.数据加载完成 = false
         await 加载数据到目标数据集(this.文件适配器, this)
-        this.数据加载完成= true
+        this.数据加载完成 = true
     }
 }
