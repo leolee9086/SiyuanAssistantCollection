@@ -8,12 +8,15 @@ export async function 处理并显示tips(data, 编辑器上下文, renderInstan
     data.source = renderInstance.name
 
     if (data && data.item && data.item[0]){
+        let text=''
         for (let tipsItem of data.item) {
             tipsItem.source = tipsItem.source || data.source;
             待添加数组.push(准备渲染项目(tipsItem, 编辑器上下文))
-            requestIdleCallback(()=>{学习新词组(tipsItem.description)})
-
+            text+=tipsItem.description
         }
+
+        requestIdleCallback(()=>{学习新词组(text)})
+
     }
 }
 export function 准备渲染项目(tipsItem, 编辑器上下文) {
