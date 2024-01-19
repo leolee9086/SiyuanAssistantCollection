@@ -32,7 +32,6 @@ export const tipsRender = class {
             res => {
                 let data = res.body.data
                 if (data && data.item) {
-                    editorContext.logger.rssVectorTipserror("成功使用向量搜索生成tips")
                     data.item = data.item.map(
                         item => {
                             item.targetBlocks = [editorContext.blockID]
@@ -77,7 +76,6 @@ export const tipsRender = class {
                 res => {
                     let data = res.body.data
                     if (data && data.item) {
-                        editorContext.logger.rssVectorTipserror("成功使用向量搜索生成tips")
                         data.item = data.item.map(
                             item => {
                                 item.targetBlocks = [editorContext.blockID]

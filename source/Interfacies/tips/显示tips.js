@@ -7,6 +7,7 @@ import { 智能防抖, 柯里化 } from '../../utils/functionTools.js';
 import { 在空闲时间执行任务 } from '../../utils/functionAndClass/idleTime.js';
 import { text2vec } from '../../Processors/AIProcessors/publicUtils/endpoints.js';
 import { 创建编辑器上下文 } from '../../utils/context/editorContext.js';
+import { 学习新词组 } from '../../utils/tokenizer/learn.js';
 let 键盘tips数组 = []
 sac.statusMonitor.set('tips', 'current', 键盘tips数组)
 export let 上一个分词结果 = []
@@ -37,6 +38,7 @@ export let 显示actions并生成tips渲染任务 = (flag) => {
     if (!flag) {
       生成tips渲染任务(编辑器上下文)
     }
+    requestIdleCallback(学习新词组(编辑器上下文.editableElement.innerText))
   } else {
     sac.logger.warn('编辑机器上下文生成失败')
   }

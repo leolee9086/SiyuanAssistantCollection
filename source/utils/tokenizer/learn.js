@@ -4,7 +4,20 @@ import cheerio from '../../../static/cheerio.js'
 import fs from '../../polyfills/fs.js'
 import { 计算平均值和标准差 } from '../statistics/index.js';
 import { 判定是否虚词开头或结尾, 判定是否标点符号开头结尾或全部 } from '../text/assert.js';
-let 组合频率字典 = sac.statusMonitor.get('meta', 'tokens').$value || new Map();
+let 组合频率字典=new Map()
+try{
+    let frequence = await fs.readFile('/data/public/sac-tokenizer/frequence.json')
+
+     frequence= JSON.parse(frequence)
+        Object.keys(frequence).forEach(
+            key=>{
+               组合频率字典.set(key,frequence[key]) 
+            }
+        )
+  
+}catch(e){
+
+}
 let 已处理组合 = {};
 let 已学习词典 = new Set(); // 初始化一个新的Set来存储已学习的词组
 let 学习中 = false
@@ -49,6 +62,7 @@ export async function 学习新词组(文本) {
     } catch (e) {
         console.warn(e)
     }
+    清理组合频率字典()
     学习中 = false
 }
 
@@ -58,7 +72,33 @@ async function 更新组合频率(组合) {
     }
     组合频率字典.set(组合, 组合频率字典.get(组合) + 1);
 }
-
+async function 清理组合频率字典() {
+    if (组合频率字典.size > 10000) {
+      // 首先删除所有频率为1的项
+      for (let [组合, 频率] of 组合频率字典) {
+        if (频率 === 1) {
+          组合频率字典.delete(组合);
+        }
+      }
+      // 如果删除频率为1的项后仍然超过10000，继续删除频率最低的项
+      while (组合频率字典.size > 10000) {
+        let 最低频率组合 = null;
+        let 最低频率 = Infinity;
+        for (let [组合, 频率] of 组合频率字典) {
+          if (频率 < 最低频率) {
+            最低频率 = 频率;
+            最低频率组合 = 组合;
+          }
+        }
+        if (最低频率组合 !== null) {
+          组合频率字典.delete(最低频率组合);
+        } else {
+          // 如果所有项的频率都相同，则可以选择随机删除或者采取其他策略
+          break; // 或者可以抛出一个错误或者返回一个状态表示无法进一步清理
+        }
+      }
+    }
+  }
 function 显著性判断(频率, 平均值, 标准差) {
     // 这里我们使用平均值加上两倍标准差作为阈值
     return 频率 > 平均值 + 3 * 标准差;
