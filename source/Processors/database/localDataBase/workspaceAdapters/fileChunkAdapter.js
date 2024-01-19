@@ -3,6 +3,7 @@ import path from "../../../../polyfills/path.js";
 import logger from '../../../../logger/index.js'
 import { 读取工作空间文件列表 } from "../utils/glob.js";
 import { 对分片执行去除特殊键值, 迁移数据项向量结构 } from "../utils/item.js";
+import { sac } from "../../../../asyncModules.js";
 export class fileChunkAdapter {
     constructor(文件保存地址, 序列化, 反序列化, 扩展名) {
         console.log(文件保存地址)
@@ -59,11 +60,17 @@ export class fileChunkAdapter {
         return { content: content }
     }
     async 处理日志(log, 子文件夹路径) {
-        if (log) { logger.datasetwarn(log) }
-        logger.datasetlog(`数据文件夹${子文件夹路径}读取完成`)
+        if (log) {
+            try { sac.logger.datasetwarn(log) } catch (e) {
+
+            }
+        }
+
+        sac.logger.datasetlog(`数据文件夹${子文件夹路径}读取完成`)
     }
     async 加载全部数据(数据集对象) {
         if (await fs.exists(this.文件保存地址)) {
+            let 失效数据项数量 = 0
             let 文件路径列表 = await 读取工作空间文件列表(this.文件保存地址)
             for (let 子文件夹路径 of 文件路径列表) {
                 let log = ''
@@ -75,26 +82,41 @@ export class fileChunkAdapter {
                     for (let key in content) {
                         if (content.hasOwnProperty(key)) {
                             let 数据项 = content[key];
-                            if (!数据项.vector || typeof 数据项.vector !== 'object' || Object.values(数据项.vector).some(v => !Array.isArray(v) || v.some(item => typeof item !== 'number'))) {
-                                log += `数据项${key}的vector字段不是有效的向量\n`;
+                            if (!数据项.vector) {
+                                数据项.vector = {}
+                                log += `数据项缺少向量字段,已经初始化为空对象`
+                            }
+                            for (let v in 数据项.vector) {
+                                if (!Array.isArray(数据项.vector[v])) {
+                                    try {
+                                        数据项.vector[v]    = Object.keys(数据项.vector[v]).sort((a, b) => a - b).map(key => 数据项.vector[v][key]);
+                                    } catch (e) {
+                                        console.warn(e)
+                                    }
+                                }
+                               
+                            }
+                            if (!数据项.vector || typeof 数据项.vector !== 'object' || Object.values(数据项.vector).some(v => !Array.isArray(v) || v.some(item => typeof item !== 'number') || !v[0])) {
+                                sac.logger.datasetwarn(`文件${子文件夹路径}中数据项${key}的vector字段${JSON.stringify(数据项.vector)}不是有效的向量\n,已删除`)
+                                失效数据项数量 += 1
                                 continue; // 跳过不符合结构的数据项
                             }
                             if (!数据项.id || !数据项.meta) {
                                 log += `数据项${key}缺少必须项\n`;
+                                失效数据项数量 += 1
                                 continue; // 跳过不符合结构的数据项
                             }
                             // 如果数据项符合结构，则合并到数据集对象中
-
                             数据集对象[key] = 迁移数据项向量结构(数据项)
-
                         }
                     }
                 }
+                log += `删除共计${失效数据项数量}个数据项`
                 await this.处理日志(log, 子文件夹路径)
             }
             return 数据集对象
         } else {
-            logger.datasetlog(this.文件保存地址, await fs.exists(this.文件保存地址))
+            sac.logger.datasetlog(this.文件保存地址, await fs.exists(this.文件保存地址))
             return {}
         }
     }

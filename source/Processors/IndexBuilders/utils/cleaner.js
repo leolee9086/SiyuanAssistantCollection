@@ -12,6 +12,19 @@ let 索引中块哈希 = new Set()
 let 索引正在更新中 = false
 let 块向量索引函数 = 逆序柯里化(为索引记录准备索引函数)(索引中块哈希)
 export const 清理块索引 = async (数据集名称, 间隔时间 = 3000) => {
+    try {
+        let 数据集状态 = await internalFetch('/state', {
+            method: 'POST',
+            body: {
+                collection_name: 数据集名称
+            }
+        })
+        if (!数据集状态.body.dataLoaded) {
+            sac.logger.indexlog('数据集加载未完成,跳过本轮清理')
+        }
+    } catch (e) {
+        setTimeout(() => { 清理块索引(数据集名称, 间隔时间) }, 间隔时间)
+    }
     let id数组查询结果 = await internalFetch('/database/keys', {
         method: 'POST',
         body: {
@@ -27,33 +40,33 @@ export const 清理块索引 = async (数据集名称, 间隔时间 = 3000) => {
         缓存的已索引结果.forEach(item => 已索引块哈希.add(item))
     }
     let idSQL = `select id,hash from blocks  where content <> '' order by updated desc limit 102400`
-    kernelApi.SQL({ 'stmt': idSQL }).then(
-        async data => {
-            if (data && data[0]) {
-                data = data.map(item => {
-                    return item.id
-                })
-                let id数组1 = 已入库块哈希映射.filter(
-                    item => { return !data.includes(item.id) }
-                )
-                if (id数组1.length) {
-                    sac.logger.indexlog(`删除${id数组1.length}条多余索引`)
-                    await internalFetch('/database/delete', {
-                        method: "POST", body: {
-                            collection_name: 数据集名称,
-                            keys: id数组1.map(item => { return item.id })
-                        }
-                    })
-                    间隔时间 = Math.max(间隔时间 * 2, 15 * 1000)
-                    setTimeout(() => { 清理块索引(数据集名称, 间隔时间) }, 间隔时间)
-                } else {
-                    间隔时间 = Math.min(间隔时间 * 2, 15 * 1000 * 60)
-                    sac.logger.indexlog(`没有多余索引需要清除,当前索引清理时间为${间隔时间}`)
-                    setTimeout(() => { 清理块索引(数据集名称, 间隔时间) }, 间隔时间)
+    let data = await kernelApi.SQL({ 'stmt': idSQL })
+
+    if (data && data[0]) {
+        data = data.map(item => {
+            return item.id
+        })
+        let id数组1 = 已入库块哈希映射.filter(
+            item => { return !data.includes(item.id) }
+        )
+        if (id数组1.length) {
+            sac.logger.indexwarn(`删除${id数组1.length}条多余索引`)
+            await internalFetch('/database/delete', {
+                method: "POST", body: {
+                    collection_name: 数据集名称,
+                    keys: id数组1.map(item => { return item.id })
                 }
-            }
+            })
+            间隔时间 = Math.max(间隔时间 * 2, 15 * 1000)
+            setTimeout(() => { 清理块索引(数据集名称, 间隔时间) }, 间隔时间)
+        } else {
+            间隔时间 = Math.min(间隔时间 * 2, 15 * 1000 * 60)
+            sac.logger.indexlog(`没有多余索引需要清除,当前索引清理时间为${间隔时间}`)
+            setTimeout(() => { 清理块索引(数据集名称, 间隔时间) }, 间隔时间)
         }
-    )
+    }
+
+
     await fs.writeFile('/temp/noobTemp/blockHashs.json', JSON.stringify(Array.from(已索引块哈希)))
 }
 export const 定时获取更新块 = async () => {
@@ -64,7 +77,6 @@ export const 定时获取更新块 = async () => {
                 collection_name: 'blocks',
                 main_key: 'id',
                 file_path_key: 'box',
-
             }
         }
 
@@ -176,9 +188,13 @@ export function 定时实行块索引添加(retryInterval = 1000) {
                                 索引失败数组.push(待处理块);
                             }
                         } else {
-                            const 待处理块 = 待处理的块数组.find(块 => 块.id === 结果.id);
-                            记录哈希并添加到入库队列(待处理块, 'leolee9086/text2vec-base-chinese', 结果.data[0].embedding)
-                            本轮索引成功块数组.push(待处理块)
+                            if(结果.data[0].embedding){
+                                const 待处理块 = 待处理的块数组.find(块 => 块.id === 结果.id);
+                                记录哈希并添加到入库队列(待处理块, 'leolee9086/text2vec-base-chinese', 结果.data[0].embedding)
+                                本轮索引成功块数组.push(待处理块)
+                            }else{
+                                sac.logger.indexwarn(`id为${块.id}的块向量化失败,原因可能是网络错误或者向量化模型未加载完成`)
+                            }
 
                         }
                     });
@@ -186,7 +202,7 @@ export function 定时实行块索引添加(retryInterval = 1000) {
                         let 总索引时间 = 平均索引时间 * 索引次数
                         总索引时间 = 总索引时间 + (索引耗时 * workerCount)
                         索引次数 += 1
-                        平均索引时间 = 总索引时间 / 索引次数/workerCount
+                        平均索引时间 = 总索引时间 / 索引次数 / workerCount
                         sac.logger.indexlog(`
 已索引以下${本轮索引成功块数组.length}个块: \n${本轮索引成功块数组.map(块 => 块.id)};
 索引中块${索引中块哈希.size}个

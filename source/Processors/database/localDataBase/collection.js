@@ -7,7 +7,6 @@ import { 迁移为合法文件夹名称 } from './utils/fileName.js';
 import { 计算LuteNodeID模 } from './utils/mod.js';
 import { 准备向量查询函数 } from './utils/query.js';
 import { 合并已存在数据项, 迁移数据项向量结构 } from './utils/item.js';
-import { 加载数据到目标数据集 } from './workspaceAdapters/utils/loadAll.js';
 import { 创建临时数据对象 } from './workspaceAdapters/utils/cache.js';
 import { sac } from '../../../asyncModules.js';
 import fs from '../../../polyfills/fs.js';
@@ -66,6 +65,8 @@ export class 数据集 {
             return
         }
         if (!this.数据加载完成) {
+            sac.logger.datasetwarn(`数据集${this.数据集名称}正在加载中,不可写入数据,请等待`)
+
             //数据加载完成前不允许写入
             return
         }
@@ -300,8 +301,14 @@ export class 数据集 {
         this.数据保存中 = false
     }
     async 加载数据() {
+        if(this.数据加载中){
+            sac.logger.datasetwarn.warn(`数据集${this.数据集名称}正在加载中,请等待`)
+            return
+        }
         this.数据加载完成 = false
-        await 加载数据到目标数据集(this.文件适配器, this)
+        this.数据加载中 = true
+        await this.文件适配器.加载全部数据(this.数据集对象)
         this.数据加载完成 = true
+        this.数据加载中 = false
     }
 }

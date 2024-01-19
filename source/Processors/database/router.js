@@ -24,6 +24,9 @@ databaseRouter.post(
             let 数据集 = 向量存储.公开向量数据库实例.创建数据集(
                 data.collection_name, data.file_path_key
             )
+            if(!数据集.数据加载完成){
+                await 数据集.加载数据()
+            }
             if (!数据集.数据加载中 && 已初始化数据集.indexOf(数据集) === -1) {
                 已初始化数据集.push(数据集)
                 await 数据集.加载数据()
@@ -164,7 +167,7 @@ databaseRouter.post(
     }
 )
 databaseRouter.post(
-    '/isLoading', async (ctx, next) => {
+    '/state', async (ctx, next) => {
         let data = {
             collection_name: '',
             keys: [],
@@ -174,8 +177,10 @@ databaseRouter.post(
         if (!本地块数据集) {
             ctx.error(`数据集${data.collection_name}不存在`)
 
-        } else if (本地块数据集.数据加载中) {
-            ctx.body
+        } else {
+            ctx.body= {
+                dataLoaded:本地块数据集.数据加载完成
+            }
         }
     }
 )

@@ -30,8 +30,7 @@ export const 初始化数据项向量字段 = (数据项, 迁移结果) => {
         Object.keys(数据项.vector).forEach(key => {
             if (!Array.isArray(数据项.vector[key]) || 数据项.vector[key].some(v => typeof v !== 'number')) {
                 console.warn(`数据项的vector字段中的${key}不是有效的向量`);
-                // 初始化或修正该项为有效向量，这里假设向量是二维的，仅作为示例
-                迁移结果.vector[key] = new Float32Array([0, 0]); // 或者其他逻辑来初始化向量
+                迁移结果.vector[key] = new Float32Array([0, 0]); 
             } else {
                 //正常情况下直接复制向量
                 迁移结果.vector[key] =new Float32Array(数据项.vector[key])
