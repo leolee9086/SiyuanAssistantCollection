@@ -136,6 +136,8 @@ async function 处理组合频率并添加新词() {
         jieba.add_word(组合);
         sac.logger.tokenizerInfo(`学习到新的组合『${组合}』,已经添加到词典中`);
         已学习词典.add(组合); // 将新学习的组合添加到已学习词典中
+        已处理组合[组合] = true;
+
         await fs.writeFile('/data/public/sac-tokenizer/dict.json', JSON.stringify(Array.from(已学习词典)));
     }
     已处理组合[组合] = true;

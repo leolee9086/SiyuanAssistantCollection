@@ -42,17 +42,25 @@ export let 显示actions并生成tips渲染任务 = (flag) => {
     sac.logger.warn('编辑机器上下文生成失败')
   }
 }
+
+
+let 正在生成编辑器向量 
 async function 生成tips渲染任务(编辑器上下文) {
 
   sac.statusMonitor.set('context', 'editor', 编辑器上下文);
   let 编辑器上下文特征向量
   //因为向量检索的成本比较高
   if (更新并检查分词差异(编辑器上下文.tokens)) {
-    sac.logger.tipsLog(`触发编辑器上下文向量索引,正在生成编辑器向量`)
-    let res = await text2vec(编辑器上下文.editableElement.innerText)
-    if (res.body && res.body.data) {
-      编辑器上下文特征向量 = res.body.data[0].embedding
+    if(!正在生成编辑器向量){
+      正在生成编辑器向量=true
+      sac.logger.tipsLog(`触发编辑器上下文向量索引,正在生成编辑器向量`)
+      let res = await text2vec(编辑器上下文.editableElement.innerText)
+      if (res.body && res.body.data) {
+        编辑器上下文特征向量 = res.body.data[0].embedding
+      }
+      正在生成编辑器向量=false
     }
+
   }
   // 创建并执行tips渲染任务队列(编辑器上下文);
   let 任务队列 = 创建任务队列(编辑器上下文, renderInstancies, 编辑器上下文特征向量).map(

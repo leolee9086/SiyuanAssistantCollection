@@ -23,7 +23,7 @@ export const 清理块索引 = async (数据集名称, 间隔时间 = 3000) => {
             sac.logger.indexlog('数据集加载未完成,跳过本轮清理')
         }
     } catch (e) {
-        setTimeout(() => { 清理块索引(数据集名称, 间隔时间) }, 间隔时间)
+        setTimeout(() => { 清理块索引(数据集名称, 间隔时间) }, 间隔时间*2)
     }
     let id数组查询结果 = await internalFetch('/database/keys', {
         method: 'POST',
