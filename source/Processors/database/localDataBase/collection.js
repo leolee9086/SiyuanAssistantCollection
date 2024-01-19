@@ -9,6 +9,7 @@ import { 准备向量查询函数 } from './utils/query.js';
 import { 合并已存在数据项, 迁移数据项向量结构 } from './utils/item.js';
 import { 加载数据到目标数据集 } from './workspaceAdapters/utils/loadAll.js';
 import { 创建临时数据对象 } from './workspaceAdapters/utils/cache.js';
+import { sac } from '../../../asyncModules.js';
 import fs from '../../../polyfills/fs.js';
 let 命名常量 = {
     主键名: "id"
@@ -282,7 +283,7 @@ export class 数据集 {
             keys: this.主键列表
         }
         this.数据保存中 = true
-        console.log('开始保存数据');
+        sac.logger.datasetLog('开始保存数据');
         let 数据集对象 = this.数据集对象;
         let 分组数据 = await this.创建分组数据(数据集对象);
         await this.写入分组数据(分组数据);
