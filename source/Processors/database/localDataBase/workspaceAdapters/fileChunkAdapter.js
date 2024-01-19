@@ -84,11 +84,9 @@ export class fileChunkAdapter {
                                 continue; // 跳过不符合结构的数据项
                             }
                             // 如果数据项符合结构，则合并到数据集对象中
-                            requestIdleCallback(
-                                () => {
-                                    数据集对象[key] = 迁移数据项向量结构(数据项);
-                                }
-                            )
+
+                            数据集对象[key] = 迁移数据项向量结构(数据项), 100
+
                         }
                     }
                 }

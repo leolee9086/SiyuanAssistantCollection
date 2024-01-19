@@ -259,11 +259,11 @@ export class 数据集 {
             let 记录数组 = await this.创建写入操作(临时数据对象, 总文件数, 文件路径名);
             if (记录数组.length == 总文件数) {
                 if (this.logLevel === 'debug') {
-                    console.log(`${文件路径名}索引已更新`);
+                    sac.logger.datasetlog(`${文件路径名}索引已更新`);
                 }
             } else {
                 if (this.logLevel === 'debug') {
-                    console.log(`${文件路径名}索引分片${记录数组.join(',')}已更新`);
+                    sac.logger.datasetlog(`${文件路径名}索引分片${记录数组.join(',')}已更新`);
                 }
             }
         }
@@ -289,7 +289,7 @@ export class 数据集 {
             keys: this.主键列表
         }
         this.数据保存中 = true
-        sac.logger.datasetLog(`开始保存数据,待写入数据条目${this.主键列表}个`);
+        sac.logger.datasetLog(`开始保存数据,待写入数据条目${this.主键列表.length}个`);
         let 数据集对象 = this.数据集对象;
         let 分组数据 = await this.创建分组数据(数据集对象);
         await this.写入分组数据(分组数据);
