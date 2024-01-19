@@ -39,7 +39,7 @@ export class 数据集 {
     
         this.修改时间 = Date.now()
     }
-    async 同步数据() {
+    校验数据可读(){
         if (!this.已经修改) {
             return;
         }
@@ -47,6 +47,12 @@ export class 数据集 {
             return
         }
         if(!this.数据加载完成){
+            return
+        }
+        return true
+    }
+    async 同步数据() {
+        if(!this.校验数据可读){
             return
         }
         this.索引文件名称 = this.数据库配置.文件保存地址 + '/' + this.文件夹名称 + '/index.json'
@@ -95,7 +101,7 @@ export class 数据集 {
                 keys: 合并后主键列表
             }
             await fs.writeFile(this.索引文件名称, JSON.stringify(
-                data));
+                data));z
             await this.保存数据(false,data)
         }
     }
