@@ -32,14 +32,16 @@ export const 清理块索引 = async (数据集名称, 间隔时间 = 3000) => {
         }
     })
     let 已入库块哈希映射 = id数组查询结果.body.data
+    let 已入库块id数组 =[]
     for (let item of 已入库块哈希映射) {
         已索引块哈希.add(item.meta.hash)
+        已入库块id数组.push(item.id)
     }
     if (await fs.exists('/temp/noobTemp/blockHashs.json')) {
         let 缓存的已索引结果 = JSON.parse(await fs.readFile('/temp/noobTemp/blockHashs.json'))
         缓存的已索引结果.forEach(item => 已索引块哈希.add(item))
     }
-    let idSQL = `select id,hash from blocks  where content <> '' order by updated desc limit 102400`
+    let idSQL = `select id, hash from blocks where content <> '' and id IN (${已入库块id数组.map(item=>`"${item}"`).join(',')}) order by updated desc limit 102400`;
     let data = await kernelApi.SQL({ 'stmt': idSQL })
 
     if (data && data[0]) {
@@ -202,7 +204,7 @@ export function 定时实行块索引添加(retryInterval = 1000) {
                         let 总索引时间 = 平均索引时间 * 索引次数
                         总索引时间 = 总索引时间 + (索引耗时 * workerCount)
                         索引次数 += 1
-                        平均索引时间 = 总索引时间 / 索引次数 / workerCount
+                        平均索引时间 = 总索引时间 / 索引次数 
                         sac.logger.indexlog(`
 已索引以下${本轮索引成功块数组.length}个块: \n${本轮索引成功块数组.map(块 => 块.id)};
 索引中块${索引中块哈希.size}个

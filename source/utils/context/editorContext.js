@@ -18,6 +18,6 @@ export function 创建编辑器上下文() {
     blockID: blockElement.getAttribute('data-node-id'),
     editableElement,
     logger: sac.logger,
-    currentToken:当前光标所在分词结果
+    currentToken:当前光标所在分词结果||undefined
   };
 }

@@ -154,7 +154,7 @@ databaseRouter.post(
         } else if (本地块数据集.数据加载中) {
             console.warn(`数据集${data.collection_name}数据加载未完成`)
         }
-        if (本地块数据集) {
+        if (本地块数据集&&!本地块数据集.数据加载中) {
             try {
                 await 本地块数据集.删除数据(data.keys)
                 await 本地块数据集.保存数据()

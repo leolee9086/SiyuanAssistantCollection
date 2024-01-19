@@ -157,7 +157,7 @@ async function 批量渲染() {
 
 // 使用requestIdleCallback来调度批量渲染，设置一个合理的timeout
 function 调度批量渲染() {
-    requestIdleCallback(批量渲染, { timeout: 1000 });
+    requestIdleCallback(批量渲染);
 }
 
 // 初始调度

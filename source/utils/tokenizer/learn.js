@@ -18,9 +18,8 @@ let 已处理组合 = {};
 let 已学习词典 = new Set(); // 初始化一个新的Set来存储已学习的词组
 let 已处理文本 = new Set()
 try {
-    let dict = await fs.readFile('/data/public/sac-tokenizer/dict.json')
-
-    dict = JSON.parse(dict)
+    let dict = await fs.readFile('/data/public/sac-tokenizer/dict.txt')
+    dict = dict.split('\n')
     dict.forEach(
         word => {
             word && 已学习词典.add(word)
@@ -138,7 +137,7 @@ async function 处理组合频率并添加新词() {
         已学习词典.add(组合); // 将新学习的组合添加到已学习词典中
         已处理组合[组合] = true;
 
-        await fs.writeFile('/data/public/sac-tokenizer/dict.json', JSON.stringify(Array.from(已学习词典)));
+        await fs.writeFile('/data/public/sac-tokenizer/dict.txt', Array.from(已学习词典).join('\n'));
     }
     已处理组合[组合] = true;
 
@@ -163,8 +162,9 @@ function getOneWeekAgo() {
 }
 // 使用sql函数从SQLite数据库中查询长度超过100的块
 async function 随机抽取长块() {
+
     const oneWeekAgo = getOneWeekAgo();
-    const query = `SELECT id FROM blocks WHERE  updated > ${oneWeekAgo} AND type="d" ORDER BY RANDOM() LIMIT 1;`;
+    const query = `SELECT id FROM blocks WHERE   type="d" ORDER BY RANDOM() LIMIT 1;`;
     const blocks = await kernelApi.sql({ stmt: query });
     const doc = await kernelApi.getDoc({ id: blocks[0].id })
     if (blocks && blocks.length > 0) {
@@ -181,7 +181,7 @@ function 定时学习新词组() {
         if (content) {
             await 学习新词组(content);
         }
-    }, 2000);
+    }, 10000);
 }
 
 定时学习新词组();

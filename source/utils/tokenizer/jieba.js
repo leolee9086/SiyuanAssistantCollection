@@ -5,14 +5,18 @@ import fs from '../../polyfills/fs.js';
 //结巴的初始化会造成问题
 await jieba.default(import.meta.resolve('../../../static/jieba_rs_wasm_bg.wasm'))
 try{
-  let dict = await fs.readFile('/data/public/sac-tokenizer/dict.json')
+  try {
+    let dict = await fs.readFile('/data/public/sac-tokenizer/dict.txt')
+    dict = dict.split('\n')
+    dict.forEach(
+        word => {
+            word && jieba.add_word(word)
+        }
+    )
+} catch (e) {
+    console.warn(e)
+}
 
-  let 已学习词典= JSON.parse(dict)
-  已学习词典.forEach(
-    word=>{
-      word&&jieba.add_word(word)
-    }
-  )
 }catch(e){
   console.warn(e)
 }

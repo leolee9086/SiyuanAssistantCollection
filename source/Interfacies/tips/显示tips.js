@@ -89,7 +89,7 @@ function 创建任务队列(编辑器上下文, renderInstancies, 编辑器上�
     const renderInstanceName = renderInstance.name;
     return {
       添加时间,
-      执行: () => 执行任务(renderInstance, 编辑器上下文, 编辑器上下文特征向量),
+      执行: ()=>requestIdleCallback(() => 执行任务(renderInstance, 编辑器上下文, 编辑器上下文特征向量)),
       来源: renderInstanceName,
       编辑器上下文信息,
       类型: "编辑器tips"
@@ -135,10 +135,10 @@ async function 执行任务(renderInstance, 编辑器上下文, 编辑器上下�
           显示tips(data);
         }
       } catch (e) {
-        sac.logger.tipsWarn.stack(e,e.stack);
+        sac.logger.tipsWarn(renderInstance.name,e);
       }
     }
   } catch (e) {
-    sac.logger.tipsWarn.stack(e);
+    sac.logger.tipsWarn(renderInstance.name,e);
   }
 }
