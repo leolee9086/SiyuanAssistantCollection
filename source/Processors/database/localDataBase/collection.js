@@ -73,7 +73,7 @@ export class 数据集 {
                     await this.加载数据()
                 }
                 let data = {
-                    upated: this.修改时间,
+                    updated: this.修改时间,
                     keys: 合并后主键列表
                 }
                 await fs.writeFile(this.索引文件名称, JSON.stringify(
@@ -81,7 +81,7 @@ export class 数据集 {
     
             }else if((需要删除的主键||需要添加的主键||this.已经修改)&&this.修改时间&&this.修改时间-远程端更新时间>2000){
                 let data = {
-                    upated: this.修改时间,
+                    updated: this.修改时间,
                     keys: 合并后主键列表
                 }
                 await fs.writeFile(this.索引文件名称, JSON.stringify(
@@ -91,14 +91,13 @@ export class 数据集 {
 
         } else {
             let data = {
-                upated: this.修改时间,
+                updated: this.修改时间,
                 keys: 合并后主键列表
             }
             await fs.writeFile(this.索引文件名称, JSON.stringify(
                 data));
             await this.保存数据(false,data)
         }
-
     }
     准备查询函数() {
         this.以向量搜索数据 = (...args) => {
@@ -279,7 +278,7 @@ export class 数据集 {
             return;
         }
         let 元数据 = {
-            upated: this.修改时间||Date.now(),
+            updated: this.修改时间||Date.now(),
             keys: this.主键列表
         }
         this.数据保存中 = true
