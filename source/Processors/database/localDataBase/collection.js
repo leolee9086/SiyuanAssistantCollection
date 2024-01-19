@@ -58,7 +58,6 @@ export class 数据集 {
         if(!this.校验远程数据可写入){
             return
         }
-        this.索引文件名称 = this.数据库配置.文件保存地址 + '/' + this.文件夹名称 + '/index.json'
 
         let 远程端主键列表 = [];
         let 本地端主键列表 = this.主键列表;
