@@ -49,6 +49,16 @@ export class 数据集 {
         this.修改时间 = Date.now()
         this._已经修改 = value
     }
+       
+    get 文件适配器() {
+        return this.文件保存格式 === 'msgpack' ? new msgSyAdapter(this.文件保存地址) : new jsonSyAdapter(this.文件保存地址);
+    }
+    get 文件保存地址() {
+        return this.数据库配置.文件保存地址 + '/' + this.文件夹名称 + '/';
+    }
+    get 主键列表() {
+        return Object.getOwnPropertyNames(this.数据集对象);
+    }
     校验远程数据可写入(){
         if (!this.已经修改) {
             return;
@@ -120,16 +130,7 @@ export class 数据集 {
             return 查询函数(...args);
         };
     }
-    
-    get 文件适配器() {
-        return this.文件保存格式 === 'msgpack' ? new msgSyAdapter(this.文件保存地址) : new jsonSyAdapter(this.文件保存地址);
-    }
-    get 文件保存地址() {
-        return this.数据库配置.文件保存地址 + '/' + this.文件夹名称 + '/';
-    }
-    get 主键列表() {
-        return Object.getOwnPropertyNames(this.数据集对象);
-    }
+ 
     async 迁移数据保存格式(新数据格式) {
         this.文件保存格式 = 新数据格式;
         this.主键列表.forEach(
