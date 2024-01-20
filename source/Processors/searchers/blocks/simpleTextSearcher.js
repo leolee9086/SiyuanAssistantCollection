@@ -65,7 +65,6 @@ export const 根据共同词素数量对块进行排序 = (blocks, tokens, 标�
     return blocks
 }
 export const seachBlockWithText = async (text, options = { 使用原始结果: false, 结果数量: 10, 标题和文档包含全部内容: false }) => {
-    console.log(text, options)
     let 分词结果 = jieba.tokenize(text, "search")
     let { 结果数量, 标题和文档包含全部内容, 使用原始结果 } = options
     // 然后执行搜索

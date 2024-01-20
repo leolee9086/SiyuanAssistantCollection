@@ -7,15 +7,15 @@ let 待添加数组 = sac.statusMonitor.get('tips', 'current').$value || []
 export async function 处理并显示tips(data, 编辑器上下文, renderInstance) {
     data.source = renderInstance.name
 
-    if (data && data.item && data.item[0]){
-        let text=''
+    if (data && data.item && data.item[0]) {
+        let text = ''
         for (let tipsItem of data.item) {
             tipsItem.source = tipsItem.source || data.source;
             待添加数组.push(准备渲染项目(tipsItem, 编辑器上下文))
-            text+=tipsItem.description
+            text += tipsItem.description
         }
 
-        requestIdleCallback(()=>{学习新词组(text)})
+        requestIdleCallback(() => { 学习新词组(text) })
 
     }
 }
@@ -62,7 +62,7 @@ function 去重待添加数组() {
 }
 
 // 限制待添加数组的长度，只保留最新的10个元素，同时保持原有顺序
-function 限制待添加数组长度(num) {
+async function 限制待添加数组长度(num) {
     if (待添加数组.length > (num || 1000)) {
         移除每个维度最低分的项目(待添加数组)
     }
@@ -83,7 +83,7 @@ function 限制待添加数组长度(num) {
 }
 
 
-export const 移除每个维度最低分的项目 = (待添加数组) => {
+export const 移除每个维度最低分的项目 = async (待添加数组) => {
     // 找出所有存在的维度
     const allDimensions = new Set();
     待添加数组.forEach(item => {
@@ -133,8 +133,8 @@ async function 批量渲染() {
     try {
         const startTime = performance.now();
 
-        await 智能防抖(去重待添加数组)(signal);
-        await 智能防抖(排序待添加数组)(待添加数组, signal);
+        requestIdleCallback(去重待添加数组);
+        requestIdleCallback(() => 排序待添加数组(待添加数组, signal));
 
         const endTime = performance.now();
         if (endTime - startTime > 50) {

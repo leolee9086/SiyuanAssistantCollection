@@ -118,7 +118,8 @@ export async function scoreItem(item, baseString,bm25scores) {
     根据生成时间对tips项目排序(item); // 填充scores.time属性
     根据文本内容对tips评分(item, baseString)
     try{
-    item.scores.bm25=bm25scores.find(doc=>{return doc.id===item.id}).score
+    let data =bm25scores.find(doc=>{return doc.id===item.id})
+    data&&(item.scores.bm25=data.score)
     }catch(e){
         console.error(e)
     }

@@ -13,7 +13,7 @@ export const 迁移数据项向量结构 = (数据项) => {
     } else {
         // 将数据项除了vector之外的所有字段复制到meta中
         for (let key in 数据项) {
-            if (数据项.hasOwnProperty(key) && key !== 'vector'&& key !== 'created'&& key !== 'updated'&& key !== 'neighbors') {
+            if (数据项.hasOwnProperty(key) && key !== 'vector'&& key !== 'created'&& key !== 'updated'&& key !== 'neighbors'&& key !== 'meta') {
                 迁移结果.meta[key] = 数据项[key];
             }
         }

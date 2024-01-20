@@ -7,7 +7,6 @@ import { 智能防抖, 柯里化 } from '../../utils/functionTools.js';
 import { 在空闲时间执行任务 } from '../../utils/functionAndClass/idleTime.js';
 import { text2vec } from '../../Processors/AIProcessors/publicUtils/endpoints.js';
 import { 创建编辑器上下文 } from '../../utils/context/editorContext.js';
-import { 学习新词组 } from '../../utils/tokenizer/learn.js';
 let 键盘tips数组 = []
 sac.statusMonitor.set('tips', 'current', 键盘tips数组)
 export let 上一个分词结果 = []
@@ -36,7 +35,7 @@ export let 显示actions并生成tips渲染任务 = (flag) => {
   if (编辑器上下文) {
     显示灰色小字(编辑器上下文, "测试")
     if (!flag) {
-      生成tips渲染任务(编辑器上下文)
+     requestIdleCallback(()=>生成tips渲染任务(编辑器上下文))
     }
   } else {
     sac.logger.warn('编辑机器上下文生成失败')
@@ -120,6 +119,9 @@ async function 检查触发条件(renderInstance, 编辑器上下文, 编辑器�
   }
   return null; // 如果没有条件满足，返回null
 }
+
+
+
 
 // 任务执行函数
 async function 执行任务(renderInstance, 编辑器上下文, 编辑器上下文特征向量) {
