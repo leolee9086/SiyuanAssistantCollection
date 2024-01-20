@@ -1,4 +1,5 @@
 import { 计算余弦相似度,计算余弦相似度32位 } from "../../../utils/vector/similarity.js";
+import { 使用worker计算余弦相似度 } from "../../../utils/vector/vectorWorker.js";
 
 export async function 创建简单短哈希(文本,短码长度=8) {
     const 编码器 = new TextEncoder();
@@ -41,16 +42,15 @@ export async function _查找最相似点(输入点, 点数据集, 查找阈值 
             minScore = tops[tops.length - 1].score;
         }
     }
-
     return tops.filter(t => t !== null);
 }
-export async function 查找最相似点(输入点, 点数据集, 查找阈值 = 10, 相似度算法=计算余弦相似度32位, 过滤条件) {
+export async function 查找最相似点(输入点, 点数据集, 查找阈值 = 10, 相似度算法=使用worker计算余弦相似度, 过滤条件) {
     let 拷贝点 = Array.isArray(输入点) ? 输入点 : JSON.parse(输入点);
     let tops = [];
 
     for (let v of 点数据集) {
         if (过滤条件 && !过滤条件(v)) continue;
-        let similarity = 相似度算法(拷贝点, v.vector);
+        let similarity =await 相似度算法(拷贝点, v.vector);
         if (tops.length < 查找阈值 || similarity > tops[tops.length - 1].score) {
             tops.push({ data: v, score: similarity });
             tops.sort((a, b) => b.score - a.score);

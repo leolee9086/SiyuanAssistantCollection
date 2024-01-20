@@ -36,7 +36,7 @@ export let 显示actions并生成tips渲染任务 = (flag) => {
   if (编辑器上下文) {
     显示灰色小字(编辑器上下文, "测试")
     if (!flag) {
-     requestIdleCallback(()=>生成tips渲染任务(编辑器上下文))
+      requestIdleCallback(() => 生成tips渲染任务(编辑器上下文))
     }
   } else {
     sac.logger.warn('编辑机器上下文生成失败')
@@ -44,25 +44,29 @@ export let 显示actions并生成tips渲染任务 = (flag) => {
 }
 
 
-let 正在生成编辑器向量 
+let 正在生成编辑器向量
 async function 生成tips渲染任务(编辑器上下文) {
   sac.statusMonitor.set('context', 'editor', 编辑器上下文);
-  let 编辑器上下文特征向量
   //因为向量检索的成本比较高
+
   if (更新并检查分词差异(编辑器上下文.tokens)) {
-    if(!正在生成编辑器向量){
-      正在生成编辑器向量=true
-      sac.logger.tipsLog(`触发编辑器上下文向量索引,正在生成编辑器向量`)
+    (async () => {
+      正在生成编辑器向量 = true
+      sac.logger.tipsInfo(`触发编辑器上下文向量索引,正在生成编辑器向量`)
       let res = await text2vec(编辑器上下文.editableElement.innerText)
       if (res.body && res.body.data) {
-        编辑器上下文特征向量 = res.body.data[0].embedding
+        sac.logger.tipsInfo(`特征向量生成成功,将用于查询`)
+        //这里的意思是只有在向量生成足够快速的时候才会生成查询结果
+        编辑器上下文.vector = res.body.data[0].embedding
+        // 创建并执行tips渲染任务队列(编辑器上下文);
+      } else {
+        console.error(res)
       }
-      正在生成编辑器向量=false
-    }
-
+      正在生成编辑器向量 = false
+    })()
   }
   // 创建并执行tips渲染任务队列(编辑器上下文);
-  let 任务队列 = 创建任务队列(编辑器上下文, renderInstancies, 编辑器上下文特征向量).map(
+  let 任务队列 = 创建任务队列(编辑器上下文, renderInstancies).map(
     任务信息 => {
       return 任务信息.执行
     }
@@ -88,7 +92,7 @@ function 创建任务队列(编辑器上下文, renderInstancies, 编辑器上�
     const renderInstanceName = renderInstance.name;
     return {
       添加时间,
-      执行: ()=>requestIdleCallback(() => 执行任务(renderInstance, 编辑器上下文, 编辑器上下文特征向量)),
+      执行: () => requestIdleCallback(() => 执行任务(renderInstance, 编辑器上下文, 编辑器上下文特征向量)),
       来源: renderInstanceName,
       编辑器上下文信息,
       类型: "编辑器tips"
@@ -98,21 +102,21 @@ function 创建任务队列(编辑器上下文, renderInstancies, 编辑器上�
 let 触发条件表 = [
   {
     name: 'renderEditorTips',
-    assert: (renderInstance, 编辑器上下文, 编辑器上下文特征向量) => { return 编辑器上下文 },
+    assert: (renderInstance, 编辑器上下文) => { return 编辑器上下文&&!编辑器上下文.vector },
   },
   {
     name: "renderEditorVectorTips",
-    assert: (renderInstance, 编辑器上下文, 编辑器上下文特征向量) => { return 编辑器上下文特征向量 }
+    assert: (renderInstance, 编辑器上下文) => { return 编辑器上下文.vector }
   }
 ]
 
 // 将函数拆分为两个部分：触发条件检查和任务执行
 
 // 触发条件检查函数
-async function 检查触发条件(renderInstance, 编辑器上下文, 编辑器上下文特征向量) {
+async function 检查触发条件(renderInstance, 编辑器上下文,) {
   for (const 触发条件 of 触发条件表) {
     const { name, assert } = 触发条件;
-    const conditionMet = await assert(renderInstance, 编辑器上下文, 编辑器上下文特征向量);
+    const conditionMet = await assert(renderInstance, 编辑器上下文);
     if (renderInstance[name] && conditionMet) {
       return name; // 返回满足条件的触发条件名称
     }
@@ -124,25 +128,24 @@ async function 检查触发条件(renderInstance, 编辑器上下文, 编辑器�
 
 
 // 任务执行函数
-async function 执行任务(renderInstance, 编辑器上下文, 编辑器上下文特征向量) {
+async function 执行任务(renderInstance, 编辑器上下文) {
   const 显示tips = 柯里化(处理并显示tips)(renderInstance)(编辑器上下文);
   try {
-    const 生成器名称 = await 检查触发条件(renderInstance, 编辑器上下文, 编辑器上下文特征向量);
+    const 生成器名称 = await 检查触发条件(renderInstance, 编辑器上下文);
     if (生成器名称) {
       try {
-     //   const 防抖生成tips = 智能防抖(withPerformanceLogging(renderInstance[生成器名称].bind(renderInstance)));
-      //  const data = await 防抖生成tips(编辑器上下文);
-      console.log(编辑器上下文)
-      const data =withPerformanceLogging(renderInstance[生成器名称].bind(renderInstance))(编辑器上下文)
+        //   const 防抖生成tips = 智能防抖(withPerformanceLogging(renderInstance[生成器名称].bind(renderInstance)));
+        //  const data = await 防抖生成tips(编辑器上下文);
+        const data = withPerformanceLogging(renderInstance[生成器名称].bind(renderInstance))(编辑器上下文)
         if (data) {
           data.source = renderInstance.name;
           显示tips(data);
         }
       } catch (e) {
-        sac.logger.tipsWarn(renderInstance.name,e);
+        sac.logger.tipsWarn(renderInstance.name, e);
       }
     }
   } catch (e) {
-    sac.logger.tipsWarn(renderInstance.name,e);
+    sac.logger.tipsWarn(renderInstance.name, e);
   }
 }

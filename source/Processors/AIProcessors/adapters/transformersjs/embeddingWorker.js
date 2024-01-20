@@ -42,6 +42,7 @@ export async function 提取向量(text, 最大句子长度) {
             let result = {
                 data: [vec2OpenAiEmbeddingResonseObject(计算加权平均向量(句子向量组, 句子长度比例组),0)]
             };
+
             return result
         } else {
             return [];
@@ -50,6 +51,7 @@ export async function 提取向量(text, 最大句子长度) {
         console.error(e);
         return { msg: '错误', detail: e.message };
     }
+    
 }
 
 export async function 批量提取向量(文本数组, 最大句子长度) {
