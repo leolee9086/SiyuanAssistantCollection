@@ -19,7 +19,7 @@ export const seachBlockWithVector = async (blocks,标题和文档包含全部内
         if(!metaMap[item.id]){
             return
         }
-        let block = JSON.parse(JSON.stringify(metaMap[item.id]));
+        let block = structuredClone(metaMap[item.id])
         if(!block){
             return undefined
         }

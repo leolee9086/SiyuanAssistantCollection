@@ -92,7 +92,7 @@ class 数据集 {
                 this.记录待保存数据项(数据项);
                 if (静态化) {
                     //如果数据是静态化的,那就添加一个拷贝
-                    数据集对象[数据项主键] = JSON.parse(JSON.stringify(数据项));
+                    数据集对象[数据项主键] = structuredClone(数据项)
                 } else {
                     //否则就直接添加原始数据项目
                     数据集对象[数据项主键] = 数据项;
@@ -172,7 +172,7 @@ class 数据集 {
         if (!原始查询结果) {
             查询结果 = 查询结果.map(
                 item => {
-                    let obj = JSON.parse(JSON.stringify(item.data.data))
+                    let obj = structuredClone(item.data.data)
                     obj.similarityScore = item.score
                     return obj
                 }
