@@ -27,7 +27,7 @@ export const 以过滤函数和向量字段名创建查询数据集 = (数据集
 export const 获取数据项向量字段值 = (数据项, 向量字段名) => {
     return 数据项.vector[向量字段名] || [];
 }
-export const 处理查询结果 = (查询结果) => {
+export const 处理查询结果 =async (查询结果) => {
     查询结果 = 查询结果.map(
         item => {
             let obj = JSON.parse(JSON.stringify(item.data.data))
@@ -48,8 +48,8 @@ export const 应用后置过滤函数 = (查询结果, 后置过滤条件) => {
 export const 准备向量查询函数 = (数据集对象) => {
     return async(向量字段名, 向量值, 结果数量 = 10, 前置过滤条件, 后置过滤条件) => {
         let 查询数据集 = 柯里化(以过滤函数和向量字段名创建查询数据集)(数据集对象)(向量字段名)(前置过滤条件)
-        let 查询结果 = withPerformanceLogging(查找最相似点)(向量值, 查询数据集, 结果数量,计算余弦相似度32位)
-        查询结果 = 处理查询结果(查询结果)
+        let 查询结果 =await withPerformanceLogging(查找最相似点)(向量值, 查询数据集, 结果数量,计算余弦相似度32位)
+        查询结果 =await 处理查询结果(查询结果)
         // 查询结果 = this.应用后置过滤函数(查询结果, 后置过滤函数)
         查询结果 = 应用后置过滤函数(查询结果, 后置过滤条件)
         return JSON.parse(JSON.stringify(查询结果))

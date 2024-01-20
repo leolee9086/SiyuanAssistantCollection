@@ -26,7 +26,25 @@ export const 计算向量相似度=(输入点, 点数据集, 相似度算法)=>{
     }
     return similarityScores;
 }
-export function 查找最相似点(输入点, 点数据集, 查找阈值 = 10, 相似度算法=计算余弦相似度, 过滤条件) {
+export async function 查找最相似点(输入点, 点数据集, 查找阈值 = 10, 相似度算法=计算余弦相似度, 过滤条件) {
+    let 拷贝点 = Array.isArray(输入点) ? 输入点 : JSON.parse(输入点);
+    let tops = new Array(查找阈值).fill(null).map(() => ({ score: -Infinity }));
+    let minScore = -Infinity;
+
+    for (let v of 点数据集) {
+        if (过滤条件 && !过滤条件(v)) continue;
+        let similarity = 相似度算法(拷贝点, v.vector);
+        if (similarity > minScore) {
+            tops.push({ data: v, score: similarity });
+            tops.sort((a, b) => b.score - a.score);
+            tops.length = 查找阈值;
+            minScore = tops[tops.length - 1].score;
+        }
+    }
+
+    return tops.filter(t => t !== null);
+}
+/*export function 查找最相似点(输入点, 点数据集, 查找阈值 = 10, 相似度算法=计算余弦相似度, 过滤条件) {
     let 拷贝点
     if (!Array.isArray(输入点)) {
         拷贝点 = JSON.parse(输入点)
@@ -50,5 +68,5 @@ export function 查找最相似点(输入点, 点数据集, 查找阈值 = 10, �
     similarityScores.sort((a, b) => b.score - a.score);
     let tops = similarityScores.slice(0, 查找阈值)
     return tops;
-}
+}*/
 export {查找最相似点 as findSimilarity}
