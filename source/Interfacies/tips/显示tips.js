@@ -49,7 +49,7 @@ async function 生成tips渲染任务(编辑器上下文) {
   sac.statusMonitor.set('context', 'editor', 编辑器上下文);
   let 编辑器上下文特征向量
   //因为向量检索的成本比较高
-  if (更新并检查分词差异(编辑器上下文.tokens)) {
+  if (更新并检查分词差异(编辑器上下文.tokens,5)) {
     if(!正在生成编辑器向量){
       正在生成编辑器向量=true
       sac.logger.tipsLog(`触发编辑器上下文向量索引,正在生成编辑器向量`)

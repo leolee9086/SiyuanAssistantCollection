@@ -11,7 +11,12 @@ let 索引失败数组 = []
 let 索引中块哈希 = new Set()
 let 索引正在更新中 = false
 let 块向量索引函数 = 逆序柯里化(为索引记录准备索引函数)(索引中块哈希)
+let 索引正在清理中=false 
 export const 清理块索引 = async (数据集名称, 间隔时间 = 3000) => {
+    if(索引正在清理中){
+        setTimeout(() => { 清理块索引(数据集名称, 间隔时间) }, 间隔时间)
+    }
+    索引正在清理中=true
     try {
         let 数据集状态 = await internalFetch('/state', {
             method: 'POST',
@@ -23,6 +28,7 @@ export const 清理块索引 = async (数据集名称, 间隔时间 = 3000) => {
             sac.logger.indexlog('数据集加载未完成,跳过本轮清理')
         }
     } catch (e) {
+        索引正在清理中=false
         setTimeout(() => { 清理块索引(数据集名称, 间隔时间) }, 间隔时间*2)
     }
     let id数组查询结果 = await internalFetch('/database/keys', {
@@ -61,10 +67,13 @@ export const 清理块索引 = async (数据集名称, 间隔时间 = 3000) => {
             })
             间隔时间 = Math.max(间隔时间 * 2, 15 * 1000)
             setTimeout(() => { 清理块索引(数据集名称, 间隔时间) }, 间隔时间)
+            索引正在清理中=false
         } else {
             间隔时间 = Math.min(间隔时间 * 2, 15 * 1000 * 60)
             sac.logger.indexlog(`没有多余索引需要清除,当前索引清理时间为${间隔时间}`)
             setTimeout(() => { 清理块索引(数据集名称, 间隔时间) }, 间隔时间)
+            索引正在清理中=false
+
         }
     }
 
