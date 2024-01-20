@@ -52,7 +52,7 @@ export const 准备向量查询函数 = (数据集对象) => {
         查询结果 =await 处理查询结果(查询结果)
         // 查询结果 = this.应用后置过滤函数(查询结果, 后置过滤函数)
         查询结果 = 应用后置过滤函数(查询结果, 后置过滤条件)
-        return JSON.parse(JSON.stringify(查询结果))
+        return structuredClone(查询结果)
     }
 }
 
