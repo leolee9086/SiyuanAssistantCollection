@@ -30,7 +30,7 @@ export const 获取数据项向量字段值 = (数据项, 向量字段名) => {
 export const 处理查询结果 =async (查询结果) => {
     查询结果 = 查询结果.map(
         item => {
-            let obj = JSON.parse(JSON.stringify(item.data.data))
+            let obj = structuredClone(item.data.data)
             obj.similarityScore = item.score
             return obj
         }
