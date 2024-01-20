@@ -6,7 +6,7 @@ export const seachBlockWithVector = async (blocks,标题和文档包含全部内
     const blockIds = blocks.map(item => `"${item.id}"`);
 
     // 一次性查询所有块的meta数据
-    const metas = kernelApi.sql.sync({ stmt: `SELECT * FROM blocks WHERE id IN (${blockIds.join(',')})` });
+    const metas =await kernelApi.sql({ stmt: `SELECT * FROM blocks WHERE id IN (${blockIds.join(',')})` });
 
     // 创建一个ID到meta的映射
     const metaMap = metas.reduce((map, meta) => {

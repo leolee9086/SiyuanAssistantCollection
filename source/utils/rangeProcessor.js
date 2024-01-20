@@ -168,7 +168,7 @@ export function 获取元素内文字选区偏移(element) {
 }
 export function 获取当前光标所在分词结果(分词结果数组, pos) {
     let 当前光标所在分词结果数组 = 分词结果数组.filter(token => {
-        return (token.start <= pos && token.end >= pos) && (token.word && token.word.trim().length > 1);
+        return (token.start <= pos && token.end >= pos) && (token.word && token.word.trim().length >= 1);
     }).sort((a, b) => {
         return b.word.length - a.word.length;
     });

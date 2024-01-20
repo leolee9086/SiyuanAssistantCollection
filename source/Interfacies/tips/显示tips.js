@@ -7,6 +7,7 @@ import { 智能防抖, 柯里化 } from '../../utils/functionTools.js';
 import { 在空闲时间执行任务 } from '../../utils/functionAndClass/idleTime.js';
 import { text2vec } from '../../Processors/AIProcessors/publicUtils/endpoints.js';
 import { 创建编辑器上下文 } from '../../utils/context/editorContext.js';
+import { withPerformanceLogging } from '../../utils/functionAndClass/performanceRun.js';
 let 键盘tips数组 = []
 sac.statusMonitor.set('tips', 'current', 键盘tips数组)
 export let 上一个分词结果 = []
@@ -45,7 +46,6 @@ export let 显示actions并生成tips渲染任务 = (flag) => {
 
 let 正在生成编辑器向量 
 async function 生成tips渲染任务(编辑器上下文) {
-
   sac.statusMonitor.set('context', 'editor', 编辑器上下文);
   let 编辑器上下文特征向量
   //因为向量检索的成本比较高
@@ -130,8 +130,10 @@ async function 执行任务(renderInstance, 编辑器上下文, 编辑器上下�
     const 生成器名称 = await 检查触发条件(renderInstance, 编辑器上下文, 编辑器上下文特征向量);
     if (生成器名称) {
       try {
-        const 防抖生成tips = 智能防抖(renderInstance[生成器名称].bind(renderInstance));
-        const data = await 防抖生成tips(编辑器上下文);
+     //   const 防抖生成tips = 智能防抖(withPerformanceLogging(renderInstance[生成器名称].bind(renderInstance)));
+      //  const data = await 防抖生成tips(编辑器上下文);
+      console.log(编辑器上下文)
+      const data =withPerformanceLogging(renderInstance[生成器名称].bind(renderInstance))(编辑器上下文)
         if (data) {
           data.source = renderInstance.name;
           显示tips(data);
