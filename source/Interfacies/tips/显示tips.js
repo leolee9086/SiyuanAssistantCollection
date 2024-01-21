@@ -50,20 +50,19 @@ async function 生成tips渲染任务(编辑器上下文) {
   //因为向量检索的成本比较高
 
   if (更新并检查分词差异(编辑器上下文.tokens)) {
-    (async () => {
+    requestIdleCallback(async () => {
       正在生成编辑器向量 = true
       sac.logger.tipsInfo(`触发编辑器上下文向量索引,正在生成编辑器向量`)
       let res = await text2vec(编辑器上下文.editableElement.innerText)
       if (res.body && res.body.data) {
         sac.logger.tipsInfo(`特征向量生成成功,将用于查询`)
         //这里的意思是只有在向量生成足够快速的时候才会生成查询结果
-        编辑器上下文.vector = res.body.data[0].embedding
-        // 创建并执行tips渲染任务队列(编辑器上下文);
+       编辑器上下文.vector = res.body.data[0].embedding
       } else {
         console.error(res)
       }
       正在生成编辑器向量 = false
-    })()
+    })
   }
   // 创建并执行tips渲染任务队列(编辑器上下文);
   let 任务队列 = 创建任务队列(编辑器上下文, renderInstancies).map(
@@ -134,9 +133,9 @@ async function 执行任务(renderInstance, 编辑器上下文) {
     const 生成器名称 = await 检查触发条件(renderInstance, 编辑器上下文);
     if (生成器名称) {
       try {
-        //   const 防抖生成tips = 智能防抖(withPerformanceLogging(renderInstance[生成器名称].bind(renderInstance)));
-        //  const data = await 防抖生成tips(编辑器上下文);
-        const data = withPerformanceLogging(renderInstance[生成器名称].bind(renderInstance))(编辑器上下文)
+           const 防抖生成tips = 智能防抖(withPerformanceLogging(renderInstance[生成器名称].bind(renderInstance)));
+         const data = await 防抖生成tips(编辑器上下文);
+        //const data = withPerformanceLogging(renderInstance[生成器名称].bind(renderInstance))(编辑器上下文)
         if (data) {
           data.source = renderInstance.name;
           显示tips(data);

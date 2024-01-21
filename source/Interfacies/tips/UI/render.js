@@ -15,7 +15,7 @@ export async function 处理并显示tips(data, 编辑器上下文, renderInstan
             text += tipsItem.description
         }
 
-        requestIdleCallback(() => { 学习新词组(text) })
+    //    requestIdleCallback(() => { 学习新词组(text) })
 
     }
 }
@@ -133,8 +133,8 @@ async function 批量渲染() {
     try {
         const startTime = performance.now();
 
-        requestIdleCallback(去重待添加数组);
-        requestIdleCallback(() => 排序待添加数组(待添加数组, signal));
+        requestIdleCallback(智能防抖(去重待添加数组));
+        requestIdleCallback(() => 智能防抖(排序待添加数组)(待添加数组, signal));
 
         const endTime = performance.now();
         if (endTime - startTime > 50) {

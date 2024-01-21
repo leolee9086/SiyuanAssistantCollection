@@ -106,8 +106,13 @@ export async function writeToCache(cachePath,feedJson){
 }
 
 export const handleFeedQueryVector=async(ctx,next)=>{
-    let {query}=ctx.req.body
-    let vec = await text2vec(query)
+    let {query,vector}=ctx.req.body
+    let vec
+    if(!vector){
+        vec = await text2vec(query)
+    }else{
+        vec= vector
+    }
     if(!本地rss数据集已经启用){
         ctx.body={
             msg:1,

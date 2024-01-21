@@ -1,5 +1,5 @@
 
-export const 计算余弦相似度 = (vector1, vector2) => {
+export const 计算归一化向量余弦相似度 = (vector1, vector2) => {
     //假设这些向量已经全部正规化了
     let dotProduct = 0;
     for (let i = 0; i < vector1.length; i++) {
@@ -7,7 +7,7 @@ export const 计算余弦相似度 = (vector1, vector2) => {
     }
     return dotProduct;
 }
-export const 计算余弦相似度32位 = (vector1, vector2) => {
+export const 计算余弦相似度 = (vector1, vector2) => {
     let dotProduct = 0;
     let magnitude1 = 0;
     let magnitude2 = 0;
@@ -36,4 +36,5 @@ export const 计算欧氏距离相似度 = (vector1, vector2) => {
     }
     return Math.sqrt(sum);
 };
+
 

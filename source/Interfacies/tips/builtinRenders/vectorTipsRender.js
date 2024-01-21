@@ -3,7 +3,7 @@ export const tipsRender = class {
         try {
             let res = await this.internalFetch('/search/blocks/vector', {
                 body: {
-                    query: editorContext.editableElement.innerText,
+                    vector:editorContext.vector,
                     filter_before: {
                         "id": { $ne: editorContext.blockID }
                     }
@@ -22,7 +22,7 @@ export const tipsRender = class {
 
             res = await this.internalFetch('/search/rss/vector', {
                 body: {
-                    query: editorContext.editableElement.innerText,
+                    vector:editorContext.vector,
                 },
                 method: 'POST',
             });

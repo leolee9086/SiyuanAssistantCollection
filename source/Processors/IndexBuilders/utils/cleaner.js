@@ -4,6 +4,7 @@ import fs from "../../../polyfills/fs.js";
 import { 构建块向量数据项 } from "./dataBaseItem.js";
 import { 为索引记录准备索引函数 } from "./indexer.js";
 import { 逆序柯里化, 柯里化 } from "../../../utils/functionTools.js";
+import { kernelWorker } from "../../../utils/webworker/kernelWorker.js";
 let { internalFetch } = sac.路由管理器
 let 已索引块哈希 = new Set();
 let 待索引数组 = [];
@@ -48,15 +49,13 @@ export const 清理块索引 = async (数据集名称, 间隔时间 = 15000) => 
         缓存的已索引结果.forEach(item => 已索引块哈希.add(item))
     }
     let idSQL = `select id, hash from blocks where content <> '' and id IN (${已入库块id数组.map(item=>`"${item}"`).join(',')}) order by updated desc limit 102400`;
-    let data = await kernelApi.SQL({ 'stmt': idSQL })
-
+    let data = await kernelWorker.SQL({ 'stmt': idSQL })
     if (data && data[0]) {
-        data = data.map(item => {
-            return item.id
-        })
+      
         let id数组1 = 已入库块哈希映射.filter(
-            item => { return !data.includes(item.id) }
+            item => { return !data.find(block=>block.hash===item.meta.hash) }
         )
+        console.log(id数组1,已入库块哈希映射)
         if (id数组1.length) {
             sac.logger.indexwarn(`删除${id数组1.length}条多余索引`)
             await internalFetch('/database/delete', {
