@@ -55,7 +55,6 @@ export const 清理块索引 = async (数据集名称, 间隔时间 = 15000) => 
         let id数组1 = 已入库块哈希映射.filter(
             item => { return !data.find(block=>block.hash===item.meta.hash) }
         )
-        console.log(id数组1,已入库块哈希映射)
         if (id数组1.length) {
             sac.logger.indexwarn(`删除${id数组1.length}条多余索引`)
             await internalFetch('/database/delete', {
@@ -127,7 +126,7 @@ export const 定时获取更新块 = async () => {
         let 更新块SQL = 已获取块哈希数组.length > 0
             ? `select * from blocks where hash NOT IN (${已获取块哈希数组}) AND content <> '' order by updated desc limit 100`
             : `select * from blocks where content <> '' order by updated desc limit 100`;
-        let 更新块数据 = await kernelApi.SQL({ 'stmt': 更新块SQL });
+        let 更新块数据 = await kernelWorker.SQL({ 'stmt': 更新块SQL });
         if (更新块数据 && 更新块数据.length > 0) {
             更新块数据.forEach(块 => {
                 if (!已索引块哈希.has(块.hash)) {
