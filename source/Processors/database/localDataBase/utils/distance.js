@@ -3,7 +3,6 @@ import { 获取数据项向量字段值 } from "./item.js";
 let 距离缓存 = {};
 let 访问次数 = {};
 const 缓存限制 = 10000;
-
 function 清理缓存() {
     // 获取访问次数最少的缓存键
     const 最少访问键 = Object.entries(访问次数).sort((a, b) => a[1] - b[1]).map(entry => entry[0]).slice(0, 缓存限制 / 10);
