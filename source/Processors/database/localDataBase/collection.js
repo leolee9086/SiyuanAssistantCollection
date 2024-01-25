@@ -6,10 +6,12 @@ import { plugin } from '../../../asyncModules.js';
 import { 迁移为合法文件夹名称 } from './utils/fileName.js';
 import { 计算LuteNodeID模 } from './utils/mod.js';
 import { 准备向量查询函数 } from './utils/query.js';
-import { 合并已存在数据项, 迁移数据项向量结构 } from './utils/item.js';
+import {  初始化数据项hnsw领域邻接表, 合并已存在数据项, 迁移数据项向量结构 } from './utils/item.js';
 import { 创建临时数据对象 } from './workspaceAdapters/utils/cache.js';
 import { sac } from '../../../asyncModules.js';
 import fs from '../../../polyfills/fs.js';
+import { 获取数据项所在hnsw层级, 获取随机层级 } from "./hnswlayers/utils.js";
+import { withPerformanceLogging } from '../../../utils/functionAndClass/performanceRun.js';
 let 命名常量 = {
     主键名: "id"
 }
@@ -29,14 +31,21 @@ export class 数据集 {
         this.保存队列 = [];
         this.文件保存格式 = plugin.configurer.get('向量工具设置', '向量保存格式');
         this.数据迁移中 = true;
+        this.hnsw层级映射 = {}
+
         this.准备查询函数();
         this.加载数据()
         this.数据加载完成 = false
         this.数据刷新定时任务 = setInterval(() => {
             this.同步数据()
         }, 5000)
-
+        //这里的数据用于存储hnsw索引
+        this.预期HNSW邻居数量 = 64
+        this.构建时HNSW候选列表大小 = 300
+        this.搜索时HNSW候选列表大小 = 400
+        this.最大层级 = 16
         this.修改时间 = Date.now()
+        this.特征向量名称数组 = []
     }
     get 索引文件名称() {
         return this.数据库配置.文件保存地址 + '/' + this.文件夹名称 + '/index.json'
@@ -66,7 +75,6 @@ export class 数据集 {
         }
         if (!this.数据加载完成) {
             sac.logger.datasetwarn(`数据集${this.数据集名称}正在加载中,不可写入数据,请等待`)
-
             //数据加载完成前不允许写入
             return
         }
@@ -136,6 +144,40 @@ export class 数据集 {
         this.已经修改 = true;
         await this.保存数据();
     }
+    async 初始化数据项(数据项) {
+        let 主键名 = 命名常量.主键名
+        let 数据集对象 = this.数据集对象
+        if (!数据项[主键名]) {
+            logger.datacollecterror.stack('数据项缺少ID,无法添加')
+            return
+        }
+        let 数据项主键 = 数据项[主键名]
+        if (!校验主键(数据项主键)) {
+            logger.datacollecterror('主键必须以14位数字开头');
+            return
+        }
+        //使用结构化克隆算法克隆数据项,避免修改原始数据
+        let _数据项 = structuredClone(数据项)
+        let 迁移结果 = 迁移数据项向量结构(_数据项,this.hnsw层级映射)
+        let 已存在数据项 = 数据集对象[数据项主键]
+        if (已存在数据项) {
+            数据集对象[数据项主键] = 合并已存在数据项(已存在数据项, 迁移结果)
+        } else {
+            数据集对象[数据项主键] = 迁移结果
+        }
+        let 数据集数据项 = 数据集对象[数据项主键]
+        await withPerformanceLogging(初始化数据项hnsw领域邻接表)(数据集数据项,this.数据集对象,this.hnsw层级映射)
+        for (let 模型名称 in 数据集数据项.vector) {
+            // 如果特征向量名称数组中还没有这个模型名称，则添加进去
+            if (!this.特征向量名称数组.includes(模型名称)) {
+                this.特征向量名称数组.push(模型名称);
+            }
+            console.log(`模型: ${模型名称}, 当前层级: ${获取数据项所在hnsw层级(数据集数据项,模型名称)},`);
+        }
+        // 确保特征向量名称数组中的元素是唯一的
+        this.特征向量名称数组 = Array.from(new Set(this.特征向量名称数组));
+        this.记录待保存数据项(数据集对象[数据项主键])
+    }
 
     async 添加数据(数据组) {
         if (!数据组[0]) {
@@ -150,21 +192,7 @@ export class 数据集 {
         }
         for (let 数据项 of 数据组) {
             if (数据项 && 数据项[主键名]) {
-                let 数据项主键 = 数据项[主键名];
-                if (!校验主键(数据项主键)) {
-                    logger.datacollecterror('主键必须以14位数字开头');
-                    continue;
-                }
-                //改为默认静态化
-                let _数据项 = JSON.parse(JSON.stringify(数据项));
-                let 迁移结果 = 迁移数据项向量结构(_数据项);
-                let 已存在数据项 = 数据集对象[数据项主键];
-                if (已存在数据项) {
-                    数据集对象[数据项主键] = 合并已存在数据项(已存在数据项, 迁移结果);
-                } else {
-                    数据集对象[数据项主键] = 迁移结果;
-                }
-                this.记录待保存数据项(数据集对象[数据项主键]);
+                await this.初始化数据项(数据项)
                 修改标记 = true;
             }
         }
@@ -300,13 +328,13 @@ export class 数据集 {
         this.数据保存中 = false
     }
     async 加载数据() {
-        if(this.数据加载中){
+        if (this.数据加载中) {
             sac.logger.datasetwarn.warn(`数据集${this.数据集名称}正在加载中,请等待`)
             return
         }
         this.数据加载完成 = false
         this.数据加载中 = true
-        await this.文件适配器.加载全部数据(this.数据集对象)
+        await this.文件适配器.加载全部数据(this.数据集对象,this.hnsw层级映射)
         this.数据加载完成 = true
         this.数据加载中 = false
     }

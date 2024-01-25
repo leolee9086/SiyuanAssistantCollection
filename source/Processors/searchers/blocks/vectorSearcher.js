@@ -1,25 +1,36 @@
+import { withPerformanceLogging } from "../../../utils/functionAndClass/performanceRun.js";
 import { kernelApi } from "../runtime.js"
-export const seachBlockWithVector = async (blocks,标题和文档包含全部内容,使用原始结果,得分阈值,参考分数较高时给出文档全文) => {
+const hashCache={}
+ const _seachBlockWithVector = async (blocks,标题和文档包含全部内容,使用原始结果,得分阈值,参考分数较高时给出文档全文) => {
     blocks = blocks.filter(item => item.meta && item.similarityScore > 得分阈值);
 
     // 获取所有块的ID
     const blockIds = blocks.map(item => `"${item.id}"`);
-
+    const unCachedIds = blocks.map(
+        item=>!hashCache[item.meta.hash]?`"${item.id}"`:null
+    ).filter(
+        item=>item
+    )
+    
+    
     // 一次性查询所有块的meta数据
-    const metas =await kernelApi.sql({ stmt: `SELECT * FROM blocks WHERE id IN (${blockIds.join(',')})` });
-
+    const metas =await withPerformanceLogging(kernelApi.sql)({ stmt: `SELECT * FROM blocks WHERE id IN (${unCachedIds.join(',')})` });
+    
     // 创建一个ID到meta的映射
     const metaMap = metas.reduce((map, meta) => {
         map[meta.id] = meta;
+        if(!hashCache[meta.hash]){
+            hashCache[meta.hash]=meta
+        }
         return map;
     }, {});
 
     // 使用映射更新块的meta数据
     blocks = blocks.map(item => {
-        if(!metaMap[item.id]){
+        if(!metaMap[item.id]&&!hashCache[item.meta.hash]){
             return
         }
-        let block = structuredClone(metaMap[item.id])
+        let block = structuredClone(metaMap[item.id])||structuredClone(hashCache[item.meta.hash])
         if(!block){
             return undefined
         }
@@ -77,3 +88,4 @@ export const seachBlockWithVector = async (blocks,标题和文档包含全部内
         )
     }
 }
+export const seachBlockWithVector=withPerformanceLogging(_seachBlockWithVector)

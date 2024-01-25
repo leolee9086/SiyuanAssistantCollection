@@ -1,6 +1,7 @@
 import { sac } from "../runtime.js";
 import { importWorker } from "../../../utils/webworker/workerHandler.js";
 import { text2vec } from "../../AIProcessors/publicUtils/endpoints.js";
+import { withPerformanceLogging } from "../../../utils/functionAndClass/performanceRun.js";
 
 const simpleTextSearcherModule = importWorker(import.meta.resolve('./simpleTextSearcher.js'))
 await simpleTextSearcherModule.$eval(document.getElementById('protyleLuteScript').textContent)
@@ -41,7 +42,7 @@ blockSearchRouter.post('/vector', async (ctx, next) => {
         console.warn('数据集查询异常:', collectionsRes.body.error)
     }
     let 使用原始结果 = false
-    let 结果数量 = 36
+    let 结果数量 = 10
     let 标题和文档包含全部内容 = sac.configurer.get('聊天工具设置', '发送参考时文档和标题块发送全部内容').$value
     let 得分阈值 = 0.5
     let 参考分数较高时给出文档全文 = sac.configurer.get('聊天工具设置', '参考分数较高时给出文档全文').$value
@@ -66,7 +67,7 @@ blockSearchRouter.post('/vector', async (ctx, next) => {
         method: 'POST',
     })
     
-    let data = await vectorTextSearcherModule.seachBlockWithVector(res1.body.data, 标题和文档包含全部内容, 使用原始结果, 得分阈值, 参考分数较高时给出文档全文)
+    let data = await withPerformanceLogging(vectorTextSearcherModule.seachBlockWithVector)(res1.body.data, 标题和文档包含全部内容, 使用原始结果, 得分阈值, 参考分数较高时给出文档全文)
     ctx.body = data
 })
 blockSearchRouter.get('/vector/:query', async (ctx, next) => {

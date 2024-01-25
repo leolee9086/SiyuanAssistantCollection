@@ -4,7 +4,7 @@ let embeddingWorkerModule = importWorker(import.meta.resolve('./embeddingWorker.
 let vectorCache = {
 
 }
-export const 使用transformersjs生成嵌入 = async (模型名称, 最大缓存大小 = 10000) => {
+export const 使用transformersjs生成嵌入 = async (模型名称, 最大缓存大小 = 100) => {
     if (!vectorCache[模型名称]) {
         vectorCache[模型名称] = {}
     }

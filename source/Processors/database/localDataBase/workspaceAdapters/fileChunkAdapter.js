@@ -68,18 +68,18 @@ export class fileChunkAdapter {
 
         sac.logger.datasetlog(`数据文件夹${子文件夹路径}读取完成`)
     }
-    async 加载全部数据(数据集对象) {
+    async 加载全部数据(数据集对象,hnsw层级映射) {
         if (await fs.exists(this.文件保存地址)) {
             let 失效数据项数量 = 0
             let 文件路径列表 = await 读取工作空间文件列表(this.文件保存地址)
-            for (let 子文件夹路径 of 文件路径列表) {
+             for await (let 子文件夹路径 of 文件路径列表) {
                 let log = ''
                 for (let i = 0; i < this.总文件数; i++) {
                     let { error, content } = await this.加载数据切片(子文件夹路径, i, this.反序列化)
                     if (error) {
                         log += error
                     }
-                    for (let key in content) {
+                    for  (let key in content) {
                         if (content.hasOwnProperty(key)) {
                             let 数据项 = content[key];
                             if (!数据项.vector) {
@@ -107,7 +107,8 @@ export class fileChunkAdapter {
                                 continue; // 跳过不符合结构的数据项
                             }
                             // 如果数据项符合结构，则合并到数据集对象中
-                            数据集对象[key] = 迁移数据项向量结构(数据项)
+                            数据集对象[key] = 迁移数据项向量结构(数据项,hnsw层级映射)
+                            
                         }
                     }
                 }

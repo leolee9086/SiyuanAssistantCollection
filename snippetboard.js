@@ -1,6 +1,85 @@
 // 使用示例
 const { fork } = require('child_process');
 const path = require('path');
+export async function 查找最相似点(输入点, 点数据集, 查找阈值 = 10, 过滤条件) {
+    const gpu = new GPU();
+
+    // 假设输入点和数据集中的向量都是长度相同的数组
+    const dimension = 输入点.length;
+
+    // 创建一个 GPU 内核函数来计算余弦相似度
+    const calculateCosineSimilarity = gpu.createKernel(function(singleVector, vectors) {
+        let sum = 0;
+        for (let i = 0; i < this.constants.dimension; i++) {
+          sum += singleVector[i] * vectors[this.thread.x][i];
+        }
+        return sum;
+          }, {
+        constants: { dimension },
+        output: [点数据集.length]
+    });
+
+    // 将输入点和点数据集转换为 Float32Array，以便 GPU.js 可以处理
+    const 输入点Array = new Float32Array(输入点);
+    const 点数据集Array = 点数据集.map(v => new Float32Array(v.vector));
+
+    // 计算相似度
+    const similarityScores = calculateCosineSimilarity(输入点Array, 点数据集Array);
+
+    // 将结果从 GPU 内存复制回常规内存
+    const scores = similarityScores;
+
+    // 结合过滤条件和排序逻辑
+    let tops = [];
+    for (let i = 0; i < scores.length; i++) {
+        if (过滤条件 && !过滤条件(点数据集[i])) continue;
+        let similarity = scores[i];
+        if (tops.length < 查找阈值 || similarity > tops[tops.length - 1].score) {
+            tops.push({ data: 点数据集[i], score: similarity });
+            tops.sort((a, b) => b.score - a.score);
+            if (tops.length > 查找阈值) {
+                tops.pop();
+            }
+        }
+    }
+    return tops;
+}
+
+const gpu = new GPU();
+
+// 创建一个 GPU 内核函数来计算一个向量与一组向量的点积
+const calculateDotProducts = gpu.createKernel(function(singleVector, vectors) {
+    let sum = 0;
+    for (let i = 0; i < this.constants.vectorLength; i++) {
+      sum += singleVector[i] * vectors[this.thread.x][i];
+    }
+    return sum;
+  }, {
+    constants: { vectorLength: 1024 }, // 假设向量长度为 1024
+    output: [100000] // 假设有 1024 个向量
+  });
+  
+  // 示例向量
+// 示例向量，使用随机值填充
+const singleVector = new Float32Array(1024).map(() => Math.random());
+const vectors = new Array(10000).fill(0).map(() => new Float32Array(1024).map(() => Math.random()));
+  
+  // 计算点积
+  const dotProductResults =withPerformanceLogging(calculateDotProducts)(singleVector, vectors);
+  
+  // 将结果从 GPU 内存复制回常规内存，并转换为数组
+  const dotProducts = Array.from(dotProductResults);
+  
+  // 创建一个数组，包含索引和点积结果
+  const indexedDotProducts = dotProducts.map((value, index) => ({ index, value }));
+  
+  // 在 CPU 上对点积结果进行排序
+  indexedDotProducts.sort((a, b) => b.value - a.value);
+  
+  // 如果你需要排序后的顶部 N 个结果
+  const topN = indexedDotProducts.slice(0, 10);
+  
+  console.log(topN); // 输出排序后的顶部 N 个结果
 
 export function runPnpmCommand(command) {
     return new Promise((resolve, reject) => {

@@ -1,0 +1,39 @@
+{
+  "author": "JonLuca <hora@jonlu.ca>",
+  "name": "horajs",
+  "version": "1.4.0",
+  "type": "module",
+  "contributors": [
+    "JonLuca <hora@jonlu.ca>"
+  ],
+  "types": "index.d.ts",
+  "main": "index.js",
+  "sideEffects": false,
+  "files": [
+    "pkg",
+    "package.json",
+    "index.ts",
+    "index.js",
+    "index.d.ts"
+  ],
+  "scripts": {
+    "build": "node ./build.js && tsc",
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "@types/seedrandom": "^3.0.5",
+    "seedrandom": "^3.0.5",
+    "shelljs": "^0.8.5",
+    "typescript": "^5.0.4",
+    "vite": "^4.3.2",
+    "vite-plugin-wasm": "^3.2.2",
+    "vitest": "^0.30.1"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "tag": "latest"
+  },
+  "engines": {
+    "node": ">14.0.0"
+  }
+}

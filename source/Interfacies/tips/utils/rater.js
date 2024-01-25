@@ -45,7 +45,7 @@ export function 根据生成时间对tips项目排序(item) {
     const now = Date.now(); // 获取当前时间的时间戳
     const timeDifference = Math.max(now - item.time, 0); // 计算时间差，忽略未来时间
     // 设置衰减率，使得5分钟后分数约为1/e
-    const decayRate = -0.00002314815*100; // 每毫秒的衰减率，相当于5分钟后衰减1/e
+    const decayRate = -0.00002314815*10; // 每毫秒的衰减率，相当于5分钟后衰减1/e
     item.scores.time = Math.max(0, Math.exp(decayRate * timeDifference));
 }
 export async function 根据特征向量对tips评分(item, baseString) {

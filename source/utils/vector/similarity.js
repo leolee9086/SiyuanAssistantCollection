@@ -1,4 +1,4 @@
-
+import './horaIndex.js'
 export const 计算归一化向量余弦相似度 = (vector1, vector2) => {
     //假设这些向量已经全部正规化了
     let dotProduct = 0;

@@ -1,6 +1,5 @@
 import { 柯里化 } from "../../../../utils/functionTools.js";
-import { 计算余弦相似度, 计算归一化向量余弦相似度, } from "../../../../utils/vector/similarity.js";
-import { 使用worker计算余弦相似度 } from "../../../../utils/vector/vectorWorker.js";
+import {  计算归一化向量余弦相似度, } from "../../../../utils/vector/similarity.js";
 import { 查找最相似点 } from "../vector.js";
 import Mingo from '../../../../../static/mingo.js'
 import { withPerformanceLogging } from "../../../../utils/functionAndClass/performanceRun.js";
@@ -24,9 +23,6 @@ export const 以过滤函数和向量字段名创建查询数据集 = (数据集
     return 查询数据集;
 
 }
-export const 获取数据项向量字段值 = (数据项, 向量字段名) => {
-    return 数据项.vector[向量字段名] || [];
-}
 export const 处理查询结果 =async (查询结果) => {
     查询结果 = 查询结果.map(
         item => {
@@ -48,7 +44,7 @@ export const 应用后置过滤函数 = (查询结果, 后置过滤条件) => {
 export const 准备向量查询函数 = (数据集对象) => {
     return async(向量字段名, 向量值, 结果数量 = 10, 前置过滤条件, 后置过滤条件) => {
         let 查询数据集 = 柯里化(以过滤函数和向量字段名创建查询数据集)(数据集对象)(向量字段名)(前置过滤条件)
-        let 查询结果 =await withPerformanceLogging(查找最相似点)(向量值, 查询数据集, 结果数量,计算归一化向量余弦相似度)
+        let 查询结果 =await 查找最相似点(向量值, 查询数据集, 结果数量,计算归一化向量余弦相似度)
         查询结果 =await 处理查询结果(查询结果)
         // 查询结果 = this.应用后置过滤函数(查询结果, 后置过滤函数)
         查询结果 = 应用后置过滤函数(查询结果, 后置过滤条件)

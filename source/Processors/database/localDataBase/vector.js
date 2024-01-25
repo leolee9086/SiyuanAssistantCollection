@@ -1,6 +1,7 @@
 import { 计算余弦相似度,计算归一化向量余弦相似度 } from "../../../utils/vector/similarity.js";
 import { 使用worker查找K最近邻, 使用worker计算余弦相似度 } from "../../../utils/vector/vectorWorker.js";
-
+import { GPU } from "../../../../static/gpu.js";
+import { withPerformanceLogging } from "../../../utils/functionAndClass/performanceRun.js";
 export async function 创建简单短哈希(文本,短码长度=8) {
     const 编码器 = new TextEncoder();
     const 编码结果 = 编码器.encode(文本);
@@ -44,10 +45,10 @@ export async function _查找最相似点(输入点, 点数据集, 查找阈值 
     }
     return tops.filter(t => t !== null);
 }
+
 export async function 查找最相似点(输入点, 点数据集, 查找阈值 = 10, 相似度算法=计算归一化向量余弦相似度, 过滤条件) {
     let 拷贝点 = new Float32Array(输入点)
     let tops = [];
-    
     for (let v of 点数据集) {
         if (过滤条件 && !过滤条件(v)) continue;
         let similarity =await 相似度算法(拷贝点, v.vector);
@@ -59,9 +60,9 @@ export async function 查找最相似点(输入点, 点数据集, 查找阈值 =
             }
         }
     }
-
     return tops;
 }
+
 /*export function 查找最相似点(输入点, 点数据集, 查找阈值 = 10, 相似度算法=计算余弦相似度, 过滤条件) {
     let 拷贝点
     if (!Array.isArray(输入点)) {
