@@ -12,6 +12,7 @@ import { sac } from '../../../asyncModules.js';
 import fs from '../../../polyfills/fs.js';
 import { 获取数据项所在hnsw层级, 获取随机层级 } from "./hnswlayers/utils.js";
 import { withPerformanceLogging } from '../../../utils/functionAndClass/performanceRun.js';
+import { 删除数据项hnsw索引 } from './hnswlayers/build.js';
 let 命名常量 = {
     主键名: "id"
 }
@@ -129,7 +130,7 @@ export class 数据集 {
     }
     准备查询函数() {
         this.以向量搜索数据 = (...args) => {
-            let 查询函数 = 准备向量查询函数(this.数据集对象);
+            let 查询函数 = 准备向量查询函数(this.数据集对象,this.hnsw层级映射);
             return 查询函数(...args);
         };
     }
@@ -159,12 +160,11 @@ export class 数据集 {
         //使用结构化克隆算法克隆数据项,避免修改原始数据
         let _数据项 = structuredClone(数据项)
         let 迁移结果 = 迁移数据项向量结构(_数据项, this.hnsw层级映射)
-        if(!数据集对象[数据项主键]){数据集对象[数据项主键]=迁移结果}else{
-            throw '主键已经存在'
-        }
+        let 旧数据项 = 数据集对象[数据项主键]?structuredClone(数据集对象[数据项主键]):null
 
+        数据集对象[数据项主键] = 迁移结果
         let 数据集数据项 = 数据集对象[数据项主键]
-        await withPerformanceLogging(初始化数据项hnsw领域邻接表)(数据集数据项, this.数据集对象, this.hnsw层级映射)
+        await withPerformanceLogging(初始化数据项hnsw领域邻接表)(数据集数据项, this.数据集对象, this.hnsw层级映射,旧数据项)
         for (let 模型名称 in 数据集数据项.vector) {
             // 如果特征向量名称数组中还没有这个模型名称，则添加进去
             if (!this.特征向量名称数组.includes(模型名称)) {
@@ -231,13 +231,15 @@ export class 数据集 {
         return 查询结果;
     }
     删除数据(主键名数组) {
-
         let 数据集对象 = this.数据集对象;
         主键名数组.forEach(
             主键值 => {
                 if (数据集对象[主键值]) {
                     //这里不用担心动态模式下会删除源对象.因为这个只是个引用
                     this.记录待保存数据项(数据集对象[主键值]);
+                    for(let 模型名称 in 数据项.vector){
+                        删除数据项hnsw索引(数据集对象,数据项.id,模型名称,this.hnsw层级映射)
+                    }
                     delete 数据集对象[主键值];
                     this.已经修改 = true;
                 }

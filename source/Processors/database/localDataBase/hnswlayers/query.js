@@ -1,10 +1,11 @@
 import { 计算归一化向量余弦相似度 } from "../../../../utils/vector/similarity.js";
 import { hnsw索引元设置 } from "../config.js";
 import { 获取数据项向量字段值, 获取数据项特定hnsw索引邻接表 } from "../utils/item.js";
-import { 获取数据项所在hnsw层级 } from "./utils.js";
+import { 获取数据项所在hnsw层级, 重建数据集的层级映射 } from "./utils.js";
 import { MinHeap } from "../../../../utils/Array/minHeap.js";
 import { 选择入口点 } from "./entry.js";
-function 贪心搜索当前层级(数据集, 当前点, 查询向量, hnsw索引名称, 当前层级, 模型名称, 已遍历点=new Set()) {
+import { withPerformanceLogging } from "../../../../utils/functionAndClass/performanceRun.js";
+function 贪心搜索当前层级(数据集, 当前点, 查询向量, hnsw索引名称, 当前层级, 模型名称, 已遍历点=new Set(),hnsw层级映射) {
     let 最近点 = 当前点;
     let 最近点特征向量 = 获取数据项向量字段值(数据集[最近点.id], 模型名称);
     let 最近距离 = 1 - 计算归一化向量余弦相似度(查询向量, 最近点特征向量);
@@ -13,6 +14,10 @@ function 贪心搜索当前层级(数据集, 当前点, 查询向量, hnsw索引
     while (改进) {
         改进 = false;
         let 当前层邻接表 = 获取数据项特定hnsw索引邻接表(最近点, hnsw索引名称, 当前层级);
+        if(!当前层邻接表){
+            重建数据集的层级映射(数据集,hnsw层级映射,最近点.id)
+            return {data:最近点,distance:最近距离}
+        }
         for (let 邻居 of 当前层邻接表.items) {
             if (!已遍历点.has(邻居.id)) {
                 已遍历点.add(邻居.id);
@@ -21,7 +26,7 @@ function 贪心搜索当前层级(数据集, 当前点, 查询向量, hnsw索引
                     let 邻居距离 = 1 - 计算归一化向量余弦相似度(查询向量, 邻居特征向量);
                     if (邻居距离 < 最近距离) {
                         最近点 = 数据集[邻居.id];
-                        最近距离 = 邻居距离;
+                        最近距离 = 邻居距离
                         改进 = true;
                         // 更新当前层邻接表为新的最近点的邻接表
                         当前层邻接表 = 获取数据项特定hnsw索引邻接表(最近点, hnsw索引名称, 当前层级);
@@ -54,7 +59,7 @@ function hnswAnn单次搜索(数据集, 模型名称, 查询向量, N = 1, hnsw�
     let 结果队列 = new MinHeap((a, b) => b.distance - a.distance)
     //逐层下降到零层
     for (; 当前层级 > 0; 当前层级--) {
-        let 贪心搜索当前层级结果 = 贪心搜索当前层级(数据集, 当前点, 查询向量, hnsw索引名称, 当前层级, 模型名称);
+        let 贪心搜索当前层级结果 = 贪心搜索当前层级(数据集, 当前点, 查询向量, hnsw索引名称, 当前层级, 模型名称,new Set(),hnsw层级映射);
         当前距离 = 贪心搜索当前层级结果.distance
         当前点 = 贪心搜索当前层级结果.data
     }
@@ -74,7 +79,7 @@ function hnswAnn单次搜索(数据集, 模型名称, 查询向量, N = 1, hnsw�
         if (当前参考距离 > 当前距离&&结果队列.size>=N) {
             break
         }
-        当前距离 = 当前参考距离
+        当前距离 = 当前参考距离||2
         当前层邻接表 = 获取数据项特定hnsw索引邻接表(当前参考点, hnsw索引名称, 当前层级);
         for (let 邻居 of 当前层邻接表.items) {
             if (!已遍历点.has(邻居.id)) {
@@ -99,13 +104,12 @@ function hnswAnn单次搜索(数据集, 模型名称, 查询向量, N = 1, hnsw�
     let 结果 = [];
     while (结果.length < N && 结果队列.size() > 0) {
         let heapItem = 结果队列.pop();
-        let item = { ...heapItem.data, score: 1 - heapItem.distance }; // 克隆data并转换分数为相似度
+        let item = { data:heapItem.data, score: 1 - heapItem.distance }; // 克隆data并转换分数为相似度
         结果.push(item);
     }
     //结果队列是一个最大堆,所以需要反转
     return 结果.reverse();
 }
-
 export function hnswAnn搜索数据集(数据集, 模型名称, 查询向量, N = 1, hnsw层级映射) {
     let 结果集 = new Map();
     let 已遍历入口点 = new Set();
@@ -113,19 +117,20 @@ export function hnswAnn搜索数据集(数据集, 模型名称, 查询向量, N 
     //采用多次检索,直到没有入口点可供遍历
     let 实际候选数量 = Math.ceil(Math.max(N * 1.5, hnsw索引元设置.搜索过程动态候选数量));    
     //进行两次无放回的检索减少随机性
-    while (结果集.size < N||遍历次数<3 ) {
+    while (结果集.size < N&&遍历次数<3 ) {
+        let 本轮结果需求 = 实际候选数量-结果集.size+0
+        遍历次数+=1
         let 入口点 = 选择入口点(数据集, 模型名称, hnsw层级映射, 已遍历入口点);
         if (!入口点) {
             break;
         }
         已遍历入口点.add(入口点.id);
-        let 搜索结果 = hnswAnn单次搜索(数据集, 模型名称, 查询向量, 实际候选数量-结果集.size, hnsw层级映射, 入口点);
+        let 搜索结果 = hnswAnn单次搜索(数据集, 模型名称, 查询向量, 本轮结果需求, hnsw层级映射, 入口点,已遍历入口点);
         if (搜索结果) {
             搜索结果.forEach(item => {
-                结果集.set(item.id, item);
+                结果集.set(item.data.id, item);
             });
         }
-        遍历次数++
     }
     // 将Map的值转换为数组，根据distance排序，并根据需要的数量截取
     let 结果数组 = Array.from(结果集.values());

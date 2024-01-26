@@ -1,7 +1,6 @@
 import { sac } from "../../asyncModules.js";
 import { 数据库 } from './localDataBase/index.js'
 import { 从测试版迁移数据 } from "./localDataBase/utils/migration.js";
-await 从测试版迁移数据()
 const 向量存储 = {
     公开向量数据库实例: new 数据库('/data/public/vectorStorage'),
     插件向量数据库实例: new 数据库('/data/storage/petal/SiyuanAssistantCollection/vectorStorage'),

@@ -36,3 +36,47 @@ export function 校验节点邻接结构(数据项, 模型名称) {
     // 如果所有检查都通过，则返回 true 表示邻接结构有效
     return true;
 }
+export const 重建数据集的层级映射 = (数据集, hnsw层级映射,id) => {
+    // 清空当前的层级映射
+    console.warn("hnsw层级映射错误,正在重建")
+    if(id){
+        添加所有模型到hnsw层级映射(数据集[id],hnsw层级映射)
+        return
+    }
+    // 遍历数据集中的每一项数据项
+    Object.values(数据集).forEach(数据项 => {
+        // 为每个数据项添加到层级映射中
+        setTimeout(()=>{添加所有模型到hnsw层级映射(数据项, hnsw层级映射)});
+    });
+};
+export const 添加所有模型到hnsw层级映射 = (数据项, hnsw层级映射) => {
+    // 遍历数据项的vector字段中的每个模型名称
+    for (let 模型名称 in 数据项.vector) {
+        if (数据项.vector.hasOwnProperty(模型名称)) {
+            // 获取hnsw索引名称
+            let hnsw索引名称 = `${模型名称}_hnsw`;
+            // 检查数据项是否有对应模型名称的邻接表
+            if (数据项.neighbors && 数据项.neighbors[hnsw索引名称]) {
+                // 确保hnsw层级映射为该模型名称初始化了一个数组
+                if (!hnsw层级映射[模型名称]) {
+                    hnsw层级映射[模型名称] = [];
+                }
+                // 遍历数据项的邻接表，按层级添加到hnsw层级映射中
+                数据项.neighbors[hnsw索引名称].forEach((邻接表) => {
+                    // 确保hnsw层级映射在该层级有一个数组来存储邻接表
+                    if (!hnsw层级映射[模型名称][邻接表.layer]) {
+                        hnsw层级映射[模型名称][邻接表.layer] = [];
+                    }
+                    hnsw层级映射[模型名称][邻接表.layer].push(数据项.id);
+                });
+                // 校验并清除不存在的邻接表映射
+                hnsw层级映射[模型名称].forEach((层级, index) => {
+                    if (!数据项.neighbors[hnsw索引名称].some(邻接表 => 邻接表.layer === index)) {
+                        // 如果数据项没有当前层级的邻接表，但映射表中有记录，则清除该层级的映射
+                        hnsw层级映射[模型名称][index] = hnsw层级映射[模型名称][index].filter(id => id !== 数据项.id);
+                    }
+                });
+            }
+        }
+    }
+};

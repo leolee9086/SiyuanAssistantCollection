@@ -30,7 +30,7 @@ let 索引器路由 = new Router()
         sac.logger.log(res)
         setTimeout(
             ()=>{
-                清理块索引(res.body.data.collection_name)
+                //清理块索引(res.body.data.collection_name)
             },1000
         )
     }

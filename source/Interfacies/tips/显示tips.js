@@ -62,13 +62,7 @@ async function 生成tips渲染任务(编辑器上下文,signal) {
 
   //因为向量检索的成本比较高
   if (更新并检查分词差异(编辑器上下文.tokens)) {
-    requestIdleCallback(async (deadline) => {
-      if (signal.aborted) {
-        return
-      }
-      if (deadline.timeRemaining() < 5) {
-        return
-      }
+
        if (正在生成编辑器向量) {
         // 如果已经有一个任务在执行，则直接返回
         return;
@@ -91,8 +85,8 @@ async function 生成tips渲染任务(编辑器上下文,signal) {
       } finally {
         正在生成编辑器向量 = false; // 释放锁
       }
-    }
-    )
+    
+    
   }
   // 创建并执行tips渲染任务队列(编辑器上下文);
   let 任务队列 = 创建任务队列(编辑器上下文, renderInstancies).map(

@@ -1,11 +1,12 @@
 import { sac } from "../../../../asyncModules.js";
 import { withPerformanceLogging } from "../../../../utils/functionAndClass/performanceRun.js";
 import { hnsw索引元设置 } from "../config.js";
-import { 为数据项构建hnsw索引 } from "../hnswlayers/build.js";
+import { 为数据项构建hnsw索引, 删除数据项hnsw索引 } from "../hnswlayers/build.js";
 import { hnswAnn搜索数据集 } from "../hnswlayers/query.js";
 import { 获取随机层级 } from "../hnswlayers/utils.js";
 import { 准备向量查询函数 } from "./query.js";
 import { 创建邻接表, 查询邻居 } from "../neighbors/crud.js";
+import { 添加所有模型到hnsw层级映射 } from "../hnswlayers/utils.js";
 export const 迁移数据项向量结构 = (数据项, hnsw层级映射) => {
     let 迁移结果 = {
         created: 数据项.created || Date.now(),
@@ -33,37 +34,6 @@ export const 迁移数据项向量结构 = (数据项, hnsw层级映射) => {
     初始化数据项向量字段(数据项, 迁移结果);
     添加所有模型到hnsw层级映射(迁移结果, hnsw层级映射)
     return 迁移结果;
-};
-export const 添加所有模型到hnsw层级映射 = (数据项, hnsw层级映射) => {
-    // 遍历数据项的vector字段中的每个模型名称
-    for (let 模型名称 in 数据项.vector) {
-        if (数据项.vector.hasOwnProperty(模型名称)) {
-            // 获取hnsw索引名称
-            let hnsw索引名称 = `${模型名称}_hnsw`;
-            // 检查数据项是否有对应模型名称的邻接表
-            if (数据项.neighbors && 数据项.neighbors[hnsw索引名称]) {
-                // 确保hnsw层级映射为该模型名称初始化了一个数组
-                if (!hnsw层级映射[模型名称]) {
-                    hnsw层级映射[模型名称] = [];
-                }
-                // 遍历数据项的邻接表，按层级添加到hnsw层级映射中
-                数据项.neighbors[hnsw索引名称].forEach((邻接表) => {
-                    // 确保hnsw层级映射在该层级有一个数组来存储邻接表
-                    if (!hnsw层级映射[模型名称][邻接表.layer]) {
-                        hnsw层级映射[模型名称][邻接表.layer] = [];
-                    }
-                    hnsw层级映射[模型名称][邻接表.layer].push(数据项.id);
-                });
-                // 校验并清除不存在的邻接表映射
-                hnsw层级映射[模型名称].forEach((层级, index) => {
-                    if (!数据项.neighbors[hnsw索引名称].some(邻接表 => 邻接表.layer === index)) {
-                        // 如果数据项没有当前层级的邻接表，但映射表中有记录，则清除该层级的映射
-                        hnsw层级映射[模型名称][index] = hnsw层级映射[模型名称][index].filter(id => id !== 数据项.id);
-                    }
-                });
-            }
-        }
-    }
 };
 export const 初始化数据项向量字段 = (数据项, 迁移结果) => {
     // 检查数据项是否有vector字段且该字段为对象
@@ -156,13 +126,23 @@ export const 初始化hnsw单模型邻接表 = (模型名称, 数据项) => {
 //只有新添加的数据项才需要经过这一步'
 let 计算次数=0
 let 正确次数=0
-export const 初始化数据项hnsw领域邻接表 = async (数据项, 数据集, hnsw层级映射) => {
+function areVectorsEqual(vectorA, vectorB) {
+    if (vectorA.length !== vectorB.length) return false;
+    for (let i = 0; i < vectorA.length; i++) {
+        if (vectorA[i] !== vectorB[i]) return false;
+    }
+    return true;
+}
+export const 初始化数据项hnsw领域邻接表 = async (数据项, 数据集, hnsw层级映射,旧数据项) => {
     for (let 模型名称 in 数据项.vector) {
+        if (旧数据项 && 旧数据项.vector[模型名称] && !areVectorsEqual(旧数据项.vector[模型名称], 数据项.vector[模型名称])) {
+            删除数据项hnsw索引(数据集, 旧数据项.id, 模型名称, hnsw层级映射);
+        }
         添加所有模型到hnsw层级映射(数据项, hnsw层级映射)
         为数据项构建hnsw索引(数据集,数据项,模型名称,hnsw层级映射)
         // 如果特征向量名称数组中还没有这个模型名称，则添加进去
         // 假设有一个方法用于初始化特征向量的hnsw层级
-        try {
+       /* try {
             if(Object.keys(数据集).length < 1000){
                 continue;
             }
@@ -192,7 +172,7 @@ export const 初始化数据项hnsw领域邻接表 = async (数据项, 数据集
         } catch (e) {
             console.error(e.stack);
             throw e;
-        }
+        }*/
 
     }
 }
