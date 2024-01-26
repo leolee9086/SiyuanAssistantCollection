@@ -22,11 +22,13 @@ export const 从测试版迁移数据= async(迁出数据,旧版数集名称,新
 
             for(let 数据id in 测试数据集.数据集对象){
                 let 数据项 = 测试数据集.数据集对象[数据id]
+                try{
                 await 正式数据集.添加数据([{
                     id:数据id,
                     meta:数据项.meta,
                     vector:数据项.vector
                 }])
+                }catch(e){}
             }
             console.error(`测试数据导入完成`)
 

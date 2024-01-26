@@ -6,7 +6,7 @@ import { plugin } from '../../../asyncModules.js';
 import { 迁移为合法文件夹名称 } from './utils/fileName.js';
 import { 计算LuteNodeID模 } from './utils/mod.js';
 import { 准备向量查询函数 } from './utils/query.js';
-import {  初始化数据项hnsw领域邻接表, 合并已存在数据项, 迁移数据项向量结构 } from './utils/item.js';
+import { 初始化数据项hnsw领域邻接表, 迁移数据项向量结构 } from './utils/item.js';
 import { 创建临时数据对象 } from './workspaceAdapters/utils/cache.js';
 import { sac } from '../../../asyncModules.js';
 import fs from '../../../polyfills/fs.js';
@@ -158,21 +158,19 @@ export class 数据集 {
         }
         //使用结构化克隆算法克隆数据项,避免修改原始数据
         let _数据项 = structuredClone(数据项)
-        let 迁移结果 = 迁移数据项向量结构(_数据项,this.hnsw层级映射)
-        let 已存在数据项 = 数据集对象[数据项主键]
-        if (已存在数据项) {
-            数据集对象[数据项主键] = 合并已存在数据项(已存在数据项, 迁移结果)
-        } else {
-            数据集对象[数据项主键] = 迁移结果
+        let 迁移结果 = 迁移数据项向量结构(_数据项, this.hnsw层级映射)
+        if(!数据集对象[数据项主键]){数据集对象[数据项主键]=迁移结果}else{
+            throw '主键已经存在'
         }
+
         let 数据集数据项 = 数据集对象[数据项主键]
-        await withPerformanceLogging(初始化数据项hnsw领域邻接表)(数据集数据项,this.数据集对象,this.hnsw层级映射)
+        await withPerformanceLogging(初始化数据项hnsw领域邻接表)(数据集数据项, this.数据集对象, this.hnsw层级映射)
         for (let 模型名称 in 数据集数据项.vector) {
             // 如果特征向量名称数组中还没有这个模型名称，则添加进去
             if (!this.特征向量名称数组.includes(模型名称)) {
                 this.特征向量名称数组.push(模型名称);
             }
-            console.log(`模型: ${模型名称}, 当前层级: ${获取数据项所在hnsw层级(数据集数据项,模型名称)},`);
+            console.log(`模型: ${模型名称}, 当前层级: ${获取数据项所在hnsw层级(数据集数据项, 模型名称)},`);
         }
         // 确保特征向量名称数组中的元素是唯一的
         this.特征向量名称数组 = Array.from(new Set(this.特征向量名称数组));
@@ -189,10 +187,15 @@ export class 数据集 {
         if (Object.keys(数据集对象).length === 0) {
             this.已经修改 = true;
         }
-        for (let 数据项 of 数据组) {
+        for await (let 数据项 of 数据组) {
             if (数据项 && 数据项[主键名]) {
-                await this.初始化数据项(数据项)
-                修改标记 = true;
+                try {
+                    await this.初始化数据项(数据项)
+                    修改标记 = true;
+                } catch (e) {
+                    console.error(e)
+                    throw e
+                }
             }
         }
         if (修改标记) {
@@ -333,7 +336,7 @@ export class 数据集 {
         }
         this.数据加载完成 = false
         this.数据加载中 = true
-        await this.文件适配器.加载全部数据(this.数据集对象,this.hnsw层级映射)
+        await this.文件适配器.加载全部数据(this.数据集对象, this.hnsw层级映射)
         this.数据加载完成 = true
         this.数据加载中 = false
     }

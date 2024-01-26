@@ -16,7 +16,7 @@ export class MinHeap {
       
       let index = this.数据堆.length - 1;
       let parent = this.获取父节点索引(index);
-      while (index > 0 &&this.比较函数?this.比较函数(this.数据堆[parent],this.数据堆[index]):this.数据堆[parent] > this.数据堆[index]) {
+      while (index > 0 &&this.比较函数(this.数据堆[parent],this.数据堆[index])>0) {
         this.交换节点(parent, index);
         index = parent;
         parent = this.获取父节点索引(index);
@@ -50,10 +50,10 @@ export class MinHeap {
       let 左节点索引 = this.获取左侧子节点索引(目标索引);
       let 右节点索引 = this.获取右侧子节点索引(目标索引);
       let 最小节点索引 = 目标索引;
-      if (左节点索引 < this.获取堆大小() && this.比较函数(this.数据堆[左节点索引],this.数据堆[最小节点索引])) {
+      if (左节点索引 < this.获取堆大小() && this.比较函数(this.数据堆[左节点索引],this.数据堆[最小节点索引])<0) {
         最小节点索引 = 左节点索引;
       }
-      if (右节点索引 < this.获取堆大小() && this.比较函数(this.数据堆[右节点索引],this.数据堆[最小节点索引])) {
+      if (右节点索引 < this.获取堆大小() && this.比较函数(this.数据堆[右节点索引],this.数据堆[最小节点索引])<0) {
         最小节点索引 = 右节点索引;
       }
       if (最小节点索引 !== 目标索引) {
