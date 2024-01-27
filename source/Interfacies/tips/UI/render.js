@@ -3,6 +3,7 @@ import { sac } from "../runtime.js";
 import { 排序待添加数组 } from "../utils/tipsArrayUtils.js";
 import { genTipsHTML } from "./buildTipsHTML.js";
 import { 学习新词组 } from "../../../utils/tokenizer/learn.js";
+import { 最小堆 } from "../../../utils/Array/minHeap.js";
 let 待添加数组 = sac.statusMonitor.get('tips', 'current').$value || []
 export async function 处理并显示tips(data, 编辑器上下文, renderInstance) {
     data.source = renderInstance.name
@@ -83,35 +84,35 @@ async function 限制待添加数组长度(num) {
 }
 
 
-export const 移除每个维度最低分的项目 = async (待添加数组) => {
+export const 移除每个维度最低分的项目 = (待添加数组, 最小堆实现) => {
     // 找出所有存在的维度
     const allDimensions = new Set();
-    待添加数组.forEach(item => {
+    for (const item of 待添加数组) {
         if (item.scores) {
-            Object.keys(item.scores).forEach(dimension => {
+            for (const dimension of Object.keys(item.scores)) {
                 allDimensions.add(dimension);
-            });
-        }
-    });
-
-    // 对于每个维度，找出得分最低的项目并移除它
-    allDimensions.forEach(dimension => {
-        let lowestScore = Infinity;
-        let lowestScoreIndex = -1;
-
-        待添加数组.forEach((item, index) => {
-            if (item.scores && item.scores[dimension] !== undefined && item.scores[dimension] < lowestScore) {
-                lowestScore = item.scores[dimension];
-                lowestScoreIndex = index;
             }
-        });
-
-        // 如果找到了得分最低的项目，移除它
-        if (lowestScoreIndex !== -1) {
-            待添加数组.splice(lowestScoreIndex, 1);
         }
-    });
+    }
+    // 对于每个维度，使用最小堆找出得分最低的项目并移除它
+    for (const dimension of allDimensions) {
+        const heap = new 最小堆((a, b) => a.scores[dimension] - b.scores[dimension]);   
+        for (const item of 待添加数组) {
+            if (item.scores && item.scores[dimension] !== undefined) {
+                heap.push(item);
+            }
+        }
+        // 如果堆中有元素，则移除得分最低的项目
+        if (!heap.isEmpty()) {
+            const lowestScoreItem = heap.pop();
+            const indexToRemove = 待添加数组.findIndex(item => item === lowestScoreItem);
+            if (indexToRemove !== -1) {
+                待添加数组.splice(indexToRemove, 1);
+            }
+        }
+    }
 };
+
 
 
 

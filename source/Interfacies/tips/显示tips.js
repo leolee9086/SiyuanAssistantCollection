@@ -64,7 +64,6 @@ async function 生成tips渲染任务(编辑器上下文,signal) {
         let res = await text2vec(编辑器上下文.editableElement.innerText);
         if (signal.aborted) {
           正在生成编辑器向量 = false; // 释放锁
-
           return
         }
         if (res.body && res.body.data) {

@@ -8,6 +8,14 @@ transformers.env.allowRemoteModels = true;
 transformers.env.localModelPath = '/public/onnxModels/';
 let extractor
 let 当前模型名称
+let isExtractorReady
+let taskQueue = []
+function processTaskQueue(){
+    while (taskQueue.length > 0 && isExtractorReady) {
+        const task = taskQueue.shift();
+        task();
+      }
+}
 export async function 准备管线(模型名称) {
     try {
         if (模型名称 !== 当前模型名称) {
@@ -16,6 +24,9 @@ export async function 准备管线(模型名称) {
             extractor = await transformers.pipeline('feature-extraction', 模型名称, {
                 quantized: true,
             });
+            isExtractorReady=true
+            processTaskQueue(); // 处理队列中的任务
+
             return {}
         }else{
             return {}
@@ -26,7 +37,17 @@ export async function 准备管线(模型名称) {
 }
 export async function 提取向量(text, 最大句子长度) {
     if (!extractor) {
-        return { msg: '错误', detail: 'extractor没有初始化' };
+        return new Promise((resolve, reject) => {
+            // 将任务放入队列
+            taskQueue.push(async () => {
+              try {
+                resolve(await 提取向量(text, 最大句子长度));
+              } catch (e) {
+                reject({ msg: '错误', detail: e.message });
+              }
+            });
+          });
+      
     }
     let 句子组 = 将文本拆分为句子(text, 最大句子长度);
     let 句子长度比例组 = 句子组.map(句子 => 句子.length / text.length);
@@ -51,7 +72,6 @@ export async function 提取向量(text, 最大句子长度) {
         console.error(e);
         return { msg: '错误', detail: e.message };
     }
-    
 }
 
 export async function 批量提取向量(文本数组, 最大句子长度) {
