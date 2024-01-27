@@ -145,7 +145,6 @@ export const 定时获取更新块 = async () => {
             sac.logger.indexlog(`未找到更新的块，增加新内容发现间隔时间至${间隔时间}毫秒`);
         }
     };
-
     const 定时执行 = () => {
         setTimeout(async () => {
             await 获取更新的块();
@@ -163,8 +162,6 @@ function 记录哈希并添加到入库队列(块数据, 向量名, 向量值) {
         添加到入库队列(块数据项);
     }
 }
-
-
 let 索引次数 = 1
 let 平均索引时间 = 0
 let 索引正在进行中 = false
