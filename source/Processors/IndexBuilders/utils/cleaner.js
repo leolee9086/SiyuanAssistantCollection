@@ -77,8 +77,6 @@ export const 清理块索引 = async (数据集名称, 间隔时间 = 15000) => 
 
         }
     }
-
-
     await fs.writeFile('/temp/noobTemp/blockHashs.json', JSON.stringify(Array.from(已索引块哈希)))
 }
 export const 定时获取更新块 = async () => {
