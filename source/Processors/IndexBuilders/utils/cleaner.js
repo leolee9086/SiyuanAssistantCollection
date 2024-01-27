@@ -1,9 +1,10 @@
-import { sac, kernelApi } from "../../../asyncModules.js";
+import { sac} from "../../../asyncModules.js";
 import { 添加到入库队列 } from "./adder.js";
 import fs from "../../../polyfills/fs.js";
 import { 构建块向量数据项 } from "./dataBaseItem.js";
 import { 为索引记录准备索引函数 } from "./indexer.js";
-import { 逆序柯里化, 柯里化 } from "../../../utils/functionTools.js";
+import { 逆序柯里化} from "../../../utils/functionTools.js";
+//这是后端接口的webworker封装
 import { kernelWorker } from "../../../utils/webworker/kernelWorker.js";
 import { withPerformanceLogging } from "../../../utils/functionAndClass/performanceRun.js";
 let { internalFetch } = sac.路由管理器
@@ -143,7 +144,6 @@ export const 定时获取更新块 = async () => {
         } else {
             // 如果没有获取到新的块，指数级增加间隔时间，但不超过最大间隔时间
             间隔时间 = Math.min(间隔时间 * 2, 最大间隔时间);
-
             sac.logger.indexlog(`未找到更新的块，增加新内容发现间隔时间至${间隔时间}毫秒`);
         }
     };
