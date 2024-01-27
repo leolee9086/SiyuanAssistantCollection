@@ -7,6 +7,7 @@ import { 逆序柯里化, 柯里化 } from "../../../utils/functionTools.js";
 import { kernelWorker } from "../../../utils/webworker/kernelWorker.js";
 import { withPerformanceLogging } from "../../../utils/functionAndClass/performanceRun.js";
 let { internalFetch } = sac.路由管理器
+//之前胡乱写的索引器性能有严重问题,旧版的索引器需要移植了
 let 已索引块哈希 = new Set();
 let 待索引数组 = [];
 let 索引失败数组 = []
