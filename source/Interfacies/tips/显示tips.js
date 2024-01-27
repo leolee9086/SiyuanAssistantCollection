@@ -30,7 +30,7 @@ async function 显示光标提示(编辑器上下文) {
 //这样复制而不是全部复制是为了有机会大致检查一下
 let abortController = null;
 export let 显示actions并生成tips渲染任务 = (flag) => {
-  let 编辑器上下文 = 创建编辑器上下文()
+  let 编辑器上下文 =withPerformanceLogging(创建编辑器上下文)()
   if (编辑器上下文) {
     显示光标提示(编辑器上下文, "测试")
     if (!flag) {

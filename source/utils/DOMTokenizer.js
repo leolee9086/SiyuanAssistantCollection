@@ -1,7 +1,7 @@
 export const 创建token对象 = (所在元素, 分词结果) => {
     let { start, end, word } = 分词结果
     let token = { start, end, word }
-    token.range = 从文字位置创建range(所在元素, token.start, token.end)
+    token.getRange =()=>{return 从文字位置创建range(所在元素, token.start, token.end)}
     token.select = function () {
         const selection = window.getSelection();
         selection.removeAllRanges();
