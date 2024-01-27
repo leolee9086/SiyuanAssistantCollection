@@ -54,7 +54,6 @@ export const tipsRender = class {
                     });
                     this.showTips(data, editorContext);
                 }
-
                 res = await this.internalFetch('/search/rss/vector', {
                     body: {
                         query:currentToken.word,
