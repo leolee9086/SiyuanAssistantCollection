@@ -6,7 +6,7 @@ import { 计算平均值和标准差 } from '../statistics/index.js';
 import { 判定是否虚词开头或结尾, 判定是否标点符号开头结尾或全部 } from '../text/assert.js';
 let 组合频率字典 = new Map();
 try {
-    let frequence = await fs.readFile('/data/public/sac-tokenizer/frequence.json', 'utf8');
+    let frequence = await fs.readFile('/data/public/sac-tokenizer/frequence.json');
     frequence = JSON.parse(frequence);
     for (const [key, value] of Object.entries(frequence)) {
         组合频率字典.set(key, value);
