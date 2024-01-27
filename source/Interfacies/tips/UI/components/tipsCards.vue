@@ -2,6 +2,7 @@
     <div @mouseover.stop="stopUpdating" @mouseleave.stop="startUpdating" @click.stop="clickHandler">
 
         <template v-for="(item, i) in data">
+            
             <div class="fn__flex-1 b3-card__info" v-if="mounted && data[i]" style="
 font-size:small !important;
 background-color:var(--b3-theme-background);

@@ -127,7 +127,7 @@ function 创建TIPS侧栏容器() {
         <div class="block__icons">
         <div class="block__logo">
             <svg class="block__logoicon">
-                <use xlink:href="#iconFiles"></use>
+                <use xlink:href="#iconTips"></use>
             </svg>
             TIPS
         </div>

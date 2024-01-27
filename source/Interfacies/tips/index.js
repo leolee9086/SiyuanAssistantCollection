@@ -73,12 +73,12 @@ export const Emitter = class {
     }
     ["@main-" + sac.事件管理器.DOM键盘事件表.键盘释放] = (e) => {
         if (输入事件发生在protyle内部) {
-            显示actions并生成tips渲染任务(true)
+         //   显示actions并生成tips渲染任务(true)
         }
     }
     ["@main-" + sac.事件管理器.DOM键盘事件表.组合更新] = (e) => {
         if (输入事件发生在protyle内部) {
-            显示actions并生成tips渲染任务(true)
+            显示actions并生成tips渲染任务()
         }
     }
     ["@main-" + sac.事件管理器.DOM键盘事件表.组合开始] = (e) => {

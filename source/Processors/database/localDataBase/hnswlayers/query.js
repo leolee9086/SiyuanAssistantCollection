@@ -110,31 +110,37 @@ function hnswAnn单次搜索(数据集, 模型名称, 查询向量, N = 1, hnsw�
     //结果队列是一个最大堆,所以需要反转
     return 结果.reverse();
 }
+// 在函数外部定义动态候选数量，以便在多次调用中保持状态
+let 动态候选数量 = hnsw索引元设置.搜索过程动态候选数量;
+
 export function hnswAnn搜索数据集(数据集, 模型名称, 查询向量, N = 1, hnsw层级映射) {
     let 结果集 = new Map();
     let 已遍历入口点 = new Set();
-    let 遍历次数 = 0
-    //采用多次检索,直到没有入口点可供遍历
-    let 实际候选数量 = Math.ceil(Math.max(N * 1.5, hnsw索引元设置.搜索过程动态候选数量));    
-    //进行两次无放回的检索减少随机性
-    while (结果集.size < N&&遍历次数<3 ) {
-        let 本轮结果需求 = 实际候选数量-结果集.size+0
-        遍历次数+=1
+    let 遍历次数 = 0;
+    
+    while (结果集.size < N && 遍历次数 < 3) {
+        let 本轮结果需求 = Math.ceil(Math.max(N * 1.5, 动态候选数量)) - 结果集.size;
+        遍历次数 += 1;
+        let 搜索开始时间 = performance.now();
         let 入口点 = 选择入口点(数据集, 模型名称, hnsw层级映射, 已遍历入口点);
         if (!入口点) {
             break;
         }
         已遍历入口点.add(入口点.id);
-        let 搜索结果 = hnswAnn单次搜索(数据集, 模型名称, 查询向量, 本轮结果需求, hnsw层级映射, 入口点,已遍历入口点);
+        let 搜索结果 = hnswAnn单次搜索(数据集, 模型名称, 查询向量, 本轮结果需求, hnsw层级映射, 入口点, 已遍历入口点);
+        let 搜索结束时间 = performance.now();
         if (搜索结果) {
             搜索结果.forEach(item => {
                 结果集.set(item.data.id, item);
             });
         }
+        // 如果单次搜索耗时超过20毫秒，动态调整候选数量
+        if (搜索结束时间 - 搜索开始时间 > 20) {
+            动态候选数量 = Math.max(N * 1.5, 动态候选数量 / 2);
+        }
     }
-    // 将Map的值转换为数组，根据distance排序，并根据需要的数量截取
+    
     let 结果数组 = Array.from(结果集.values());
     结果数组.sort((a, b) => b.score - a.score);
-    // 结构化克隆结果数组以确保返回全新的对象数组
     return structuredClone(结果数组.slice(0, N));
 }
