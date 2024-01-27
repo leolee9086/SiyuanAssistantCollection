@@ -13,16 +13,14 @@ sac.statusMonitor.set('tips', 'current', 键盘tips数组)
 export let 上一个分词结果 = []
 let 小字元素 = document.createElement('div');
 
-async function 显示灰色小字(编辑器上下文) {
+async function 显示光标提示(编辑器上下文) {
   // 创建新的 HTML 元素
   小字元素.textContent = await sac.statusMonitor.get('meta', 'tokens').$value.size
   小字元素.style.position = 'fixed';
   小字元素.style.color = 'gray';
   小字元素.style.fontSize = 'small';
-
   // 获取光标所在位置的坐标
   let 光标坐标 = 获取选区屏幕坐标(编辑器上下文.editableElement);
-
   // 设置元素的位置
   小字元素.style.left = `${光标坐标.left}px`;
   小字元素.style.top = `${光标坐标.top}px`;
@@ -32,12 +30,10 @@ async function 显示灰色小字(编辑器上下文) {
 }
 //这样复制而不是全部复制是为了有机会大致检查一下
 let abortController = null;
-
 export let 显示actions并生成tips渲染任务 = (flag) => {
-
   let 编辑器上下文 = 创建编辑器上下文()
   if (编辑器上下文) {
-    显示灰色小字(编辑器上下文, "测试")
+    显示光标提示(编辑器上下文, "测试")
     if (!flag) {
       if (abortController) {
         abortController.abort();
@@ -53,17 +49,14 @@ export let 显示actions并生成tips渲染任务 = (flag) => {
   }
 }
 let 正在生成编辑器向量
-
 async function 生成tips渲染任务(编辑器上下文,signal) {
   sac.statusMonitor.set('context', 'editor', 编辑器上下文);
   if(signal.aborted){
     return
   }
-
   //因为向量检索的成本比较高
   if (更新并检查分词差异(编辑器上下文.tokens)) {
-
-       if (正在生成编辑器向量) {
+      (async()=>{if (正在生成编辑器向量) {
         // 如果已经有一个任务在执行，则直接返回
         return;
       }
@@ -84,9 +77,8 @@ async function 生成tips渲染任务(编辑器上下文,signal) {
         console.error('向量生成任务出错:', error);
       } finally {
         正在生成编辑器向量 = false; // 释放锁
-      }
-    
-    
+      } 
+    })()
   }
   // 创建并执行tips渲染任务队列(编辑器上下文);
   let 任务队列 = 创建任务队列(编辑器上下文, renderInstancies).map(
@@ -136,9 +128,7 @@ let 触发条件表 = [
     assert: (renderInstance, 编辑器上下文) => { return 编辑器上下文.vector }
   }
 ]
-
 // 将函数拆分为两个部分：触发条件检查和任务执行
-
 // 触发条件检查函数
 async function 检查触发条件(renderInstance, 编辑器上下文,) {
   for (const 触发条件 of 触发条件表) {
@@ -150,10 +140,6 @@ async function 检查触发条件(renderInstance, 编辑器上下文,) {
   }
   return null; // 如果没有条件满足，返回null
 }
-
-
-
-
 // 任务执行函数
 async function 执行任务(renderInstance, 编辑器上下文) {
   const 显示tips = 柯里化(处理并显示tips)(renderInstance)(编辑器上下文);
