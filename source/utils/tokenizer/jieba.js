@@ -2,7 +2,6 @@ import * as jieba from '../../../static/jieba_rs_wasm.js'
 import { 创建token对象 } from "../DOMTokenizer.js";
 import { 校验分词是否连续, 校验是否包含 } from './utils.js';
 import fs from '../../polyfills/fs.js';
-import { withPerformanceLogging } from '../functionAndClass/performanceRun.js';
 //结巴的初始化会造成问题
 await jieba.default(import.meta.resolve('../../../static/jieba_rs_wasm_bg.wasm'))
 try {
@@ -27,19 +26,17 @@ export { jieba as jieba }
 export { jieba as 结巴 }
 let tokenize = jieba.tokenize
 export { tokenize as tokenize }
-export function 使用结巴拆分元素(element) {
+export async function 使用结巴拆分元素(element) {
   //首先用结巴进行全分词
-  let 分词结果数组 = tokenize(element.textContent, "search")
+  let 分词结果数组 = await tokenize(element.textContent, "search")
   //然后对分词产生的每一个结果创建range
   let tokens = []
-  分词结果数组.forEach(
-    分词结果 => {
-      let token = 创建token对象(element, 分词结果)
-      tokens.push(token)
-    }
-  )
+  for (let 分词结果 of 分词结果数组) {
+    let token = await 创建token对象(element, 分词结果)
+    tokens.push(token)
+  }
   //创建token之间的父子关系和前后关系
-  处理分词对象(tokens)
+  await 处理分词对象(tokens)
   return tokens
 }
 function 处理分词对象(分词对象序列) {

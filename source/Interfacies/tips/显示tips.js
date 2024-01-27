@@ -28,34 +28,59 @@ async function 显示光标提示(编辑器上下文) {
   document.body.appendChild(小字元素);
 }
 //这样复制而不是全部复制是为了有机会大致检查一下
+let signal = {}
 let abortController = null;
-export let 显示actions并生成tips渲染任务 = (flag) => {
-  let 编辑器上下文 =withPerformanceLogging(创建编辑器上下文)()
+//这个全局变量是给自己用的,signal是为了更方便传递
+let 任务生成中 = false
+export let 显示actions并生成tips渲染任务 = async (flag) => {
+  if (abortController) {
+    abortController.abort();
+  }
+  // 为当前任务创建一个新的AbortController
+  abortController = new AbortController();
+  signal = abortController.signal;
+
+  if (!flag) {
+    if (任务生成中) {
+      console.log("上一轮任务还在生成中")
+      return
+    }
+    任务生成中 = true
+
+    await 创建编辑器上下文并触发任务生成(signal)
+    任务生成中= false
+  }
+
+}
+let 创建编辑器上下文并触发任务生成 =async (signal) => {
+  if (signal.aborted) {
+    console.log('aborted')
+    return
+  }
+  let 编辑器上下文 = await(withPerformanceLogging(创建编辑器上下文))()
   if (编辑器上下文) {
     显示光标提示(编辑器上下文, "测试")
-    if (!flag) {
-      if (abortController) {
-        abortController.abort();
-      }
-      // 为当前任务创建一个新的AbortController
-      abortController = new AbortController();
-      const { signal } = abortController;
-      requestIdleCallback(() => 生成tips渲染任务(编辑器上下文,signal))
-    }
-  } else {
-    sac.logger.warn('编辑机器上下文生成失败')
+    requestIdleCallback(() => 生成tips渲染任务(编辑器上下文, signal))
   }
+  任务生成中 = false
+
 }
+
+
+
+
+
 let 正在生成编辑器向量
-async function 生成tips渲染任务(编辑器上下文,signal) {
+async function 生成tips渲染任务(编辑器上下文, signal) {
   sac.statusMonitor.set('context', 'editor', 编辑器上下文);
-  if(signal.aborted){
+  if (signal.aborted) {
     return
   }
   //因为向量检索的成本比较高,所以只有在编辑器编辑步数差异大于一定条件的时候重新生成
   //这里之后可能需要暴露一个设置
   if (更新并检查分词差异(编辑器上下文.tokens)) {
-      (async()=>{if (正在生成编辑器向量) {
+    (async () => {
+      if (正在生成编辑器向量) {
         // 如果已经有一个任务在执行，则直接返回
         return;
       }
@@ -75,7 +100,7 @@ async function 生成tips渲染任务(编辑器上下文,signal) {
         console.error('向量生成任务出错:', error);
       } finally {
         正在生成编辑器向量 = false; // 释放锁
-      } 
+      }
     })()
   }
   // 创建并执行tips渲染任务队列(编辑器上下文);
@@ -84,7 +109,7 @@ async function 生成tips渲染任务(编辑器上下文,signal) {
       return () => {
         if (signal.aborted) {
           return
-        } 
+        }
         任务信息.执行()
       }
     }

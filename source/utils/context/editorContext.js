@@ -5,12 +5,12 @@ import BlockHandler from '../BlockHandler.js';
 import { 获取当前光标所在分词结果 } from '../rangeProcessor.js';
 import { withPerformanceLogging } from '../functionAndClass/performanceRun.js';
 // 通用逻辑函数
-export function 创建编辑器上下文() {
+export async function 创建编辑器上下文() {
   let { pos, editableElement, blockElement } = 获取光标所在位置();
   if (!editableElement) {
     return null;
   }
-  let 分词结果数组 = withPerformanceLogging(使用结巴拆分元素)(editableElement);
+  let 分词结果数组 =await 使用结巴拆分元素(editableElement);
   const 当前光标所在分词结果 = 获取当前光标所在分词结果(分词结果数组, pos);
   return {
     position: pos,
