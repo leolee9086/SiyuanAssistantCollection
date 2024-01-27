@@ -15,20 +15,20 @@ let 触发条件表 = [
 let 任务执行状况表 = new Map()
 // 创建任务队列的函数
 // 创建任务队列的函数
+const 任务优先队列 = new 最小堆((a, b) => {
+    // 获取任务状态
+    const 任务A状态 = 任务执行状况表.get(a.来源) || {};
+    const 任务B状态 = 任务执行状况表.get(b.来源) || {};
+
+    // 计算优先级
+    const 优先级A = (任务A状态.错误 ? -1000 : 0) + (任务A状态.结束时间 - 任务A状态.开始时间) - a.添加时间;
+    const 优先级B = (任务B状态.错误 ? -1000 : 0) + (任务B状态.结束时间 - 任务B状态.开始时间) - b.添加时间;
+
+    return 优先级A - 优先级B;
+});
 export function 创建任务队列(编辑器上下文, renderInstancies,signal) {
     const { position, text, tokens, blockID, editableElement, logger, currentToken } = 编辑器上下文;
-    const editableElementID = editableElement.getAttribute('id');
-    const 任务优先队列 = new 最小堆((a, b) => {
-        // 获取任务状态
-        const 任务A状态 = 任务执行状况表.get(a.来源) || {};
-        const 任务B状态 = 任务执行状况表.get(b.来源) || {};
-    
-        // 计算优先级
-        const 优先级A = (任务A状态.错误 ? -1000 : 0) + (任务A状态.结束时间 - 任务A状态.开始时间) - a.添加时间;
-        const 优先级B = (任务B状态.错误 ? -1000 : 0) + (任务B状态.结束时间 - 任务B状态.开始时间) - b.添加时间;
-    
-        return 优先级A - 优先级B;
-    });
+   
 
     renderInstancies.forEach(renderInstance => {
         const 添加时间 = Date.now();
@@ -45,6 +45,12 @@ export function 创建任务队列(编辑器上下文, renderInstancies,signal) 
             编辑器上下文,
             类型: "编辑器tips"
         };
+        // 检查堆顶任务的来源，如果来源重复则对新任务进行减分
+        const 堆顶任务 = 任务优先队列.peek();
+        if (堆顶任务 && 堆顶任务.来源 === 任务.来源) {
+            任务.添加时间 += 1000; // 这里的1000是减分值，你可以根据需要调整
+        }
+
         任务优先队列.push(任务); // 将任务添加到优先队列中
     });
 

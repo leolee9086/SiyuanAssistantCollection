@@ -34,11 +34,11 @@ export const tipsRender = class {
                 });
                 this.showTips(data, editorContext);
             }
-
-            if (await editorContext.currentToken &&await editorContext.currentToken.word.length >= 2) {
+            let currentToken = await editorContext.currentToken
+            if (currentToken &&currentToken.word&&currentToken.word.length >= 2) {
                 res = await this.internalFetch('/search/blocks/vector', {
                     body: {
-                        query:await editorContext.currentToken.word,
+                        query:currentToken.word,
                         filter_before: {
                             "id": { $ne: editorContext.blockID }
                         }
@@ -57,7 +57,7 @@ export const tipsRender = class {
 
                 res = await this.internalFetch('/search/rss/vector', {
                     body: {
-                        query:await editorContext.currentToken.word,
+                        query:currentToken.word,
                     },
                     method: 'POST',
                 });
