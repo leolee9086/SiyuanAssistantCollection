@@ -35,10 +35,10 @@ export const tipsRender = class {
                 this.showTips(data, editorContext);
             }
 
-            if (editorContext.currentToken && editorContext.currentToken.word.length >= 2) {
+            if (await editorContext.currentToken &&await editorContext.currentToken.word.length >= 2) {
                 res = await this.internalFetch('/search/blocks/vector', {
                     body: {
-                        query: editorContext.currentToken.word,
+                        query:await editorContext.currentToken.word,
                         filter_before: {
                             "id": { $ne: editorContext.blockID }
                         }
@@ -57,7 +57,7 @@ export const tipsRender = class {
 
                 res = await this.internalFetch('/search/rss/vector', {
                     body: {
-                        query: editorContext.currentToken.word,
+                        query:await editorContext.currentToken.word,
                     },
                     method: 'POST',
                 });

@@ -1,6 +1,13 @@
 <template>
     <div @mouseover.stop="stopUpdating" @mouseleave.stop="startUpdating" @click.stop="clickHandler">
-
+        <div class="block__icons">
+        <div class="block__logo">
+            <svg class="block__logoicon">
+                <use xlink:href="#iconTips"></use>
+            </svg>
+            TIPS
+        </div>
+    </div>
         <template v-for="(item, i) in data">
             
             <div class="fn__flex-1 b3-card__info" v-if="mounted && data[i]" style="
@@ -42,7 +49,7 @@ border-bottom:1px dashed var(--b3-theme-primary-light)">
                         </div>
                         <div class="fn__flex fn__flex-1">
                             <strong>{{ item.score ? (item.score * 10).toFixed(3) : item.score }}</strong>
-                           <!-- <strong>{{ item.scores }}</strong>-->
+                          <!-- <strong>{{ item.scores }}</strong>-->
                             <div class="fn__space fn__flex-1">
                             </div>
                             <span class="b3-tooltips b3-tooltips__nw block__icon block__icon--show"

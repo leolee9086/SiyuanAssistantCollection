@@ -10,15 +10,31 @@ export async function 创建编辑器上下文() {
   if (!editableElement) {
     return null;
   }
-  let 分词结果数组 =await 使用结巴拆分元素(editableElement);
-  const 当前光标所在分词结果 = 获取当前光标所在分词结果(分词结果数组, pos);
+
+  // 使用代理延迟分词结果的生成，并确保结果生成后不再变化
+  const 分词结果代理 = new Proxy({}, {
+    get: async (target, property) => {
+      if (property === 'tokens' && !target.tokens) {
+        target.tokens = await 使用结巴拆分元素(editableElement);
+      }
+      if (property === '当前光标所在分词结果' && !target.当前光标所在分词结果) {
+        target.当前光标所在分词结果 = await 获取当前光标所在分词结果(target.tokens, pos);
+      }
+      return target[property];
+    }
+  });
+
   return {
     position: pos,
     text: editableElement.innerText,
-    tokens: 分词结果数组,
-    blockID:blockElement.getAttribute&& blockElement.getAttribute('data-node-id'),
+    get tokens() {
+      return 分词结果代理.tokens;
+    },
+    blockID: blockElement.getAttribute && blockElement.getAttribute('data-node-id'),
     editableElement,
     logger: sac.logger,
-    currentToken:当前光标所在分词结果||undefined
+    get currentToken() {
+      return 分词结果代理.当前光标所在分词结果;
+    }
   };
 }

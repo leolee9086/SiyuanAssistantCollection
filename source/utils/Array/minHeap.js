@@ -68,6 +68,9 @@ export class MinHeap {
     size(){
       return this.获取堆大小()
     }
+    map(...args){
+      return this.数据堆.map(...args)
+    }
     获取堆大小() { return this.数据堆.length; }
     isEmpty(){
       return this.是否空堆()

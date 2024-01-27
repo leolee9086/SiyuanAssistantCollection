@@ -124,14 +124,7 @@ function 创建TIPS侧栏容器() {
     init() {
       this.element.innerHTML = `
         <div class="fn__flex-1 fn__flex-column" style="max-height:100%">
-        <div class="block__icons">
-        <div class="block__logo">
-            <svg class="block__logoicon">
-                <use xlink:href="#iconTips"></use>
-            </svg>
-            TIPS
-        </div>
-    </div>
+   
     <div id="sac-interface" class="fn__flex-1 fn__flex-column " style="min-height: auto;transition: var(--b3-transition)">
       <div id="SAC-TIPS_pinned"  style="overflow:auto;max-height:30%"></div>
       <div id="SAC-TIPS" class='fn__flex-1' style="overflow:auto;max-height:100%"></div>

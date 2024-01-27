@@ -86,7 +86,7 @@ export function 根据文本内容对tips评分(item, baseString) {
     // 计算相似度得分，这里使用交集数量除以baseTokens的大小
     const score = intersection / baseTokens.length;
 
-    item.scores.textScore = score;
+    item.scores.textScore = score||0;
 }
 function 是否过于陈旧(item) {
     const tenMinutes = 10 * 60 * 1000; // 十分钟的毫秒数
@@ -158,6 +158,6 @@ export function 修正评分(items) {
         const similarityCount = scoreCounts.get(roundedScore) || 0;
         // 根据相似内容的数量进行降权
         const similarityPenalty = 1 - (similarityPenaltyFactor * (similarityCount - 1)); // 减1是因为要排除项目本身
-        item.scores.textScore = item.scores.textScore * similarityPenalty; // 应用降权到最终得分
+        item.scores.textScore = item.scores.textScore * similarityPenalty||0; // 应用降权到最终得分
     });
 }
