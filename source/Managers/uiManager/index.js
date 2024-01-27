@@ -11,12 +11,10 @@ export const useTabs = (tabs, emitter) => {
         })
     })
     sac.eventBus.on(emitter.channel + '-' + 'tab-inited', (e) => {
-        console.log(e)
         if(tabs[e.detail.data.type]){
             tabs[e.detail.data.type].init(e.detail.element.querySelector("#sac-interface"),e.detail.data,e.detail)
         }
     })
-    console.log(sac.getOpenedTab())
     let OpenedTabs = sac.getOpenedTab()
     Object.keys(OpenedTabs).forEach(
         tabType=>{

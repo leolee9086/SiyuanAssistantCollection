@@ -20,7 +20,6 @@ try{
 }catch(e){
   console.warn(e)
 }
-
 jieba.add_word('思源笔记')
 jieba.add_word('链滴')
 export {jieba as jieba}
@@ -40,12 +39,8 @@ export function  使用结巴拆分元素(element) {
     )
     //创建token之间的父子关系和前后关系
     处理分词对象(tokens)
-  
     return tokens
 }
-
-
-
 function 处理分词对象(分词对象序列) {
   for (let i = 0; i < 分词对象序列.length; i++) {
     const 当前分词对象 = 分词对象序列[i];

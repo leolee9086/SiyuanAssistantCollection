@@ -1,7 +1,8 @@
+import { sac } from "../runtime.js";
 function escapeHTML(str) {
     return Lute.EscapeHTMLStr(str);
 }
-export const  genTipsHTML = (item)=>{
+export const genTipsHTML = (item) => {
     let imageHTML = item.image ? `<image src='${escapeHTML(item.image)}'></image>` : '';
     let divHTML = `<div class="fn__flex-1 b3-card__info" 
 style="
@@ -24,7 +25,7 @@ border-bottom:1px dashed var(--b3-theme-primary-light)">
         </div>
 
         <div>
-        ${item.description}
+        ${sac.lute?sac.lute.spinBlockDom(item.description):item.description}
         </div>
      
     </div>
@@ -34,6 +35,5 @@ border-bottom:1px dashed var(--b3-theme-primary-light)">
     </div>
     </div>
     `;
-
     return divHTML
 }

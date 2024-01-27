@@ -5,7 +5,6 @@ const clientApi = require("siyuan");
  */
 let path
 let plugin
-let 依赖 = {}
 function 获取文件名(moduleURL) {
   // 替换所有的 '\\' 为 '/'
   moduleURL = moduleURL.replace(/\\/g, '/');
@@ -186,7 +185,6 @@ class SiyuanAssistantCollection extends ccPlugin {
     this.唤起词数组 = []
     this.protyles = [];
     this.命令历史 = []
-    this.依赖 = 依赖
     this.状态 = {}
     this.status = this.状态
     //这里是加载一些基础功能
@@ -213,8 +211,9 @@ class SiyuanAssistantCollection extends ccPlugin {
     await this.暴露插件环境()
     await this.加载管理器()
     await this.加载子模块();
+    await this.设置Lute();
     //  await this.初始化依赖项();
-    // await this.设置Lute();
+    
     //  path = this.utils.path
     //  fs = this.workspace
     // await this.初始化关键词表();
@@ -322,6 +321,10 @@ class SiyuanAssistantCollection extends ccPlugin {
       paragraphBeginningSpace: false,
       sanitize: '',
     });
+  }
+  setLute(options){
+    let Lute =globalThis.Lute
+    this._lute=Lute?Lute.New(options):null
   }
   get lute() {
     return this._lute

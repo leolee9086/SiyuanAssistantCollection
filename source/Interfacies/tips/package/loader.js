@@ -36,20 +36,8 @@ function 初始化渲染实例(renderClass, renderName) {
             console.warn(renderName + 'tips渲染出错', "没有提供合适的编辑器上下文")
         }
         try {
-            let tips = sac.statusMonitor.get('tips', 'current').$value
             if(data){
                 处理并显示tips(data,editorContext,renderInstance)
-                /*data.source = renderInstance.name
-                data.item.forEach(
-                    item => {
-                        if (item) {
-                            item.source = item.source || renderInstance.name
-                            item.time = Date.now()
-                            tips.push(准备渲染项目(item))
-                        }
-                    }
-                )*/
-    
             }
         } catch (e) {
             console.warn(renderName + 'tips渲染出错', e)

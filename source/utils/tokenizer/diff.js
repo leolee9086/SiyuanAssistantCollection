@@ -9,8 +9,6 @@ export const 计算分词差异=(当前分词结果, 上一个分词结果)=>{
     let 差异token计数 = token差集.size;
     return 差异token计数;
 }
-
-
 //还是弄一个变量解决算了
 let 上一个分词结果=[]
 export function 更新并检查分词差异(分词结果数组,阈值=0) {
@@ -18,7 +16,6 @@ export function 更新并检查分词差异(分词结果数组,阈值=0) {
     if (typeof 实际阈值 !== 'number' || 实际阈值 < 0) {
         throw new Error('阈值必须是非负数或返回非负数的函数');
     }
-    console.log(计算分词差异(分词结果数组, 上一个分词结果))
     if (计算分词差异(分词结果数组, 上一个分词结果) >= 实际阈值) {
         上一个分词结果 = 分词结果数组;
         return true;

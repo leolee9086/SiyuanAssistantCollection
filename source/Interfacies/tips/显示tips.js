@@ -24,7 +24,6 @@ async function 显示光标提示(编辑器上下文) {
   // 设置元素的位置
   小字元素.style.left = `${光标坐标.left}px`;
   小字元素.style.top = `${光标坐标.top}px`;
-
   // 将元素添加到文档中
   document.body.appendChild(小字元素);
 }
@@ -41,7 +40,6 @@ export let 显示actions并生成tips渲染任务 = (flag) => {
       // 为当前任务创建一个新的AbortController
       abortController = new AbortController();
       const { signal } = abortController;
-    
       requestIdleCallback(() => 生成tips渲染任务(编辑器上下文,signal))
     }
   } else {
@@ -54,7 +52,8 @@ async function 生成tips渲染任务(编辑器上下文,signal) {
   if(signal.aborted){
     return
   }
-  //因为向量检索的成本比较高
+  //因为向量检索的成本比较高,所以只有在编辑器编辑步数差异大于一定条件的时候重新生成
+  //这里之后可能需要暴露一个设置
   if (更新并检查分词差异(编辑器上下文.tokens)) {
       (async()=>{if (正在生成编辑器向量) {
         // 如果已经有一个任务在执行，则直接返回
