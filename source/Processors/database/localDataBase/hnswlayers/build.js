@@ -5,7 +5,7 @@ import { 获取数据项特定hnsw索引邻接表 } from "../utils/item.js";
 import { withPerformanceLogging } from "../../../../utils/functionAndClass/performanceRun.js";
 import { 选择入口点 } from "./entry.js";
 import { 重建数据集的层级映射 } from "./utils.js";
-function 根据层级获取节点邻居候选(数据集, 目标数据项, 当前层入口点, 模型名称, 当前层级,hnsw层级映射) {
+function 根据层级获取节点邻居候选(数据集, 目标数据项, 当前层入口点, 模型名称, 当前层级, hnsw层级映射) {
     let 候选邻居列表 = [];
     let 访问过的节点 = new Set();
     //避免访问自己
@@ -31,7 +31,7 @@ function 根据层级获取节点邻居候选(数据集, 目标数据项, 当前
             let 邻居节点的当前层级邻接表 = 获取数据项特定hnsw索引邻接表(邻居节点, `${模型名称}_hnsw`, 当前层级);
             if (!邻居节点的当前层级邻接表) {
                 console.log(邻居节点, 当前层级)
-                setTimeout(重建数据集的层级映射(数据集,hnsw层级映射))
+                重建数据集的层级映射(数据集, hnsw层级映射,邻居节点.id)
                 continue
             }
             for (let 邻居记录 of 邻居节点的当前层级邻接表.items) {
@@ -98,7 +98,7 @@ function 从候选邻居中挑选最终邻居(数据集, 待插入数据项, 已
     // 返回从小到大排序的邻居列表
     return 返回列表.sort((a, b) => a.distance - b.distance);
 }
-function 链接邻居(数据集, 数据项, 邻居列表, 模型名称, hnsw图层级) {
+function 链接邻居(数据集, 数据项, 邻居列表, 模型名称, hnsw图层级,hnsw层级映射) {
     const 预期邻居数量 = 计算层级预期邻居数量(hnsw图层级);
     const 层级邻接表 = 获取数据项特定hnsw索引邻接表(数据项, 模型名称 + "_hnsw", hnsw图层级);
     if (邻居列表.length > 预期邻居数量) {
@@ -109,10 +109,18 @@ function 链接邻居(数据集, 数据项, 邻居列表, 模型名称, hnsw图�
     let 最近邻居 = null
     let 最近邻居距离 = Infinity
     // 反过来,连接邻居项与当前项
-    邻居列表.forEach(邻居节点记录 => {
+    for (let 邻居节点记录 of 邻居列表){
+        if(邻居节点记录.data.id===数据项.id){
+            continue
+        }
         let 候选邻居的邻接表 = 获取数据项特定hnsw索引邻接表(邻居节点记录.data, 模型名称 + "_hnsw", hnsw图层级);
         //这实际上是一个最大堆
         let 候选邻居堆 = new 最小堆((a, b) => b.distance - a.distance);
+        if (!候选邻居的邻接表) {
+            console.log(邻居节点记录, hnsw图层级)
+            重建数据集的层级映射(数据集, hnsw层级映射,邻居节点记录.data.id)
+            continue
+        }
         候选邻居的邻接表.items.forEach(item => 候选邻居堆.push(item));
         候选邻居堆.push({ id: 数据项.id, distance: 邻居节点记录.distance });
         // 维护堆的大小不超过预期邻居数量
@@ -124,17 +132,24 @@ function 链接邻居(数据集, 数据项, 邻居列表, 模型名称, hnsw图�
             最近邻居距离 = 邻居节点记录.distance;
             最近邻居 = 邻居节点记录.data;
         }
-    });
+    }
     return 最近邻居
 }
-function 贪心搜索当前层级构建入口(数据集, 当前层入口点, 待插入数据项, hnsw索引名称, 当前层级, 模型名称) {
+function 贪心搜索当前层级构建入口(数据集, 当前层入口点, 待插入数据项, hnsw索引名称, 当前层级, 模型名称,hnsw层级映射) {
     let 最近点 = 当前层入口点;
     let 最近距离 = 计算数据项距离(当前层入口点, 待插入数据项, 模型名称);
     let 改进 = true;
     let 已遍历点 = new Set([最近点.id]);
+    已遍历点.add(待插入数据项.id)
     while (改进) {
         改进 = false;
         let 当前层邻接表 = 获取数据项特定hnsw索引邻接表(最近点, hnsw索引名称, 当前层级);
+        if(!当前层邻接表){
+            console.log(最近点, 当前层级)
+            重建数据集的层级映射(数据集, hnsw层级映射,最近点.id)
+            continue
+
+        }
         for (let 邻居 of 当前层邻接表.items) {
             let 邻居id = 邻居.id
             let 邻居数据 = 数据集[邻居.id]
@@ -155,7 +170,7 @@ function 贪心搜索当前层级构建入口(数据集, 当前层入口点, 待
     return { data: 最近点, distance: 最近距离 };
 }
 
-export function 为数据项构建hnsw索引(数据集, 待插入数据项, 模型名称, hnsw层级映射) {
+export async function 为数据项构建hnsw索引(数据集, 待插入数据项, 模型名称, hnsw层级映射) {
     let hnsw索引名称 = `${模型名称}_hnsw`
     let 邻接表 = 待插入数据项.neighbors[hnsw索引名称]
     let 已遍历入口点 = new Set()
@@ -164,13 +179,13 @@ export function 为数据项构建hnsw索引(数据集, 待插入数据项, 模�
     let 当前层入口点 = 选择入口点(数据集, 模型名称, hnsw层级映射, 已遍历入口点)
     let 当前距离 = 2
     for (let 当前层级 = 拟插入层级; 当前层级 >= 0; 当前层级--) {
-        let 贪心搜索当前层级结果 = 贪心搜索当前层级构建入口(数据集, 当前层入口点, 待插入数据项, hnsw索引名称, 当前层级, 模型名称)
+        let 贪心搜索当前层级结果 = 贪心搜索当前层级构建入口(数据集, 当前层入口点, 待插入数据项, hnsw索引名称, 当前层级, 模型名称,hnsw层级映射)
         //索引中使用的是余弦距离
         当前距离 = 贪心搜索当前层级结果.distance
         当前层入口点 = 贪心搜索当前层级结果.data
         let 当前层候选邻居表 = 根据层级获取节点邻居候选(数据集, 待插入数据项, 当前层入口点, 模型名称, 当前层级, hnsw层级映射)
         let 最终邻居表 = 从候选邻居中挑选最终邻居(数据集, 待插入数据项, 当前层候选邻居表, 当前层级, 模型名称)
-        let 下一层级入口 = 链接邻居(数据集, 待插入数据项, 最终邻居表, 模型名称, 当前层级)
+        let 下一层级入口 = 链接邻居(数据集, 待插入数据项, 最终邻居表, 模型名称, 当前层级,hnsw层级映射)
         if (下一层级入口) {
             当前层入口点 = 下一层级入口
         }
@@ -204,8 +219,8 @@ export function 删除数据项hnsw索引(数据集, 数据项ID, 模型名称, 
             }
         });
     });
-    受影响的邻居.forEach(邻居ID=>{
-        重新计算邻接表(数据集,邻居ID,模型名称,hnsw层级映射)
+    受影响的邻居.forEach(邻居ID => {
+        重新计算邻接表(数据集, 邻居ID, 模型名称, hnsw层级映射)
     })
     // 返回操作结果和受影响的邻居列表
     return { success: true, message: "数据项索引已删除", affectedNeighbors: 受影响的邻居 };

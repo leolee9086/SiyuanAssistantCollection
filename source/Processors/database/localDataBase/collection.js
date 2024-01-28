@@ -37,9 +37,7 @@ export class 数据集 {
         this.准备查询函数();
         this.加载数据()
         this.数据加载完成 = false
-        this.数据刷新定时任务 = setInterval(() => {
-            this.同步数据()
-        }, 5000)
+ 
         //这里的数据用于存储hnsw索引
         this.预期HNSW邻居数量 = 64
         this.构建时HNSW候选列表大小 = 300
@@ -81,53 +79,7 @@ export class 数据集 {
         }
         return true
     }
-    async 同步数据() {
-        if (!this.校验远程数据可写入) {
-            return
-        }
-        let 远程端主键列表 = [];
-        let 本地端主键列表 = this.主键列表;
-        let 远程端更新时间 = 0
-        let state = await fs.exists(this.索引文件名称)
-        // 检查索引文件是否存在并读取
-        let 合并后主键列表 = 本地端主键列表
-        if (state) {
-            let 索引内容 = JSON.parse(await fs.readFile(this.索引文件名称));
-            远程端主键列表 = 索引内容.keys
-            远程端更新时间 = 索引内容.updated
-            let 需要添加的主键 = 远程端主键列表.filter(x => !本地端主键列表.includes(x));
-            let 需要删除的主键 = 本地端主键列表.filter(x => !远程端主键列表.includes(x));
-            if (远程端更新时间 && 远程端主键列表 && (远程端更新时间 - this.修改时间) > 1000) {
-                // 合并主键列表并写入索引文件
-                if (需要添加的主键) {
-                    console.log("远程端主键列表更新,加载新的数据")
-                    合并后主键列表 = Array.from(new Set([...远程端主键列表, ...本地端主键列表]));
-                    await fs.writeFile(this.索引文件名称, JSON.stringify(合并后主键列表));
-                    await this.加载数据()
-                }
-                let data = {
-                    updated: this.修改时间,
-                    keys: 合并后主键列表
-                }
-                await fs.writeFile(this.索引文件名称, JSON.stringify(data));
-
-            } else if ((需要删除的主键 || 需要添加的主键 || this.已经修改) && this.修改时间 && this.修改时间 - 远程端更新时间 > 2000) {
-                let data = {
-                    updated: this.修改时间,
-                    keys: 合并后主键列表
-                }
-                await fs.writeFile(this.索引文件名称, JSON.stringify(data));
-                await this.保存数据(false, data)
-            }
-        } else {
-            let data = {
-                updated: this.修改时间,
-                keys: 合并后主键列表
-            }
-            await fs.writeFile(this.索引文件名称, JSON.stringify(data));
-            await this.保存数据(false, data)
-        }
-    }
+   
     准备查询函数() {
         this.以向量搜索数据 = (...args) => {
             let 查询函数 = 准备向量查询函数(this.数据集对象,this.hnsw层级映射);

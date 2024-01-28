@@ -1,5 +1,6 @@
 import { sac } from "../../asyncModules.js";
 import { 开始清理块索引 } from "./utils/cleaner.js";
+import { 开始定时获取更新块 } from "./utils/getter.js";
 let { internalFetch } = sac.路由管理器
 let 初始化块数据集 = async () => {
     let collectionsRes = await internalFetch('/database/collections/build', {
@@ -16,5 +17,6 @@ let 初始化块数据集 = async () => {
     res=>{
         sac.logger.log(res)
         开始清理块索引()
+        开始定时获取更新块()
     }
 )

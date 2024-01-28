@@ -1,4 +1,5 @@
 import { sac } from "../../asyncModules.js";
+import { withPerformanceLogging } from "../../utils/functionAndClass/performanceRun.js";
 import { 数据库 } from './localDataBase/index.js'
 import { 从测试版迁移数据 } from "./localDataBase/utils/migration.js";
 const 向量存储 = {

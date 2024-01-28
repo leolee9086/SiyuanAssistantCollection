@@ -1,24 +1,108 @@
+import  * as cheerio from '../../../../static/cheerio.js'
 import { sac } from "../../../asyncModules.js";
-import {
-    待索引数组,
-    索引失败数组,
-    已索引块哈希,
-    块向量索引函数,
-} from "./cleaner.js";
-import { 为索引记录准备索引函数 } from "./indexer.js";
+import { withPerformanceLogging } from '../../../utils/functionAndClass/performanceRun.js';
+//import { 为索引记录准备索引函数 } from "./indexer.js";
 import { 逆序柯里化} from "../../../utils/functionTools.js";
-import { withPerformanceLogging } from "../../../utils/functionAndClass/performanceRun.js";
-import { 构建块向量数据项 } from "./dataBaseItem.js";
-let 已索引未入库队列 = []
-let 正在添加 = false
-let 索引次数 = 1
-let 平均索引时间 = 0
-let 索引正在进行中 = false
-export let 块向量索引函数 = 逆序柯里化(为索引记录准备索引函数)(索引中块哈希)
-export const 添加到入库队列 = (数据项) => {
-    已索引未入库队列.push(数据项)
+import { 学习新词组 } from '../../../utils/tokenizer/learn.js';
+import { kernelWorker } from "../../../utils/webworker/kernelWorker.js";
+import { text2vec } from '../../AIProcessors/publicUtils/endpoints.js';
+import { 添加数据 } from '../../database/publicUtils/endpoints.js';
+import { 构建块向量数据项 } from './dataBaseItem.js';
+import { 块数据集名称 } from './name.js';
+import { 检查数据集是否已加载完成 } from './cheker.js';
+let 待入库序列 = new Map()
+export const 添加到入库队列 = (待索引块数组,现有数据量) => {   // 已索引未入库队列.push(数据项)
+   sac.logger.blockIndexerInfo(`准备添加${待索引块数组.length}个块,现有数据${现有数据量}个,空块不会参与索引所以索引数据量与实际块数量可能有差异`)
+   待索引块数组.forEach(
+        block=>{
+            if(!待入库序列.get(block.id)){
+                待入库序列.set(block.id,block)
+            }else{
+                let _block=待入库序列.get(block.id)
+                if(_block.updated<block.updated){
+                    待入库序列.set(block.id,block)
+                }
+            }
+        }
+   )
+        开始处理入库队列()
 }
-try {
+
+let 正在入库中 = false
+let 间隔时间 = 1000
+let 入库任务已开始
+function 开始处理入库队列(){
+    if(!入库任务已开始){
+        入库任务已开始=true
+        处理入库队列()
+    }
+}
+const 处理入库队列 = async () => {
+    if(正在入库中){
+        return
+    }
+    if(!await 检查数据集是否已加载完成()){
+        间隔时间=间隔时间+500
+        sac.logger.blockIndexerWarn(`块数据集未加载完成,${间隔时间/1000}秒之后再次尝试添加数据`)
+        setTimeout(处理入库队列,间隔时间)
+        正在入库中=false
+
+        return
+    }
+    正在入库中 = true
+    console.log(间隔时间)
+    if (待入库序列.size > 0) {
+        let firstBlockEntry = 待入库序列.entries().next().value;
+        let firstBlockId = firstBlockEntry[0];
+        let firstBlock = firstBlockEntry[1];
+        // 这里进行添加操作
+        try {
+            let 入库开始时间 =performance.now()
+            await withPerformanceLogging(添加块到数据库)(firstBlock); // 假设你的添加操作函数名为添加操作
+            // 添加操作完成后，从待入库序列中删除这个块
+            待入库序列.delete(firstBlockId);
+            let 入库结束时间 =performance.now()
+            间隔时间=(入库结束时间-入库开始时间)*5
+        } catch (error) {
+            间隔时间=间隔时间+500
+            console.error(`添加操作失败: ${error}`);
+        }
+    }
+    正在入库中=false
+    setTimeout(处理入库队列,间隔时间)
+}
+
+let 当前模型名称 = 'leolee9086/text2vec-base-chinese'
+
+async function 添加块到数据库(块数据){
+    let {type,id} = 块数据
+    //容器块通过加载全文后添加
+    let content = await withPerformanceLogging(获取块文字内容)(块数据)
+    let res = await text2vec(content.slice(0,1024))
+    let 块向量 = res.body.data[0].embedding
+    let 数据项 = 构建块向量数据项(块数据,当前模型名称,块向量)
+    await 添加数据(块数据集名称,数据项)
+}
+async function 获取块文字内容(块数据){
+    let {type,id} = 块数据
+    //容器块通过加载全文后添加
+    let content =块数据.content
+    if(type==='d'||type==='h'||type==='l'){
+        let doc = await kernelWorker.getDoc({id,size:10})
+        let $= withPerformanceLogging(cheerio.load)(doc.content)
+         content = $('body').text()
+        学习新词组(content)
+    }
+    //普通块直接添加
+    else{
+         content = 块数据.content
+        学习新词组(content)
+    }
+    return content
+}
+//export let 块向量索引函数 = 逆序柯里化(为索引记录准备索引函数)(索引中块哈希)
+
+/*try {
     await sac.路由管理器.internalFetch('/database/collections/build', {
         method: 'POST',
         body: {
@@ -84,7 +168,6 @@ function 开始处理入库队列() {
         开始处理入库队列(); // 递归调用以持续处理队列
     });
 }
-
 // 初始化时开始处理队列
 开始处理入库队列();
 export function 定时实行块索引添加(retryInterval = 1000) {
@@ -171,5 +254,5 @@ export function 记录哈希并添加到入库队列(块数据, 向量名, 向�
         let 块数据项 = 构建块向量数据项(块数据, 向量名, 向量值);
         添加到入库队列(块数据项);
     }
-}
+}*/
 

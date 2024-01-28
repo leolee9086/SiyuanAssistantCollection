@@ -37,3 +37,12 @@ export const 删除主键值 = async (数据集名称, 主键数组) => {
         }
     })
 }
+export const 添加数据 = async(数据集名称,数据组)=>{
+    return await internalFetch('/database/add',{
+        method:"POST",
+        body:{
+            collection_name:数据集名称,
+            vectors:Array.isArray(数据组)?数据组:[数据组]
+        }
+    })
+}

@@ -130,12 +130,12 @@ function areVectorsEqual(vectorA, vectorB) {
     }
     return true;
 }
-export const 初始化数据项hnsw领域邻接表 = async (数据项, 数据集, hnsw层级映射,旧数据项) => {
+export const 初始化数据项hnsw领域邻接表 = async (数据项, 数据集, hnsw层级映射, 旧数据项) => {
     for (let 模型名称 in 数据项.vector) {
-        if (旧数据项 && 旧数据项.vector[模型名称] && !areVectorsEqual(旧数据项.vector[模型名称], 数据项.vector[模型名称])) {
-            删除数据项hnsw索引(数据集, 旧数据项.id, 模型名称, hnsw层级映射);
+        if (旧数据项 && 旧数据项.vector[模型名称] && !withPerformanceLogging(areVectorsEqual)(旧数据项.vector[模型名称], 数据项.vector[模型名称])) {
+            withPerformanceLogging(删除数据项hnsw索引)(数据集, 旧数据项.id, 模型名称, hnsw层级映射);
         }
-        添加所有模型到hnsw层级映射(数据项, hnsw层级映射)
-        为数据项构建hnsw索引(数据集,数据项,模型名称,hnsw层级映射)
+        withPerformanceLogging(添加所有模型到hnsw层级映射)(数据项, hnsw层级映射)
+        await withPerformanceLogging(为数据项构建hnsw索引)(数据集, 数据项, 模型名称, hnsw层级映射)
     }
 }

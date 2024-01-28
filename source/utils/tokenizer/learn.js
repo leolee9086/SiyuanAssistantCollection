@@ -1,5 +1,6 @@
 import { jieba } from './jieba.js'
-import { kernelApi, sac } from '../../asyncModules.js';
+import { sac } from '../../asyncModules.js';
+import { kernelWorker as kernelApi } from '../webworker/kernelWorker.js';
 import cheerio from '../../../static/cheerio.js'
 import fs from '../../polyfills/fs.js'
 import { 计算平均值和标准差 } from '../statistics/index.js';
@@ -51,7 +52,6 @@ export async function 学习新词组(文本) {
                 while (j <= i) {
                     const 下一个分词 = 分词结果[j];
                     if (!下一个分词.word.trim()) break; // 如果下一个分词是空文本，则停止当前组合的构建
-
                     // 检查下一个分词是否紧跟当前分词
                     if (下一个分词.start === 当前位置) {
                         组合 += 下一个分词.word;
