@@ -1,7 +1,6 @@
 import { sac } from "../../asyncModules.js";
-import { 选择id数组 } from "./utils/sql.js";
-import { 清理块索引 } from "./utils/cleaner.js";
-let { internalFetch, Router } = sac.路由管理器
+import { 开始清理块索引 } from "./utils/cleaner.js";
+let { internalFetch } = sac.路由管理器
 let 初始化块数据集 = async () => {
     let collectionsRes = await internalFetch('/database/collections/build', {
         method: 'POST',
@@ -13,22 +12,9 @@ let 初始化块数据集 = async () => {
     })
     return collectionsRes
 }
-
-let 索引器路由 = new Router()
-索引器路由.post('/index/blocks', async (ctx, next) => {
-//    await 初始化块数据集()
-//    await 清理块索引(await 获取块数据集名称())
-})
 初始化块数据集().then(
     res=>{
         sac.logger.log(res)
-        setTimeout(
-            ()=>{
-                //清理块索引(res.body.data.collection_name)
-            },1000
-        )
+        开始清理块索引()
     }
 )
-
-
-export { 索引器路由 as router }

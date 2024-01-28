@@ -180,7 +180,7 @@ databaseRouter.post(
 
         } else {
             ctx.body= {
-                dataLoaded:本地块数据集.数据加载完成
+                dataLoaded:!本地块数据集.数据加载中
             }
         }
     }

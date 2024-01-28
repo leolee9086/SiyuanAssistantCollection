@@ -235,9 +235,10 @@ export class 数据集 {
         主键名数组.forEach(
             主键值 => {
                 if (数据集对象[主键值]) {
+                    let 数据项 = 数据集对象[主键值]
                     //这里不用担心动态模式下会删除源对象.因为这个只是个引用
                     this.记录待保存数据项(数据集对象[主键值]);
-                    for(let 模型名称 in 数据项.vector){
+                    for (let 模型名称 in 数据项.vector){
                         删除数据项hnsw索引(数据集对象,数据项.id,模型名称,this.hnsw层级映射)
                     }
                     delete 数据集对象[主键值];
@@ -339,6 +340,7 @@ export class 数据集 {
         this.数据加载完成 = false
         this.数据加载中 = true
         await this.文件适配器.加载全部数据(this.数据集对象, this.hnsw层级映射)
+        sac.logger.databaseInfo(this.数据集名称+'加载完成')
         this.数据加载完成 = true
         this.数据加载中 = false
     }

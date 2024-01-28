@@ -112,7 +112,7 @@ export class fileChunkAdapter {
                         }
                     }
                 }
-                log += `删除共计${失效数据项数量}个数据项`
+                失效数据项数量?log += `${子文件夹路径}中删除共计${失效数据项数量}个数据项`:null
                 await this.处理日志(log, 子文件夹路径)
             }
             return 数据集对象
