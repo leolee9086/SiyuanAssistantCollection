@@ -19,6 +19,10 @@ export async function 处理并显示tips(data, 编辑器上下文, renderInstan
         }
         for (let tipsItem of data.item) {
             tipsItem.source = tipsItem.source || data.source;
+            if (待添加数组.find(item => { return item.pined })) {
+                let lastPinnedIndex = 待添加数组.lastIndexOf(tip => tip.pined);
+                待添加数组.splice(lastPinnedIndex + 1, 0, tipsItem);
+            }
             待添加数组.push(准备渲染项目(tipsItem, 编辑器上下文))
             text += tipsItem.description
         }
@@ -30,6 +34,8 @@ export function 准备渲染项目(tips条目, 编辑器上下文) {
     tips条目.source = tips条目.source || "unknown";
     tips条目.type = 'keyboardTips';
     tips条目.delete = () => { tips条目.deleted = true }
+    tips条目.pin = () => { tips条目.pined = true }
+    tips条目.unpin = () => { tips条目.pined = false }
     if (!tips条目.targetBlocks) {
         return
     }
@@ -69,7 +75,7 @@ function 去重待添加数组() {
             //同源且同描述的tips会被视为重复而清除
             u => u.source === item.source
                 &&
-                u.description === item.description
+                u.description === item.description&&!item.pined
         );
         if (!isDuplicate && !item.deleted) {
             unique.push(item);
@@ -87,8 +93,14 @@ async function 限制待添加数组长度(num) {
     if (待添加数组.length > (num || 1000)) {
         // 根据time属性创建一个映射，然后根据time降序排序
         const sortedByTime = 待添加数组
-            .map((item, index) => ({ index, time: item.time }))
-            .sort((a, b) => b.time - a.time)
+            .map((item, index) => ({ index, time: item.time,pined:item.pined }))
+            .sort((a, b) => {
+                if (a.pined !== b.pined) {
+                    return a.pined ? -1 : 1;
+                } else {
+                    return b.time - a.time;
+                }
+            })
             .slice(0, 10) // 选择最新的100个元素
             .map(item => item.index); // 转换回原数组的索引
 
@@ -138,7 +150,6 @@ async function 批量渲染() {
         // 如果已经在整理中，则不再触发新的整理
         return;
     }
-
     tips整理中 = true;
     controller.abort(); // 取消之前的操作
     const newController = new AbortController();

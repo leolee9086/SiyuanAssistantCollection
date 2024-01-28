@@ -86,7 +86,13 @@ export const 排序待添加数组 = async (待添加数组) => {
   }
 
   // 现在数组中的每个item都有了scores属性，可以进行排序
-  待添加数组.sort((a, b) => b.score - a.score);
+  待添加数组.sort((a, b) => {
+    if (a.pined !== b.pined) {
+      return a.pined ? -1 : 1;
+    } else {
+      return b.score - a.score;
+    }
+  });
 };
 function getCurrentEditorElementContent() {
   let editorContext = getCurrentEditorContext()
