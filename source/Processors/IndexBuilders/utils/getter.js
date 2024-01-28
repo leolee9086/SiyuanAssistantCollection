@@ -5,6 +5,8 @@ import { 检查数据集是否已加载完成 } from "./cheker.js";
 import { 获取并处理数据集所有主键 } from "./dataBaseItem.js";
 let 正在获取更新的块=false
 let 间隔时间 = 2000
+let 哈希缓存 = new Set()
+let 扫描偏移 = 0
  const 定时获取更新块= async()=>{
     if(正在获取更新的块){
         间隔时间=间隔时间+500
@@ -12,32 +14,35 @@ let 间隔时间 = 2000
         return
     }
     正在获取更新的块=true
-
     if(!await 检查数据集是否已加载完成()){
         间隔时间=间隔时间+500
         sac.logger.blockIndexerWarn(`块数据集未加载完成,${间隔时间/1000}秒之后再次尝试获取块更新`)
         setTimeout(定时获取更新块,间隔时间)
         正在获取更新的块=false
-
         return
     }
-    
     let id数组查询结果 =await 获取并处理数据集所有主键()
-    let 更新块SQL = `select * from blocks where content <> '' order by updated desc limit 100 offset 0`
+    let 更新块SQL = `select * from blocks where content <> '' order by updated desc limit 100 offset ${扫描偏移}`
     let 更新块查询结果 = await kernelWorker.sql({stmt:更新块SQL})
     let 实际更新块 = 更新块查询结果.filter(block=>{
+        if(哈希缓存.has(block.id+block.hash)){
+            return
+        }
+        哈希缓存.add(block.id+block.hash)
         let result =id数组查询结果.find(item=>{return item.meta.hash===block.hash&&item.meta.id===block.id})
         return !result
     })
-
+    if(!更新块查询结果.length){
+        扫描偏移=0
+    }
     if(实际更新块.length){
         间隔时间=Math.max(间隔时间-500,2000)
         添加到入库队列(实际更新块,id数组查询结果.length)
         sac.logger.blockIndexerInfo(`找到${实际更新块.length}个新的块,${间隔时间/1000}秒之后再次尝试获取块更新`)
     }else{
-        间隔时间+=500
+        扫描偏移+=100
+        间隔时间=间隔时间+100
         sac.logger.blockIndexerWarn(`没有找到新的块,${间隔时间/1000}秒之后再次尝试获取块更新`)
-
     }
     正在获取更新的块=false
     setTimeout(定时获取更新块,间隔时间)
