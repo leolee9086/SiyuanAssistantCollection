@@ -1,6 +1,5 @@
 import { sac } from "../../../asyncModules.js"
 let { internalFetch } = sac.路由管理器
- 
 export function 为索引记录准备索引函数(索引中块哈希,blocks, callback) {
     // 索引逻辑实现...
     // 索引完成后调用回调

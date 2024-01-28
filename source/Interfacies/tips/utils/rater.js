@@ -73,19 +73,14 @@ export function 根据文本内容对tips评分(item, baseString) {
         return 0; // 如果不存在或不是数组，返回0分
     }
     const baseTokens = 准备基准字符集(baseString); // 对baseString进行分词
-
     // 创建一个集合，用于存储baseTokens中的所有词
     const baseWords = new Set(baseTokens.map(token => token.word));
-    
     // 创建一个集合，用于存储item.describeTokens中的所有不重复词
     const itemWords = new Set(item.describeTokens.map(token => token.word));
-
     // 计算itemWords中的词与baseWords的交集数量
     const intersection = [...itemWords].filter(word => baseWords.has(word)).length;
-
     // 计算相似度得分，这里使用交集数量除以baseTokens的大小
     const score = intersection / baseTokens.length;
-
     item.scores.textScore = score||0;
 }
 function 是否过于陈旧(item) {

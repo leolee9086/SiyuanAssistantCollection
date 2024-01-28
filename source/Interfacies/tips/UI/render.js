@@ -7,46 +7,57 @@ import { 最小堆 } from "../../../utils/Array/minHeap.js";
 let 待添加数组 = sac.statusMonitor.get('tips', 'current').$value || []
 export async function 处理并显示tips(data, 编辑器上下文, renderInstance) {
     data.source = renderInstance.name
-
     if (data && data.item && data.item[0]) {
         let text = ''
+        data.delete = () => {
+            data.item.forEach(
+                tipsItem => {
+                    tipsItem.deleted = true
+                    tipsItem.targetBlocks = tipsItem.targetBlocks || data.targetBlocks
+                }
+            )
+        }
         for (let tipsItem of data.item) {
             tipsItem.source = tipsItem.source || data.source;
             待添加数组.push(准备渲染项目(tipsItem, 编辑器上下文))
             text += tipsItem.description
         }
-
         requestIdleCallback(() => { 学习新词组(text) })
-
     }
 }
-export function 准备渲染项目(tipsItem, 编辑器上下文) {
-    tipsItem.targetBlocks = tipsItem.targetBlocks || [编辑器上下文.blockID];
-    tipsItem.source = tipsItem.source || "unknown";
-    tipsItem.type = 'keyboardTips';
-    if (!tipsItem.targetBlocks) {
+export function 准备渲染项目(tips条目, 编辑器上下文) {
+    tips条目.targetBlocks = tips条目.targetBlocks || [编辑器上下文.blockID];
+    tips条目.source = tips条目.source || "unknown";
+    tips条目.type = 'keyboardTips';
+    tips条目.delete = () => { tips条目.deleted = true }
+    if (!tips条目.targetBlocks) {
         return
     }
-    if (!tipsItem.actionId) {
-        tipsItem.actionId = Lute.NewNodeID()
+    if (!tips条目.scores) {
+        tips条目.scores = {}
     }
-    if (tipsItem.action && 编辑器上下文) {
-        tipsItem.$action = () => {
-            tipsItem.action(编辑器上下文)
+    if (!tips条目.actionId) {
+        tips条目.actionId = Lute.NewNodeID()
+    }
+    if (tips条目.action && 编辑器上下文) {
+        tips条目.scores.actionScore = tips条目.scores.actionScore || 3
+        tips条目.$action = () => {
+            tips条目.action(编辑器上下文)
         }
     }
-    if (tipsItem.link) {
-        tipsItem.link = Lute.EscapeHTMLStr(tipsItem.link)
+    if (tips条目.link) {
+        tips条目.link = Lute.EscapeHTMLStr(tips条目.link)
     }
-    if (!tipsItem.content) {
-        tipsItem.content = genTipsHTML(tipsItem)
+    if (!tips条目.content) {
+        tips条目.content = genTipsHTML(tips条目)
     }
-    if (!tipsItem.time) {
-        tipsItem.time = Date.now()
+    //这是了时间排序
+    if (!tips条目.time) {
+        tips条目.time = Date.now()
     }
-    tipsItem.textScore = tipsItem.textScore || 0
-    tipsItem.vectorScore = tipsItem.vectorScore || 0
-    return tipsItem
+    tips条目.scores.textScore = tips条目.textScore || 0
+    tips条目.scores.vectorScore = tips条目.vectorScore || 0
+    return tips条目
 }
 // 去重待添加数组中的元素，并去除description短于两个字符的元素
 function 去重待添加数组() {
@@ -54,12 +65,18 @@ function 去重待添加数组() {
         if (item.description && item.description.length < 2) {
             return unique; // 如果description短于两个字符，则不添加到数组中
         }
-        let isDuplicate = unique.some(u => u.id === item.id && u.description === item.description);
-        if (!isDuplicate) {
+        let isDuplicate = unique.some(
+            //同源且同描述的tips会被视为重复而清除
+            u => u.source === item.source
+                &&
+                u.description === item.description
+        );
+        if (!isDuplicate && !item.deleted) {
             unique.push(item);
         }
         return unique;
     }, []);
+    sac.statusMonitor.set('tips', 'current', 待添加数组)
 }
 
 // 限制待添加数组的长度，只保留最新的10个元素，同时保持原有顺序
@@ -68,7 +85,6 @@ async function 限制待添加数组长度(num) {
         移除每个维度最低分的项目(待添加数组)
     }
     if (待添加数组.length > (num || 1000)) {
-
         // 根据time属性创建一个映射，然后根据time降序排序
         const sortedByTime = 待添加数组
             .map((item, index) => ({ index, time: item.time }))
@@ -81,10 +97,11 @@ async function 限制待添加数组长度(num) {
             .sort((a, b) => a - b) // 按原索引升序排序以保持原顺序
             .map(index => 待添加数组[index]);
     }
+    sac.statusMonitor.set('tips', 'current', 待添加数组)
 }
 
 
-export const 移除每个维度最低分的项目 = (待添加数组, 最小堆实现) => {
+export const 移除每个维度最低分的项目 = (待添加数组) => {
     // 找出所有存在的维度
     const allDimensions = new Set();
     for (const item of 待添加数组) {
@@ -96,14 +113,14 @@ export const 移除每个维度最低分的项目 = (待添加数组, 最小堆�
     }
     // 对于每个维度，使用最小堆找出得分最低的项目并移除它
     for (const dimension of allDimensions) {
-        const heap = new 最小堆((a, b) => a.scores[dimension] - b.scores[dimension]);   
+        const heap = new 最小堆((a, b) => a.scores[dimension] - b.scores[dimension]);
         for (const item of 待添加数组) {
             if (item.scores && item.scores[dimension] !== undefined) {
                 heap.push(item);
             }
         }
         // 如果堆中有元素，则移除得分最低的项目
-        if (!heap.isEmpty()) {
+        if (heap.size() > 1) {
             const lowestScoreItem = heap.pop();
             const indexToRemove = 待添加数组.findIndex(item => item === lowestScoreItem);
             if (indexToRemove !== -1) {
@@ -114,12 +131,8 @@ export const 移除每个维度最低分的项目 = (待添加数组, 最小堆�
 };
 
 
-
-
-
 let tips整理中 = false;
 let controller = new AbortController();
-
 async function 批量渲染() {
     if (tips整理中) {
         // 如果已经在整理中，则不再触发新的整理
@@ -139,8 +152,18 @@ async function 批量渲染() {
 
         const endTime = performance.now();
         if (endTime - startTime > 50) {
+            let time = endTime - startTime;
+            let avgTimePerItem = time / 待添加数组.length;
+            let newLength;
+            if (avgTimePerItem > SOME_THRESHOLD) {
+                newLength = Math.floor(待添加数组.length * 0.9); // reduce length by 10%
+            } else if (avgTimePerItem < SOME_OTHER_THRESHOLD) {
+                newLength = Math.floor(待添加数组.length * 1.1); // increase length by 10%
+            } else {
+                newLength = 待添加数组.length; // keep the same length
+            }
             // 如果去重和排序操作耗时超过100毫秒，清空数组
-            限制待添加数组长度(20);
+            限制待添加数组长度(newLength);
         } else {
             限制待添加数组长度();
         }

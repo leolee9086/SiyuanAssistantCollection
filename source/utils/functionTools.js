@@ -122,6 +122,24 @@ export function 逆序柯里化(原始函数) {
       const 所有参数 = 新参数.reverse().concat(已收集参数);
       if (所有参数.length >= 原始函数.length) {
         // 如果收集的参数足够，则逆序并调用原始函数
+        return 原始函数(...所有参数);
+      } else {
+        // 否则返回一个新函数继续收集参数
+        return 逆序柯里化内部(所有参数);
+      }
+    };
+  }
+  // 开始逆序柯里化过程，初始没有已收集的参数
+  return 逆序柯里化内部([]);
+}
+
+export function 双重逆序柯里化(原始函数) {
+  function 逆序柯里化内部(已收集参数) {
+    return function(...新参数) {
+      // 将新参数逆序并与已收集的参数合并
+      const 所有参数 = 新参数.reverse().concat(已收集参数);
+      if (所有参数.length >= 原始函数.length) {
+        // 如果收集的参数足够，则逆序并调用原始函数
         return 原始函数(...所有参数.reverse());
       } else {
         // 否则返回一个新函数继续收集参数

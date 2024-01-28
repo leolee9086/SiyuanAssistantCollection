@@ -1,10 +1,12 @@
 import * as cheerio from '../../../../static/cheerio.js';
 import { got } from '../../../utils/network/got.js'
 import { kernelApi } from '../../../asyncModules.js';
+import { kernelWorker } from '../../../utils/webworker/kernelWorker.js';
 import { jieba } from '../../../utils/tokenizer/jieba.js';
 import { sac } from '../../../asyncModules.js';
 import { 封装对象函数使用缓存 } from '../../../utils/functionAndClass/cacheAble.js';
 import { 准备渲染项目, 处理并显示tips } from '../UI/render.js';
+import BlockHandler from '../../../utils/BlockHandler.js';
 export const renderInstancies = []
 // 定义加载渲染实例的函数
 export async function 加载渲染实例(tipsPackagesDefine, renderName) {
@@ -30,7 +32,8 @@ function 初始化渲染实例(renderClass, renderName) {
     };
     renderInstance.__proto__.got = got;
     renderInstance.__proto__.Lute = Lute;
-    renderInstance.__proto__.kernelApi = 封装对象函数使用缓存(kernelApi);
+    renderInstance.__proto__.kernelApi = kernelWorker
+    renderInstance.__proto__.getBlockHandler=(id)=>{return new BlockHandler(id)}
     renderInstance.__proto__.showTips = (data, editorContext) => {
         if (!editorContext) {
             console.warn(renderName + 'tips渲染出错', "没有提供合适的编辑器上下文")

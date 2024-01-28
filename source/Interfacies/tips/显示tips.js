@@ -56,7 +56,7 @@ let 创建编辑器上下文并触发任务生成 = async (signal) => {
     console.log('aborted')
     return
   }
-  let 编辑器上下文 = await (withPerformanceLogging(创建编辑器上下文))()
+  let 编辑器上下文 = await 创建编辑器上下文()
   if (编辑器上下文) {
     显示光标提示(编辑器上下文, "测试")
     requestIdleCallback(() => 生成tips渲染任务(编辑器上下文, signal))

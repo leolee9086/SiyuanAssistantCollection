@@ -1,4 +1,4 @@
-import { 智能防抖, 柯里化 } from "../../utils/functionTools.js";
+import { 智能防抖, 柯里化 ,逆序柯里化} from "../../utils/functionTools.js";
 import { 处理并显示tips } from "./UI/render.js";
 import { sac } from "./runtime.js";
 import { 最小堆 } from "../../utils/Array/minHeap.js";
@@ -60,7 +60,7 @@ export function 创建任务队列(编辑器上下文, renderInstancies,signal) 
 
 // 任务执行函数
 export async function 执行任务(renderInstance, 编辑器上下文) {
-    const 显示tips = 柯里化(处理并显示tips)(renderInstance)(编辑器上下文);
+    const 显示tips = 逆序柯里化(处理并显示tips)(renderInstance)(编辑器上下文);
     const 开始时间 = Date.now(); // 记录任务开始时间
     try {
         const 生成器名称 = await 检查触发条件(renderInstance, 编辑器上下文);
@@ -72,7 +72,7 @@ export async function 执行任务(renderInstance, 编辑器上下文) {
                 //const data = withPerformanceLogging(renderInstance[生成器名称].bind(renderInstance))(编辑器上下文)
                 if (data) {
                     data.source = renderInstance.name;
-                    显示tips(data);
+                    await 显示tips(data);
                     任务执行状况表.set(renderInstance.name, { 生成器名称, 开始时间, 结束时间, 显示时间: Date.now() }); // 记录显示时间并写入执行状况表，包含生成器名称
                 }
             } catch (e) {
