@@ -1,4 +1,5 @@
 import { sac } from "../../asyncModules.js";
+import { 选择id数组 } from "./utils/sql.js";
 import { 清理块索引 } from "./utils/cleaner.js";
 let { internalFetch, Router } = sac.路由管理器
 let 初始化块数据集 = async () => {
