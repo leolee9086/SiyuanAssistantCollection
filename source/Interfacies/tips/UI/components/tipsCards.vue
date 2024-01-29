@@ -7,6 +7,9 @@
                 </svg>
                 TIPS
             </div>
+            <select>
+                <option>测试</option>
+            </select>
         </div>
         <template v-for="(item, i) in data">
             <div class="fn__flex-1 b3-card__info" v-if="mounted && data[i]" @mouseover="() => 高亮目标块(item)" style="
@@ -94,6 +97,8 @@ border-bottom:1px dashed var(--b3-theme-primary-light)">
 import { onMounted, ref, inject } from 'vue';
 import { openFocusedTipsByEvent } from '../events.js';
 import { sac } from '../../runtime.js';
+import {切换钉住状态} from '../../utils/item.js'
+import {高亮块元素} from '../../../../utils/DOM/style.js'
 const data = ref(null);
 const mounted = ref("")
 const { appData } = inject('appData')
@@ -141,35 +146,9 @@ function fetchData() {
 }
 function 高亮目标块(item) {
     if (item.targetBlocks) {
-        item.targetBlocks.forEach(blockID => {
-            let elements = document.querySelectorAll(`.protyle-wysiwyg.protyle-wysiwyg--attr [data-node-id="${blockID}"]`)
-            elements.forEach(element => {
-                element.style.backgroundColor = "yellow"; // 高亮样式
-                setTimeout(() => {
-                    element.style.backgroundColor = ""; // 移除高亮样式
-                }, 500);
-            });
-        })
+        高亮块元素(item.targetBlocks)
     }
 }
-function 切换钉住状态(item){
-    if (item.pined) {
-    item.scores.pined=Infinity
-    let tips = sac.statusMonitor.get('tips', 'current').$value || [];
-    // 找到item在tips中的位置
-    let index = tips.findIndex(tip => tip === item);
-        // 找到最后一个被pin的元素的位置
-        let lastPinnedIndex = tips.lastIndexOf(tip => tip.pined);
-        // 如果没有其他被pin的元素，那么item应该被移动到数组的开始
-        if (lastPinnedIndex === -1) {
-            lastPinnedIndex = 0;
-        }
-        // 移动item到最后一个被pin的元素的后面
-        tips.splice(index, 1);
-        tips.splice(lastPinnedIndex + 1, 0, item);
-    }else{
-        item.scores.pined=0
-    }
-}
+
 
 </script>

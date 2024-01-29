@@ -1,9 +1,10 @@
-import { 智能防抖 } from "../../../utils/functionTools.js";
 import { sac } from "../runtime.js";
 import { 排序待添加数组 } from "../utils/tipsArrayUtils.js";
 import { genTipsHTML } from "./buildTipsHTML.js";
 import { 学习新词组 } from "../../../utils/tokenizer/learn.js";
 import { 最小堆 } from "../../../utils/Array/minHeap.js";
+//这里仅仅是为了测试
+import { sacClusterChannel_Tips } from "../../../utils/cluster.js/channels.js";
 let 待添加数组 = sac.statusMonitor.get('tips', 'current').$value || []
 export async function 处理并显示tips(data, 编辑器上下文, renderInstance) {
     data.source = renderInstance.name

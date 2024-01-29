@@ -3,9 +3,6 @@
     pointer-events: none;
     border: 1px dashed blue;
 }
-
-
-
 .chat-container {
     overflow-y: auto;
     border: 1px solid #ccc;

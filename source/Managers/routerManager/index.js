@@ -4,6 +4,7 @@ import { buildInternalFetch } from "./internalFetch.js"
 import { useError } from "./commonMiddlewares/error.js"
 export const 根路由 = new _Router()
 export const internalFetch=buildInternalFetch(根路由)
+export  {buildInternalFetch as buildInternalFetch} 
 export const Router = _Router
 根路由.use(useError)
 

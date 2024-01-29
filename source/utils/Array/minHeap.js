@@ -1,9 +1,15 @@
 export class MinHeap {
-    constructor(比较函数=(a,b)=>a-b) {
+    constructor(比较函数=(a,b)=>a-b,目标数组=[]) {
       this.比较函数= 比较函数
-      this.数据堆 = [];
+      if(Array.isArray(目标数组)){
+        this.数据堆=目标数组
+      }else{
+        throw '只能堆化数组'
+      }
+      if(this.数据堆.length){
+        this.堆化(0)
+      }
     }
-  
     获取父节点索引(i) { return Math.floor((i - 1) / 2); }
     获取左侧子节点索引(i) { return 2 * i + 1; }
     获取右侧子节点索引(i) { return 2 * i + 2; }
