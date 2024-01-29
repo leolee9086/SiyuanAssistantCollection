@@ -1,3 +1,16 @@
+let blocksMenu =(block)=>{
+    return [
+        {
+            icon:"",
+            label:"打开所在的块",
+            click:()=>{
+                if(window.require){
+                    window.open(`siyuan://blocks/${block.id}`)
+                }
+            }
+        }
+    ]
+}
 export const tipsRender = class {
     async renderEditorVectorTips(editorContext) {
         try {
@@ -15,6 +28,7 @@ export const tipsRender = class {
                 data.item = data.item.map(item => {
                     item.targetBlocks = [editorContext.blockID];
                     item.vector = item.block.vector;
+                    item.contextMenu=blocksMenu(item)
                     return item;
                 });
                 this.showTips(data, editorContext);

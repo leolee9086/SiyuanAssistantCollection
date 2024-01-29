@@ -40,19 +40,18 @@ border-bottom:1px dashed var(--b3-theme-primary-light)">
                             <div class="fn__space fn__flex-1"> </div>
 
                             <div class=" ">
-                                <input 
-                                class=" fn__flex-center" 
-                                type="checkbox" 
-                                v-model="item.pined"
-                                @change="切换钉住状态(item)"
-                                >
+                                <input class=" fn__flex-center" type="checkbox" v-model="item.pined" @change="切换钉住状态(item)">
                             </div>
                             <div class="fn__space "></div>
                         </div>
                         <div class="fn__flex fn__flex-1" style="max-height: 16vh;">
-                            <div v-html="item.description" @click="item.pined=!item.pined">
+                            <div v-html="item.description" @click="item.pined = !item.pined"
+                                @click.right="(e) => 打开tips右键菜单(e, item)">
                             </div>
-                            <div class="fn__space fn__flex-1"> </div>
+                            <div 
+                            class="fn__space fn__flex-1"
+                            @click.right="(e) => 打开tips右键菜单(e, item)"
+                            > </div>
 
                             <div v-if="item.action">
                                 <button @click="item.action" class="b3-button"
@@ -66,7 +65,7 @@ border-bottom:1px dashed var(--b3-theme-primary-light)">
                         <div class="fn__flex fn__flex-1">
                             <strong>{{ item.score ? (item.score * 10).toFixed(3) : item.score }}</strong>
                             <!--  <strong>{{ item }}</strong>-->
-                             <strong>{{ item.pined }}</strong>
+                            <strong>{{ item.pined }}</strong>
                             <div class="fn__space fn__flex-1">
                             </div>
                             <span class="b3-tooltips b3-tooltips__nw block__icon block__icon--show"
@@ -97,8 +96,9 @@ border-bottom:1px dashed var(--b3-theme-primary-light)">
 import { onMounted, ref, inject } from 'vue';
 import { openFocusedTipsByEvent } from '../events.js';
 import { sac } from '../../runtime.js';
-import {切换钉住状态} from '../../utils/item.js'
-import {高亮块元素} from '../../../../utils/DOM/style.js'
+import { 切换钉住状态 } from '../../utils/item.js'
+import { 高亮块元素 } from '../../../../utils/DOM/style.js'
+import { 打开tips右键菜单 } from '../../UI/tipsContextMenu.js'
 const data = ref(null);
 const mounted = ref("")
 const { appData } = inject('appData')
@@ -129,16 +129,16 @@ function fetchData() {
     if (!isUpdating.value) return; // 如果 isUpdating 为 false，则不更新数据
     let source = appData?.source || "all"
     let tips = sac.statusMonitor.get('tips', 'current').$value || []
-    
+
     data.value = tips.filter(item => {
         return item && item.id && item.description && (item.source === source || source === 'all')
     }).slice(0, 20).sort((a, b) => {
-    if (a.pined !== b.pined) {
-      return a.pined ? -1 : 1;
-    } else {
-      return b.score - a.score;
-    }
-  });
+        if (a.pined !== b.pined) {
+            return a.pined ? -1 : 1;
+        } else {
+            return b.score - a.score;
+        }
+    });
     if (data.value && data.value[0]) {
         mounted.value = true
     }
@@ -149,6 +149,4 @@ function 高亮目标块(item) {
         高亮块元素(item.targetBlocks)
     }
 }
-
-
 </script>
