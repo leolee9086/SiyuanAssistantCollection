@@ -1,12 +1,10 @@
 import fs from "../../../../polyfills/fs.js";
 import path from "../../../../polyfills/path.js";
-import logger from '../../../../logger/index.js'
 import { 读取工作空间文件列表 } from "../utils/glob.js";
 import { 对分片执行去除特殊键值, 迁移数据项向量结构 } from "../utils/item.js";
 import { sac } from "../../../../asyncModules.js";
 export class fileChunkAdapter {
     constructor(文件保存地址, 序列化, 反序列化, 扩展名) {
-        console.log(文件保存地址)
         this.总文件数 = 8
         this.文件保存地址 = 文件保存地址
         this.序列化 = 序列化
@@ -94,7 +92,6 @@ export class fileChunkAdapter {
                                         console.warn(e)
                                     }
                                 }
-                               
                             }
                             if (!数据项.vector || typeof 数据项.vector !== 'object' || Object.values(数据项.vector).some(v => !Array.isArray(v) || v.some(item => typeof item !== 'number') || !v[0])) {
                                 sac.logger.datasetwarn(`文件${子文件夹路径}中数据项${key}的vector字段${JSON.stringify(数据项.vector)}不是有效的向量\n,已删除`)

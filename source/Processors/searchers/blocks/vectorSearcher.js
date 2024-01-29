@@ -1,37 +1,39 @@
+import fs from "../../../polyfills/fs.js";
 import { withPerformanceLogging } from "../../../utils/functionAndClass/performanceRun.js";
 import { kernelApi } from "../runtime.js"
-const hashCache={}
- const _seachBlockWithVector = async (blocks,标题和文档包含全部内容,使用原始结果,得分阈值,参考分数较高时给出文档全文) => {
+const hashCache = {}
+const _seachBlockWithVector = async (blocks, 标题和文档包含全部内容, 使用原始结果, 得分阈值, 参考分数较高时给出文档全文) => {
     blocks = blocks.filter(item => item.meta && item.similarityScore > 得分阈值);
-
     // 获取所有块的ID
-    const blockIds = blocks.map(item => `"${item.id}"`);
     const unCachedIds = blocks.map(
-        item=>!hashCache[item.meta.hash]?`"${item.id}"`:null
+        item => !hashCache[item.meta.hash] ? `"${item.id}"` : null
     ).filter(
-        item=>item
+        item => item
     )
-    
-    
     // 一次性查询所有块的meta数据
-    const metas =await withPerformanceLogging(kernelApi.sql)({ stmt: `SELECT * FROM blocks WHERE id IN (${unCachedIds.join(',')})` });
-    
+    //const metas =await withPerformanceLogging(kernelApi.sql)({ stmt: `SELECT * FROM blocks WHERE id IN (${unCachedIds.join(',')})` });
+    let metas = []
+    if (unCachedIds.length) {
+        metas = await withPerformanceLogging(kernelApi.sql)({
+            stmt: `SELECT * FROM blocks WHERE ${unCachedIds.map(id => `id = ${id}`).join(' OR ')}`
+        });
+    }
     // 创建一个ID到meta的映射
     const metaMap = metas.reduce((map, meta) => {
         map[meta.id] = meta;
-        if(!hashCache[meta.hash]){
-            hashCache[meta.hash]=meta
+        if (!hashCache[meta.hash]) {
+            hashCache[meta.hash] = meta
         }
         return map;
     }, {});
 
     // 使用映射更新块的meta数据
     blocks = blocks.map(item => {
-        if(!metaMap[item.id]&&!hashCache[item.meta.hash]){
+        if (!metaMap[item.id] && !hashCache[item.meta.hash]) {
             return
         }
-        let block = structuredClone(metaMap[item.id])||structuredClone(hashCache[item.meta.hash])
-        if(!block){
+        let block = structuredClone(metaMap[item.id]) || structuredClone(hashCache[item.meta.hash])
+        if (!block) {
             return undefined
         }
         try {
@@ -48,8 +50,8 @@ const hashCache={}
             return undefined;
         }
     }).filter(
-        item=>{
-         return item
+        item => {
+            return item
         }
     )
 
@@ -66,7 +68,7 @@ const hashCache={}
         return uniqueBlocks;
     }, {});
     // 将对象转换为数组并返回
-    let res= Object.values(blocks);
+    let res = Object.values(blocks);
     if (使用原始结果) {
         return res
     } else return {
@@ -78,14 +80,14 @@ const hashCache={}
                     title: "向量搜索块",
                     description: block.content,
                     link: `siyuan://blocks/${block.id}`,
-                    block:block,
-                    source:'localBlockVector',
-                    vectorScore:block.similarityScore,
-                    id:block.id
+                    block: block,
+                    source: 'localBlockVector',
+                    vectorScore: block.similarityScore,
+                    id: block.id
 
                 }
             }
         )
     }
 }
-export const seachBlockWithVector=withPerformanceLogging(_seachBlockWithVector)
+export const seachBlockWithVector = withPerformanceLogging(_seachBlockWithVector)

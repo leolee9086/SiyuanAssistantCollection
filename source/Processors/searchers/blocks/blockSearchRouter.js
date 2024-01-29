@@ -67,7 +67,7 @@ blockSearchRouter.post('/vector', async (ctx, next) => {
         method: 'POST',
     })
     
-    let data = await withPerformanceLogging(vectorTextSearcherModule.seachBlockWithVector)(res1.body.data, 标题和文档包含全部内容, 使用原始结果, 得分阈值, 参考分数较高时给出文档全文)
+    let data = await vectorTextSearcherModule.seachBlockWithVector(res1.body.data, 标题和文档包含全部内容, 使用原始结果, 得分阈值, 参考分数较高时给出文档全文)
     ctx.body = data
 })
 blockSearchRouter.get('/vector/:query', async (ctx, next) => {

@@ -45,8 +45,11 @@ export let 显示actions并生成tips渲染任务 = async (flag) => {
       return
     }
     任务生成中 = true
-
+    try{
     await 创建编辑器上下文并触发任务生成(signal)
+    }catch(e){
+      console.error(e)
+    }
     任务生成中 = false
   }
 
@@ -97,7 +100,7 @@ async function 生成tips渲染任务(编辑器上下文, signal) {
     })()
   }
   // 创建并执行tips渲染任务队列(编辑器上下文);
-  let 任务队列 = 创建任务队列(编辑器上下文, renderInstancies,signal)
+  let 任务队列 =await  创建任务队列(编辑器上下文, renderInstancies,signal)
   在空闲时间执行任务(任务队列)
 }
 

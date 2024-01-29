@@ -75,7 +75,7 @@ let 当前模型名称 = 'leolee9086/text2vec-base-chinese'
 
 async function 添加块到数据库(块数据) {
     //容器块通过加载全文后添加
-    let content = await withPerformanceLogging(获取块文字内容)(块数据)
+    let content =await 获取块文字内容(块数据)
     let res = await text2vec(content.slice(0, 1024))
     let 块向量 = res.body.data[0].embedding
     let 数据项 = 构建块向量数据项(块数据, 当前模型名称, 块向量)
@@ -87,8 +87,9 @@ async function 获取块文字内容(块数据) {
     let content = 块数据.content
     if (type === 'd' || type === 'h' || type === 'l') {
         let doc = await kernelWorker.getDoc({ id, size: 10 })
-        let $ = withPerformanceLogging(cheerio.load)(doc.content)
+        let $ = cheerio.load(doc.content)
         content = $('body').text()
+        //这个是让分词器学习新的词组
         学习新词组(content)
     }
     //普通块直接添加

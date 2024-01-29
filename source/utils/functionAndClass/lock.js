@@ -21,7 +21,7 @@
  * lockedAsyncOperation();
  * ```
  */
-function 加内部锁等待执行函数(fn) {
+export function 加内部锁等待执行函数(fn) {
     let lock = false
     // 返回一个新的函数
     return async function(...args) {

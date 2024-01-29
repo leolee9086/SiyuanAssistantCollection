@@ -1,7 +1,22 @@
+import * as cheerio from "../../../../static/cheerio.js";
 import { sac } from "../runtime.js";
 function escapeHTML(str) {
     return Lute.EscapeHTMLStr(str);
 }
+function isBlockDOM(str){
+    let $ = cheerio.load(str);
+    let allHaveAttributes = true;
+
+    $('*').each(function() {
+        if (!$(this).attr('data-node-id') || !$(this).attr('data-type')) {
+            allHaveAttributes = false;
+            return false; // break the loop
+        }
+    });
+
+    return allHaveAttributes;
+}
+//这里之后要用lute来处理
 export const genTipsHTML = (item) => {
     let imageHTML = item.image ? `<image src='${escapeHTML(item.image)}'></image>` : '';
     let divHTML = `<div class="fn__flex-1 b3-card__info" 
@@ -25,7 +40,7 @@ border-bottom:1px dashed var(--b3-theme-primary-light)">
         </div>
 
         <div>
-        ${sac.lute?sac.lute.spinBlockDom(item.description):item.description}
+        ${sac.lute&&isBlockDOM(item.description)?sac.lute.Html2BlockDOM(item.description):item.description}
         </div>
      
     </div>

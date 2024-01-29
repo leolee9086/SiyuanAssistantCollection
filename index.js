@@ -311,7 +311,7 @@ class SiyuanAssistantCollection extends ccPlugin {
   }
  
   async 设置Lute() {
-    this._lute = this.setLute({
+    this.setLute({
       headingAnchor: false,
       listStyle: '',
       paragraphBeginningSpace: false,
@@ -321,6 +321,7 @@ class SiyuanAssistantCollection extends ccPlugin {
   setLute(options){
     let Lute =globalThis.Lute
     this._lute=Lute?Lute.New(options):null
+    return this._lute
   }
   get lute() {
     return this._lute

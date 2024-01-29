@@ -1,7 +1,8 @@
-import { 智能防抖, 柯里化 ,逆序柯里化} from "../../utils/functionTools.js";
+import { 智能防抖, 柯里化, 逆序柯里化 } from "../../utils/functionTools.js";
 import { 处理并显示tips } from "./UI/render.js";
 import { sac } from "./runtime.js";
 import { 最小堆 } from "../../utils/Array/minHeap.js";
+import { 加载渲染器类 } from "./package/loader.js";
 let 触发条件表 = [
     {
         name: 'renderEditorTips',
@@ -26,19 +27,27 @@ const 任务优先队列 = new 最小堆((a, b) => {
 
     return 优先级A - 优先级B;
 });
-export function 创建任务队列(编辑器上下文, renderInstancies,signal) {
+export async function 创建任务队列(编辑器上下文, renderInstancies, signal) {
     const { position, text, tokens, blockID, editableElement, logger, currentToken } = 编辑器上下文;
-   
 
-    renderInstancies.forEach(renderInstance => {
+    for await (let renderInstance of renderInstancies) {
+        //renderInstancies.forEach(renderInstance => {
         const 添加时间 = Date.now();
+        if (renderInstance.realTime) {
+            try {
+                const tipsRenderPackages = sac.statusMonitor.get('packages', 'sac-tips-render').$value
+                renderInstance = await 加载渲染器实例(tipsRenderPackages, renderInstance.name)
+            } catch (e) {
+                sac.logger.tipsError(`标记了实时属性的tips渲染器${renderInstance.name}无法完成重载`)
+            }
+        }
         const renderInstanceName = renderInstance.name;
         const 任务 = {
             添加时间,
-            执行: () =>{
+            执行: () => {
                 if (signal.aborted) {
                     return
-                  }
+                }
                 requestIdleCallback(() => 执行任务(renderInstance, 编辑器上下文))
             },
             来源: renderInstanceName,
@@ -52,7 +61,7 @@ export function 创建任务队列(编辑器上下文, renderInstancies,signal) 
         }
 
         任务优先队列.push(任务); // 将任务添加到优先队列中
-    });
+    }
 
     return 任务优先队列;
 }

@@ -7,6 +7,7 @@ let 正在获取更新的块=false
 let 间隔时间 = 2000
 let 哈希缓存 = new Set()
 let 扫描偏移 = 0
+let 扫描窗口大小 = 1000
  const 定时获取更新块= async()=>{
     if(正在获取更新的块){
         间隔时间=间隔时间+500
@@ -22,8 +23,12 @@ let 扫描偏移 = 0
         return
     }
     let id数组查询结果 =await 获取并处理数据集所有主键()
-    let 更新块SQL = `select * from blocks where content <> '' order by updated desc limit 100 offset ${扫描偏移}`
+    let sql获取开始时间 = performance.now()
+    let 更新块SQL = `select * from blocks where content <> '' order by updated desc limit ${扫描窗口大小} offset ${扫描偏移*扫描窗口大小}`
     let 更新块查询结果 = await kernelWorker.sql({stmt:更新块SQL})
+    let sql获取结束时间 = performance.now()
+    let sql获取耗时 = sql获取结束时间-sql获取开始时间
+    间隔时间 = sql获取耗时*10
     let 实际更新块 = 更新块查询结果.filter(block=>{
         if(哈希缓存.has(block.id+block.hash)){
             return
@@ -40,7 +45,7 @@ let 扫描偏移 = 0
         添加到入库队列(实际更新块,id数组查询结果.length)
         sac.logger.blockIndexerInfo(`找到${实际更新块.length}个新的块,${间隔时间/1000}秒之后再次尝试获取块更新`)
     }else{
-        扫描偏移+=100
+        扫描偏移+=1
         间隔时间=间隔时间+100
         sac.logger.blockIndexerWarn(`没有找到新的块,${间隔时间/1000}秒之后再次尝试获取块更新`)
     }

@@ -7,105 +7,73 @@
                 </svg>
                 TIPS
             </div>
-            <select>
-                <option>测试</option>
-            </select>
+            <div class="fn__space"></div>
+            <input v-model="query"/>
+
         </div>
-        <template v-for="(item, i) in data">
-            <div class="fn__flex-1 b3-card__info" v-if="mounted && data[i]" @mouseover="() => 高亮目标块(item)" style="
-font-size:small !important;
-background-color:var(--b3-theme-background);
-padding:4px !important;
-overflow-y:hidden;
-border-bottom:1px dashed var(--b3-theme-primary-light)">
-                <div class="b3-card__body protyle-wysiwyg protyle-wysiwyg--attr"
-                    style="font-size:small !important;padding:0">
-                    <div class="fn__flex fn__flex-column">
-                        <div class="fn__flex fn__flex-1">
-
-                            <span class="sac-icon-actions" v-if="!item.type" style="color:var(--b3-theme-primary)">
-                                <svg class="b3-list-item__graphic">
-                                    <use xlink:href="#iconSparkles"></use>
-                                </svg>
-                            </span>
-                            <span class="sac-icon-actions" v-if="item.type === 'keyboardTips'"
-                                style="color:var(--b3-theme-primary)">
-                                <svg class="b3-list-item__graphic">
-                                    <use xlink:href="#iconKeymap"></use>
-                                </svg>
-                            </span>
-                            <strong><a :href="item.link">{{ item.title }}</a></strong>
-
-                            <strong :data-source="item.source">{{ item.source }}</strong>
-                            <div class="fn__space fn__flex-1"> </div>
-
-                            <div class=" ">
-                                <input class=" fn__flex-center" type="checkbox" v-model="item.pined" @change="切换钉住状态(item)">
-                            </div>
-                            <div class="fn__space "></div>
-                        </div>
-                        <div class="fn__flex fn__flex-1" style="max-height: 16vh;">
-                            <div v-html="item.description" @click="item.pined = !item.pined"
-                                @click.right="(e) => 打开tips右键菜单(e, item)">
-                            </div>
-                            <div 
-                            class="fn__space fn__flex-1"
-                            @click.right="(e) => 打开tips右键菜单(e, item)"
-                            > </div>
-
-                            <div v-if="item.action">
-                                <button @click="item.action" class="b3-button"
-                                    style="border-radius:15px;padding: 5px;margin: 5px;">
-                                    <svg class="b3-list-item__graphic">
-                                        <use xlink:href="#iconRight"></use>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="fn__flex fn__flex-1">
-                            <strong>{{ item.score ? (item.score * 10).toFixed(3) : item.score }}</strong>
-                            <!--  <strong>{{ item }}</strong>-->
-                            <strong>{{ item.pined }}</strong>
-                            <div class="fn__space fn__flex-1">
-                            </div>
-                            <span class="b3-tooltips b3-tooltips__nw block__icon block__icon--show"
-                                aria-label="Reply to message">
-                                <svg>
-                                    <use xlink:href="#iconLike"></use>
-                                </svg>
-                            </span>
-                            <span class="b3-tooltips b3-tooltips__nw block__icon block__icon--show"
-                                aria-label="Reply to message">
-                                <svg>
-                                    <use xlink:href="#iconLike" transform="scale(1, -1) translate(0, -14)"></use>
-                                </svg>
-                            </span>
-                        </div>
-
-                    </div>
-                    <template v-if="item.imageHTML">
-                        <div class="tips-image-container" v-html="item.imageHTML">
-                        </div>
-                    </template>
-                </div>
-            </div>
+        <div class="block__icons">
+            <select @change="e => currentSourcies.push(e.target.value)" v-if="difference.length > 1&&currentSourcies[0]">
+                <option v-for="source in difference" :value="source">{{ source }}</option>
+            </select>
+            <button 
+            class="b3-button b3-button--outline" 
+            style="border:1px dashed ;"
+            v-if="difference.length === 1"
+                @click="currentSourcies.push(difference[0])">
+                {{ difference[0] }}
+                <div class="fn__space"></div>
+                <svg class="block__logoicon" style="width:8px;height: 8px;">
+                    <use xlink:href="#iconClose"></use>
+                </svg>
+            </button>
+            <template v-for="(source, i) in tipsSourcies" v-if="!currentSourcies[0]">
+                <div class="fn__space"></div>
+                <button class="b3-button b3-button--outline" @click="currentSourcies.push(source)">
+                    {{ source }}
+                    <div class="fn__space"></div>
+                    <svg class="block__logoicon" style="width:8px;height: 8px;">
+                        <use xlink:href="#iconClose"></use>
+                    </svg>
+                </button>
+            </template>
+            <template v-for="(source, i) in currentSourcies">
+                <div class="fn__space"></div>
+                <button class="b3-button b3-button--outline" @click="currentSourcies.splice(i, 1)">
+                    {{ source }}
+                    <div class="fn__space"></div>
+                    <svg class="block__logoicon" style="width:8px;height: 8px;">
+                        <use xlink:href="#iconClose"></use>
+                    </svg>
+                </button>
+            </template>
+        </div>
+        <template v-for="(item, i) in data" :key="item.id+i">
+            <tipsCard :item="item"></tipsCard>
         </template>
     </div>
 </template>
 <script setup>
-import { onMounted, ref, inject } from 'vue';
+import { onMounted, ref, inject, computed } from 'vue';
 import { openFocusedTipsByEvent } from '../events.js';
 import { sac } from '../../runtime.js';
-import { 切换钉住状态 } from '../../utils/item.js'
-import { 高亮块元素 } from '../../../../utils/DOM/style.js'
-import { 打开tips右键菜单 } from '../../UI/tipsContextMenu.js'
+import tipsCard from './tipsCard.vue'
 const data = ref(null);
 const mounted = ref("")
 const { appData } = inject('appData')
 const isUpdating = ref(true);
+const query =ref('')
+const currentSourcies = ref([])
+if (appData?.source) {
+    currentSourcies.value.push(appData.source)
+}
+const tipsSourcies = ref([])
+const difference = computed(() => {
+    return tipsSourcies.value.filter(source => !currentSourcies.value.includes(source));
+});
 let clickHandler = (event) => {
     openFocusedTipsByEvent(event, data.value)
 }
+
 onMounted(() => {
     requestAnimationFrame(() => {
         // 这里执行闲时数据渲染逻辑
@@ -124,15 +92,17 @@ function startUpdating(e) {
         isUpdating.value = true;
     }
 }
-function fetchData() {
-    // 模拟数据获取
-    if (!isUpdating.value) return; // 如果 isUpdating 为 false，则不更新数据
-    let source = appData?.source || "all"
-    let tips = sac.statusMonitor.get('tips', 'current').$value || []
+function filter(item){
+    let flag = item && item.id && item.description && (currentSourcies.value.includes(item.source) || currentSourcies.value.length === 0)
 
-    data.value = tips.filter(item => {
-        return item && item.id && item.description && (item.source === source || source === 'all')
-    }).slice(0, 20).sort((a, b) => {
+    return flag && String(item.description).indexOf(String(query.value)) > -1;
+}
+function fetchData() {
+    // 主要是为了实现暂停tips的刷新
+    if (!isUpdating.value) return; // 如果 isUpdating 为 false，则不更新数据
+    let tips = sac.statusMonitor.get('tips', 'current').$value || []
+    tipsSourcies.value = Array.from(new Set(tips.map(item => { return item.source })))
+    data.value = tips.filter(filter).slice(0, 20).sort((a, b) => {
         if (a.pined !== b.pined) {
             return a.pined ? -1 : 1;
         } else {
@@ -144,9 +114,5 @@ function fetchData() {
     }
     requestAnimationFrame(() => { fetchData() }, { deadline: 1000 })
 }
-function 高亮目标块(item) {
-    if (item.targetBlocks) {
-        高亮块元素(item.targetBlocks)
-    }
-}
+
 </script>
