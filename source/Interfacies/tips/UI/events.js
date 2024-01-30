@@ -1,5 +1,5 @@
 import { sac } from "../runtime.js"
-import { hasClosestByAttribute } from "../../../utils/DOMFinder.js"
+import { hasClosestByAttribute } from "../../../utils/DOM/DOMFinder.js"
 export const openFocusedTipsByEvent = (event,待添加数组) => {
     const source = event.target.dataset.source
     if (source) {

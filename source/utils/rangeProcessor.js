@@ -1,4 +1,4 @@
-import { hasClosestBlock } from "./DOMFinder.js";
+import { hasClosestBlock } from "./DOM/DOMFinder.js";
 export function findTokenElement(current, range) {
   if (current.nodeType === 1 && current.classList.contains("token")) {
     return current;
