@@ -24,7 +24,6 @@ topBarButton.addEventListener(
                     })
                 }
             )
-        
             menu.open({
                 x: rect.right - 25 - 76,
                 y: rect.bottom,

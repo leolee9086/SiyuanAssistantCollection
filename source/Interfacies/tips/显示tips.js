@@ -56,7 +56,6 @@ export let 显示actions并生成tips渲染任务 = async (flag) => {
 }
 let 创建编辑器上下文并触发任务生成 = async (signal) => {
   if (signal.aborted) {
-    console.log('aborted')
     return
   }
   let 编辑器上下文 = await 创建编辑器上下文()
@@ -67,9 +66,8 @@ let 创建编辑器上下文并触发任务生成 = async (signal) => {
   任务生成中 = false
 
 }
+
 let 正在生成编辑器向量
-
-
 async function 生成tips渲染任务(编辑器上下文, signal) {
   sac.statusMonitor.set('context', 'editor', 编辑器上下文);
   if (signal.aborted) {
