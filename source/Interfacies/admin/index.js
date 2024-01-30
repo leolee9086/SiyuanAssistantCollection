@@ -1,4 +1,4 @@
-import { initVueApp } from "../../UI/utils/componentsLoader.js"
+import { initVueApp } from "../../UITools/loader/VueComponentsLoader.js"
 export const tabs = {
     "loggerList": {
         init: (element, data, tab) => {

@@ -1,6 +1,6 @@
 import { clientApi, pluginInstance as plugin } from '../../asyncModules.js'
 import { string2DOM } from '../builders/index.js';
-import { 计算zindex } from './util/zIndex.js';
+import { 计算zindex } from '../../utils/DOM/zIndex.js';
 plugin.statusMonitor.set('菜单', '关键词菜单', '初次显示', true)
 export const buildMenu = (title) => {
     if (!plugin.configurer.get('菜单设置', '启动时显示关键词动作菜单').$value

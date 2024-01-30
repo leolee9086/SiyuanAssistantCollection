@@ -1,7 +1,7 @@
 import kernelApi from '../../polyfills/kernelApi.js'
 import { clientApi,pluginInstance as plugin } from '../../asyncModules.js'
 import throneManager from '../../throne/index.js'
-import { 计算zindex } from './util/zIndex.js';
+import { 计算zindex } from '../../utils/DOM/zIndex.js';
 export const AI对话框 = async (标题, aiIdentifier) => {
     let aiChatInterface
     let dialog 

@@ -7,7 +7,7 @@ import { 加载渲染实例, 加载渲染器类, } from './package/loader.js';
 import { tipsRender as vectorTipsRender } from './builtinRenders/vectorTipsRender.js';
 import { tipsRender as textTipsRender } from './builtinRenders/textTipsRender.js';
 import { 显示actions并生成tips渲染任务 } from './显示tips.js';
-import { initVueApp } from '../../UI/utils/componentsLoader.js';
+import { initVueApp } from "../../UITools/loader/VueComponentsLoader.js"
 import { 输入事件发生在protyle内部 } from '../../utils/events/isIn.js';
 import '../../utils/tokenizer/learn.js'
 //markElementIfMouseOver(document);

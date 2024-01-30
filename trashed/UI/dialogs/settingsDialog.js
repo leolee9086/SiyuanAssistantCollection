@@ -1,7 +1,7 @@
 import { clientApi, plugin } from "../../asyncModules.js";
 import { buildSettingUI } from "../settting/index.js";
 import { logger } from "../../logger/index.js";
-import { 计算zindex } from "./util/zIndex.js";
+import { 计算zindex } from "../../utils/DOM/zIndex.js";
 export const 设置对话框 = async (settingList, base) => {
     // 获取 settingList 的所有键
     logger.settinglog(settingList, base)

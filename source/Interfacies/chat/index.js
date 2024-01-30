@@ -1,4 +1,4 @@
-import { initVueApp } from "../../UI/utils/componentsLoader.js"
+import { initVueApp } from "../../UITools/loader/VueComponentsLoader.js"
 import { sac } from "../../asyncModules.js"
 import { handleBlockIconClick } from "./noteChat/chatmenu.js"
 import { aiPersonaPackage } from "./package/index.js"

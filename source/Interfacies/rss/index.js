@@ -1,5 +1,5 @@
 import { sac } from "../../asyncModules.js"
-import { initVueApp } from "../../UI/utils/componentsLoader.js"
+import { initVueApp } from "../../UITools/loader/VueComponentsLoader.js"
 export const Emitter = class {
     channel = 'rss-ui'
     async onload() {
