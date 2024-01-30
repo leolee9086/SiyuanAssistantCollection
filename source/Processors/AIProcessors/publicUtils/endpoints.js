@@ -17,3 +17,14 @@ export const text2vec=async(text)=>{
         }    
     })
 }
+export const postChatMessage=async(data)=>{
+    let res =  await sac.路由管理器.internalFetch('/ai/v1/chat/completions',{
+        method:"POST",
+        body:{
+            model:data.model,
+            messages:data.messages,
+        }
+    })
+    sac.logger.aiChatInfo(res.body)
+    return await res.body.data
+}

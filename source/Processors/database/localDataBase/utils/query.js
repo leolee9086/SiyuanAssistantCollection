@@ -57,3 +57,17 @@ export const 准备向量查询函数 = (数据集对象,hnsw层级映射) => {
 }
 
 
+
+export const 标量查询数据集 = (数据集对象,查询条件,带向量字段)=>{
+    let 数据集数组 = Object.values(数据集对象);
+    let query = new Mingo.Query(查询条件);
+    let 过滤后的数据集数组 = query.find(数据集数组).all();
+    let 查询结果 = 过滤后的数据集数组.map(item=>{
+        let 结果对象= structuredClone(item)
+        if(!带向量字段){
+            结果对象.vector=undefined
+        }
+        return 结果对象
+    })
+    return 查询结果
+}

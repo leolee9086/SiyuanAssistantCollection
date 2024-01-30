@@ -1,10 +1,10 @@
 import { MinHeap as 最小堆 } from "../../../utils/Array/minHeap.js";
 // 限制待添加数组的长度，只保留最新的10个元素，同时保持原有顺序
 export async function 限制待添加数组长度(tips数组,num) {
-    if (tips数组.length > (num || 1000)) {
+    if (tips数组.length > (num || 10000)) {
         移除每个维度最低分的项目(tips数组);
     }
-    if (tips数组.length > (num || 1000)) {
+    if (tips数组.length > (num || 10000)) {
         // 根据time属性创建一个映射，然后根据time降序排序
         const sortedByTime = tips数组
             .map((item, index) => ({ index, time: item.time, pined: item.pined }))

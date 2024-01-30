@@ -10,6 +10,7 @@ let modelMap={
 const 对话补全路由 = new Router()
 对话补全路由.post('/completions',async(ctx,next)=>{
     let {messages,model}=ctx.req.body
-    ctx.body =  await chatCompletions(messages,'729c9a1a27f517607c3c589cfcb12c1c.G4dVYc6SjaSiDbHE',modelMap[model])
+    ctx.body.data =  await chatCompletions(messages,'729c9a1a27f517607c3c589cfcb12c1c.G4dVYc6SjaSiDbHE',modelMap[model])
+   // ctx.body.data = await chatCompletions(messages,"",modelMap[model])
 })
 export {对话补全路由 as chatCompletionsRouter}

@@ -46,3 +46,13 @@ export const 添加数据 = async(数据集名称,数据组)=>{
         }
     })
 }
+export const 标量查询数据集 = async(数据集名称, 标量查询条件, 带向量字段 = false)=>{
+    return await internalFetch('/database/scalarQuery',{
+        method:"POST",
+        body:{
+            collection_name: 数据集名称,
+            query_conditions: 标量查询条件,
+            include_vector_field: 带向量字段
+        }
+    })
+}

@@ -11,6 +11,7 @@ let blocksMenu =(block)=>{
         }
     ]
 }
+
 export const tipsRender = class {
     async renderEditorVectorTips(editorContext) {
         try {
@@ -33,7 +34,6 @@ export const tipsRender = class {
                 });
                 this.showTips(data, editorContext);
             }
-
             res = await this.internalFetch('/search/rss/vector', {
                 body: {
                     vector:editorContext.vector,

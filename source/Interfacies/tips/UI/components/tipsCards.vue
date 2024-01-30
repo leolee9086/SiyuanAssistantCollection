@@ -9,7 +9,15 @@
             </div>
             <div class="fn__space"></div>
             <input v-model="query"/>
-
+            <div class="fn__space fn__flex-1"></div>
+            <span>
+                <svg class="block__logoicon" 
+                @click="clearAlltips"
+                @click.right="clearFiltedTips"
+                >
+                    <use xlink:href="#iconTrashcan"></use>
+                </svg>
+            </span>
         </div>
         <div class="block__icons">
             <select @change="e => currentSourcies.push(e.target.value)" v-if="difference.length > 1&&currentSourcies[0]">
@@ -113,5 +121,22 @@ function fetchData() {
     }
     requestAnimationFrame(() => { fetchData() }, { deadline: 1000 })
 }
-
+function clearAlltips(){
+    let tips = sac.statusMonitor.get('tips', 'current').$value
+    if(tips){
+        tips.forEach(
+            item=>{
+                item.deleted=true
+            }
+        )
+    }
+}
+function clearFiltedTips(){
+    let tips = sac.statusMonitor.get('tips', 'current').$value || []
+    tips.filter(filter).forEach(
+            item=>{
+                item.deleted=true
+            }
+        )
+}
 </script>

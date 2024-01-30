@@ -127,6 +127,11 @@ export class 数据集 {
         // 确保特征向量名称数组中的元素是唯一的
         this.特征向量名称数组 = Array.from(new Set(this.特征向量名称数组));
         this.记录待保存数据项(数据集对象[数据项主键])
+        if(旧数据项){
+            sac.logger.databaseInfo('更新一个数据项',数据项.id)
+        }else{
+            sac.logger.databaseInfo('添加一个数据项',数据项.id)
+        }
     }
     async 添加数据(数据组) {
         if (!数据组[0]) {
