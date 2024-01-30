@@ -58,4 +58,23 @@ const 移除每个维度最低分的项目 = (待添加数组) => {
         }
     }
 };
+// 去重待添加数组中的元素，并去除description短于两个字符的元素
+export function 去重待添加数组(待添加数组) {
+    待添加数组 = 待添加数组.reduce((unique, item) => {
+        if (item.description && item.description.length < 2) {
+            return unique; // 如果description短于两个字符，则不添加到数组中
+        }
+        let isDuplicate = unique.some(
+            //同源且同描述的tips会被视为重复而清除
+            u => u.source === item.source
+                &&
+                u.description === item.description && !item.pined
+        );
+        if (!isDuplicate && !item.deleted) {
+            unique.push(item);
+        }
+        return unique;
+    }, []);
+    sac.statusMonitor.set('tips', 'current', 待添加数组);
+}
 

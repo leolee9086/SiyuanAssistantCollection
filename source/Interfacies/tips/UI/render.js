@@ -5,6 +5,7 @@ import { 学习新词组 } from "../../../utils/tokenizer/learn.js";
 import { sacClusterChannel_Tips } from "../../../utils/cluster.js/channels.js";
 import { 准备渲染项目 } from "../utils/item.js";
 import { 限制待添加数组长度 } from "./cleaner.js";
+import { 去重待添加数组 } from "./cleaner.js";
 export let 待添加数组 = sac.statusMonitor.get('tips', 'current').$value || []
 export async function 处理并显示tips(data, 编辑器上下文, renderInstance) {
     data.source = renderInstance.name
@@ -30,26 +31,6 @@ export async function 处理并显示tips(data, 编辑器上下文, renderInstan
         requestIdleCallback(() => { 学习新词组(text) })
     }
 }
-// 去重待添加数组中的元素，并去除description短于两个字符的元素
-function 去重待添加数组() {
-    待添加数组 = 待添加数组.reduce((unique, item) => {
-        if (item.description && item.description.length < 2) {
-            return unique; // 如果description短于两个字符，则不添加到数组中
-        }
-        let isDuplicate = unique.some(
-            //同源且同描述的tips会被视为重复而清除
-            u => u.source === item.source
-                &&
-                u.description === item.description&&!item.pined
-        );
-        if (!isDuplicate && !item.deleted) {
-            unique.push(item);
-        }
-        return unique;
-    }, []);
-    sac.statusMonitor.set('tips', 'current', 待添加数组)
-}
-
 let tips整理中 = false;
 let controller = new AbortController();
 async function 批量渲染() {
@@ -63,7 +44,7 @@ async function 批量渲染() {
     const { signal } = newController;
     try {
         const startTime = performance.now();
-        requestIdleCallback(去重待添加数组);
+        requestIdleCallback(()=>去重待添加数组(待添加数组));
         requestIdleCallback(() => 排序待添加数组(待添加数组, signal));
         const endTime = performance.now();
         if (endTime - startTime > 50) {
