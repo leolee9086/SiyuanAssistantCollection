@@ -44,29 +44,30 @@ async function 批量渲染() {
     const { signal } = newController;
     try {
         const startTime = performance.now();
-        requestIdleCallback(()=>去重待添加数组(待添加数组));
-        requestIdleCallback(() => 排序待添加数组(待添加数组, signal));
+        待添加数组=await 去重待添加数组(待添加数组)
+        待添加数组=await 排序待添加数组(待添加数组, signal)
         const endTime = performance.now();
         if (endTime - startTime > 50) {
             let time = endTime - startTime;
             let avgTimePerItem = time / 待添加数组.length;
             let newLength;
-            if (avgTimePerItem > SOME_THRESHOLD) {
+            if (avgTimePerItem > 10) {
                 newLength = Math.floor(待添加数组.length * 0.9); // reduce length by 10%
-            } else if (avgTimePerItem < SOME_OTHER_THRESHOLD) {
+            } else if (avgTimePerItem < 5) {
                 newLength = Math.floor(待添加数组.length * 1.1); // increase length by 10%
             } else {
                 newLength = 待添加数组.length; // keep the same length
             }
             // 如果去重和排序操作耗时超过100毫秒，清空数组
-            限制待添加数组长度(待添加数组,newLength);
+            待添加数组=await 限制待添加数组长度(待添加数组,newLength);
         } else {
-            限制待添加数组长度(待添加数组);
+            待添加数组=await 限制待添加数组长度(待添加数组);
         }
 
         sac.statusMonitor.set('tips', 'current', 待添加数组);
     } catch (e) {
         // 错误处理
+        console.error(e)
     } finally {
         // 无论成功或失败，都重置控制器和标志
         controller = newController;

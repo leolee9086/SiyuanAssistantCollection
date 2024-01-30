@@ -5,7 +5,6 @@ import { 更新并检查分词差异 } from '../../utils/tokenizer/diff.js';
 import { 在空闲时间执行任务 } from '../../utils/functionAndClass/idleTime.js';
 import { text2vec } from '../../Processors/AIProcessors/publicUtils/endpoints.js';
 import { 创建编辑器上下文 } from '../../utils/context/editorContext.js';
-import { withPerformanceLogging } from '../../utils/functionAndClass/performanceRun.js';
 import { 创建任务队列 } from './task.js';
 let 键盘tips数组 = []
 sac.statusMonitor.set('tips', 'current', 键盘tips数组)

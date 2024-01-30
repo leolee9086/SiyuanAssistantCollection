@@ -23,7 +23,9 @@ export async function 限制待添加数组长度(tips数组,num) {
             .sort((a, b) => a - b) // 按原索引升序排序以保持原顺序
             .map(index => tips数组[index]);
     }
-    sac.statusMonitor.set('tips', 'current', tips数组);
+    //sac.statusMonitor.set('tips', 'current', tips数组);
+
+    return tips数组
 }
 const 移除每个维度最低分的项目 = (tips数组) => {
     // 找出所有存在的维度
@@ -52,6 +54,8 @@ const 移除每个维度最低分的项目 = (tips数组) => {
             }
         }
     }
+
+    return tips数组
 };
 // 去重待添加数组中的元素，并去除description短于两个字符的元素
 export function 去重待添加数组(tips数组) {
@@ -70,6 +74,8 @@ export function 去重待添加数组(tips数组) {
         }
         return 去重结果;
     }, []);
-    sac.statusMonitor.set('tips', 'current', tips数组);
+    //sac.statusMonitor.set('tips', 'current', tips数组);
+
+    return tips数组
 }
 

@@ -42,6 +42,7 @@ export const 排序待添加数组 = async (待添加数组) => {
       return b.score - a.score;
     }
   });
+  return 待添加数组
 };
 
 function getCurrentEditorElementContent() {
