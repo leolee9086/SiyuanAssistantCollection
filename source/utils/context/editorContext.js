@@ -1,7 +1,7 @@
 import { sac } from '../../asyncModules.js';
 import { 获取光标所在位置 } from '../rangeProcessor.js';
 import { 使用结巴拆分元素 } from '../tokenizer/jieba.js';
-import BlockHandler from '../BlockHandler.js';
+import BlockHandler from '../NoteData/BlockHandler.js';
 import { 获取当前光标所在分词结果 } from '../rangeProcessor.js';
 import { withPerformanceLogging } from '../functionAndClass/performanceRun.js';
 // 通用逻辑函数

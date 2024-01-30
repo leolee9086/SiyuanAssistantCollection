@@ -2,7 +2,7 @@
 
 // 监听 click-blockicon 事件
 
-import BlockHandler from '../../../utils/BlockHandler.js'
+import BlockHandler from '../../../utils/NoteData/BlockHandler.js'
 import { sac } from '../../../asyncModules.js';
 // 处理 click-blockicon 事件的函数
 export  function handleBlockIconClick(data) {

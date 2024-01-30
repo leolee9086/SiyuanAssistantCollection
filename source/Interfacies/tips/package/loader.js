@@ -4,7 +4,7 @@ import { kernelWorker } from '../../../utils/webworker/kernelWorker.js';
 import { jieba } from '../../../utils/tokenizer/jieba.js';
 import { sac } from '../../../asyncModules.js';
 import {  处理并显示tips } from '../UI/render.js';
-import BlockHandler from '../../../utils/BlockHandler.js';
+import BlockHandler from '../../../utils/NoteData/BlockHandler.js';
 import { actionsRouter,actionFetch,postAction } from '../actionRouter.js/index.js';
 export const renderInstancies = []
 // 定义加载渲染实例的函数
