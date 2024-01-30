@@ -9,7 +9,6 @@ import { compose } from "../routerUtils.js";
 import { context } from "./context.js";
 import request  from './request.js'
 import response from "./response.js";
-import { debug } from "../debug.js";
 import http from './http.js'
 export {HttpError}
 
@@ -32,6 +31,8 @@ export default class Application extends EventEmitter {
         this.request = Object.create(request);
         //这里需要一个兼容浏览器与node的response对象
         this.response = Object.create(response);
+        //使用注入的logger模块
+        this.logger=options.logger
         //这里在koa中主要是用于兼容util.inspect方法
         if (globalThis.util&&util.inspect.custom) {
             this[util.inspect.custom] = this.inspect;
@@ -48,7 +49,7 @@ export default class Application extends EventEmitter {
     listen(...args) {
         //类似的,这里在浏览器端也是不可用的
         if (window.require) {
-            debug('listen')
+            this.logger?this.logger.koaDebug('listen'):null
             const server = http.createServer(this.callback())
             return server.listen(...args)
         }
@@ -67,7 +68,7 @@ export default class Application extends EventEmitter {
     //koa的use,只能接受函数
     use(fn) {
         if (typeof fn !== 'function') throw new TypeError('middleware must be a function!')
-        debug('use %s', fn._name || fn.name || '-')
+        this.logger?this.logger.koaDebug('use %s', fn._name || fn.name || '-'):null
         this.middleware.push(fn)
         return this
     }

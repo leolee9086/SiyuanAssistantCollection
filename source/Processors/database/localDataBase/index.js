@@ -1,5 +1,6 @@
-import logger from '../../../logger/index.js'
+import { sac } from '../../../asyncModules.js';
 import { 数据集 } from './collection.js';
+const logger =  sac.logger
 globalThis._blockActionDataBase = globalThis._blockActionDataBase || {}
 export class 数据库 {
     constructor(文件保存地址) {

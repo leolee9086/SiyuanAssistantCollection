@@ -1,5 +1,5 @@
-import logger from '../../../../../logger/index.js'
-
+import { sac } from "../../../runtime.js";
+const logger=sac.logger
 const handler = {
     get: function(target, prop, receiver) {
         if (typeof target[prop] === 'function') {

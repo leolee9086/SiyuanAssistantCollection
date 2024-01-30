@@ -1,5 +1,4 @@
 import { plugin,Constants,kernelApi,clientApi } from "../../asyncModules.js";
-import logger from "../../logger/index.js";
 //import { 渲染块标菜单 as 渲染动作块标菜单 } from "../UI/menus/menuWrapper.js";
 //import { setSync } from "../fileSysManager/index.js";
 import path from '../../polyfills/path.js';
@@ -14,7 +13,6 @@ export {
     Constants,
     kernelApi,
     clientApi,
-    logger,
     path,
     fs,
     plugin as sac

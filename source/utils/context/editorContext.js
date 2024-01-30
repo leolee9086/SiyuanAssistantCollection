@@ -1,16 +1,13 @@
 import { sac } from '../../asyncModules.js';
 import { 获取光标所在位置 } from '../rangeProcessor.js';
 import { 使用结巴拆分元素 } from '../tokenizer/jieba.js';
-import BlockHandler from '../NoteData/BlockHandler.js';
 import { 获取当前光标所在分词结果 } from '../rangeProcessor.js';
-import { withPerformanceLogging } from '../functionAndClass/performanceRun.js';
 // 通用逻辑函数
 export async function 创建编辑器上下文() {
   let { pos, editableElement, blockElement } = 获取光标所在位置();
   if (!editableElement) {
     return null;
   }
-
   // 使用代理延迟分词结果的生成，并确保结果生成后不再变化
   const 分词结果代理 = new Proxy({}, {
     get: async (target, property) => {
@@ -23,7 +20,7 @@ export async function 创建编辑器上下文() {
       return target[property];
     }
   });
-
+  
   return {
     position: pos,
     text: editableElement.innerText,

@@ -4,7 +4,8 @@ import fs from '../../../../polyfills/fs.js';
 import path from '../../../../polyfills/path.js'
 import { 柯里化 } from '../../../../utils/functionTools.js'
 import moduleCache from "./moduleCache.js";
-import { logger } from "../../../../logger/index.js";
+import { sac } from "../../../../asyncModules.js";
+const{logger}= sac
 const getObject = (currentFile, key) => {
     const api = moduleCache
     // 如果 key 是一个相对路径，解析它

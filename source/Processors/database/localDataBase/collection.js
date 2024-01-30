@@ -1,4 +1,3 @@
-import logger from '../../../logger/index.js';
 import jsonSyAdapter from './workspaceAdapters/jsonAdapter.js';
 import msgSyAdapter from './workspaceAdapters/msgAdapter.js';
 import { 校验主键 } from './keys.js';
@@ -13,6 +12,7 @@ import fs from '../../../polyfills/fs.js';
 import { 获取数据项所在hnsw层级, 获取随机层级 } from "./hnswlayers/utils.js";
 import { withPerformanceLogging } from '../../../utils/functionAndClass/performanceRun.js';
 import { 删除数据项hnsw索引 } from './hnswlayers/build.js';
+const {logger}=sac
 let 命名常量 = {
     主键名: "id"
 }

@@ -1,29 +1,5 @@
 import {plugin, sac} from './runtime.js'
-/*document.addEventListener(
-    "keydown",
-    async (e) => {
-        if (e.code && (e.code === "ArrowUp" || e.code === "ArrowDown")) {
-            return
-        }
-        plugin.tokenMenu && plugin.tokenMenu.menu ? plugin.tokenMenu.menu.remove() : null
-        if (e.code === "Space" || e.code === "Enter") {
-            // 触发菜单的 runAction 方法
-            if (plugin.currentHintAction && plugin.currentHintAction.runAction) {
-                e.preventDefault(); // 阻止原生事件的默认行为
-                e.stopPropagation()
-                e.stopImmediatePropagation()
-                try {
-                    plugin.tokenMenu && plugin.tokenMenu.menu && plugin.tokenMenu.menu.remove(); // 移除菜单
-                    plugin.currentHintAction.runAction();
 
-                } catch (e) {
-                    logger.eventwarn(e)
-                }
-            }
-        }
-    },
-    { capture: true }
-);*/
 export const DOM键盘事件表={
     键盘按下:'keydown-document',
     键盘释放:'keyup-document',

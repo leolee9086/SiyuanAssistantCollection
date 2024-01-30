@@ -1,5 +1,4 @@
 import { MinHeap as 最小堆 } from "../../../utils/Array/minHeap.js";
-import { sac } from "../runtime.js";
 // 限制待添加数组的长度，只保留最新的10个元素，同时保持原有顺序
 export async function 限制待添加数组长度(tips数组,num) {
     if (tips数组.length > (num || 1000)) {

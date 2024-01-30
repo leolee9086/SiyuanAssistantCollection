@@ -81,6 +81,7 @@ border-bottom:1px dashed var(--b3-theme-primary-light)">
 import defineProps from 'vue'
 import { 高亮块元素 } from '../../../../utils/DOM/style.js'
 import { 打开tips右键菜单 } from '../../UI/tipsContextMenu.js'
+import { 切换钉住状态 } from '../../utils/item.js';
 function 高亮目标块(item) {
     if (item.targetBlocks) {
         高亮块元素(item.targetBlocks)

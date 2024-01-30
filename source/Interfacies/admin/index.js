@@ -51,7 +51,7 @@ export const Emitter = class {
     }
     ['@main-click-berry-button']=(e)=>{
         this.emit('open-tab',{
-            'title':'扩展包管理',
+            'title':'sac日志',
             "type":'loggerList'
         })
     }

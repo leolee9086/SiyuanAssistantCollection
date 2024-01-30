@@ -1,5 +1,4 @@
 import { plugin } from "./runtime.js";
-import { logger } from "./runtime.js";
 import * as 插件基础事件列表 from './SiyuanBaseEventTypeList.js'
 export class EventEmitter {
     constructor(channel, 事件类型表) {

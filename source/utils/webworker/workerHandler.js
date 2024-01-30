@@ -1,9 +1,9 @@
-import logger from "../../logger/index.js";
+import { sac } from "../../asyncModules.js";
 import { 计算cpu核心数量 } from "../os/cpu.js";
 import { 正规化URL } from "../url.js";
 import { stringifyWithFunctions } from "./serilizer.js";
+const logger = sac.logger
 let worker线程池 = {}
-
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
 worker线程池 = globalThis[Symbol.for('_worker线程池_')] || worker线程池
@@ -112,11 +112,13 @@ export const 使用worker处理数据 = async (数据组, 处理器文件地址,
 // 处理单个任务
 async function 处理单个任务(worker, 数据组, 任务名) {
   try {
-    logger.log(worker, 数据组, 任务名)
+    
+    //logger.workerHandlerlog(worker, 数据组, 任务名)
     let result = await worker.处理任务(数据组, 任务名);
     return { status: 'fulfilled', value: result };
   } catch (error) {
-    logger.error(`处理任务时出错: ${error}`);
+    logger.workerHandlererror(`处理任务时出错: ${error}`);
+    console.error(worker,数据组,任务名)
     return { status: 'rejected', reason: error };
   }
 }
