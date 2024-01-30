@@ -1,4 +1,4 @@
-import { plugin } from "../../asyncModules.js";
+import { plugin } from "../../source/asyncModules.js";
 import throneManager from '../../throne/index.js'
 const element = await plugin.statusMonitor.get('dockContainers', 'main').$value;
 element?(await throneManager.buildDoll(await plugin.configurer.get('聊天工具设置', '默认AI').$value
