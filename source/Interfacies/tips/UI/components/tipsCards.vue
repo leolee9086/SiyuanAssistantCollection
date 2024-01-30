@@ -94,7 +94,6 @@ function startUpdating(e) {
 }
 function filter(item){
     let flag = item && item.id && item.description && (currentSourcies.value.includes(item.source) || currentSourcies.value.length === 0)
-
     return flag && String(item.description).indexOf(String(query.value)) > -1;
 }
 function fetchData() {
