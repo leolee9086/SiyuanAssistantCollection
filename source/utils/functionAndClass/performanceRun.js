@@ -1,4 +1,3 @@
-import { sac } from "../../asyncModules.js";
 const functionPerformance = new Map();
 export function withPerformanceLogging(fn) {
   return function(...args) {
@@ -11,7 +10,6 @@ export function withPerformanceLogging(fn) {
       functionPerformance.set(fn, executionTime);
       console.log(`Function ${fn.name || 'anonymous'} took ${executionTime} milliseconds.n/${(new Error()).stack}`);
     };
-
     if (result instanceof Promise) {
       // 处理异步函数
       return result.then(res => {

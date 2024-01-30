@@ -1,6 +1,6 @@
-import { plugin } from "../../asyncModules.js";
-import { 智能防抖 } from "../../utils/functionTools.js";
-import logger from '../../logger/index.js'
+import { plugin } from "../../source/asyncModules.js";
+import { 智能防抖 } from "../../source/utils/functionTools.js";
+import logger from '../../source/logger/index.js'
 let container
 let pinnedContainer
 let element
