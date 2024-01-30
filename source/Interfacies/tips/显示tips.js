@@ -38,7 +38,6 @@ export let 显示actions并生成tips渲染任务 = async (flag) => {
   // 为当前任务创建一个新的AbortController
   abortController = new AbortController();
   signal = abortController.signal;
-
   if (!flag) {
     if (任务生成中) {
       console.log("上一轮任务还在生成中")
@@ -52,8 +51,8 @@ export let 显示actions并生成tips渲染任务 = async (flag) => {
     }
     任务生成中 = false
   }
-
 }
+
 let 创建编辑器上下文并触发任务生成 = async (signal) => {
   if (signal.aborted) {
     return
@@ -64,7 +63,6 @@ let 创建编辑器上下文并触发任务生成 = async (signal) => {
     requestIdleCallback(() => 生成tips渲染任务(编辑器上下文, signal))
   }
   任务生成中 = false
-
 }
 
 let 正在生成编辑器向量

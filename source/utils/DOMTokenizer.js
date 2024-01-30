@@ -82,7 +82,6 @@ export const getLineRects = (range) => {
     const startOffset = startLineRange.startOffset;
     const endContainer = endLineRange.endContainer;
     const endOffset = endLineRange.endOffset;
-
     // Get the range of each character
     let currentNode = startContainer;
     let currentOffset = startOffset;
