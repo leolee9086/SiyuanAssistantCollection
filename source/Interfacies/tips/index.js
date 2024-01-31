@@ -11,6 +11,8 @@ import { initVueApp } from "../../UITools/loader/VueComponentsLoader.js"
 import { 输入事件发生在protyle内部 } from '../../utils/events/isIn.js';
 import '../../utils/tokenizer/learn.js'
 //markElementIfMouseOver(document);
+import buildMenu from '../../UITools/palette/index.js';
+buildMenu('sac')
 await sac.statusMonitor.set('tips', 'current', [])
 export const packages = [tipsRenderPackage]
 const 构建tips显示界面 = (element, data) => {
@@ -57,32 +59,32 @@ export const Emitter = class {
     }
     channel = 'tips-ui';
     ["@main-" + sac.事件管理器.DOM键盘事件表.文本输入] = (e) => {
-        if (输入事件发生在protyle内部) {
+        if (输入事件发生在protyle内部(e)) {
             显示actions并生成tips渲染任务()
         }
     }
     ["@main-" + sac.事件管理器.DOM键盘事件表.组合结束] = (e) => {
-        if (输入事件发生在protyle内部) {
+        if (输入事件发生在protyle内部(e)) {
             显示actions并生成tips渲染任务()
         }
     }
     ["@main-" + sac.事件管理器.DOM键盘事件表.键盘按下] = (e) => {
-        if (输入事件发生在protyle内部) {
+        if (输入事件发生在protyle内部(e)) {
             显示actions并生成tips渲染任务(true)
         }
     }
     ["@main-" + sac.事件管理器.DOM键盘事件表.键盘释放] = (e) => {
-        if (输入事件发生在protyle内部) {
+        if (输入事件发生在protyle内部(e)) {
          //   显示actions并生成tips渲染任务(true)
         }
     }
     ["@main-" + sac.事件管理器.DOM键盘事件表.组合更新] = (e) => {
-        if (输入事件发生在protyle内部) {
+        if (输入事件发生在protyle内部(e)) {
             显示actions并生成tips渲染任务()
         }
     }
     ["@main-" + sac.事件管理器.DOM键盘事件表.组合开始] = (e) => {
-        if (输入事件发生在protyle内部) {
+        if (输入事件发生在protyle内部(e)) {
             显示actions并生成tips渲染任务(true)
         }
     }

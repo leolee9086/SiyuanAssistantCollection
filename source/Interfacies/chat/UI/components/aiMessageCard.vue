@@ -3,7 +3,6 @@
         <div class="user-message-header fn__flex">
             <div class="fn__space fn__flex-1"></div>
             <span class="sac-user-name">paimon</span>
-
             <span class="user-avatar b3-tooltips b3-tooltips__nw block__icon block__icon--show" alt="User's avatar">
                 <svg class="b3-tooltips b3-tooltips__nw block__icon block__icon--show">
                     <use xlink:href="#iconAccount">

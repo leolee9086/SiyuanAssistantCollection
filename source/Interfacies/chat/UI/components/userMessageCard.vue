@@ -38,9 +38,9 @@
     </div>
 </template>
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted,defineProps } from 'vue';
 import { sac, clientApi } from 'runtime';
-
+const {message}= defineProps(['message'])
 
 const user = ref({
     name: 'Jane Doe',
@@ -49,11 +49,6 @@ const user = ref({
 const isEditing = ref(false);
 const editableContent = ref('');
 
-const message = ref({
-    id: 'msg-123',
-    content: 'This is a mock message content.',
-    timestamp: new Date().toISOString() // ISO string of the current date and time
-});
 const editMessage = (messageId) => {
     isEditing.value = true;
     editableContent.value = message.value.content; // Copy the current message content to the editable field

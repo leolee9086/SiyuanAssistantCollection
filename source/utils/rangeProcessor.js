@@ -145,7 +145,7 @@ export function 获取选区屏幕坐标(nodeElement, range) {
 // 辅助方法,限制范围在指定元素内
 export function 获取元素内文字选区偏移(element) {
   let caretOffset = 0;
-  const doc = element.ownerDocument || element.document;
+  const doc = element.ownerDocument || element.document||document;
   const win = doc.defaultView || doc.parentWindow;
   let sel;
   if (typeof win.getSelection != "undefined") {

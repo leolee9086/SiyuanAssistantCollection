@@ -4,8 +4,6 @@
             <template v-for="message in messages">
                 <component :is="message.role==='assistant'?aiMessageCard:userMessageCard" :message="message"></component>
             </template>
-            <userMessageCard></userMessageCard>
-            <aiMessageCard v-if="message" :message="message"></aiMessageCard>
         </div>
         <div v-if="error">{{ error }}</div>
         <div class='user-input-container'>
@@ -20,27 +18,33 @@
     </div>
 </template>
 <script setup>
-import {ref} from 'vue'
+import { ref, reactive } from 'vue'
 import { sac } from '../../../../asyncModules.js';
 import userMessageCard from './userMessageCard.vue';
 import aiMessageCard from './aiMessageCard.vue';
 import { postChatMessage } from '../../../../Processors/AIProcessors/publicUtils/endpoints.js'
 import { completeHistory } from '../utils/session.js';
-const messages = ref([])
-const message = ref({})
-const error  =ref('')
+const messages = reactive([])
+const error = ref('')
 const inputter = ref(null)
-let data = {
-    model: 'zhipu-chatglm-pro',
-    messages: [{ role: "user", content: "你是谁" }],
+let buildMessage = (role, content) => {
+    return {
+        role,
+        content,
+        id: Lute.NewNodeID(),
+        timestamp: new Date().toISOString(), // ISO string of the current date and time,
+        neighbors: { previous: [], next: [] },
+        vector: {}
+    }
 }
-const postMessage = async() => {
+const postMessage = async () => {
     error.value = ''
-    try{
-    data.content = inputter.value.value
-    let res= await postChatMessage(data)
-    messages.value.push(res.choices[0].message)
-    }catch(e){
+    try {
+        messages.push(buildMessage('user', inputter.value.value))
+        let res = await postChatMessage({ model: 'zhipu-chatglm-pro', messages })
+        let {message}=res.choices[0]
+        messages.push(buildMessage(message.role,message.content))
+    } catch (e) {
         sac.logger.error(e)
         error.value = e
     }
