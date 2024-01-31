@@ -11,6 +11,14 @@
             <input v-model="query"/>
             <div class="fn__space fn__flex-1"></div>
             <span>
+                <input 
+                class="b3-switch fn__flex-center" 
+                id="heading" 
+                type="checkbox" 
+                v-model="needAction">
+            </span>
+            <div class="fn__space"></div>
+            <span>
                 <svg class="block__logoicon" 
                 @click="clearAlltips"
                 @click.right="clearFiltedTips"
@@ -75,6 +83,7 @@ if (appData?.source) {
     currentSourcies.value.push(appData.source)
 }
 const tipsSourcies = ref([])
+const needAction =ref(null)
 const difference = computed(() => {
     return tipsSourcies.value.filter(source => !currentSourcies.value.includes(source));
 });
@@ -102,6 +111,9 @@ function startUpdating(e) {
 }
 function filter(item){
     let flag = item && item.id && item.description && (currentSourcies.value.includes(item.source) || currentSourcies.value.length === 0)
+    if(needAction.value){
+        flag =flag&&( item.action?true:false)
+    }
     return flag && String(item.description).indexOf(String(query.value)) > -1;
 }
 function fetchData() {
