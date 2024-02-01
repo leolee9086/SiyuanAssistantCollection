@@ -1,17 +1,36 @@
-let blocksMenu =(block)=>{
+let blocksMenu =(block,getBlockHandler)=>{
     return [
         {
             icon:"",
-            label:"打开所在的块",
+            label:`打开:${block.content.substring(0,16)}`,
             click:()=>{
                 if(window.require){
                     window.open(`siyuan://blocks/${block.id}`)
                 }
             }
+        },
+        {
+            icon:"",
+            label:`删除:${block.content.substring(0,16)}`,
+            click:()=>{
+                if(window.require){
+                    window.open(`siyuan://blocks/${block.id}`)
+                }
+                getBlockHandler(block.id).remove()                
+            }
+        },
+        {
+            icon:"",
+            label:`固定到边栏:${block.content.substring(0,16)}`,
+            click:()=>{
+                if(window.require){
+                    window.open(`siyuan://blocks/${block.id}`)
+                }
+                getBlockHandler(block.id).remove()                
+            }
         }
     ]
 }
-
 export const tipsRender = class {
     async renderEditorVectorTips(editorContext) {
         try {
@@ -29,7 +48,7 @@ export const tipsRender = class {
                 data.item = data.item.map(item => {
                     item.targetBlocks = [editorContext.blockID];
                     item.vector = item.block.vector;
-                    item.contextMenu=blocksMenu(item)
+                    item.contextMenu=blocksMenu(item.block,this.getBlockHandler)
                     return item;
                 });
                 this.showTips(data, editorContext);

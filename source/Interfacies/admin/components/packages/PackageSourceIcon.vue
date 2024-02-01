@@ -39,7 +39,6 @@ watch(packageInfo, (newVal) => {
 }, { immediate: true });
 
 const openRemote = (packageInfo)=>{
-    console.log(packageInfo)
     window.open(packageInfo.url)
 }
 </script>

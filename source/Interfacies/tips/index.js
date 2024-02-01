@@ -11,8 +11,6 @@ import { initVueApp } from "../../UITools/loader/VueComponentsLoader.js"
 import { 输入事件发生在protyle内部 } from '../../utils/events/isIn.js';
 import '../../utils/tokenizer/learn.js'
 //markElementIfMouseOver(document);
-import buildMenu from '../../UITools/palette/index.js';
-buildMenu('sac')
 await sac.statusMonitor.set('tips', 'current', [])
 export const packages = [tipsRenderPackage]
 const 构建tips显示界面 = (element, data) => {
@@ -25,10 +23,26 @@ const 构建tips显示界面 = (element, data) => {
     )
     app.mount(element.querySelector('#SAC-TIPS'))
 }
+const 构建内容详情面板 =(element,data)=>{
+    let app = initVueApp(
+        import.meta.resolve('./UI/components/contentList.vue'),
+        "content-sideCar",
+        {},
+        sac.localPath+'/source',
+        {appData:data}
+    )
+    app.mount(element)
+}
 export const docks = {
     TipsMain: {
         async init(element) {
             构建tips显示界面(element)
+        }
+    },
+    sideCar:{
+        async init(element){
+            console.log(element)
+            构建内容详情面板(element)
         }
     }
 }
@@ -75,7 +89,7 @@ export const Emitter = class {
     }
     ["@main-" + sac.事件管理器.DOM键盘事件表.键盘释放] = (e) => {
         if (输入事件发生在protyle内部(e)) {
-         //   显示actions并生成tips渲染任务(true)
+            显示actions并生成tips渲染任务(true)
         }
     }
     ["@main-" + sac.事件管理器.DOM键盘事件表.组合更新] = (e) => {

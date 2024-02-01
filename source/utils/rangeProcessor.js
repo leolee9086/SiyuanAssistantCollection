@@ -66,15 +66,19 @@ export function getEditorRange(nodeElement) {
   return range;
 }
 export function 获取选区屏幕坐标(nodeElement, range) {
-    if (!range) {
+    if (nodeElement&&!range) {
       range = getEditorRange(nodeElement);
     }
-    if (!nodeElement.contains(range.startContainer)) {
+    if(!range){
+      range = window.getSelection().getRangeAt(0)
+    }
+    if (nodeElement&&!nodeElement.contains(range.startContainer)) {
       return {
         left: 0,
         top: 0,
       };
     }
+  
     let cursorRect;
     if (range.getClientRects().length === 0) {
       if (range.startContainer.nodeType === 3) {

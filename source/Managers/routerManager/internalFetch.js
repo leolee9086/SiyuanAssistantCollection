@@ -30,7 +30,6 @@ export const internalFetch = async (path, options = {}, router,user) => {
         }
       } catch (e) {
         reject(new Error('503 server Error'+e));
-
       }
     });
   });

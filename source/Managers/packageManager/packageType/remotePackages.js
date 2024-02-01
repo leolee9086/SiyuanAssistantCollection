@@ -4,7 +4,7 @@ import { getAdapters } from "../adapters/index.js";
 export function genRemote(packageDefine){
     return {
         async listFromAllRemoteSource() {
-            console.log(packageDefine)
+            console.log(packageDefine.adapters)
             const cacheFilePath = `/temp/noobCache/bazzar/${packageDefine.topic}/cache.json`;
             let adapterNames = packageDefine.adapters
             let PackageRegistryRemoteAdapters = await getAdapters(adapterNames)

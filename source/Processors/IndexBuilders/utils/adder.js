@@ -1,8 +1,5 @@
 import * as cheerio from '../../../../static/cheerio.js'
 import { sac } from "../../../asyncModules.js";
-import { withPerformanceLogging } from '../../../utils/functionAndClass/performanceRun.js';
-//import { 为索引记录准备索引函数 } from "./indexer.js";
-import { 逆序柯里化 } from "../../../utils/functionTools.js";
 import { 学习新词组 } from '../../../utils/tokenizer/learn.js';
 import { kernelWorker } from "../../../utils/webworker/kernelWorker.js";
 import { text2vec } from '../../AIProcessors/publicUtils/endpoints.js';
@@ -49,7 +46,6 @@ const 处理入库队列 = async () => {
         return
     }
     正在入库中 = true
-    console.log(间隔时间)
     if (待入库序列.size > 0) {
         let firstBlockEntry = 待入库序列.entries().next().value;
         let firstBlockId = firstBlockEntry[0];
@@ -57,7 +53,7 @@ const 处理入库队列 = async () => {
         // 这里进行添加操作
         try {
             let 入库开始时间 = performance.now()
-            await withPerformanceLogging(添加块到数据库)(firstBlock); // 假设你的添加操作函数名为添加操作
+            await 添加块到数据库(firstBlock); // 假设你的添加操作函数名为添加操作
             // 添加操作完成后，从待入库序列中删除这个块
             待入库序列.delete(firstBlockId);
             let 入库结束时间 = performance.now()

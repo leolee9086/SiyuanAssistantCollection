@@ -1,4 +1,4 @@
-import { got } from "../runtime.js";
+import { got, sac } from "../runtime.js";
 import { download } from "../downloader/downloader.js";
 import { kernelApi } from "../runtime.js";
 // 获取最新发布版本的信息
@@ -56,7 +56,7 @@ export async function getReposInfoByTopic(topic, metaFile) {
             const releaseResponse = await got(releaseUrl);
             releaseData = JSON.parse(releaseResponse.body);
         } catch (e) {
-            console.warn(e, '未能正确获取包数据',repo)
+            sac.logger.packagewarn(e, '未能正确获取包数据',repo.name)
 
             return undefined
         }
@@ -67,7 +67,7 @@ export async function getReposInfoByTopic(topic, metaFile) {
             const metaFileResponse = await got(metaFileUrl);
             metaData = await metaFileResponse.json();
         } catch (e) {
-            console.warn(e, '未能正确获取包元数据',repo)
+            sac.logger.packagewarn(e, '未能正确获取包元数据',repo.name)
         }
         return {
             url: `https://github.com/${repo.owner.login}/${repo.name}@${releaseData.tag_name}`,

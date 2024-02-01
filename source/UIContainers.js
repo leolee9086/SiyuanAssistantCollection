@@ -76,7 +76,6 @@ function 创建AI侧栏容器() {
   let chatDocks = []
   const DOCK_TYPE = 'SAC_CHAT'
   plugin.statusMonitor.set('docks', 'ai-chat', chatDocks)
-
   plugin.addDock({
     config: {
       position: "LeftBottom",
@@ -102,12 +101,39 @@ function 创建AI侧栏容器() {
   });
 }
 创建AI侧栏容器()
+//这个是边栏内容列表
+let tipsDocks = []
+plugin.statusMonitor.set('docks', 'tips-ui', tipsDocks)
 
+function 创建内容侧栏容器() {
+  let contentDocks = []
+  const DOCK_TYPE = 'sideCar'
+  plugin.addDock({
+    config: {
+      position: "LeftBottom",
+      size: { width: 200, height: 0 },
+      icon: "iconList",
+      title: "sideCar",
+    },
+    data: {
+      name: "sideCar",
+      channel: "tips-ui"
+    },
+    type: DOCK_TYPE,
+    init() {
+      this.element.innerHTML = `<div id="sac-interface" class='fn__flex-column' style="pointer-events: auto;overflow:hidden;max-height:100%"></div>`;
+      tipsDocks.push(this)
+      plugin.eventBus.emit('tips-ui-dock-container-inited', this)
+    
+    },
+    destroy() {
+      plugin.log("destroy dock:", DOCK_TYPE);
+    }
+  });
+}
+创建内容侧栏容器()
 //这个被用来创建tips侧栏容器
 function 创建TIPS侧栏容器() {
-  let tipsDocks = []
-  plugin.statusMonitor.set('docks', 'tips-ui', tipsDocks)
-
   const DOCK_TYPE = 'SAC_TIPS'
   plugin.addDock({
     config: {
@@ -124,7 +150,6 @@ function 创建TIPS侧栏容器() {
     init() {
       this.element.innerHTML = `
         <div class="fn__flex-1 fn__flex-column" style="max-height:100%">
-   
     <div id="sac-interface" class="fn__flex-1 fn__flex-column " style="min-height: auto;transition: var(--b3-transition)">
       <div id="SAC-TIPS_pinned"  style="overflow:auto;max-height:30%"></div>
       <div id="SAC-TIPS" class='fn__flex-1' style="overflow:auto;max-height:100%"></div>

@@ -6,25 +6,12 @@ import { 在空闲时间执行任务 } from '../../utils/functionAndClass/idleTi
 import { text2vec } from '../../Processors/AIProcessors/publicUtils/endpoints.js';
 import { 创建编辑器上下文 } from '../../utils/context/editorContext.js';
 import { 创建任务队列 } from './task.js';
+import { string2DOM } from '../../UITools/builders/index.js';
+import { hasClosestByAttribute } from '../../utils/DOM/DOMFinder.js';
+import {显示光标提示菜单} from './UI/tipsContextMenu.js'
 let 键盘tips数组 = []
 sac.statusMonitor.set('tips', 'current', 键盘tips数组)
 export let 上一个分词结果 = []
-let 小字元素 = document.createElement('div');
-
-async function 显示光标提示(编辑器上下文) {
-  // 创建新的 HTML 元素
-  小字元素.textContent = await sac.statusMonitor.get('meta', 'tokens').$value.size
-  小字元素.style.position = 'fixed';
-  小字元素.style.color = 'gray';
-  小字元素.style.fontSize = 'small';
-  // 获取光标所在位置的坐标
-  let 光标坐标 = 获取选区屏幕坐标(编辑器上下文.editableElement);
-  // 设置元素的位置
-  小字元素.style.left = `${光标坐标.left}px`;
-  小字元素.style.top = `${光标坐标.top}px`;
-  // 将元素添加到文档中
-  document.body.appendChild(小字元素);
-}
 //这样复制而不是全部复制是为了有机会大致检查一下
 let signal = {}
 let abortController = null;
@@ -37,15 +24,16 @@ export let 显示actions并生成tips渲染任务 = async (flag) => {
   // 为当前任务创建一个新的AbortController
   abortController = new AbortController();
   signal = abortController.signal;
+  显示光标提示菜单(signal)
   if (!flag) {
     if (任务生成中) {
       console.log("上一轮任务还在生成中")
       return
     }
     任务生成中 = true
-    try{
-    await 创建编辑器上下文并触发任务生成(signal)
-    }catch(e){
+    try {
+      await 创建编辑器上下文并触发任务生成(signal)
+    } catch (e) {
       console.error(e)
     }
     任务生成中 = false
@@ -58,7 +46,6 @@ let 创建编辑器上下文并触发任务生成 = async (signal) => {
   }
   let 编辑器上下文 = await 创建编辑器上下文()
   if (编辑器上下文) {
-    显示光标提示(编辑器上下文, "测试")
     requestIdleCallback(() => 生成tips渲染任务(编辑器上下文, signal))
   }
   任务生成中 = false
@@ -95,7 +82,7 @@ async function 生成tips渲染任务(编辑器上下文, signal) {
     })()
   }
   // 创建并执行tips渲染任务队列(编辑器上下文);
-  let 任务队列 =await  创建任务队列(编辑器上下文, renderInstancies,signal)
+  let 任务队列 = await 创建任务队列(编辑器上下文, renderInstancies, signal)
   在空闲时间执行任务(任务队列)
 }
 

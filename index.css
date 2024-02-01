@@ -183,3 +183,17 @@ div[custom-chat-role="assistant"] [contenteditable="true"]::before {
 .surface-::after{
     color:var(--b3-theme-surface-lighter);
 }
+
+
+
+
+.protyle-wysiwyg.protyle-wysiwyg--attr[custom-chat="true"]>:nth-child(odd) {
+    background-color:var(--b3-theme-primary);
+    margin-right: 30%;
+}
+  
+.protyle-wysiwyg.protyle-wysiwyg--attr[custom-chat="true"]>:nth-child(even) {
+    background-color:var(    --b3-theme-success);
+    margin-left: 30%;
+    text-align: right;
+  }

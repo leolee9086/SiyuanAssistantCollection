@@ -27,49 +27,39 @@ import { defineEmits, reactive, defineProps } from 'vue'
 import { sac } from 'runtime'
 const { topic } = defineProps(['topic'])
 let packageDefines = reactive({ value: {} })
-console.log(topic)
 const emit = defineEmits(['data-received', 'topic-change'])
 const topics = reactive({
     value: [
         'plugin', 'theme', 'widget', 'icon', 'template'
     ]
 })
-const currentTopic = reactive({ value: topic || "plugin" })
+const currentTopic = reactive({ value: topic || "siyuan-plugin" })
+const changeTopic = (topic) => {
+    currentTopic.value = topic
+    emit('topic-change', topic)
+    emit('data-received', [])
+}
 sac.路由管理器.internalFetch(`/packages/listPackageTypes`, {
     body: {
         page: 1
     }, method: 'POST'
 }).then(res => {
-    console.log("包类型更新:", res.body)
     packageDefines.value = res.body.data
     topics.value = Object.keys(res.body.data)
 })
 sac.eventBus.on('statusChange', (e) => {
-    console.log(e)
     if (e.detail && e.detail.name.startsWith(`packages`)) {
         sac.路由管理器.internalFetch(`/packages/listPackageTypes`, {
             body: {
                 page: 1
             }, method: 'POST'
         }).then(res => {
-            console.log("包类型更新:", res.body)
             packageDefines.value = res.body.data
             topics.value = Object.keys(res.body.data)
         })
     }
 })
-const changeTopic = (topic) => {
-    currentTopic.value = topic
-    emit('topic-change', topic)
-    emit('data-received', [])
 
-    sac.路由管理器.internalFetch(`/packages/${topic}/listRemote`, { method: "POST" }).then(
-        data => {
-            console.log(data.body)
-            emit('data-received', data.body)
-        }
-    )
-}
 const genClass = (topic) => {
     return currentTopic.value === topic ? "b3-button" : "b3-button b3-button--outline"
 }

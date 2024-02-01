@@ -35,7 +35,7 @@ function addHelpButton(menuContainer) {
     white-space: nowrap; 
     overflow: hidden;
     text-overflow: ellipsis; 
-    ">打开帮助</span></button>`)
+    ">这个是命令面板,点击这里可以打开帮助</span></button>`)
     button.addEventListener(
         'click', (e) => {
             plugin.eventBus.emit(`openHelp-plugin-${plugin.name}`)
@@ -46,9 +46,11 @@ function addHelpButton(menuContainer) {
 }
 function addPinEvent(menuContainer) {
     let container = menuContainer.element.querySelector(".b3-dialog__container");
+    menuContainer.bodyElement= container.querySelector(".b3-dialog__body")
+    menuContainer.headElement = container.querySelector('.b3-dialog__header')
     container.querySelector('.b3-dialog__header').addEventListener("dblclick", () => {
-        console.log(menu.pined);
-        menu.pined = !menu.pined;
+        console.log(menuContainer.pined);
+        menuContainer.pined = !menuContainer.pined;
     });
 }
 function addMouseoverEvent(menu) {
@@ -170,7 +172,7 @@ function addMoveTo(menuContainer){
 
 export const buildMenu = (title) => {
     if(!checkMenuStatus()){
-        return
+        return 
     }
     let menuContainer = createMenuContainer(title);
     setupMenu(menuContainer)

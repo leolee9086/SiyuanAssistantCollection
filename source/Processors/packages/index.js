@@ -119,6 +119,7 @@ const 包路由 = new sac.路由管理器.Router()
 })
 包路由.post('/:packageTypeTopic/checkInstall', async (ctx, next) => {
     let topic = ctx.params.packageTypeTopic
+    console.log(topic)
     let packageInfo = ctx.req.body
     let packageHandeler = 根据主题获取包管理器实例(topic)
     ctx.body = await packageHandeler.installer.checkInstall(packageInfo)

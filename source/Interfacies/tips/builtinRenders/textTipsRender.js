@@ -25,6 +25,8 @@ export const tipsRender = class {
                 //如果主动调用showTips函数的话,就必须给出编辑器上下文,否则会被直接忽略
                 res.body ? this.showTips(data,editorContext) : null
             }
-        )
+        ).catch(e=>{
+            
+        })
     }
 }

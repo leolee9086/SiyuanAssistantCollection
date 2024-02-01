@@ -31,6 +31,7 @@ function genLocalPackageOperations(packageDefine) {
         configs:{},
         status:{},
         async list() {
+            console.log(packageDefine)
             const dir = replacePath(packageDefine.location);
             const items = await fs.readDir(dir);
             if (items && items[0]) {
@@ -138,32 +139,39 @@ function genInstaller(packageDefine) {
 export const DefinePackagetype = (packageDefine = {}) => {
     // 判断 packageDefine 是否是一个类
     if (typeof packageDefine === 'function' ) {
+        packageDefine = new packageDefine();
+    }
+    let addPackageSourceFromUrl =async (url, type) => {
+        return await getReposFromURL(url, packageDefine.topic, type);
+    };
+    let remote = genRemote(packageDefine)
+    let installer =genInstaller(packageDefine)
+    let local =genLocalPackageOperations(packageDefine)
+    if (typeof packageDefine === 'function' ) {
         // 如果是，使用 new 创建一个新的实例
         // 将 local 等挂载到 packageDefine 上
         try{
-        packageDefine = new packageDefine();
         console.log(packageDefine,packageDefine.__proto__)
-
-        packageDefine.__proto__.addPackageSourceFromUrl = async (url, type) => {
-            return await getReposFromURL(url, packageDefine.topic, type);
-        };
-        packageDefine.__proto__.remote = genRemote(packageDefine);
-        packageDefine.__proto__.installer = genInstaller(packageDefine);
-        packageDefine.__proto__.local = genLocalPackageOperations(packageDefine);
+        packageDefine.__proto__.addPackageSourceFromUrl = addPackageSourceFromUrl
+        packageDefine.__proto__.remote = remote;
+        packageDefine.__proto__.installer = installer;
+        packageDefine.__proto__.local = local;
         }catch(e){
             throw  new Error("包类型定义错误",packageDefine,e)
         }
+    }else{
+        packageDefine.addPackageSourceFromUrl=addPackageSourceFromUrl
+        packageDefine.remote=remote
+        packageDefine.installer=installer
+        packageDefine.local=local
     }
     //补全默认的meta.json文件
     packageDefine = preparePackageDefine(packageDefine);
-    console.log(packageDefine)
     return {
         packageDefine,
-        async addPackageSourceFromUrl(url, type) {
-            return await getReposFromURL(url, packageDefine.topic, type)
-        },
-        remote: genRemote(packageDefine),
-        installer: genInstaller(packageDefine),
-        local: genLocalPackageOperations(packageDefine)
+        addPackageSourceFromUrl,
+        remote,
+        installer,
+        local
     };
 };
