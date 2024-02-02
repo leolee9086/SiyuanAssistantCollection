@@ -26,5 +26,7 @@ export const 启用收集protyle事件 = () => {
       paragraphBeginningSpace: protyle.options.preview.markdown.paragraphBeginningSpace,
       sanitize: protyle.options.preview.markdown.sanitize,
     }) : null;
+    
+    sac.statusMonitor.set('editor','current',protyle)
   });
 }
