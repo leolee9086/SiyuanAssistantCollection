@@ -21,8 +21,10 @@ import { 预览内容表 } from "../../contentPreview/contentList.js";
 import { kernelApi,sac } from 'runtime'
 let 内容列表 = ref(预览内容表)
 getContent()
-function getContent(){内容列表.value.forEach(
+function getContent(){
+    内容列表.value.forEach(
     listDefine => {
+
         if (listDefine.meta.contentFetcher) {
             (async () => {
                 listDefine.content = (await listDefine.meta.contentFetcher())||listDefine.content

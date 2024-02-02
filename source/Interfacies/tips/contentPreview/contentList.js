@@ -47,6 +47,7 @@ export let 预览内容表 = [
                         },
                         destroy: () => {
                             item._previewer.destroy()
+                            item._previewer=undefined
                             item._previewerContainer.innerHTML = ""
                             item._previewerDestroied.value = true
                         }
@@ -60,7 +61,6 @@ export let 预览内容表 = [
 ]
 sac.eventBus.on('statusChange', (e) => {
     if (e.detail.name === 'editor.current') {
-
         sac.statusMonitor.set('contentList', 'current', 预览内容表)
     }
 })

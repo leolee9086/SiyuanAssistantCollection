@@ -4,8 +4,8 @@
         <span 
         style="padding-left: 4px;margin-right: 2px" 
         class="b3-list-item__toggle b3-list-item__toggle--hl"
-        @click="props.itemDefine.previewer.destroy"
-        v-if="!props.itemDefine._previewerDestroied"
+        @click="()=>{fold(props.itemDefine)}"
+        v-if="!folded"
         >
         <svg data-id="DeepPose0" class="b3-list-item__arrow b3-list-item__arrow--open">
                 <use xlink:href="#iconRight"></use>
@@ -14,8 +14,8 @@
         <span 
         style="padding-left: 4px;margin-right: 2px" 
         class="b3-list-item__toggle b3-list-item__toggle--hl"
-        @click="()=>props.itemDefine.previewer.init(container)"
-        v-if="props.itemDefine._previewerDestroied"
+        @click="()=>{unfold(props.itemDefine)}"
+        v-if="folded"
         >
         <svg data-id="DeepPose0" class="b3-list-item__arrow ">
                 <use xlink:href="#iconRight"></use>
@@ -38,17 +38,20 @@
 import { defineProps, watch, ref, onMounted } from 'vue'
 const props = defineProps(["itemDefine"])
 const container = ref(null)
-const previewers = ref({})
+const folded=ref(true)
 onMounted(() => {
-    console.log(props.itemDefine,props.itemDefine.def_block_id, container.value)
     if (props.itemDefine.def_block_id && container.value) {
-        props.itemDefine._previewerDestroied=ref(true)
+        props.itemDefine._previewerDestroied=folded
     }
 })
+function fold(item){
+    item.previewer.destroy()
+    container.value.innerHTML=""
+    folded.value=true
+}
+function unfold(item){
+    item.previewer.init(container.value)
+    folded.value=false
+}
 
-watch(
-    props, (newVal, oldVal) => {
-        console.log(newVal, oldVal)
-    }, { deep: true }
-)
 </script>
