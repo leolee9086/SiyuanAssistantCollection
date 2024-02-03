@@ -2,7 +2,22 @@ import { string2DOM } from "../../../UITools/builders/index.js"
 import { clientApi, kernelApi, sac } from "../../../asyncModules.js"
 import { hasClosestByClassName } from "../../../utils/DOM/DOMFinder.js"
 import { buildProtylePreview } from "../../../utils/Previewer/blocks.js"
-
+const getCurrentTabEditor = ()=>{
+    let currentEditor = sac.statusMonitor.get('editor', 'current').$value
+    //只有在layout__center中的protyle才是普通tab页面中的
+    if (currentEditor && !hasClosestByClassName(currentEditor.element, "layout__center")) {
+        return
+    }
+    return currentEditor
+}
+const getCurrentTabEditorBlock=()=>{
+    let currentEditor = getCurrentTabEditor()
+    if(!currentEditor){
+        return
+    }else{
+        return currentEditor.block
+    }
+}
 export let 预览内容表 = [
     {
         "name": "正向链接",
@@ -10,23 +25,18 @@ export let 预览内容表 = [
         meta: {
             async contentFetcher() {
                 let content = []
-                let currentEditor = sac.statusMonitor.get('editor', 'current').$value
                 let currentEditorBlockId
-                if (currentEditor && !hasClosestByClassName(currentEditor.element, "layout__center")) {
-                    return
-                }
-                else if (currentEditor) {
-                    currentEditorBlockId = currentEditor.block.id
+                let currentEditorBlock = getCurrentTabEditorBlock()
+                if (currentEditorBlock) {
+                    currentEditorBlockId = currentEditorBlock.id
                 } else {
                     return
                 }
                 //清空旧的结果数组
                 content.length = 0
-
                 const webLinks  = await kernelApi.sql({
                     stmt:`select * from spans where root_id ="${currentEditorBlockId}"`
                 })
-                console.log(webLinks)
                 for await(let item of webLinks){
                     if(item.type==='textmark a'){
                         let link=sac.lute.Md2HTML(item.markdown)
@@ -101,6 +111,14 @@ export let 预览内容表 = [
             },
         }
     },
+    {
+        name:"正向提及",
+        meta:{
+            async contentFetcher(){
+                let content = []
+            }
+        }
+    }
 ]
 sac.eventBus.on('statusChange', (e) => {
     if (e.detail.name === 'editor.current') {
