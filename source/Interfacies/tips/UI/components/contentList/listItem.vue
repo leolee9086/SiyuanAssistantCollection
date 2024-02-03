@@ -22,7 +22,7 @@
             </svg>
         </span>
         <svg class="b3-list-item__graphic popover__block" data-id="20230118113834-r9ypxlj">
-            <use xlink:href="#iconFile"></use>
+            <use :xlink:href="props.itemDefine.icon?props.itemDefine.icon:'#iconFile'"></use>
         </svg>
         <span class="b3-list-item__text ariaLabel" data-position="parentE" aria-label="导入/DeepPose">
             {{ props.itemDefine.title }}
@@ -55,3 +55,8 @@ function unfold(item){
 }
 
 </script>
+<style scoped>
+    iframe{
+        scroll-margin: 0;
+    }
+</style>

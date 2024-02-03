@@ -5,8 +5,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { sac, clientApi } from 'runtime';
-console.log(clientApi)
-console.log(clientApi.Protyle)
 const Container = ref(null)
 onMounted(
     () => {

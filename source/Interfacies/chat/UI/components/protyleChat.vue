@@ -32,7 +32,6 @@ onMounted(
                     },
                 }
                 )
-                console.log(protyleEditor, protyleEditor.protyle.element)
 
             }
 

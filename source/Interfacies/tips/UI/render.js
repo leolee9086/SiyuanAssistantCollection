@@ -44,8 +44,8 @@ async function 批量渲染() {
     const { signal } = newController;
     try {
         const startTime = performance.now();
-        待添加数组=await 去重待添加数组(待添加数组)
-        待添加数组=await 排序待添加数组(待添加数组, signal)
+        待添加数组=await 去重待添加数组(待添加数组)||[]
+        待添加数组=await 排序待添加数组(待添加数组, signal)||[]
         const endTime = performance.now();
         if (endTime - startTime > 50) {
             let time = endTime - startTime;
