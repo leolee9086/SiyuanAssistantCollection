@@ -1,7 +1,12 @@
 <template>
     <li class="b3-list-item b3-list-item--hide-action" data-node-id="20230118113834-r9ypxlj"
     @click="()=>{folded?unfold(props.itemDefine): fold(props.itemDefine) }"    
-    data-notebook-id="20230118090131-82fwpy3" data-treetype="backlink" data-type="NodeDocument" data-subtype="">
+    data-notebook-id="20230118090131-82fwpy3" 
+    data-treetype="backlink" 
+    data-type="NodeDocument" 
+    data-subtype=""
+    @click.right="openMenu"
+    >
         <span style="padding-left: 4px;margin-right: 2px" class="b3-list-item__toggle b3-list-item__toggle--hl"
             v-if="!folded">
             <svg data-id="DeepPose0" class="b3-list-item__arrow b3-list-item__arrow--open">
@@ -22,7 +27,11 @@
             {{ props.itemDefine.title }}
         </span>
 
-        <span class="counter">1</span>
+        <span >
+            <svg class="block__logoicon">
+                <use xlink:href="#iconMore"></use>
+            </svg>
+        </span>
     </li>
     <div ref="container" data-defid="20230625002528-td23dsz" data-ismention="false" class="protyle" data-loading="finished"
         style="min-height: auto;">
@@ -30,6 +39,7 @@
 </template>
 <script setup>
 import { defineProps, watch, ref, onMounted } from 'vue'
+import {打开tips右键菜单} from '../../tipsContextMenu.js'
 const props = defineProps(["itemDefine"])
 const container = ref(null)
 const folded = ref(true)
@@ -47,7 +57,9 @@ function unfold(item) {
     item.previewer.init(container.value)
     folded.value = false
 }
-
+function openMenu(e){
+    打开tips右键菜单(e,props.itemDefine)
+}
 </script>
 <style scoped>
 iframe {

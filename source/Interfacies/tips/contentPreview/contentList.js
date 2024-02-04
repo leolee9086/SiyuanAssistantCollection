@@ -159,6 +159,16 @@ export let 预览内容表 = [
                             item._previewerContainer.innerHTML = ""
                         }
                     }
+                    item.contextMenu=[
+                        {
+                            icon:"",
+                            label:"在标签页打开",
+                            click:()=>{
+                                window.open(`siyuan://blocks/${block.id}`)
+                            }
+
+                        }
+                    ]
                     content.push(item)
 
                 }
