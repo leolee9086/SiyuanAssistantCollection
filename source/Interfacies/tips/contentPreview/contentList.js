@@ -1,8 +1,9 @@
+import * as cheerio from "../../../../static/cheerio.js"
 import { string2DOM } from "../../../UITools/builders/index.js"
 import { clientApi, kernelApi, sac } from "../../../asyncModules.js"
 import { hasClosestByClassName } from "../../../utils/DOM/DOMFinder.js"
 import { buildProtylePreview } from "../../../utils/Previewer/blocks.js"
-const getCurrentTabEditor = ()=>{
+const getCurrentTabEditor = () => {
     let currentEditor = sac.statusMonitor.get('editor', 'current').$value
     //只有在layout__center中的protyle才是普通tab页面中的
     if (currentEditor && !hasClosestByClassName(currentEditor.element, "layout__center")) {
@@ -10,11 +11,11 @@ const getCurrentTabEditor = ()=>{
     }
     return currentEditor
 }
-const getCurrentTabEditorBlock=()=>{
+const getCurrentTabEditorBlock = () => {
     let currentEditor = getCurrentTabEditor()
-    if(!currentEditor){
+    if (!currentEditor) {
         return
-    }else{
+    } else {
         return currentEditor.block
     }
 }
@@ -34,20 +35,20 @@ export let 预览内容表 = [
                 }
                 //清空旧的结果数组
                 content.length = 0
-                const webLinks  = await kernelApi.sql({
-                    stmt:`select * from spans where root_id ="${currentEditorBlockId}"`
+                const webLinks = await kernelApi.sql({
+                    stmt: `select * from spans where root_id ="${currentEditorBlockId}"`
                 })
-                for await(let item of webLinks){
-                    if(item.type==='textmark a'){
-                        let link=sac.lute.Md2HTML(item.markdown)
+                for await (let item of webLinks) {
+                    if (item.type === 'textmark a') {
+                        let link = sac.lute.Md2HTML(item.markdown)
                         let aElement = string2DOM(link)
-                        let href=aElement.querySelector('a').href
-                        item.breadcrumb=""
+                        let href = aElement.querySelector('a').href
+                        item.breadcrumb = ""
                         item.title = item.content
-                        item.icon="#iconLanguage"
-                        item.previewer={
-                            init:(container)=>{
-                                let  iframe= string2DOM(
+                        item.icon = "#iconLanguage"
+                        item.previewer = {
+                            init: (container) => {
+                                let iframe = string2DOM(
                                     `<iframe 
                                     sandbox="allow-forms allow-presentation allow-same-origin allow-scripts allow-modals" 
                                     src="${Lute.EscapeHTMLStr(link.href)}" 
@@ -60,10 +61,10 @@ export let 预览内容表 = [
                                 )
                                 iframe.src = href
                                 container.appendChild(iframe)
-                                item._previewerContainer=container
+                                item._previewerContainer = container
                                 return iframe
                             },
-                            destroy:()=>{
+                            destroy: () => {
                                 item._previewer = undefined
                                 item._previewerContainer.innerHTML = ""
                             }
@@ -93,7 +94,6 @@ export let 预览内容表 = [
                                 )
                                 item._previewer = editor
                                 item._previewerContainer = container
-                                item._previewerDestroied && (item._previewerDestroied.value = false)
                                 return editor
 
                             }
@@ -102,7 +102,6 @@ export let 预览内容表 = [
                             item._previewer.destroy()
                             item._previewer = undefined
                             item._previewerContainer.innerHTML = ""
-                            item._previewerDestroied.value = true
                         }
                     }
                     content.push(item)
@@ -112,10 +111,58 @@ export let 预览内容表 = [
         }
     },
     {
-        name:"正向提及",
-        meta:{
-            async contentFetcher(){
+        name: "正向提及",
+        meta: {
+            async contentFetcher() {
                 let content = []
+                let currentEditorBlockId
+                let currentEditorBlock = getCurrentTabEditorBlock()
+                if (currentEditorBlock) {
+                    currentEditorBlockId = currentEditorBlock.id
+                } else {
+                    return
+                }
+                let docRes = await kernelApi.getDoc({id:currentEditorBlockId})
+                console.log(docRes)
+                let $ = cheerio.load(docRes.content)
+                let spans=$('[data-type="virtual-block-ref"]')
+                let anchors = Array.from(new Set(Array.from(spans).map(span=>{return span&&span.children[0].data})))
+                let sql= `select * from blocks where content in (${anchors.map(item=>item&&`"${item}"`)}) limit 102400`
+                let blocks = await kernelApi.sql({stmt:sql})
+                for await (let block of blocks){
+                    let item ={}
+                    item.title =block.content
+                    item.id = block.id
+                    item.previewer={
+                        init: (container) => {
+                            //如果是块链接的话
+                            if (item.id) {
+                                let editor = buildProtylePreview(
+                                    item.id,
+                                    {
+                                        background: false,
+                                        title: false,
+                                        gutter: true,
+                                        scroll: false,
+                                        breadcrumb: true
+                                    },
+                                    container
+                                )
+                                item._previewer = editor
+                                item._previewerContainer = container
+                                return editor
+                            }
+                        },
+                        destroy: () => {
+                            item._previewer.destroy()
+                            item._previewer = undefined
+                            item._previewerContainer.innerHTML = ""
+                        }
+                    }
+                    content.push(item)
+
+                }
+                return content
             }
         }
     }

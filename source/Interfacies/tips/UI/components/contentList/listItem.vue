@@ -34,7 +34,7 @@ const props = defineProps(["itemDefine"])
 const container = ref(null)
 const folded = ref(true)
 onMounted(() => {
-    if (props.itemDefine.def_block_id && container.value) {
+    if (props.itemDefine && container.value) {
         props.itemDefine._previewerDestroied = folded
     }
 })

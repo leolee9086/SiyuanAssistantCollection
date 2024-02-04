@@ -24,9 +24,10 @@ getContent()
 function getContent(){
     内容列表.value.forEach(
     listDefine => {
-
         if (listDefine.meta.contentFetcher) {
             (async () => {
+                console.log(listDefine)
+
                 listDefine.content = (await listDefine.meta.contentFetcher())||listDefine.content
                 console.log(listDefine)
             })()
