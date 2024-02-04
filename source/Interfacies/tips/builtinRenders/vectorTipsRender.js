@@ -1,4 +1,4 @@
-let blocksMenu =(block,getBlockHandler)=>{
+let blocksMenu =(block,getBlockHandler,editorContext)=>{
     return [
         {
             icon:"",
@@ -28,6 +28,14 @@ let blocksMenu =(block,getBlockHandler)=>{
                 }
                 getBlockHandler(block.id).remove()                
             }
+        },
+        {
+            icon:"#iconMove",
+            label:`移动当前块到:${block.content.substring(0,16)}`,
+            click:()=>{
+                let blockHandler=getBlockHandler(editorContext.blockID)
+                blockHandler.moveTo(block.root)
+            }
         }
     ]
 }
@@ -48,7 +56,7 @@ export const tipsRender = class {
                 data.item = data.item.map(item => {
                     item.targetBlocks = [editorContext.blockID];
                     item.vector = item.block.vector;
-                    item.contextMenu=blocksMenu(item.block,this.getBlockHandler)
+                    item.contextMenu=blocksMenu(item.block,this.getBlockHandler,editorContext)
                     return item;
                 });
                 this.showTips(data, editorContext);
