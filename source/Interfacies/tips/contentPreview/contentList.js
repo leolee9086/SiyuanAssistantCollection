@@ -125,7 +125,7 @@ export let 预览内容表 = [
                   } else {
                       return
                   }
-                  let docRes = await kernelApi.getDoc({id:currentEditorBlockId})
+                  let docRes = await kernelApi.getDoc({id:currentEditorBlockId,size:512})
                   console.log(docRes)
                   let $ = cheerio.load(docRes.content)
                   let spans=$('[data-type="virtual-block-ref"]')
