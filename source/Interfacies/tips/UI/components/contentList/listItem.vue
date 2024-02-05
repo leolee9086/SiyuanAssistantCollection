@@ -46,16 +46,20 @@ const folded = ref(true)
 onMounted(() => {
     if (props.itemDefine && container.value) {
         props.itemDefine._previewerDestroied = folded
+        props.itemDefine.fold=()=>{fold(props.itemDefine)}
+        props.itemDefine.unfold=()=>{unfold(props.itemDefine)}
     }
 })
 function fold(item) {
     item.previewer.destroy()
     container.value.innerHTML = ""
     folded.value = true
+    item.unfold=()=>{unfold(item)}
 }
 function unfold(item) {
     item.previewer.init(container.value)
     folded.value = false
+    item.fold=()=>{fold(item)}
 }
 function openMenu(e){
     打开tips右键菜单(e,props.itemDefine)

@@ -27,7 +27,11 @@
             </svg>
         </span>
         <span class="fn__space"></span>
-        <span data-type="collapse" class="block__icon b3-tooltips b3-tooltips__sw" aria-label="折叠 Ctrl+↑">
+        <span 
+        @click="foldListItem"
+        data-type="collapse" 
+        class="block__icon b3-tooltips b3-tooltips__sw" 
+        aria-label="折叠 Ctrl+↑">
             <svg>
                 <use xlink:href="#iconContract"></use>
             </svg>
@@ -59,7 +63,7 @@
     import {defineProps,defineEmits,ref} from 'vue'
     const props = defineProps(['listMeta'])
     const folded = ref(null)
-    const emits = defineEmits(["listFolded","listUnFolded"])
+    const emits = defineEmits(["listFolded","listUnFolded",'listItemFolded'])
     const foldList =()=>{
         folded.value=true
         emits('listFolded')
@@ -67,6 +71,9 @@
     const unFoldList = ()=>{
         folded.value = false
         emits('listUnFolded')
+    }
+    const foldListItem=()=>{
+        emits('listItemFolded')
     }
     
 </script>

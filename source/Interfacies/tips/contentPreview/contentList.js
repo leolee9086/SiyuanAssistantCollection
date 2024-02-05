@@ -157,9 +157,11 @@ export let 预览内容表 = [
                               }
                           },
                           destroy: () => {
+                              if(item._previewer){
                               item._previewer.destroy()
                               item._previewer = undefined
                               item._previewerContainer.innerHTML = ""
+                              }
                           }
                       }
                       item.contextMenu=[
