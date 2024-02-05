@@ -33,12 +33,40 @@
             </svg>
         </span>
         <span class="fn__space"></span>
-        <span data-type="min" class="block__icon b3-tooltips b3-tooltips__sw" aria-label="最小化 Ctrl+W"><svg>
+        <span 
+        @click="foldList" 
+        class="block__icon b3-tooltips b3-tooltips__sw" 
+        aria-label="最小化 Ctrl+W"
+        v-if="!folded"
+        >
+            <svg>
                 <use xlink:href="#iconMin"></use>
-            </svg></span>
+            </svg>
+        </span>
+        <span 
+        @click="unFoldList" 
+        class="block__icon b3-tooltips b3-tooltips__sw" 
+        aria-label="最小化 Ctrl+W"
+        v-if="folded"
+        >
+            <svg>
+                <use xlink:href="#iconAdd"></use>
+            </svg>
+        </span>
     </div>
 </template>
 <script setup>
-    import {defineProps} from 'vue'
+    import {defineProps,defineEmits,ref} from 'vue'
     const props = defineProps(['listMeta'])
+    const folded = ref(null)
+    const emits = defineEmits(["listFolded","listUnFolded"])
+    const foldList =()=>{
+        folded.value=true
+        emits('listFolded')
+    } 
+    const unFoldList = ()=>{
+        folded.value = false
+        emits('listUnFolded')
+    }
+    
 </script>
