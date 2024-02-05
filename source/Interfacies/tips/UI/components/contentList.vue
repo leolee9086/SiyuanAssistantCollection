@@ -1,12 +1,8 @@
 <template>
     <div class="fn__flex fn__flex-column" style="max-height: 100%;overflow-y: scroll;">
-        <template v-for="(list,i) in 内容列表">
-            <listTitle 
-            @listFolded="() => foldList(list)" 
-            @listUnFolded="() => unFoldList(list)" 
-            @listItemFolded="()=>foldListItem(list)"
-            v-if="list" 
-            :listMeta="list">
+        <template v-for="(list, i) in 内容列表">
+            <listTitle @listFolded="() => foldList(list)" @listUnFolded="() => unFoldList(list)"
+                @listItemFolded="() => foldListItem(list)" v-if="list" :listMeta="list">
             </listTitle>
             <div :class=genListClass(i) :style="`min-height: auto;max-height:${100 / 内容列表.length}%`">
                 <div class="backlinkList fn__flex-1">
@@ -40,23 +36,23 @@ function getContent() {
         }
     )
 }
-function genListClass(index){
-    if(index<内容列表.value.length-1){
+function genListClass(index) {
+    if (index < 内容列表.value.length - 1) {
         return 'fn__flex fn__flex-column'
-    }else{
+    } else {
         return 'fn__flex fn__flex-column fn__flex-1'
     }
 }
 function foldList(list) {
     list.content = []
 }
-function foldListItem(list){
-    list.content&&list.content.forEach(
-        item=>{
-            if(item.fold&&item.previewer){
-                
+function foldListItem(list) {
+    list.content && list.content.forEach(
+        item => {
+            if (item.fold && item.previewer) {
+
                 item.fold()
-            }        
+            }
         }
     )
 }
