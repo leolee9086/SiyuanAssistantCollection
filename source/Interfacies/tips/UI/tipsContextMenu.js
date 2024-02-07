@@ -69,7 +69,6 @@ function 刷新动作菜单(signal) {
                     &&
                     item.targetBlocks.includes(id)
                     && (item.description.indexOf(命令面板.搜索输入框.value) > -1 || item.contextMenu && item.contextMenu.find(menuItem => menuItem.label.indexOf(命令面板.搜索输入框.value) > -1))
-
             }).forEach(
                 item => {
                     if (signal && signal.aborted) {

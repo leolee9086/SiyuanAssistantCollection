@@ -20,16 +20,13 @@ const 任务优先队列 = new 最小堆((a, b) => {
     // 获取任务状态
     const 任务A状态 = 任务执行状况表.get(a.来源) || {};
     const 任务B状态 = 任务执行状况表.get(b.来源) || {};
-
     // 计算优先级
     const 优先级A = (任务A状态.错误 ? -1000 : 0) + (任务A状态.结束时间 - 任务A状态.开始时间) - a.添加时间;
     const 优先级B = (任务B状态.错误 ? -1000 : 0) + (任务B状态.结束时间 - 任务B状态.开始时间) - b.添加时间;
-
     return 优先级A - 优先级B;
 });
 export async function 创建任务队列(编辑器上下文, renderInstancies, signal) {
     const { position, text, tokens, blockID, editableElement, logger, currentToken } = 编辑器上下文;
-
     for await (let renderInstance of renderInstancies) {
         //renderInstancies.forEach(renderInstance => {
         const 添加时间 = Date.now();

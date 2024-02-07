@@ -25,8 +25,7 @@ export let buildBlocksMenu=(block,getBlockHandler,editorContext)=>{
             click:()=>{
                 if(window.require){
                     window.open(`siyuan://blocks/${block.id}`)
-                }
-                           
+                }            
             }
         },
         {
