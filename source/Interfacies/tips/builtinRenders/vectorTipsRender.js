@@ -1,44 +1,4 @@
-let blocksMenu =(block,getBlockHandler,editorContext)=>{
-    return [
-        {
-            icon:"",
-            label:`打开:${block.content.substring(0,16)}`,
-            click:()=>{
-                if(window.require){
-                    window.open(`siyuan://blocks/${block.id}`)
-                }
-            }
-        },
-        {
-            icon:"",
-            label:`删除:${block.content.substring(0,16)}`,
-            click:()=>{
-                if(window.require){
-                    window.open(`siyuan://blocks/${block.id}`)
-                }
-                getBlockHandler(block.id).remove()                
-            }
-        },
-        {
-            icon:"",
-            label:`固定到边栏:${block.content.substring(0,16)}`,
-            click:()=>{
-                if(window.require){
-                    window.open(`siyuan://blocks/${block.id}`)
-                }
-                getBlockHandler(block.id).remove()                
-            }
-        },
-        {
-            icon:"#iconMove",
-            label:`移动当前块到:${block.content.substring(0,16)}`,
-            click:()=>{
-                let blockHandler=getBlockHandler(editorContext.blockID)
-                blockHandler.moveTo(block.root)
-            }
-        }
-    ]
-}
+import { buildBlocksMenu } from "./utils/blocksMenu.js";
 export const tipsRender = class {
     async renderEditorVectorTips(editorContext) {
         try {
@@ -56,7 +16,7 @@ export const tipsRender = class {
                 data.item = data.item.map(item => {
                     item.targetBlocks = [editorContext.blockID];
                     item.vector = item.block.vector;
-                    item.contextMenu=blocksMenu(item.block,this.getBlockHandler,editorContext)
+                    item.contextMenu=buildBlocksMenu(item.block,this.getBlockHandler,editorContext)
                     return item;
                 });
                 this.showTips(data, editorContext);
