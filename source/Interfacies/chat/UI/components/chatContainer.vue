@@ -6,6 +6,7 @@
             </template>
         </div>
         <div v-if="error">{{ error }}</div>
+        <div v-if="statusMessage">{{ statusMessage }}</div>
         <div class='user-input-container'>
             <button class="ai-quote-btn">
                 <svg>
@@ -27,6 +28,7 @@ import { completeHistory } from '../utils/session.js';
 const messages = reactive([])
 const error = ref('')
 const inputter = ref(null)
+const statusMessage=ref(null)
 let buildMessage = (role, content) => {
     return {
         role,
@@ -39,13 +41,18 @@ let buildMessage = (role, content) => {
 }
 const postMessage = async () => {
     error.value = ''
+    statusMessage.value="正在发送中,请稍候"
     try {
         messages.push(buildMessage('user', inputter.value.value))
+        
         let res = await postChatMessage({ model: 'zhipu-chatglm-pro', messages })
+        statusMessage.value = "正在生成中,请稍候"
         let {message}=res.choices[0]
         messages.push(buildMessage(message.role,message.content))
+        statusMessage.value =""
     } catch (e) {
         sac.logger.error(e)
+        statusMessage.value=""
         error.value = e
     }
 }
