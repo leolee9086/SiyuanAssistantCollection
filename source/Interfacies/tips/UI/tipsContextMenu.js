@@ -54,10 +54,13 @@ export function 显示光标提示菜单(signal) {
 }
 function 刷新动作菜单(signal) {
     命令面板.bodyElement.innerHTML = ""
-
     requestIdleCallback(
         () => {
-            let id = sac.statusMonitor.get('context', 'editor').$value.blockID;
+            let currentEditorContext= sac.statusMonitor.get('context', 'editor').$value
+            if(!currentEditorContext){
+                return
+            }
+            let id = currentEditorContext.blockID;
             let HTML = ''
             sac.statusMonitor.get('tips', 'current').$value.filter(item => {
                 return (item.action || item.contextMenu)
