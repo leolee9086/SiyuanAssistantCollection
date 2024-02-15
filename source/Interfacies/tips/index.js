@@ -6,6 +6,7 @@ import { 加载渲染实例, 加载渲染器类, } from './package/loader.js';
 //这是内部的tips实现,分别是根据文字进行搜索和根据向量进行搜索
 import { tipsRender as vectorTipsRender } from './builtinRenders/vectorTipsRender.js';
 import { tipsRender as textTipsRender } from './builtinRenders/textTipsRender.js';
+import { tipsRender as refactorTipsRender } from './builtinRenders/refactorTipsRender.js'
 import { 显示actions并生成tips渲染任务 } from './显示tips.js';
 import { initVueApp } from "../../UITools/loader/VueComponentsLoader.js"
 import { 输入事件发生在protyle内部 } from '../../utils/events/isIn.js';
@@ -64,6 +65,8 @@ export const Emitter = class {
     async onload() {
         加载渲染器类(textTipsRender, 'textSearchTips')
         加载渲染器类(vectorTipsRender, 'vectorSearchTips')
+        加载渲染器类(refactorTipsRender, 'refactorTipsRender')
+
         const tipsRenderPackagesAsync = async () => { return await sac.statusMonitor.get('packages', 'sac-tips-render').$value }
         let tipsPackagesDefine = await tipsRenderPackagesAsync()
         let tipsRenders = await tipsPackagesDefine.local.list()

@@ -1,7 +1,7 @@
 export const 创建token对象 = (所在元素, 分词结果) => {
     let { start, end, word } = 分词结果
     let token = { start, end, word }
-    token.getRange =()=>{return 从文字位置创建range(所在元素, token.start, token.end)}
+    token.getRange = () => { return 从文字位置创建range(所在元素, token.start, token.end) }
     token.select = function () {
         const selection = window.getSelection();
         selection.removeAllRanges();
@@ -35,9 +35,35 @@ export const 创建token对象 = (所在元素, 分词结果) => {
         token.range.deleteContents()
         let event = new Event('input')
         if (token.protyle) { token.protyle.protyle.wysiwyg.element.dispatchEvent(event) }
-
     }
+    // 序列化方法
+    token.serialize = () => {
+        // 获取range对象
+        const range = token.getRange();
+        // 计算range的起始节点相对于所在元素的XPath
+        let xpathWithinBlock = "";
+        if (range && range.startContainer) {
+            const startNode = range.startContainer.nodeType === Node.TEXT_NODE ? range.startContainer.parentNode : range.startContainer;
+            xpathWithinBlock = generateXPathForElement(startNode, 所在元素);
+        }
+
+        // 由于range对象不能直接序列化，我们只序列化start, end, word这三个属性
+        return JSON.stringify({
+            start: token.start,
+            end: token.end,
+            word: token.word,
+            block: 所在元素.getAttribute('data-node-id'),
+            xpathWithinBlock: xpathWithinBlock,
+        });
+
+    };
     return token
+}
+function generateXPathForElement(element, relativeToElement) {
+    if (element === relativeToElement) return ".";
+    const siblings = Array.from(element.parentNode.childNodes);
+    const elementIndex = siblings.indexOf(element) + 1;
+    return generateXPathForElement(element.parentNode, relativeToElement) + "/" + element.tagName.toLowerCase() + "[" + elementIndex + "]";
 }
 export const 从文字位置创建range = (node, start, end) => {
     const range = document.createRange();

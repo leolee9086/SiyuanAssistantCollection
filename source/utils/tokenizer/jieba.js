@@ -26,7 +26,7 @@ export { jieba as jieba }
 export { jieba as 结巴 }
 let tokenize = jieba.tokenize
 export { tokenize as tokenize }
-export async function 使用结巴拆分元素(element) {
+export async function 使用结巴拆分块元素(element) {
   //首先用结巴进行全分词
   let 分词结果数组 = await tokenize(element.textContent, "search")
   //然后对分词产生的每一个结果创建range
