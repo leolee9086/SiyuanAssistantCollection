@@ -1,62 +1,15 @@
 export const 创建token对象 = (所在元素, 分词结果) => {
     let { start, end, word } = 分词结果
     let token = { start, end, word }
-    token.getRange = () => { return 从文字位置创建range(所在元素, token.start, token.end) }
-    token.select = function () {
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(token.range);
+    token.block = 所在元素.getAttribute('data-node-id')
+    token.id =Lute.NewNodeID()
+    const range = 从文字位置创建range(所在元素, token.start, token.end);
+    if (range && range.startContainer) {
+        const startNode = range.startContainer.nodeType === Node.TEXT_NODE ? range.startContainer.parentNode : range.startContainer;
+        token.xpathWithinBlock = generateXPathForElement(startNode, 所在元素);
+    }else{
+        throw '编辑器token生成失败'
     }
-    token.highlight = function () {
-        const rects = getLineRects(token.range);
-        token.highlightElements = []
-        rects.forEach(
-            (rect) => {
-                const highlightElement = document.createElement('div');
-                window.document.body.appendChild(highlightElement);
-                highlightElement.classList.add('highlight');
-                highlightElement.style.position = 'fixed';
-                highlightElement.style.top = rect.top + 'px';
-                highlightElement.style.left = rect.left + 'px';
-                highlightElement.style.width = rect.width + 'px';
-                highlightElement.style.height = rect.height + 'px';
-                token.highlightElements.push(highlightElement)
-                setTimeout(() => { highlightElement.remove() }, 1000)
-            }
-        )
-        //一秒钟之后高亮用的元素消失
-    }
-    token.dehighlight = function () {
-        token.highlightElements && token.highlightElements.forEach(
-            highlightElement => { highlightElement && highlightElement.remove() }
-        )
-    }
-    token.delete = () => {
-        token.range.deleteContents()
-        let event = new Event('input')
-        if (token.protyle) { token.protyle.protyle.wysiwyg.element.dispatchEvent(event) }
-    }
-    // 序列化方法
-    token.serialize = () => {
-        // 获取range对象
-        const range = token.getRange();
-        // 计算range的起始节点相对于所在元素的XPath
-        let xpathWithinBlock = "";
-        if (range && range.startContainer) {
-            const startNode = range.startContainer.nodeType === Node.TEXT_NODE ? range.startContainer.parentNode : range.startContainer;
-            xpathWithinBlock = generateXPathForElement(startNode, 所在元素);
-        }
-
-        // 由于range对象不能直接序列化，我们只序列化start, end, word这三个属性
-        return JSON.stringify({
-            start: token.start,
-            end: token.end,
-            word: token.word,
-            block: 所在元素.getAttribute('data-node-id'),
-            xpathWithinBlock: xpathWithinBlock,
-        });
-
-    };
     return token
 }
 function generateXPathForElement(element, relativeToElement) {
@@ -98,6 +51,64 @@ export const 从文字位置创建range = (node, start, end) => {
     traverse(currentNode);
     return range;
 }
+const getRangeFromToken = (token) => {
+    let 所在元素 = document.querySelector(`.protyle-wysiwyg.protyle-wysiwyg--attr [data-node-id="${token.block}"]`)
+    if (所在元素) {
+        return 从文字位置创建range(所在元素, token.start, token.end)
+    }
+}
+export const selectToken = (token, 所在元素) => {
+    const range = getRangeFromToken(token, 所在元素);
+    if (range) {
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+};
+export const highlightToken = (token, 所在元素) => {
+    const range = getRangeFromToken(token, 所在元素);
+    if(!range){
+        return
+    }
+    const rects = getLineRects(range);
+    const highlightElements = [];
+    rects.forEach((rect) => {
+        const highlightElement = document.createElement('div');
+        window.document.body.appendChild(highlightElement);
+        highlightElement.classList.add('highlight');
+        highlightElement.style.position = 'fixed';
+        highlightElement.style.top = rect.top + 'px';
+        highlightElement.style.left = rect.left + 'px';
+        highlightElement.style.width = rect.width + 'px';
+        highlightElement.style.height = rect.height + 'px';
+        highlightElements.push(highlightElement);
+        setTimeout(() => { highlightElement.remove(); }, 1000);
+    });
+    return highlightElements; // 返回高亮元素数组以便之后可能的操作
+};
+
+export const dehighlightToken = (highlightElements) => {
+    highlightElements.forEach(highlightElement => {
+        highlightElement && highlightElement.remove();
+    });
+};
+
+export const deleteTokenContents = (token, 所在元素) => {
+    const range = getRangeFromToken(token, 所在元素);
+    range.deleteContents();
+    let event = new Event('input');
+    // 假设token对象有protyle属性，需要根据实际情况调整
+    if (token.protyle) { token.protyle.protyle.wysiwyg.element.dispatchEvent(event); }
+};
+export const replaceTokenContents = (token, 所在元素, newContent) => {
+    const range = getRangeFromToken(token, 所在元素);
+    range.deleteContents(); // 删除原有内容
+    const newNode = document.createTextNode(newContent); // 创建新内容的文本节点
+    range.insertNode(newNode); // 将新内容插入到原位置
+    let event = new Event('input');
+    // 假设token对象有protyle属性，需要根据实际情况调整
+    if (token.protyle) { token.protyle.protyle.wysiwyg.element.dispatchEvent(event); }
+};
 export const getLineRects = (range) => {
     const charRects = [];
     const startLineRange = range.cloneRange();

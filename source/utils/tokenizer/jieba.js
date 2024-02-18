@@ -4,9 +4,10 @@ import { 校验分词是否连续, 校验是否包含 } from './utils.js';
 import fs from '../../polyfills/fs.js';
 //结巴的初始化会造成问题
 await jieba.default(import.meta.resolve('../../../static/jieba_rs_wasm_bg.wasm'))
+let dict
 try {
   try {
-    let dict = await fs.readFile('/data/public/sac-tokenizer/dict.txt')
+    dict = await fs.readFile('/data/public/sac-tokenizer/dict.txt')
     dict = dict.split('\n')
     dict.forEach(
       word => {
@@ -20,10 +21,12 @@ try {
 } catch (e) {
   console.warn(e)
 }
+
 jieba.add_word('思源笔记')
 jieba.add_word('链滴')
 export { jieba as jieba }
 export { jieba as 结巴 }
+export {dict as dict}
 let tokenize = jieba.tokenize
 export { tokenize as tokenize }
 export async function 使用结巴拆分块元素(element) {
@@ -45,8 +48,8 @@ function 处理分词对象(分词对象序列) {
     for (let j = i + 1; j < 分词对象序列.length; j++) {
       const 下一个分词对象 = 分词对象序列[j];
       if (!foundNext && 校验分词是否连续(当前分词对象, 下一个分词对象)) {
-        当前分词对象.next = 下一个分词对象;
-        下一个分词对象.pre = 当前分词对象;
+        当前分词对象.next = 下一个分词对象.id;
+        下一个分词对象.pre = 当前分词对象.id;
         foundNext = true;
       }
       if (校验是否包含(当前分词对象, 下一个分词对象)) {

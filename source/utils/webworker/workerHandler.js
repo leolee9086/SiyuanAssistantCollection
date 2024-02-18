@@ -51,12 +51,12 @@ function 创建任务处理函数(worker, 任务列表) {
   };
 }
 // 初始化 worker 线程池
-function 初始化Worker线程池(处理器文件地址,worker线程数=0) {
+function 初始化Worker线程池(处理器文件地址, worker线程数 = 0) {
   // 使用文件名作为键
   if (!worker线程池[处理器文件地址]) {
     worker线程池[处理器文件地址] = [];
     let worker线程组 = worker线程池[处理器文件地址];
-     worker线程数 =worker线程数|| 计算cpu核心数量();
+    worker线程数 = worker线程数 || 计算cpu核心数量();
     for (let i = 0; i < worker线程数; i++) {
       let worker = 创建Worker线程(处理器文件地址);
       worker.moduleName = 处理器文件地址
@@ -96,6 +96,7 @@ export const 使用worker处理数据 = async (数据组, 处理器文件地址,
       return result;
     } catch (error) {
       console.error(`处理任务时出错${处理器文件地址}: ${error},\n${数据组}`);
+      throw error
       // 在这里你可以处理错误，例如返回一个默认值或者重新抛出错误
       return null; // 返回一个默认值
     }
@@ -112,14 +113,14 @@ export const 使用worker处理数据 = async (数据组, 处理器文件地址,
 // 处理单个任务
 async function 处理单个任务(worker, 数据组, 任务名) {
   try {
-    
+
     //logger.workerHandlerlog(worker, 数据组, 任务名)
     let result = await worker.处理任务(数据组, 任务名);
     return { status: 'fulfilled', value: result };
   } catch (error) {
     logger.workerHandlererror(`处理任务时出错: ${error}`);
-    console.error(worker,数据组,任务名)
-    return { status: 'rejected', reason: error };
+    console.error(worker, 数据组, 任务名)
+    throw error
   }
 }
 
@@ -144,7 +145,8 @@ async function 处理广播任务(worker线程池, 数据组, 任务名, worker�
   return results
 }
 export function importWorker(处理器文件地址, 任务名 = []) {
-  return new Proxy(() => { }, {
+ // console.log(处理器文件地址, 任务名)
+  let workerProxy = new Proxy(() => { }, {
     get: function (target, prop) {
       if (typeof prop === 'symbol' || prop === 'inspect') {
         return () => { };
@@ -159,13 +161,14 @@ export function importWorker(处理器文件地址, 任务名 = []) {
         return (...args) => Promise.resolve(使用worker处理数据(args, 处理器文件地址, prop, true));
       }
       if (prop === 'then') {
-        return (resolve, reject) => reject(new Error('暂时只能同步调用'));
+        //return (resolve, reject) => reject(new Error('暂时只能同步调用'));
+        return importWorker(处理器文件地址, []);
       }
       if (prop === '$setWorkerCount') {
-        return (num)=>{
-          if (!worker线程池[处理器文件地址]){
-            初始化Worker线程池(处理器文件地址,num);
-          }else{
+        return (num) => {
+          if (!worker线程池[处理器文件地址]) {
+            初始化Worker线程池(处理器文件地址, num);
+          } else {
             console.error('worker已经初始化,无法调整数量')
           }
         }
@@ -173,7 +176,14 @@ export function importWorker(处理器文件地址, 任务名 = []) {
       return importWorker(处理器文件地址, [...任务名, prop]);
     },
     apply: function (target, thisArg, args) {
-      return Promise.resolve(使用worker处理数据(args, 处理器文件地址, 任务名, false));
+      try {
+        return Promise.resolve(使用worker处理数据(args, 处理器文件地址, 任务名, false));
+      } catch (e) {
+        console.error(args, 处理器文件地址, 任务名, false)
+        throw e
+      }
     }
   })
+  return workerProxy
+
 }

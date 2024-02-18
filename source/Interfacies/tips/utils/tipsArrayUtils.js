@@ -9,8 +9,10 @@ export const 排序待添加数组 = async (tips数组) => {
   let threshold = 50; // 设置50毫秒作为性能阈值
   // 一次遍历来初始化scores并计算scores.time
   for (let item of tips数组) {
+
     bm25.addDocument(item, ['description', 'link']);
     let currentTime = performance.now();
+    
     if (currentTime - startTime > threshold) {
       // 如果添加时间超过阈值，停止添加
       break;

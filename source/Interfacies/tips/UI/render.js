@@ -25,7 +25,22 @@ export async function 处理并显示tips(data, 编辑器上下文, renderInstan
                 let lastPinnedIndex = 待添加数组.lastIndexOf(tip => tip.pined);
                 待添加数组.splice(lastPinnedIndex + 1, 0, tipsItem);
             }
-            待添加数组.push(准备渲染项目(tipsItem, 编辑器上下文))
+            try {
+                待添加数组.push(准备渲染项目(tipsItem, 编辑器上下文))
+                if (tipsItem.timeout) {
+                    setTimeout(() => {
+                        let target= 待添加数组.find(
+                            item => {
+                                return item && item.id === tipsItem.id
+                            }
+                        )
+                        let currentEditorContext = sac.statusMonitor.get('context', 'editor').$value
+                        if(target&&target.contextID!==currentEditorContext.id){(target.deleted = true)}
+                    }, tipsItem.timeout)
+                }
+            } catch (e) {
+                console.error(e, data)
+            }
             text += tipsItem.description
         }
         requestIdleCallback(() => { 学习新词组(text) })
@@ -44,8 +59,9 @@ async function 批量渲染() {
     const { signal } = newController;
     try {
         const startTime = performance.now();
-        待添加数组=await 去重待添加数组(待添加数组)||[]
-        待添加数组=await 排序待添加数组(待添加数组, signal)||[]
+
+        待添加数组 = await 去重待添加数组(待添加数组) || []
+        待添加数组 = await 排序待添加数组(待添加数组, signal) || []
         const endTime = performance.now();
         if (endTime - startTime > 50) {
             let time = endTime - startTime;
@@ -59,9 +75,9 @@ async function 批量渲染() {
                 newLength = 待添加数组.length; // keep the same length
             }
             // 如果去重和排序操作耗时超过100毫秒，清空数组
-            待添加数组=await 限制待添加数组长度(待添加数组,newLength);
+            待添加数组 = await 限制待添加数组长度(待添加数组, newLength);
         } else {
-            待添加数组=await 限制待添加数组长度(待添加数组);
+            待添加数组 = await 限制待添加数组长度(待添加数组);
         }
 
         sac.statusMonitor.set('tips', 'current', 待添加数组);

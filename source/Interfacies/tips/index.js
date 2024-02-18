@@ -71,7 +71,11 @@ export const Emitter = class {
         let tipsPackagesDefine = await tipsRenderPackagesAsync()
         let tipsRenders = await tipsPackagesDefine.local.list()
         for (let renderName of tipsRenders) {
-            await 加载渲染实例(tipsPackagesDefine, renderName);
+            try{
+             await 加载渲染实例(tipsPackagesDefine, renderName);
+            }catch(e){
+                console.error(e,renderName)
+            }
         }
     }
     channel = 'tips-ui';

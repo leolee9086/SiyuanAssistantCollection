@@ -63,7 +63,7 @@ async function 生成tips渲染任务(编辑器上下文, signal) {
         return;
       }
       try {
-        let res = await text2vec(编辑器上下文.editableElement.innerText);
+        let res = await text2vec(编辑器上下文.text);
 
         if (res.body && res.body.data) {
           sac.logger.tipsInfo(`特征向量生成成功,将用于查询`);

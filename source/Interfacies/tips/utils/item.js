@@ -38,9 +38,10 @@ export function 准备渲染项目(tips条目, 编辑器上下文) {
     }
     if (tips条目.action && 编辑器上下文) {
         tips条目.scores.actionScore = tips条目.scores.actionScore || 3;
-        tips条目.$action = (() => {
-            tips条目.action(编辑器上下文);
-        })
+        tips条目.$action = {
+            actionRouter:tips条目.action?.actionRouter,
+            params:tips条目.action?.params
+        }
     }
     if(tips条目.contextMenu){
         tips条目.contextMenu.forEach(
@@ -61,7 +62,7 @@ export function 准备渲染项目(tips条目, 编辑器上下文) {
     }
     tips条目.scores.textScore = tips条目.textScore || 0;
     tips条目.scores.vectorScore = tips条目.vectorScore || 0;
-    
-    return tips条目
+    //这一步是为了能够保证tips条目能够被发送
+    return structuredClone(tips条目)
 }
 

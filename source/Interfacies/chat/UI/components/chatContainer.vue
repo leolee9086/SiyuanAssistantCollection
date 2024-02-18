@@ -30,6 +30,7 @@ import userMessageCard from './userMessageCard.vue';
 import aiMessageCard from './aiMessageCard.vue';
 import { postChatMessage } from '../../../../Processors/AIProcessors/publicUtils/endpoints.js'
 import { completeHistory } from '../utils/session.js';
+import {对话提示词助手,时间理解} from '../utils/prompts.js'
 const messages = reactive([])
 const seggestions = reactive([])
 const error = ref('')
@@ -54,12 +55,11 @@ const postMessage = async () => {
     error.value = ''
     statusMessage.value = "正在发送中,请稍候"
     seggestions.length = 0
-
     try {
         messages.push(buildMessage('user', inputter.value.value))
         inputter.value.value = ""
-
-        let res = await postChatMessage({ model: 'zhipu-chatglm-pro', messages })
+        let 实际发送消息 = await 插入工具系统提示词(messages)
+        let res = await postChatMessage({ model: 'zhipu-chatglm-pro', messages:实际发送消息 })
         statusMessage.value = "正在生成中,请稍候"
         let { message } = res.choices[0]
         messages.push(buildMessage(message.role, message.content))
@@ -71,8 +71,35 @@ const postMessage = async () => {
         error.value = e
     }
 }
+const 插入工具系统提示词=async(对话上下文)=>{
+    let 复制上下文=JSON.parse(JSON.stringify(对话上下文))
+    let 初始系统提示词=``
+    初始系统提示词+=时间理解.初始系统提示词模板
+    let 初始系统提示词消息= {
+        role:'system',
+        content:初始系统提示词
+    }
+    let 最后用户消息 = 复制上下文.pop()
+    return [初始系统提示词消息].concat(复制上下文)
+    .concat([{
+        role:'system',
+        content:时间理解.插入系统提示词(最后用户消息, 对话上下文)
+    }]).concat([最后用户消息]).map(
+        消息=>{
+            if(消息.role==="user"){
+                消息=时间理解.人类用户消息修饰函数(消息,对话上下文)
+            }else{
+                消息=时间理解.AI用户消息修饰函数(消息,对话上下文)
+            }
+            if(消息.timeStamp){
+                消息.content+=消息.timeStamp
+            }
+            return {role:消息.role,content:消息.content}
+        }
+    )
+}
 const getPromptSuggestions = async () => {
-    try {
+    /*try {
         const promptSuggestionsPrompt = [{
             role: "system",
             content: `你是一个AI对话提示词助手,你的工作是根据给出的对话内容,为用户推荐合适的提问,这有些类似输入法的智能输入提示,这些提示需要满足这些要求:
@@ -102,12 +129,15 @@ const getPromptSuggestions = async () => {
         }]
         let res = await postChatMessage({ model: 'zhipu-chatglm-pro', messages: promptSuggestionsPrompt })
         let { message } = res.choices[0]
+        seggestions.push('继续')
         message.content.split('\n').forEach(
             question => seggestions.push(question.replace(/^\d+\./, ''))
         )
     } catch (e) {
         sac.logger.error(e);
         error.value = e;
-    }
+    }*/
+    await 对话提示词助手.获取提示建议(messages, seggestions, error)
+
 }
 </script>

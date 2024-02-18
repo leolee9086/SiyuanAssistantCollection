@@ -41,7 +41,7 @@ border-bottom:1px dashed var(--b3-theme-primary-light)">
                     > </div>
 
                     <div v-if="item.action">
-                        <button @click="item.action" class="b3-button"
+                        <button @click="()=>{runAction(item)}" class="b3-button"
                             style="border-radius:15px;padding: 5px;margin: 5px;">
                             <svg class="b3-list-item__graphic">
                                 <use xlink:href="#iconRight"></use>
@@ -82,9 +82,16 @@ import {defineProps} from 'vue'
 import { 高亮块元素 } from '../../../../utils/DOM/style.js'
 import { 打开tips右键菜单 } from '../../UI/tipsContextMenu.js'
 import { 切换钉住状态 } from '../../utils/item.js';
+import { postAction } from '../../actionRouter/index.js';
 function 高亮目标块(item) {
     if (item.targetBlocks) {
         高亮块元素(item.targetBlocks)
+    }
+}
+async function runAction(item){
+    if(item.$action){
+        await postAction(item.$action.actionRouter,JSON.parse(JSON.stringify(item.$action.params)))
+        item.deleted=true
     }
 }
 let {item} = defineProps(['item'])
