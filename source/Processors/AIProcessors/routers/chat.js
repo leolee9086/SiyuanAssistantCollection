@@ -1,4 +1,5 @@
 import { sac } from "../../../asyncModules.js";
+import { listModels } from "../adapters/loader.js";
 import { Adapter } from "../adapters/zhipu/index.js";
 let { Router } = sac.路由管理器
 let modelMap={}
@@ -18,5 +19,8 @@ const 对话补全路由 = new Router()
     console.log(modelMap)
     ctx.body.data =  await modelMap[model].process(messages)
     // ctx.body.data = await chatCompletions(messages,"",modelMap[model])
+})
+对话补全路由.post('/listModels',async(ctx,next)=>{
+    ctx.body.data = listModels()
 })
 export {对话补全路由 as chatCompletionsRouter}
