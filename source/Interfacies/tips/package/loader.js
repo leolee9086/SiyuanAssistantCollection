@@ -3,7 +3,6 @@ import { got } from '../../../utils/network/got.js'
 import { kernelWorker } from '../../../utils/webworker/kernelWorker.js';
 import { jieba } from '../../../utils/tokenizer/jieba.js';
 import { sac } from '../../../asyncModules.js';
-import {  处理并显示tips } from '../UI/render.js';
 import BlockHandler from '../../../utils/NoteData/BlockHandler.js';
 import { actionsRouter,actionFetch,postAction } from '../actionRouter/index.js';
 export const renderInstancies = []
@@ -36,7 +35,13 @@ function 初始化渲染实例(renderClass, renderName) {
     renderInstance.__proto__.postAction=postAction
     renderInstance.__proto__.kernelApi = kernelWorker
     renderInstance.__proto__.getBlockHandler=(id)=>{return new BlockHandler(id)}
-    renderInstance.__proto__.showTips = (data, editorContext) => {
+    renderInstance.__proto__.showTips=(data,editorContext)=>{
+        data.source = data.source||renderInstance.name
+        data.$context=structuredClone(editorContext)
+        console.log(data)
+        sac.eventBus.emit('tips-ui-show-tips',data)
+    }
+    /*renderInstance.__proto__.showTips = (data, editorContext) => {
         if (!editorContext) {
             console.warn(renderName + 'tips渲染出错', "没有提供合适的编辑器上下文")
         }
@@ -47,6 +52,6 @@ function 初始化渲染实例(renderClass, renderName) {
         } catch (e) {
             console.warn(renderName + 'tips渲染出错', e)
         }
-    }
+    }*/
     return renderInstance
 }

@@ -1,16 +1,22 @@
 import { sac } from "../../../asyncModules.js";
-import { chatCompletions } from "../adapters/zhipu/chat.js";
+import { Adapter } from "../adapters/zhipu/index.js";
 let { Router } = sac.路由管理器
-let modelMap={
-    'zhipu-characterglm':"characterglm",
-    'zhipu-chatglm-turbo':"chatglm_turbo",
-    'zhipu-chatglm-pro':"chatglm_pro"
-}
+let modelMap={}
+let zhipuAdapter=new Adapter()
+let {models} = zhipuAdapter.init()
+models['chat/completions'].forEach(
+    modelinfo=>{
+        let {id}=modelinfo
+        let scopedId = zhipuAdapter.nameSpace+'-'+id
+        modelMap[scopedId] = modelinfo
+    }
+)
 
 const 对话补全路由 = new Router()
 对话补全路由.post('/completions',async(ctx,next)=>{
     let {messages,model}=ctx.req.body
-    ctx.body.data =  await chatCompletions(messages,'729c9a1a27f517607c3c589cfcb12c1c.G4dVYc6SjaSiDbHE',modelMap[model])
-   // ctx.body.data = await chatCompletions(messages,"",modelMap[model])
+    console.log(modelMap)
+    ctx.body.data =  await modelMap[model].process(messages)
+    // ctx.body.data = await chatCompletions(messages,"",modelMap[model])
 })
 export {对话补全路由 as chatCompletionsRouter}

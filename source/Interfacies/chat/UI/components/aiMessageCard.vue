@@ -36,7 +36,9 @@
                         <use xlink:href="#iconRefresh"></use>
                     </svg>
                 </span>
-                <span class="
+                <span 
+                @click.prevent="复制消息内容"
+                class="
                 b3-tooltips 
                 b3-tooltips__nw 
                 block__icon 
@@ -81,6 +83,9 @@
 <script setup>
 import { defineProps } from 'vue'
 const { message } = defineProps(['message'])
+const 复制消息内容 = () => {
+  navigator.clipboard.writeText(message.content)
+}
 </script>
 <style>
 .sac-tips-buttons {

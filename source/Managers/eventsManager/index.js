@@ -8,7 +8,7 @@ import { 开始监听DOM键盘事件, DOM键盘事件表 } from "./DOMKeyBoardEv
 import { sac } from "./runtime.js";
 import { CronJob } from "../../utils/timer/index.js";
 import { watchEffect } from '../../../static/vue.esm-browser.js'
-import { buildWsChennel } from "./wsChanel.js";
+import { buildWsChannel } from "./wsChanel.js";
 //监听原生事件触发自定义事件
 启用收集protyle事件()
 开始监听DOM键盘事件()
@@ -47,15 +47,13 @@ export const use = (Emitter) => {
             }
         }
     }
-    emitter.ws=buildWsChennel(emitter.channel)
+    emitter.ws=buildWsChannel(emitter.channel)
     emitter.onload&&emitter.onload()
     registJobs(emitter)
     return emitter
 }
 export const emit = (channel, event, detail) => {
-   
     sac.eventBus.emit(channel + '-' + event, detail)
-    console.log(channel, event, detail)
 }
 export const registJobs = (Emitter) => {
     console.log(Emitter)

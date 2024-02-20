@@ -53,7 +53,6 @@ export async function 创建编辑器上下文() {
     tokens, // 直接赋值
     blockID: blockElement.getAttribute('data-node-id'),
     //  editableElement,
-    logger: sac.logger,
     currentToken: 当前光标所在分词结果, // 直接赋值
     blockDOM: blockElement.outerHTML,
     id:Lute.NewNodeID()

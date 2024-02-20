@@ -7,8 +7,8 @@ import { 准备渲染项目 } from "../utils/item.js";
 import { 限制待添加数组长度 } from "./cleaner.js";
 import { 去重待添加数组 } from "./cleaner.js";
 export let 待添加数组 = sac.statusMonitor.get('tips', 'current').$value || []
-export async function 处理并显示tips(data, 编辑器上下文, renderInstance) {
-    data.source = renderInstance.name
+
+export async function 处理并显示tips(data, 编辑器上下文) {
     if (data && data.item && data.item[0]) {
         let text = ''
         data.delete = () => {
@@ -35,7 +35,7 @@ export async function 处理并显示tips(data, 编辑器上下文, renderInstan
                             }
                         )
                         let currentEditorContext = sac.statusMonitor.get('context', 'editor').$value
-                        if(target&&target.contextID!==currentEditorContext.id){(target.deleted = true)}
+                        if(!currentEditorContext||target&&target.contextID!==currentEditorContext.id){(target.deleted = true)}
                     }, tipsItem.timeout)
                 }
             } catch (e) {

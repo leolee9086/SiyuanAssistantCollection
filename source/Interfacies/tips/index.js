@@ -11,6 +11,7 @@ import { 显示actions并生成tips渲染任务 } from './显示tips.js';
 import { initVueApp } from "../../UITools/loader/VueComponentsLoader.js"
 import { 输入事件发生在protyle内部 } from '../../utils/events/isIn.js';
 import '../../utils/tokenizer/learn.js'
+import { 处理并显示tips } from './UI/render.js';
 //markElementIfMouseOver(document);
 await sac.statusMonitor.set('tips', 'current', [])
 export const packages = [tipsRenderPackage]
@@ -77,6 +78,13 @@ export const Emitter = class {
                 console.error(e,renderName)
             }
         }
+        this.ws.listen('show-tips',(e)=>{
+            处理并显示tips(e.params)
+        })
+    }
+    ['show-tips']=(e)=>{
+        处理并显示tips(e,e.$context)
+        this.ws.call('show-tips',e)
     }
     channel = 'tips-ui';
     ["@main-" + sac.事件管理器.DOM键盘事件表.文本输入] = (e) => {

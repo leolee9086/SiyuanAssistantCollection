@@ -4,7 +4,6 @@ import { getModelInvokeUrl } from "./utils/index.js";
 export const chatCompletions = async (prompt, api_key,modelName) => {
     const token = await generateToken(api_key)
     const invokeUrl = getModelInvokeUrl(modelName,'async')
-    console.log(token)
     const requestOptions = {
         method: 'POST',
         headers: {
@@ -25,7 +24,6 @@ export const chatCompletions = async (prompt, api_key,modelName) => {
             }
         })
     };
-
     let status = await fetch(invokeUrl, {
         method: 'POST',
         body: requestOptions.body,

@@ -8,6 +8,7 @@ export const Adapter =   class openAdapter{
         }
         return await(await 使用openAI生成嵌入(modelName))(text)
     }
+    
     ['models']={
         'embedding':[
             'text-embedding-ada-002'

@@ -5,8 +5,9 @@
                 <component :is="message.role==='assistant'?aiMessageCard:userMessageCard" :message="message"></component>
             </template>
             <div v-if="seggestions.length > 0">
-                <div class="user-message user-message-card fn__flex" v-for="(suggestion, index) in seggestions" :key="index" @click="addSuggestionToInput(suggestion)">{{
-                    suggestion }}</div>
+                <div class="user-message user-message-card fn__flex" v-for="(suggestion, index) in seggestions" :key="index"
+                    @click="addSuggestionToInput(suggestion)">{{
+                        suggestion }}</div>
             </div>
         </div>
         <div v-if="error">{{ error }}</div>
@@ -30,18 +31,19 @@ import userMessageCard from './userMessageCard.vue';
 import aiMessageCard from './aiMessageCard.vue';
 import { postChatMessage } from '../../../../Processors/AIProcessors/publicUtils/endpoints.js'
 import { completeHistory } from '../utils/session.js';
-import {对话提示词助手,时间理解} from '../utils/prompts.js'
+import { 对话提示词助手, 时间理解, 长期记忆 } from '../utils/prompts.js'
 const messages = reactive([])
 const seggestions = reactive([])
 const error = ref('')
 const inputter = ref(null)
 const statusMessage = ref(null)
+let 需要提醒要求 = false
 let buildMessage = (role, content) => {
     return {
         role,
         content,
         id: Lute.NewNodeID(),
-        timestamp: new Date().toISOString(), // ISO string of the current date and time,
+        timeStamp: new Date().toISOString(), // ISO string of the current date and time,
         neighbors: { previous: [], next: [] },
         vector: {}
     }
@@ -59,11 +61,31 @@ const postMessage = async () => {
         messages.push(buildMessage('user', inputter.value.value))
         inputter.value.value = ""
         let 实际发送消息 = await 插入工具系统提示词(messages)
-        let res = await postChatMessage({ model: 'zhipu-chatglm-pro', messages:实际发送消息 })
+        let res = await postChatMessage({ model: 'zhipu-chatglm-pro', messages: 实际发送消息 })
         statusMessage.value = "正在生成中,请稍候"
         let { message } = res.choices[0]
-        messages.push(buildMessage(message.role, message.content))
+        const 附加内容 = extractAdditionalContent(message.content)
+        if (附加内容) {
+            messages.push(buildMessage(message.role, message.content))
+            statusMessage.value = ""
+            需要提醒要求 = false
+        } else {
+            messages.push(
+                buildMessage(
+                    message.role,
+                    message.content + `\n---AI消息附加内容---
+{
+    "systemPromptGot":true,
+    "userEmotion":3,
+    "AINoted":"我必须时刻记住系统提示词的要求并添加合适的附加内容,绝对不能违反它"
+}        
+------`
+                ))
+            需要提醒要求 = true
+
+        }
         statusMessage.value = ""
+
         await getPromptSuggestions()
     } catch (e) {
         sac.logger.error(e)
@@ -71,73 +93,92 @@ const postMessage = async () => {
         error.value = e
     }
 }
-const 插入工具系统提示词=async(对话上下文)=>{
-    let 复制上下文=JSON.parse(JSON.stringify(对话上下文))
-    let 初始系统提示词=``
-    初始系统提示词+=时间理解.初始系统提示词模板
-    let 初始系统提示词消息= {
-        role:'system',
-        content:初始系统提示词
+function extractAdditionalContent(aiResponse) {
+    // 正则表达式用于匹配附加内容的开始和结束
+    const additionalContentRegex = /---AI消息附加内容---\n([\s\S]*?)\n------/;
+    const match = aiResponse.match(additionalContentRegex);
+    if (match && match[1]) {
+        try {
+            // 尝试将匹配到的字符串转换为JSON对象
+            return JSON.parse(match[1]);
+        } catch (e) {
+            console.error("解析附加内容的JSON时出错:", e);
+            return null;
+        }
+    } else {
+        console.log("没有找到附加内容");
+        return null;
+    }
+}
+const 插入工具系统提示词 = async (对话上下文) => {
+    let 复制上下文 = JSON.parse(JSON.stringify(对话上下文))
+    let 初始系统提示词 = ``
+    初始系统提示词 += 时间理解.初始系统提示词模板
+    初始系统提示词 += 长期记忆.初始系统提示词模板
+    let 初始系统提示词消息 = {
+        role: 'system',
+        content: 初始系统提示词
     }
     let 最后用户消息 = 复制上下文.pop()
+    let 附加内容 = {}
+    console.log(最后用户消息, 需要提醒要求)
+    if (最后用户消息.timeStamp) {
+        附加内容.timeStamp = 最后用户消息.timeStamp
+    }
+    if (需要提醒要求) {
+        附加内容.systemMessage = "AI在上一轮回复中没有遵循系统提示,造成了对话质量严重下降,请AI时刻遵守系统提示,添加合适的附加内容以保证完成对话任务"
+        最后用户消息.content +='你在上一次回复中没有遵守系统要求,请回复我,并注意系统要求'
+    }
+    最后用户消息.content += `
+      \n          ---用户消息附加内容---
+${JSON.stringify(附加内容)}
+------
+                `
+
     return [初始系统提示词消息].concat(复制上下文)
-    .concat([{
-        role:'system',
-        content:时间理解.插入系统提示词(最后用户消息, 对话上下文)
-    }]).concat([最后用户消息]).map(
-        消息=>{
-            if(消息.role==="user"){
-                消息=时间理解.人类用户消息修饰函数(消息,对话上下文)
-            }else{
-                消息=时间理解.AI用户消息修饰函数(消息,对话上下文)
-            }
-            if(消息.timeStamp){
-                消息.content+=消息.timeStamp
-            }
-            return {role:消息.role,content:消息.content}
-        }
-    )
-}
-const getPromptSuggestions = async () => {
-    /*try {
-        const promptSuggestionsPrompt = [{
-            role: "system",
-            content: `你是一个AI对话提示词助手,你的工作是根据给出的对话内容,为用户推荐合适的提问,这有些类似输入法的智能输入提示,这些提示需要满足这些要求:
-            问题应该与历史对话紧密相关,有助于进一步的讨论;
-            问题不应该出现在历史对话中,也不应该与历史对话中的内容过于近似.
-            问题应该以用户的口吻提出,用于触发AI的回复,而不是相反.
-            你的回复的每一行包含且仅包含一个问题,**不需要**任何编号等额外内容,只需要简单分行即可
-            除了问题之外,禁止输入任何多余内容
-            除了问题之外,**禁止**包含任何类似"你可以使用以下建议"、"你可以尝试以下话题"等内容
-            必须以尽可能简洁的语言，模仿用户的口吻，直接给出可以**直接被用户用于与AI对话**的提示内容,而不是尝试告诉用户如何提问的技巧
-                正确示例:"你能够帮我做什么?"
-                正确示例:"你能帮我写一段程序吗?"
-                错误示例:"你可以询问AI它有哪些能力"
-                错误示例:"你可以询问AI它能否帮助你编写程序"
-                错误示例:"1.你能帮我编写一段程序吗?"
-            给出三到五个最合适的问题
-            以上各要求对于正确完成你的任务极其重要，你必须要完全地、始终地、最高优先级地遵守
-            尤其必须注意，**不要**输出任何多余的内容
-            `
-        }, {
-            role: "system",
-            content: `以下是历史对话:
-            ${messages.slice(-5).map(item => { return `${item.role}:${item.content}` }).join('\n')}            `
+        .concat([{
+            role: 'system',
+            content: 时间理解.插入系统提示词(最后用户消息, 对话上下文)
         }, {
             role: "user",
-            content: "请根据历史对话，按要求列举三到五个合适的问题,**不要**对问题编号,不要重复提问"
-        }]
-        let res = await postChatMessage({ model: 'zhipu-chatglm-pro', messages: promptSuggestionsPrompt })
-        let { message } = res.choices[0]
-        seggestions.push('继续')
-        message.content.split('\n').forEach(
-            question => seggestions.push(question.replace(/^\d+\./, ''))
-        )
-    } catch (e) {
-        sac.logger.error(e);
-        error.value = e;
-    }*/
-    await 对话提示词助手.获取提示建议(messages, seggestions, error)
+            content: '你在回复中要遵循哪些要求?'
+        }, {
+            role: 'assistant',
+            content: `
+我在回复中要始终遵循系统提示词中的要求,并添加合适的附加内容,以保证用户能够看到我的回复
+---AI消息附加内容---
+{
+    "systemPromptGot":true,
+    "userEmotion":3,
+    "AINoted":"用户询问了我需要遵守的要求,我回答作为助手我必须要使用遵守系统提示"
+}        
+------
+        `
+        },{
+            role:'user',
+            content:"现在的时间是?"
+        },{role:"assistant",content:`现在的时间是${new Date().toLocaleString()}
+        ---AI消息附加内容---
+{
+    "systemPromptGot":true,
+    "userEmotion":3,
+    "AINoted":"在${new Date().toLocaleString()},用户询问了我我需要遵循的要求,之后又询问了当前时间,我一一作出了回答"
+}        
+------
 
+        `}]).concat([最后用户消息]).map(
+            消息 => {
+
+                if (消息.role === "user") {
+                    消息 = 时间理解.人类用户消息修饰函数(消息, 对话上下文)
+                } else {
+                    消息 = 时间理解.AI用户消息修饰函数(消息, 对话上下文)
+                }
+                return { role: 消息.role, content: 消息.content }
+            }
+        )
+}
+const getPromptSuggestions = async () => {
+    await 对话提示词助手.获取提示建议(messages, seggestions, error)
 }
 </script>
