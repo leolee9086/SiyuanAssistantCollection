@@ -19,6 +19,12 @@
                 <div>自动发送选中tips:{{ false }}</div>
                 <div>MAGI模式:{{ false }}</div>
                 <div>自动总结对话内容并插入日记:{{ false }}</div>
+                <div>自动查询笔记:{{ false }}</div>
+                <div>笔记查询权限:{{ 1 }}</div>
+                <div>自动查询附件:{{ false }}</div>
+                <div>自动查询RSS:{{ false }}</div>
+                <div>调用工具前征求许可:{{ true }}</div>
+                <div>工具调用权限:{{ 2 }}</div>
             </div>
         </div>
         <div class='user-input-container'>
@@ -35,6 +41,7 @@ import userMessageCard from './userMessageCard.vue';
 import aiMessageCard from './aiMessageCard.vue';
 import { postChatMessage } from '../../../../Processors/AIProcessors/publicUtils/endpoints.js'
 import { 对话提示词助手, 时间理解, 长期记忆 } from '../utils/prompts.js'
+import {提取附加信息} from '../utils/additionalContent.js'
 const messages = reactive([])
 const seggestions = reactive([])
 const error = ref('')
@@ -90,7 +97,7 @@ const postMessage = async () => {
         let res = await postChatMessage({ model: currentModelName.value, messages: 实际发送消息 })
         statusMessage.value = "正在生成中,请稍候"
         let { message } = res.choices[0]
-        const 附加内容 = extractAdditionalContent(message.content)
+        const 附加内容 = 提取附加信息(message.content)
         if (附加内容) {
             messages.push(buildMessage(message.role, message.content))
             statusMessage.value = ""
@@ -99,11 +106,12 @@ const postMessage = async () => {
             messages.push(
                 buildMessage(
                     message.role,
-                    message.content + `\n---AI消息附加内容---
+                    message.content + `\n------
 {
     "systemPromptGot":true,
     "userEmotion":3,
-    "AINoted":"我必须时刻记住系统提示词的要求并添加合适的附加内容,绝对不能违反它"
+    "AINoted":"我必须时刻记住系统提示词的要求并添加合适的附加内容,绝对不能违反它",
+    "images":[]
 }        
 ------`
                 ))
@@ -119,23 +127,7 @@ const postMessage = async () => {
         error.value = e
     }
 }
-function extractAdditionalContent(aiResponse) {
-    // 正则表达式用于匹配附加内容的开始和结束
-    const additionalContentRegex = /---AI消息附加内容---\n([\s\S]*?)\n------/;
-    const match = aiResponse.match(additionalContentRegex);
-    if (match && match[1]) {
-        try {
-            // 尝试将匹配到的字符串转换为JSON对象
-            return JSON.parse(match[1]);
-        } catch (e) {
-            console.error("解析附加内容的JSON时出错:", e);
-            return null;
-        }
-    } else {
-        console.log("没有找到附加内容");
-        return null;
-    }
-}
+
 const 插入工具系统提示词 = async (对话上下文) => {
     let 复制上下文 = JSON.parse(JSON.stringify(对话上下文))
     let 初始系统提示词 = ``
@@ -156,7 +148,7 @@ const 插入工具系统提示词 = async (对话上下文) => {
         最后用户消息.content += '你在上一次回复中没有遵守系统要求,请回复我,并注意系统要求'
     }
     最后用户消息.content += `
-      \n          ---用户消息附加内容---
+      \n          ------
 ${JSON.stringify(附加内容)}
 ------
                 `
@@ -172,11 +164,12 @@ ${JSON.stringify(附加内容)}
             role: 'assistant',
             content: `
 我在回复中要始终遵循系统提示词中的要求,并添加合适的附加内容,以保证用户能够看到我的回复
----AI消息附加内容---
+------
 {
     "systemPromptGot":true,
     "userEmotion":3,
-    "AINoted":"用户询问了我需要遵守的要求,我回答作为助手我必须要使用遵守系统提示"
+    "AINoted":"用户询问了我需要遵守的要求,我回答作为助手我必须要使用遵守系统提示",
+    "images":[]
 }        
 ------
         `
@@ -185,11 +178,12 @@ ${JSON.stringify(附加内容)}
             content: "现在的时间是?"
         }, {
             role: "assistant", content: `现在的时间是${new Date().toLocaleString()}
-        ---AI消息附加内容---
+------
 {
     "systemPromptGot":true,
     "userEmotion":3,
-    "AINoted":"在${new Date().toLocaleString()},用户询问了我我需要遵循的要求,之后又询问了当前时间,我一一作出了回答"
+    "AINoted":"在${new Date().toLocaleString()},用户询问了我我需要遵循的要求,之后又询问了当前时间,我一一作出了回答",
+    "images":[]
 }        
 ------
 

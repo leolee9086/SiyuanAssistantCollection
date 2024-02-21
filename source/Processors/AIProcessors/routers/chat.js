@@ -1,26 +1,29 @@
 import { sac } from "../../../asyncModules.js";
-import { listModels } from "../adapters/loader.js";
-import { Adapter } from "../adapters/zhipu/index.js";
-let { Router } = sac.路由管理器
-let modelMap={}
-let zhipuAdapter=new Adapter()
-let {models} = zhipuAdapter.init()
-models['chat/completions'].forEach(
-    modelinfo=>{
-        let {id}=modelinfo
-        let scopedId = zhipuAdapter.nameSpace+'-'+id
-        modelMap[scopedId] = modelinfo
-    }
-)
+import { modelLoader } from "../adapters/loader.js";
 
-const 对话补全路由 = new Router()
-对话补全路由.post('/completions',async(ctx,next)=>{
-    let {messages,model}=ctx.req.body
-    console.log(modelMap)
-    ctx.body.data =  await modelMap[model].process(messages)
-    // ctx.body.data = await chatCompletions(messages,"",modelMap[model])
-})
-对话补全路由.post('/listModels',async(ctx,next)=>{
-    ctx.body.data = listModels()
-})
-export {对话补全路由 as chatCompletionsRouter}
+let { Router } = sac.路由管理器;
+
+const 对话补全路由 = new Router();
+
+对话补全路由.post('/completions', async (ctx, next) => {
+    let { messages, model } = ctx.req.body;
+    try {
+        // 使用modelLoader获取模型处理函数
+        const modelProcess = modelLoader.getModelProcess(model);
+        if (modelProcess && modelProcess.process) {
+            ctx.body.data = await modelProcess.process(messages);
+        } else {
+            throw new Error('模型处理函数未定义');
+        }
+    } catch (error) {
+        ctx.status = 404;
+        ctx.body = { error: error.message };
+    }
+});
+
+对话补全路由.post('/listModels', async (ctx, next) => {
+    // 直接使用modelLoader列出所有模型
+    ctx.body.data = modelLoader.listModels();
+});
+
+export { 对话补全路由 as chatCompletionsRouter };

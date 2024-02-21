@@ -76,6 +76,16 @@
                         <use xlink:href="#iconLike" transform="scale(1, -1) translate(0, -14)"></use>
                     </svg>
                 </span>
+                <span 
+                class="b3-tooltips 
+                b3-tooltips__nw 
+                block__icon 
+                block__icon--show" 
+                aria-label="更多">
+                    <svg>
+                        <use xlink:href="#iconMore" transform="scale(1, -1) translate(0, -14)"></use>
+                    </svg>
+                </span>
             </div>
         </div>
     </div>
