@@ -1,6 +1,6 @@
 export const Adapter =   class openAdapter{
     init(){
-
+        
     }
     async prepareEmbedding(text,modelName){
         if(!this.models.embedding.includes(modelName)){
@@ -8,7 +8,9 @@ export const Adapter =   class openAdapter{
         }
         return await(await 使用openAI生成嵌入(modelName))(text)
     }
-    
+    async chatCompletions(prompts,api_key,modelName){
+        
+    }
     ['models']={
         'embedding':[
             'text-embedding-ada-002'

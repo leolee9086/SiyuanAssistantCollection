@@ -6,8 +6,9 @@ export const docks ={
     aiChat:{
         init(element,data,tab){
             const app = initVueApp(
-                import.meta.resolve('./UI/components/chatContainer.vue'),
-                'rsscontent', {},
+             //   import.meta.resolve('./UI/components/chatContainer.vue'),
+             import.meta.resolve('./UI/components/aiSelector.vue'), 
+             'rsscontent', {},
                 'D:/思源主库/data/plugins/SiyuanAssistantCollection/source')
                 app.mount(element)
         }
