@@ -4,7 +4,7 @@
             <template v-for="message in messages">
                 <component :is="message.role==='assistant'?aiMessageCard:userMessageCard" :message="message"></component>
             </template>
-            <div >{{query  }}</div>
+            <div>{{ query }}</div>
             <div v-if="seggestions.length > 0">
                 <div class="user-message user-message-card fn__flex" v-for="(suggestion, index) in seggestions" :key="index"
                     @click="addSuggestionToInput(suggestion)">{{
@@ -37,6 +37,27 @@
             <textarea ref="inputter" id="user-input" :placeholder="currentModelName ? '请输入内容,右键打开设置' : '请先选择当前模型'"
                 :disabled="currentModelName ? false : true"
                 @click.right="(e) => { !currentModelName ? 以菜单选择主模型(e) : () => { } }" @keyup.ctrl.enter="postMessage()" />
+        </div>
+        <div class='sac-status fn__font-size-mini fn__flex'>
+            <div @click.stop="以菜单选择主模型">
+                <svg class="fn__icon-size-mini">
+                    <use xlink:href="#iconDown"></use>
+                </svg>
+
+                {{ currentModelName || '未选择' }}
+            </div>
+
+            <div class="fn__space fn__flex-1"></div>
+            <svg class="fn__icon-size-mini">
+                <use xlink:href="#iconSettings"></use>
+            </svg>
+            <div class="fn__space "></div>
+
+            <svg class="fn__icon-size-mini">
+                <use xlink:href="#iconBerry"></use>
+            </svg>
+            <div class="fn__space "></div>
+
         </div>
     </div>
 </template>
@@ -217,8 +238,8 @@ const getPromptSuggestions = async () => {
     await 对话提示词助手.获取提示建议(messages, seggestions, error)
 }
 const getResQuery = async () => {
-    query.length=0
-    queryResults.length=0
+    query.length = 0
+    queryResults.length = 0
     let text = await 参考资料查询助手.获取提示建议(messages, query, error)
     for await (let line of text) {
         let data = await 查询笔记内容(line)
@@ -236,3 +257,13 @@ const 查询笔记内容 = async (text) => {
     return await searchBlock(text)
 }
 </script>
+<style scoped>
+.fn__font-size-mini {
+    font-size: x-small;
+}
+
+.fn__icon-size-mini {
+    width: 0.6rem;
+    height: 0.6rem;
+}
+</style>
