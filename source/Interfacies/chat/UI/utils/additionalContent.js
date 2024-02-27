@@ -1,6 +1,6 @@
 export function 提取附加信息(回复文字内容) {
     // 正则表达式用于匹配附加内容的开始和结束
-    const 附加信息正则 = /------\n([\s\S]*?)\n------/;
+    const 附加信息正则 = /\`\`\`AIMessageAttach\n([\s\S]*?)\n\`\`\`/;
     const match = 回复文字内容.match(附加信息正则);
     if (match && match[1]) {
         try {

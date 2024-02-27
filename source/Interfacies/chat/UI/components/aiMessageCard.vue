@@ -12,8 +12,10 @@
 
         </div>
         <div>
-            <div style="color:black">
-                {{ message.content }}
+            <div  style="color:black;font-size: x-small!important;">
+                <div class="protyle-wysiwyg" v-html="sac.lute.Md2BlockDOM(message.content)">
+                    
+                </div>
             </div>
             <button class="b3-button size__small">
                 tips1
@@ -92,6 +94,7 @@
 </template>
 <script setup>
 import { defineProps } from 'vue'
+import { sac } from '../../../../asyncModules.js';
 const { message } = defineProps(['message'])
 const 复制消息内容 = () => {
   navigator.clipboard.writeText(message.content)

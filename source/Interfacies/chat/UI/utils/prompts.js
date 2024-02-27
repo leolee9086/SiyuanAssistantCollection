@@ -1,4 +1,20 @@
 import { postChatMessage } from "../../../../Processors/AIProcessors/publicUtils/endpoints.js";
+export const 生成初始系统提示词=()=>{
+    return 时间理解.初始系统提示词模板+长期记忆.初始系统提示词模板
+}
+export const 插入初始系统提示词 = async(对话上下文)=>{
+    let 复制上下文=JSON.parse(JSON.stringify(对话上下文))
+    let 初始系统提示词= 生成初始系统提示词()
+    let 初始系统提示词消息 = {
+        role:'system',
+        content:初始系统提示词
+    }
+    return [初始系统提示词消息].concat(复制上下文)
+}
+export const 获取最后用户消息 = async(对话上下文)=>{
+    return 对话上下文[对话上下文.length]-1
+}
+
 
 //这个对象是一个AI agent的prompt工程工具
 export const 时间理解={
@@ -14,14 +30,14 @@ AI必须遵守以下全部要求
 
 ## 添加AI消息附加内容
 AI必须在回复的最后以**JSON**形式添加附加内容,这一内容由AI生成并添加
-附加内容与AI的回复正文之间以'------'分割,格式如下
-------
+附加内容以markdown代码块形式添加,格式如下
+\`\`\`AIMessageAttach
 {
     "systemPromptGot":<布尔值,表示AI是否理解系统要求>,
     "AINoted":<字符串,供AI用于记录任何重要信息以供今后使用,必须包含最近几轮对话的内容总结>,
     "images":<一个图片信息数组>
 }
-------
+\`\`\`
 所有的附加内容必须被添加到**同一个JSON对象**中
 所有的AI消息附加内容只能出现在AI回复的附加内容区
 **每一条AI消息有且仅有一个附加内容区**,所有附加内容必须以**正确的JSON格式**,添加到这个附加内容对象的对应字段中
@@ -30,14 +46,40 @@ AI必须时刻注意添加正确格式的附加内容,这对完成任务非常�
 
 ## 读取用户消息附加信息
 聊天系统会在AI回复之前对用户消息进行分析,并添加必要的附加信息,AI需要根据用户消息附加信息的内容,调整AI的回复.
-用户消息附加信息与用户的消息之间以'------分割,格式如下:
-------
+用户消息附加信息以markdown代码块形式添加在消息最后,格式如下:
+\`\`\`UserMessageAttach
 {
     "timeStamp":<用户消息的发送时间>
 }
-------
+\`\`\`
 用户消息附加内容由聊天系统添加,AI只能读取
 用户消息附加内容只会出现在用户消息的附加内容区
+每一条用户消息只会有一个附加内容区
+AI引用用户消息附加内容必须遵守规定的引用格式
+
+### 用户选择的笔记
+用户当前选择的笔记将会以链接列表的形式展示在用户消息附加信息区,AI应当根据这些信息,在用户对笔记内容提出问题或者要求时做出回应
+用户选择的笔记的内容展示方式如下
+\`\`\`UserMessageAttach
+{selectedNotes:[
+    id:<笔记的id>,
+    content:<笔记的markdown文字内容>,
+    attrs:<笔记条目的属性>
+]}
+\`\`\`
+AI在回答中提及用户笔记时,必须以'[<笔记内容概括>](siyuan://blocks/<笔记id>)的**markdown**链接形式引用,而**不能**仅仅列出笔记的id
+用户选择的笔记中,((<笔记id> "链接文本"))格式的内容代表了对其他笔记的链接,AI可以请求阅读这些链接内容以更好地回答用户的问题.
+
+### 自动查询的笔记
+聊天系统将会根据当前对话上下文以链接列表的形式查询笔记内容并展示在用户消息附加信息区,AI可以参考这些信息, 更好地回答用户的问题
+自动查询笔记的内容展示方式如下
+\`\`\`UserMessageAttach
+{queriedNotes:[
+    id:<笔记的id>,
+    content:<笔记的markdown文字内容>,
+    attrs:<笔记条目的属性>
+]}
+\`\`\`
 
 ## 心情评估
 AI必须在**每一条**回复的附加内容中以userEmotion字段添加对用户心情的评估,评分为0至5的5分制,3分为中性或者无法判断,分数越高代表用户心情越积极
@@ -60,6 +102,37 @@ AI可以在AI附加信息中的AINoted字段添加对话笔记,这些笔记应�
 AI可以在系统提示和用户消息附加内容中找到参考资料。
 参考资料被用于辅助AI更有针对性的回答问题和提供帮助。
 AI应该在使用参考资料附加参考资料的链接。
+参考资料查询关键词可以是词语或者一句话。
+AI必须在附加信息中以如下格式请求更多参考资料:
+\`\`\`AIMessageAttach
+{
+    refsQuery:[<参考资料查询关键词>]
+}
+\`\`\`
+
+## 笔记阅读请求
+AI可以在AI附加信息中以noteNeeded:[<笔记id数组>]的形式要求阅读用户的笔记.
+这些笔记将在用户确认请求后提供给AI以便于AI更好地回答用户的问题.
+笔记阅读请求格式如下,注意AI能且仅能通过ID形式请求阅读笔记:
+\`\`\`AIMessageAttach
+{
+    noteNeed2Read:[<需要详细阅读的笔记链接id数组>]
+}
+\`\`\`
+
+## 更新笔记
+AI可以在AI附加信息中请求更新用户的笔记.
+AI能且仅能在用户要求时发起笔记更新请求.
+笔记更新请求格式如下:
+\`\`\`AIMessageAttach
+{
+    noteNeed2Update:[{
+        id:<笔记id>,
+        markdown:<更新后的kramdown内容>,
+        attrs:<更新后的笔记属性>
+    }]
+}
+\`\`\`
 
 ## 回复格式
 AI回复的主体必须是标准的markdown格式图文,所有附加内容必须以合适的字段出现在附加内容中。
@@ -77,8 +150,7 @@ AI可以通过在附加内容的image字段添加图片描述数组,来为用户
 AI不能以任何理由拒绝用户生成图片的要求。
 AI不能在正文中调用图片生成工具,只能通过附加内容参数调用
 图片描述数组的格式如下(其他附加内容字段已经省略)
-
----AI消息附加内容---
+\`\`\`AIMessageAttach
 {
     "images":[
         {
@@ -90,7 +162,7 @@ AI不能在正文中调用图片生成工具,只能通过附加内容参数调�
     "systemPromptGot":<布尔值,表示AI是否理解系统要求>,
     "AINoted":<字符串,供AI用于记录任何重要信息以供今后使用,必须包含最近几轮对话的内容总结>
 }
-------
+\`\`\`
 当被要求生成图片时,AI**不会**拒绝用户的要求,并必须在AI消息附加内容中添加合适的图片字段
 当被要求生成图片是,AI**不会**要求用户自行搜索图片,聊天系统会根据AI给出的图片描述数组生成合适的图片给用户
 当被要求生成图片时,AI**绝不能**表示AI无法生成
@@ -171,12 +243,11 @@ export const 对话提示词助手 = {
                 role: "user",
                 content: "请根据历史对话，按要求列举三到五个合适的问题,**不要**对问题编号,不要重复提问"
             }]
-            let res = await postChatMessage({ model: 'zhipu-chatglm-pro', messages: promptSuggestionsPrompt })
+            let res = await postChatMessage({ model: 'moonshot-moonshot-v1-128k', messages: promptSuggestionsPrompt })
             let { message } = res.choices[0]
             seggestions.push('继续,在回复中时刻遵守系统提示要求,尤其注意附加信息必须使用正确的内容和格式')
             seggestions.push('重新回答,在回复中时刻遵守系统提示要求,尤其注意附加信息必须使用正确的内容和格式')
             seggestions.push('我对你的上一条回答极其不满意,现在进行自我检查,注意有没有遵守系统提示要求并正确满足我的需求,然后重新回答我的问题,在回复中时刻遵守系统提示要求,并说明造成我不满的可能原因,尤其注意附加信息必须使用正确的内容和格式')
-
             message.content.split('\n').forEach(
                 question => seggestions.push(question.replace(/^\d+\./, ''))
             )
@@ -187,4 +258,33 @@ export const 对话提示词助手 = {
     }
 }
 
-
+export const 参考资料查询助手={
+    async 获取提示建议(messages, seggestions, error) {
+        try {
+            const promptSuggestionsPrompt = [{
+                role: "system",
+                content: `AI是一个AI对话参考资料查询助手,AI的工作是根据给出的对话内容,编写合适的查询语句,查询语句满足以下要求:
+                查询语句包含对历史对话关键词的总结
+                查询语句以自然语言形式输出必须简短精炼,一行一个关键词
+                查询语句关键词相互之间完全独立,但是每一条查询语句必须与上下文内容高度相关
+                以上各要求对于正确完成AI的任务极其重要,AI必须要完全地、始终地、最高优先级地遵守
+                尤其必须注意，**不要**输出任何多余的内容
+                `
+            }, {
+                role: "user",
+                content: `请根据历史对话，按要求列举三到五个合适的查询语句,**不要**对查询语句编号,不要重复查询语句，以下是历史对话内容:
+                ${messages.slice(-5).map(item => { return `${item.role}:${item.content}` }).join('\n')}} }).join('\n')}       
+                `
+            }]
+            let res = await postChatMessage({ model: 'moonshot-moonshot-v1-128k', messages: promptSuggestionsPrompt })
+            let { message } = res.choices[0]
+            message.content.split('\n').forEach(
+                question => seggestions.push(question.replace(/^\d+\./, ''))
+            )
+            return seggestions
+        } catch (e) {
+            console.error(e);
+            error.value = e;
+        }
+    }
+}

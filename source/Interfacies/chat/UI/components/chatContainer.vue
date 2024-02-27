@@ -4,17 +4,23 @@
             <template v-for="message in messages">
                 <component :is="message.role==='assistant'?aiMessageCard:userMessageCard" :message="message"></component>
             </template>
+            <div >{{query  }}</div>
             <div v-if="seggestions.length > 0">
                 <div class="user-message user-message-card fn__flex" v-for="(suggestion, index) in seggestions" :key="index"
                     @click="addSuggestionToInput(suggestion)">{{
                         suggestion }}</div>
+            </div>
+            <div v-if="queryResults.length > 0">
+                <div class="user-message user-message-card fn__flex" v-for="(line, index) in queryResults " :key="index"
+                    @click="addSuggestionToInput(line)">{{
+                        line }}</div>
             </div>
         </div>
         <div v-if="error">{{ error }}</div>
         <div v-if="statusMessage">{{ statusMessage }}</div>
         <div class="b3-card">
             <div class="b3-card_body">
-                <div @click.stop="显示模型选择菜单">当前对话主模型:{{ currentModelName || '未选择' }}</div>
+                <div @click.stop="以菜单选择主模型">当前对话主模型:{{ currentModelName || '未选择' }}</div>
                 <div>自动发送选中笔记:{{ false }}</div>
                 <div>自动发送选中tips:{{ false }}</div>
                 <div>MAGI模式:{{ false }}</div>
@@ -30,25 +36,41 @@
         <div class='user-input-container'>
             <textarea ref="inputter" id="user-input" :placeholder="currentModelName ? '请输入内容,右键打开设置' : '请先选择当前模型'"
                 :disabled="currentModelName ? false : true"
-                @click.right="(e) => { !currentModelName ? 显示模型选择菜单(e) : () => { } }" @keyup.ctrl.enter="postMessage()" />
+                @click.right="(e) => { !currentModelName ? 以菜单选择主模型(e) : () => { } }" @keyup.ctrl.enter="postMessage()" />
         </div>
     </div>
 </template>
 <script setup>
 import { ref, reactive } from 'vue'
-import { sac, clientApi } from '../../../../asyncModules.js';
+import { sac, clientApi, kernelApi } from '../../../../asyncModules.js';
 import userMessageCard from './userMessageCard.vue';
 import aiMessageCard from './aiMessageCard.vue';
 import { postChatMessage } from '../../../../Processors/AIProcessors/publicUtils/endpoints.js'
-import { 对话提示词助手, 时间理解, 长期记忆 } from '../utils/prompts.js'
-import {提取附加信息} from '../utils/additionalContent.js'
+import {
+    对话提示词助手,
+    时间理解,
+    长期记忆,
+    生成初始系统提示词,
+    参考资料查询助手
+} from '../utils/prompts.js'
+import { 提取附加信息 } from '../utils/additionalContent.js'
+import { 显示模型选择菜单 } from '../utils/menu.js'
+import { searchBlock } from '../../../../Processors/searchers/publicUtils/endPoints.js'
 const messages = reactive([])
 const seggestions = reactive([])
+const query = reactive([])
+const queryResults = reactive([])
+
 const error = ref('')
 const inputter = ref(null)
 const statusMessage = ref(null)
 const currentModelName = ref(null)
 let 需要提醒要求 = false
+const 以菜单选择主模型 = async (e) => {
+    let 模型名称 = await 显示模型选择菜单(e)
+    console.log(模型名称)
+    currentModelName.value = 模型名称
+}
 let buildMessage = (role, content) => {
     return {
         role,
@@ -59,28 +81,7 @@ let buildMessage = (role, content) => {
         vector: {}
     }
 }
-const 显示模型选择菜单 = async (e) => {
-    console.log(e)
-    const res = await sac.路由管理器.internalFetch('/ai/v1/chat/listModels', { method: "POST" })
-    const 模型列表 = res.body.data
-    console.log(模型列表)
-    const menu = new clientApi.Menu()
-    for (let 模型名称 of Object.keys(模型列表)) {
-        console.log(模型名称)
-        menu.addItem(
-            {
-                icon: "",
-                label: `使用${模型名称}`,
-                click: () => {
-                    console.log(模型名称)
-                    currentModelName.value = 模型名称
-                }
-            }
-        )
-    }
-    console.log(menu)
-    menu.open({ x: e.clientX, y: e.clientY })
-}
+
 const addSuggestionToInput = (suggestion) => {
     inputter.value.value = suggestion;
     seggestions.length = 0
@@ -88,10 +89,12 @@ const addSuggestionToInput = (suggestion) => {
 }
 const postMessage = async () => {
     error.value = ''
-    statusMessage.value = "正在发送中,请稍候"
+    statusMessage.value = "正在生成查询参数"
     seggestions.length = 0
     try {
         messages.push(buildMessage('user', inputter.value.value))
+        await getResQuery()
+        statusMessage.value = "正在发送中"
         inputter.value.value = ""
         let 实际发送消息 = await 插入工具系统提示词(messages)
         let res = await postChatMessage({ model: currentModelName.value, messages: 实际发送消息 })
@@ -106,14 +109,15 @@ const postMessage = async () => {
             messages.push(
                 buildMessage(
                     message.role,
-                    message.content + `\n------
+                    message.content + `
+\`\`\`AIMessageAttach
 {
     "systemPromptGot":true,
     "userEmotion":3,
     "AINoted":"我必须时刻记住系统提示词的要求并添加合适的附加内容,绝对不能违反它",
     "images":[]
 }        
-------`
+\`\`\``
                 ))
             需要提醒要求 = true
 
@@ -130,9 +134,7 @@ const postMessage = async () => {
 
 const 插入工具系统提示词 = async (对话上下文) => {
     let 复制上下文 = JSON.parse(JSON.stringify(对话上下文))
-    let 初始系统提示词 = ``
-    初始系统提示词 += 时间理解.初始系统提示词模板
-    初始系统提示词 += 长期记忆.初始系统提示词模板
+    let 初始系统提示词 = 生成初始系统提示词()
     let 初始系统提示词消息 = {
         role: 'system',
         content: 初始系统提示词
@@ -143,14 +145,28 @@ const 插入工具系统提示词 = async (对话上下文) => {
     if (最后用户消息.timeStamp) {
         附加内容.timeStamp = 最后用户消息.timeStamp
     }
+    if (document.querySelectorAll('.protyle-wysiwyg--select')[0]) {
+        附加内容.selectedNotes = []
+        let doms = document.querySelectorAll('.protyle-wysiwyg--select')
+        for (let blockDom of doms) {
+            let id = blockDom.getAttribute('data-node-id')
+            附加内容.selectedNotes.push(
+                {
+                    id: blockDom.getAttribute('data-node-id'),
+                    attrs: kernelApi.getBlockAttrs.sync({ id }),
+                    content: kernelApi.getBlockKramdown.sync({ id })
+                }
+            )
+        }
+    }
     if (需要提醒要求) {
         附加内容.systemMessage = "AI在上一轮回复中没有遵循系统提示,造成了对话质量严重下降,请AI时刻遵守系统提示,添加合适的附加内容以保证完成对话任务"
         最后用户消息.content += '你在上一次回复中没有遵守系统要求,请回复我,并注意系统要求'
     }
     最后用户消息.content += `
-      \n          ------
+\`\`\`UserMessageAttach
 ${JSON.stringify(附加内容)}
-------
+\`\`\`
                 `
 
     return [初始系统提示词消息].concat(复制上下文)
@@ -164,30 +180,28 @@ ${JSON.stringify(附加内容)}
             role: 'assistant',
             content: `
 我在回复中要始终遵循系统提示词中的要求,并添加合适的附加内容,以保证用户能够看到我的回复
-------
+\`\`\`AIMessageAttach
 {
     "systemPromptGot":true,
     "userEmotion":3,
     "AINoted":"用户询问了我需要遵守的要求,我回答作为助手我必须要使用遵守系统提示",
     "images":[]
 }        
-------
-        `
+\`\`\``
         }, {
             role: 'user',
             content: "现在的时间是?"
         }, {
             role: "assistant", content: `现在的时间是${new Date().toLocaleString()}
-------
+\`\`\`AIMessageAttach
 {
     "systemPromptGot":true,
     "userEmotion":3,
     "AINoted":"在${new Date().toLocaleString()},用户询问了我我需要遵循的要求,之后又询问了当前时间,我一一作出了回答",
     "images":[]
 }        
-------
-
-        `}]).concat([最后用户消息]).map(
+\`\`\`        
+`}]).concat([最后用户消息]).map(
                 消息 => {
 
                     if (消息.role === "user") {
@@ -201,5 +215,24 @@ ${JSON.stringify(附加内容)}
 }
 const getPromptSuggestions = async () => {
     await 对话提示词助手.获取提示建议(messages, seggestions, error)
+}
+const getResQuery = async () => {
+    query.length=0
+    queryResults.length=0
+    let text = await 参考资料查询助手.获取提示建议(messages, query, error)
+    for await (let line of text) {
+        let data = await 查询笔记内容(line)
+        data.item.forEach(
+            item => queryResults.push({
+                id: item.id,
+                content: item.description
+            })
+        )
+
+    }
+
+}
+const 查询笔记内容 = async (text) => {
+    return await searchBlock(text)
 }
 </script>

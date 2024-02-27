@@ -1,6 +1,6 @@
 import { Adapter as Zhipu } from "./zhipu/index.js"
 import { Adapter as Qwen } from "./qwen/index.js"
-
+import { Adapter as moonshot } from "./moonshotAI/index.js";
 class ModelLoader {
     constructor() {
       this.modelMap = {};
@@ -44,6 +44,7 @@ class ModelLoader {
   const modelLoader = new ModelLoader();
   modelLoader.registerAdapter(Zhipu);
   modelLoader.registerAdapter(Qwen);
+  modelLoader.registerAdapter(moonshot)
   modelLoader.init();
   
   export { modelLoader };

@@ -32,7 +32,7 @@
                 </span>
             </div>
             <div class="user-message-content" v-if="!isEditing" contenteditable="true">
-                <p>{{ message.content }}</p>
+                <div >{{ message.content }}</div>
             </div>
         </div>
     </div>
