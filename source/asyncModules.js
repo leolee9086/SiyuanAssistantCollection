@@ -1,15 +1,16 @@
 //import * as jieba from '../static/jieba_rs_wasm.js'
+//await jieba.default(import.meta.resolve(`../static/jieba_rs_wasm_bg.wasm`));
+
 import kernelApi from './polyfills/kernelApi.js';
-//为了在webworker环境中可以使用
 let pluginName  = import.meta.resolve('../').split('/').filter(item=>{return item}).pop()
-let pluginInstance
-let clientApiInstance
-pluginInstance=globalThis[Symbol.for(`plugin_${pluginName}`)]
-clientApiInstance=globalThis[Symbol.for(`clientApi`)]
+let pluginInstance=globalThis[Symbol.for(`plugin_${pluginName}`)]
+let clientApiInstance=globalThis[Symbol.for(`clientApi`)]
 export {clientApiInstance as clientApi}
+export {pluginInstance as pluginInstance}
 export {pluginInstance as plugin}
-export {pluginInstance as sac}
 export {kernelApi as kernelApi}
+
+
 export const Constants = {
     helpID:'20231028183434-6oflpzo',
     HELP_PATH : {
@@ -24,7 +25,5 @@ export const Constants = {
     Plugin_Help_name:{
         zh_CN: "SAC-请从这里开始",
     },
-    CB_MOUNT_REMOVE:"cb-mount-remove",
-    模型存放地址:'/data/public/onnxModels/',
-    思源常量:clientApiInstance?clientApiInstance.Constants:undefined
+    CB_MOUNT_REMOVE:"cb-mount-remove"
 }

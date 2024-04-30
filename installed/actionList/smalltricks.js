@@ -1,9 +1,4 @@
-import { plugin, kernelApi, clientApi } from "../runtime.js";
-async function 以文本查找最相近文档(textContent, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数) {
-    let embedding = await plugin.文本处理器.提取文本向量(textContent)
-    let vectors = plugin.块数据集.以向量搜索数据('vector', embedding, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数)
-    return vectors
-}
+import { plugin,kernelApi,clientApi } from "../runtime.js";
 export default (_context) => {
     return [
         {
@@ -60,7 +55,7 @@ export default (_context) => {
                 context.token.delete()
                 console.log(await 获取块嵌入向量(blockElement.dataset.nodeId, true))
             },
-
+            
         },
         {
             icon: "",
@@ -74,7 +69,7 @@ export default (_context) => {
                 embeddingDataBase[doc.id].block = root._block
 
             },
-
+            
         },
         {
             icon: "",
@@ -88,9 +83,16 @@ export default (_context) => {
             },
             hintAction: async (context) => {
                 //因为查询结果不主动删除是不会被删掉的,所以查询的时候要加一个前置过滤
+                console.log(context, context.plugin)
                 let 块数据集 = context.plugin.块数据集
                 let plugin = context.plugin
-                
+                console.log(plugin)
+                let { kernelApi } = context
+                async function 以文本查找最相近文档(textContent, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数) {
+                    let embedding = await context.plugin.文本处理器.提取文本向量(textContent)
+                    let vectors = 块数据集.以向量搜索数据('vector', embedding, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数)
+                    return vectors
+                }
                 let results = await 以文本查找最相近文档(context.blocks[0].content, 10, '', false, null, (b) => {
                     return kernelApi.checkBlockExist.sync({ id: b.meta.id })
                 })
@@ -110,29 +112,33 @@ export default (_context) => {
             label: `笔记里的相近块`,
             hints: '搜索',
             matchMod: 'any',
-            tipRender: async (context) => {
-                let results = await 以文本查找最相近文档(context.blocks[0].content, 5, '', false, null)
-                results = results.filter(
-                    item => {
+            tipRender:async(context)=>{
+                async function 以文本查找最相近文档(textContent, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数) {
+                    let embedding = await context.plugin.文本处理器.提取文本向量(textContent)
+
+                    let vectors = plugin.块数据集.以向量搜索数据('vector', embedding, count, 查询方法, 是否返回原始结果, 前置过滤函数, 后置过滤函数)
+                    return vectors
+                }
+                let results = await 以文本查找最相近文档(context.blocks[0].content, 30, '', false, null)
+                results= results.filter(
+                    item=>{
                         return !document.querySelector(`[href="siyuan://blocks/${item.meta.id}"]`)
                     }
                 )
-                if (results[0]) {
-                    let item=[]
+                let div = document.createElement('div')
+                let markdown = ''
+                if(results[0]){
                     for (let result of results) {
-                        item.push(
-                            {
-                                title: '笔记里的相近块', 
-                                link: `siyuan://blocks/${result.meta.id}`, 
-                                description: `${result.meta.content.substring(0,36)}@score:${result.similarityScore}`,
-                            }
+                        div.insertAdjacentHTML(
+                            'beforeEnd',
+                            `<div><a href="siyuan://blocks/${result.meta.id}">${result.meta.content.substring(0,36)}@score:${result.similarityScore}</a></div>`
+    
                         )
+                        markdown+=`[${result.meta.content}](siyuan://blocks/${result.meta.id})`
+                        
                     }
-                    return { 
-                        title:"笔记里的相近块",
-                        link:`siyuan://blocks/${context.blocks[0].id}`,
-                        item
-                    }
+                    return {element:div,markdown:markdown}
+    
                 }
             }
         },

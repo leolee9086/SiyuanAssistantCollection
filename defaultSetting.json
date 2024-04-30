@@ -40,19 +40,20 @@
             ]
         }
     },
-    "自动搜索设置": {
-        "搜索结果中包含块搜索结果": {
+    "自动搜索设置":{
+        "搜索结果中包含块搜索结果":{
             "$value": true,
             "$describe": {
                 "zh_CN": "在给AI的自动参考中是否包含对工作空间中所有内容块进行搜索的结果"
             }
         },
-        "搜索结果中包含网络搜索结果": {
+        "搜索结果中包含网络搜索结果":{
             "$value": true,
             "$describe": {
                 "zh_CN": "在给AI的自动参考中是否包含联网进行搜索的结果(注意隐私,且仅electron中可用)"
             }
         }
+
     },
     "聊天工具设置": {
         "默认AI": {
@@ -72,10 +73,10 @@
         "对话备份自动清理": false,
         "自动给出参考": false,
         "自动发送最近文档": false,
-        "插入回复样本提示": true,
+        "插入回复样本提示":true,
         "自动发送当前搜索结果": false,
         "自动发送上一次选择的块": false,
-        "自动发送当前所有tips": false,
+        "自动发送当前所有tips":false,
         "发送参考时文档和标题块发送全部内容": {
             "$value": false,
             "$describe": {
@@ -101,19 +102,19 @@
                 "ZHIPU"
             ]
         },
-        "由AI自行决定是否需要参考": false,
-        "允许AI自行阅读它编写的嵌入块": false,
-        "显示全部历史": true
+        "由AI自行决定是否需要参考":false,
+        "允许AI自行阅读它编写的嵌入块":false,
+        "显示全部历史":true
     },
     "模型设置": {
-        "ZHIPU": {
+        "ZHIPU":{
             "api_key": "",
-            "temperature": {
-                "$value": 0.95,
-                "$type": "range",
-                "$min": 0.1,
-                "$max": 1,
-                "$step": 0.05
+            "temperature":{
+                "$value":0.95,
+                "$type":"range",
+                "$min":0.1,
+                "$max":1,
+                "$step":0.05
             }
         },
         "SPARK": {
@@ -154,15 +155,15 @@
             },
             "apiProxy": "",
             "apiTimeout": 60,
-            "temperature": {
-                "$value": 0,
-                "$type": "range",
-                "$min": 0,
-                "$max": 2,
-                "$step": 0.1
+            "temperature":{
+                "$value":0,
+                "$type":"range",
+                "$min":0,
+                "$max":2,
+                "$step":0.1
             }
         },
-        "stable diffusion": {
+        "stable diffusion":{
             "apiBaseURL": ""
         }
     },
@@ -196,21 +197,6 @@
             "$value": "点击打开动作菜单",
             "$type": "button",
             "$emit": "sac-open-menu-hintmenu"
-        }
-    },
-    "RSS": {
-        "知乎日报": {
-            "名称": "知乎日报",
-            "路径": "/zhihu/daily",
-            "周期": {
-                "$value": 50,
-                "$describe": "默认刷新间隔秒数"
-            }
-        },
-        "添加rss":{
-            "$value": "添加新的RSS订阅",
-            "$type": "button",
-            "$emit": "sac-open-dialog-addRss"
         }
     }
 }

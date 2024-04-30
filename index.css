@@ -3,6 +3,9 @@
     pointer-events: none;
     border: 1px dashed blue;
 }
+
+
+
 .chat-container {
     overflow-y: auto;
     border: 1px solid #ccc;
@@ -59,20 +62,13 @@
 #confirm-btn {
     background-color: #28a745;
 }
-.user-message,.ai-message {
-    align-self: flex-start;
+.user-message {
+    align-self: flex-end;
     background-color: #007bff;
+    color: #fff;
     border-radius: 5px;
     margin: 5px;
     padding: 5px;
-    width: 90%;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); /* 卡片的阴影 */
-}
-.user-message{
-    color: #fff;
-}
-.ai-message{
-    align-self: flex-end;
 }
 
 .insert-button {
@@ -136,64 +132,3 @@
     height: 100%;
     overflow-y: scroll;
 }
-div[custom-chat-role] [contenteditable="true"]::before {
-    content: "•";
-    color: red;
-    margin-right: 5px;
-    display: inline;
-}
-div[custom-chat-role="user"] [contenteditable="true"]::before {
-    content: "•";
-    color: blue;
-    margin-right: 5px;
-    display: inline;
-}
-
-div[custom-chat-role="system"] [contenteditable="true"]::before {
-    content: "•";
-    color: green;
-    margin-right: 5px;
-    display: inline;
-}
-
-div[custom-chat-role="assistant"] [contenteditable="true"]::before {
-    content: "•";
-    color: red;
-    margin-right: 5px;
-    display: inline;
-}
-.sac-rss-card{
-    margin:16px 16px 16px 16px;
-}
-.cc__divider::after{
-    content:"";
-    border-left: 1px solid var(--b3-theme-on-surface-light);
-    margin-left:8px;
-    margin: 4px 4px;
-    width:3px;
-    height: calc(100% - 6px);
-    display: block;
-}
-.cc__divider__vertical::after{
-    content:"";
-    border-bottom: 1px solid var(--b3-theme-on-surface-light);
-    margin: 6px 4px;
-    display: block;
-}
-.surface-::after{
-    color:var(--b3-theme-surface-lighter);
-}
-
-
-
-
-.protyle-wysiwyg.protyle-wysiwyg--attr[custom-chat="true"]>:nth-child(odd) {
-    background-color:var(--b3-theme-primary);
-    margin-right: 30%;
-}
-  
-.protyle-wysiwyg.protyle-wysiwyg--attr[custom-chat="true"]>:nth-child(even) {
-    background-color:var(    --b3-theme-success);
-    margin-left: 30%;
-    text-align: right;
-  }

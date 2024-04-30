@@ -1,22 +1,5 @@
-import { hasClosestBlock } from "./DOM/DOMFinder.js";
-export function findTokenElement(current, range) {
-  if (current.nodeType === 1 && current.classList.contains("token")) {
-    return current;
-  }
-  if (current.childNodes.length > 0) {
-    for (let i = 0; i < current.childNodes.length; i++) {
-      const child = current.childNodes[i];
-      const tokenElement = findTokenElement(child, range);
-      if (tokenElement) {
-        return tokenElement;
-      }
-    }
-  }
-  if (range.startContainer === current || range.endContainer === current) {
-    return current.parentElement;
-  }
-  return null;
-}
+import { pluginInstance as plugin } from "../asyncModules.js";
+import { findTokenElement } from "../UI/tokenMenu.js";
 
 export function 获取光标所在位置() {
     let 空位置 = { pos: null, element: null };
@@ -40,45 +23,27 @@ export function 获取光标所在位置() {
         current = current.parentNode;
     }
     // 限制范围在可编辑祖先内
-    const limitedRange = 获取元素内文字选区偏移(current);
+    const limitedRange = plugin.选区处理器.获取元素内文字选区偏移(current);
     const tokenElement = findTokenElement(current, range);
     return {
         pos: limitedRange,
         editableElement: current,
-        blockElement: hasClosestBlock(current),
+        blockElement: plugin.DOM查找器.hasClosestBlock(current),
         parentElement: tokenElement,
         range: range
     };
 }
-export function getEditorRange(nodeElement) {
-  const selection = window.getSelection();
-  if (selection.rangeCount > 0) {
-    const range = selection.getRangeAt(0);
-    // 确保选区范围在指定的节点元素内
-    if (nodeElement.contains(range.startContainer) && nodeElement.contains(range.endContainer)) {
-      return range;
-    }
-  }
-  // 如果没有选区或选区不在节点元素内，则创建一个新的范围
-  const range = document.createRange();
-  range.selectNodeContents(nodeElement);
-  range.collapse(true); // 折叠范围到起始位置，即光标位置
-  return range;
-}
+
 export function 获取选区屏幕坐标(nodeElement, range) {
-    if (nodeElement&&!range) {
+    if (!range) {
       range = getEditorRange(nodeElement);
     }
-    if(!range){
-      range = window.getSelection().getRangeAt(0)
-    }
-    if (nodeElement&&!nodeElement.contains(range.startContainer)) {
+    if (!nodeElement.contains(range.startContainer)) {
       return {
         left: 0,
         top: 0,
       };
     }
-  
     let cursorRect;
     if (range.getClientRects().length === 0) {
       if (range.startContainer.nodeType === 3) {
@@ -149,7 +114,7 @@ export function 获取选区屏幕坐标(nodeElement, range) {
 // 辅助方法,限制范围在指定元素内
 export function 获取元素内文字选区偏移(element) {
   let caretOffset = 0;
-  const doc = element.ownerDocument || element.document||document;
+  const doc = element.ownerDocument || element.document;
   const win = doc.defaultView || doc.parentWindow;
   let sel;
   if (typeof win.getSelection != "undefined") {
@@ -169,13 +134,4 @@ export function 获取元素内文字选区偏移(element) {
     caretOffset = preCaretTextRange.text.length;
   }
   return caretOffset;
-}
-export function 获取当前光标所在分词结果(分词结果数组, pos) {
-    let 当前光标所在分词结果数组 = 分词结果数组.filter(token => {
-        return (token.start <= pos && token.end >= pos) && (token.word && token.word.trim().length >= 1);
-    }).sort((a, b) => {
-        return b.word.length - a.word.length;
-    });
-
-    return 当前光标所在分词结果数组[0] || null;
 }

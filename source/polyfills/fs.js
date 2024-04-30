@@ -1,44 +1,26 @@
 import mimes from "./mimeDb.js";
 import path from "./path.js";
 import kernelApi from "./kernelApi.js";
-export let readFile = async (file, bin) => {
+export let readFile = async (file) => {
   let res = await fetch("/api/file/getFile", {
     method: "POST",
     body: JSON.stringify({
       path: file,
     }),
   });
-  if (res.status !== 200 && res.status !== 202) {
+  if (res.status !== 200&&res.status !== 202) {
     console.error(`${file}读取错误`);
   }
   if (res.status === 202) {
     console.error(`${file}不存在,内容为undefined`);
-    return;
+    return
   }
   let mime = await res.headers.get("Content-Type");
-  if (isText(mime) && !bin) {
-    // 使用流处理文本文件
+  if (isText(mime)) {
     return await res.text();
   } else {
-    // 使用流处理二进制文件
-    const reader = res.body.getReader();
-    let chunks = [];
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) {
-        break;
-      }
-      chunks.push(value);
-    }
-    // Concatenate all data chunks to a single ArrayBuffer
-    let totalLength = chunks.reduce((total, chunk) => total + chunk.length, 0);
-    let result = new Uint8Array(totalLength);
-    let offset = 0;
-    for (let chunk of chunks) {
-      result.set(chunk, offset);
-      offset += chunk.length;
-    }
-    return result;
+    let buf = await res.arrayBuffer();
+    return buf;
   }
 };
 export function readFileSync(file) {
@@ -73,7 +55,7 @@ Object.getOwnPropertyNames(mimes).forEach((type) => {
     });
   }
 });
-export let writeFile = async (path, content, flag) => {
+export let writeFile = async (path,content,flag) => {
   if (!flag) {
     let extension = path.split(".").pop();
     let blob = new Blob([content], {
@@ -82,12 +64,12 @@ export let writeFile = async (path, content, flag) => {
     let file = new File([blob], path.split("/").pop(), {
       lastModified: Date.now(),
     });
-    return await writeFileDirectly(path, file);
+    return await writeFileDirectly( path,file);
   } else {
-    return await writeFileDirectly(path, content);
+    return await writeFileDirectly(path,content);
   }
 };
-export let writeFileDirectly = async (path, file) => {
+export let writeFileDirectly = async ( path,file) => {
   let data = new FormData();
   data.append("path", path);
   data.append("file", file);
@@ -121,7 +103,7 @@ export let exists = async (name) => {
     if (parentDir !== '') {
       let files = await readDir(parentDir);
       let result = files.find((file) => {
-        return path.join(parentDir, file.name) == name || path.join(parentDir, file.name) + '/' == name;
+        return path.join(parentDir, file.name) == name||path.join(parentDir, file.name)+'/' == name;
       });
       return result || undefined;
     } else {
@@ -157,20 +139,20 @@ export function isText(mime) {
     return true;
   } else return false;
 }
-export let removeFile = async (path) => {
-  await kernelApi.removeFile({ path: path })
+export let  removeFile=async(path)=>{
+  await kernelApi.removeFile({path:path})
 }
-export let copyFile = async (path1, path2) => {
-  let content = await readFile(path1)
-  await writeFile(path2, content);
+export let copyFile=async(path1,path2)=>{
+  let content= await readFile(path1)
+  await writeFile(path2,content);
 
 }
 export let initFile = async (path, data) => {
   if (!(await exists(path))) {
     if (data === undefined) {
-      await writeFile(path, "",);
+      await writeFile(path,"", );
     } else {
-      await writeFile(path, data);
+      await writeFile(path,data);
     }
   }
 };
