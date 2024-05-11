@@ -1,37 +1,41 @@
-## Note
+## Caution
 
 This plugin is still in the early stages of development, please be sure to pay attention to data safety when using it.
-Features
 
-This is a utility function and AI assistant collection plugin (SiyuanAssistantCollection), not meaning Stand Alone Complex.
+**Some features may consume a large number of tokens, be sure to know what you are doing before enabling them.**
 
-It mainly includes some practical small functions, as well as some AI assistant interface docking.
+## Features
 
-**Some features may consume a large amount of tokens, make sure you know what you're doing before enabling them**
+This is a utility and AI assistant collection plugin (SiyuanAssistantCollection), not meaning Stand Alone Complex.
+
+It mainly includes some practical small tools and some AI assistant interface integrations.
+
+## Usage Help:
+
+The help documentation is currently hosted at http://www.ccsjhn.com/block/20231028183445-7ww7twf
+
+## License
+
+Please refer to the respective licenses of external dependencies used, which are not listed for now.
+Apart from these, it uses AGPL-3.0-or-later, refer to the official website and the license file in this folder for details about the license.
 
 
-## User Guide:
-
-Click on the "Open Help" on the SAC panel on the interface to open the user guide. Please also refer to the user guide for other content related to the plugin.
-License
-
-Please refer to their respective licenses for the external dependencies used. There is currently no time to list them. In addition to this, AGPL-3.0-or-later is used, for the content of the license, please refer to the official website and the license file in this folder.
-
-## Thanks
+## Acknowledgements
 
 The vector embedding part uses the transformers.js library.
 
 The vector embedding part uses shibing624's text2vec-base-chinese model.
 
-Word segmentation depends on jieba and pinyin.
+Dependencies for segmentation include jieba and pinyin.
 
-## Others
+## Miscellaneous
 
-About the beam-bearing design: We actually do interior design (well, we also do architectural planning, landscape, and gardening), you can check our Xiaohongshu and Zhihu if you don't believe it. If anyone wants to do interior design, you can contact us~~~
+Regarding architectural design: We actually do interior design (well, we also do architectural planning, landscape, and garden design), don't believe it? Check out our Xiaohongshu and Zhihu. If anyone needs interior design services, feel free to contact us~~~
 
-Also, if you find this useful, you can buy us a cup of coffee, there should be a QR code below but they are broken, wait for me to fix the image hosting, um, this is the begging link of Aifadian: https://afdian.net/a/leolee9086
+Additionally, if you find this tool useful, you can buy us a coffee. The QR codes should be below but they are broken, I'll fix the image hosting soon. Ah, here is the link for donations: https://afdian.net/a/leolee9086
 
-If it's useful to you, you can buy us a cup of coffee.
+
+If you find it useful, you can buy us a coffee.
 
 ![](https://ccds-1300128285.cos.ap-guangzhou.myqcloud.com/%E5%BE%AE%E4%BF%A1%E6%94%B6%E6%AC%BE%E7%A0%811.jpg)
 
@@ -39,8 +43,8 @@ If it's useful to you, you can buy us a cup of coffee.
 
 ## Donor List
 
-Thanks to the following GitHub users for their donations
+Thanks to the following friends for their donations:
 
 [https://github.com/Lantern51816](https://github.com/Lantern51816)
 
-[今年精力花费在尝试解决财务自由上](https://2596981615@qq.com)
+[Spent this year trying to achieve financial freedom](https://2596981615@qq.com)
