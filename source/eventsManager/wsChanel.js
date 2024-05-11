@@ -2,12 +2,15 @@ import logger from "../logger/index.js";
 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 const socket = new WebSocket(`${protocol}//${window.location.host}/ws/broadcast?channel=test`);
 const socket1 = new WebSocket(`${protocol}//${window.location.host}/ws/broadcast?channel=test`);
-
 // 发送消息
 logger.wslog(socket)
 addAutoReconnect(socket)
 function sendMessage(message) {
-  socket.send(message);
+  try{
+   socket.send(message);
+  }catch(e){
+    console.warn(e)
+  }
 }
 
 // 接收消息
@@ -44,4 +47,5 @@ setInterval(() => {
       // Increase the delay exponentially
       delay *= 2;
     });
+    
   }
