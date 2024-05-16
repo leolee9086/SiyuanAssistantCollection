@@ -1,6 +1,6 @@
 const { Plugin } = require("siyuan");
 const clientApi = require("siyuan");
-globalThis[Symbol.for(`clientApi`)]=globalThis[Symbol.for(`clientApi`)]||siyuan
+globalThis[Symbol.for(`clientApi`)]=globalThis[Symbol.for(`clientApi`)]||clientApi
 
 /**
  * 这个必须同步声明
