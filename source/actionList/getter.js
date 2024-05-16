@@ -4,19 +4,19 @@ import { 处理单个动作表 } from "./index.js";
 import { 设置器 } from "./index.js";
 import { plugin } from "../asyncModules.js";
 import logger from '../logger/index.js'
-const {statusMonitor} =plugin
+const { statusMonitor } = plugin
 export async function 根据上下文获取动作表(context, signal) {
     let 备选动作表 = []
     if (signal && signal.aborted) {
         return 备选动作表
     }
-    for (let i = 0; i < 动作总表.length; i++) {
+     for ( let i = 0; i < 动作总表.length; i++) {
         if (signal && signal.aborted) {
             return []
         }
         try {
-           let 动作表 = 动作总表[i];
-            await 处理动作表(动作表, 备选动作表, context, signal)
+            let 动作表 = 动作总表[i];
+            动作表= await 处理动作表(动作表, 备选动作表, context, signal)
         } catch (e) {
             logger.actionListwarn(e, 动作总表[i]);
         }
@@ -28,9 +28,9 @@ async function 处理动作表(动作表, 备选动作表, 执行上下文, 取�
         if (动作表.provider !== 'meta_js') {
             return;
         }
-        if(设置器.get("动作设置", "关键词动作设置", 动作表.provider).$value===undefined){
+        if (设置器.get("动作设置", "关键词动作设置", 动作表.provider).$value === undefined) {
             let 默认配置 = 设置器.get("动作设置", "默认开启新动作表").$value
-            if(!默认配置){
+            if (!默认配置) {
                 return;
             }
         }
@@ -38,18 +38,19 @@ async function 处理动作表(动作表, 备选动作表, 执行上下文, 取�
     if (取消信号 && 取消信号.aborted) {
         return;
     }
+
     // 筛选出合适的动作
     let f = await 智能防抖(
         获取过滤器函数(动作表, 取消信号),
         (当次执行间隔, 平均执行时间) => {
             logger.actionListwarn(`动作表${动作表._动作表路径}生成时间过长,已经阻断,当前执行间隔为${当次执行间隔},平均执行时间为${平均执行时间},优化生成函数可能改善`)
-            statusMonitor.set('动作表状态',动作表._provider,'slow')
+            statusMonitor.set('动作表状态', 动作表._provider, 'slow')
         }
     )
     if (取消信号 && 取消信号.aborted) {
         return;
     }
-    f ? f(备选动作表, 执行上下文, 取消信号) : null
+    f ?await f(备选动作表, 执行上下文, 取消信号) : null
 }
 
 let 过滤器函数表 = new Map();
@@ -88,10 +89,12 @@ async function 处理动作(动作, 动作表, 备选动作表, context, signal)
     }
     if (动作.blocksFilter && !context.token) {
         flag = 动作.blocksFilter(context.blocks);
+        
     }
     if (!动作.blocksFilter && !context.token) {
         flag = true
     }
+
     if (flag) {
         备选动作表.push(动作);
     }
@@ -116,7 +119,7 @@ function 创建过滤器函数(动作表) {
             try {
                 let 动作 = _动作表[j];
                 动作._动作表路径 = 动作表._动作表路径
-                动作.provider=动作表.provider
+                动作.provider = 动作表.provider
                 await 处理动作(动作, 动作表, 备选动作表, context, signal);
             } catch (e) {
                 logger.actionListwarn(e, _动作表[j]);

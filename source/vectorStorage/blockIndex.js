@@ -25,6 +25,7 @@ export const 开始索引 = async () => {
         eventBus.emit('blockIndexerReady')
     }
     let 全块数组 = await 获取全块数组()
+    console.log(全块数组)
     let boxMap = 创建笔记本字典(全块数组);
     let { 总块数量, 总处理时长 } = await 处理所有笔记本数据(boxMap);
     打印索引完成信息(总块数量, 总处理时长);

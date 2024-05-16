@@ -102,9 +102,11 @@ export const 处理单个动作表 = (动作表) => {
             )
             try {
                 if (plugin.configurer.get('动作设置', '通过文件名过滤动作').$value) {
-                    let name =动作表.provider.replace(/_js$/, '')
+                    let name =动作表.provider&&动作表.provider.replace(/_js$/, '')
+                    if(name){
                     hintArray.push(name)
                     hintArray.push(plugin.utils.pinyin.getFullChars(name))
+                    }
                 }
                 if (plugin.configurer.get('动作设置', '通过标签文字过滤动作').$value) {
                     if (typeof 动作.label === 'string') {
@@ -180,6 +182,7 @@ export const generateBlockFilter = (动作) => {
 
                 }
             )
+
             return flag
         }
     }

@@ -32,7 +32,7 @@ let list = () => {
         [
             {
                 icon: '',
-                label: `标记为待索引`,
+                label: `标记当前块为待索引`,
                 hints: 'index,索引,矢量索引',
                 blockAction: async (context) => {
                     context.blocks.forEach(
@@ -44,8 +44,22 @@ let list = () => {
                             )
                         }
                     )
-                }
+                    await context.menu.menu.remove()
 
+                },
+                hintAction: async (context) => {
+                    context.blocks.forEach(
+                        block => {
+                            block.setAttributes(
+                                {
+                                    'custom-publish-vectorindex': "true"
+                                }
+                            )
+                        }
+                    )
+                    await context.menu.menu.remove()
+
+                }
             }
         ]
     )
